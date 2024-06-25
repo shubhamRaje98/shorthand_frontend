@@ -1,0 +1,45 @@
+/* src/components/StudentTable.css */
+
+.container {
+    max-width: 1200px;
+}
+
+.table {
+    margin-top: 20px;
+}
+
+th, td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.form-label {
+    font-weight: bold;
+}
+
+.btn {
+    padding: 10px 20px;
+}
+
+button:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.cell-red {
+    background-color: red !important;
+    color: white; /* Ensure the text is readable */
+    border: 1px solid #ccc; /* Add border for better visibility */
+}
+
+.cell-yellow {
+    background-color: yellow !important;
+    color: black; /* Ensure the text is readable */
+    border: 1px solid #ccc; /* Add border for better visibility */
+}
+
+.cell-green {
+    background-color: green !important;
+    color: white; /* Ensure the text is readable */
+    border: 1px solid #ccc; /* Add border for better visibility */
+}

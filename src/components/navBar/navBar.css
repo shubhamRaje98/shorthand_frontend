@@ -1,0 +1,30 @@
+/* NavBar.css */
+
+.navbar {
+    background-color: #f8f9fa; /* Light grey background */
+}
+
+.navbar-brand {
+    font-weight: bold;
+    color: #343a40; /* Dark text color */
+}
+
+.navbar-nav .nav-item .nav-link {
+    color: #343a40; /* Dark text color */
+}
+
+.navbar-nav .nav-item .nav-link:hover {
+    color: #007bff; /* Hover color */
+}
+
+.dropdown-menu {
+    background-color: #ffffff; /* White background for dropdown */
+}
+
+.dropdown-menu a.dropdown-item {
+    color: #343a40; /* Dark text color */
+}
+
+.navbar-toggler-icon {
+    background-color: #343a40; /* Toggler icon color */
+}
