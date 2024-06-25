@@ -44,13 +44,13 @@ const NavBar = () => {
                         </button>
                         {showDashboards && (
                             <div className="dropdown-menu show">
-                                <Link className="dropdown-item">Track Students Exam</Link>
+                                <Link to="/student-table" className="dropdown-item">Track Students Exam</Link>
                                 <Link className="dropdown-item">Centerwise Student Count</Link>
                             </div>
                         )}
                     </li>
                     <li className="nav-item">
-                        <Link className="nav-link">Controller-Password</Link>
+                        <Link to="/controller-password" className="nav-link">Controller-Password</Link>
                     </li>
                 </ul>
             </div>
