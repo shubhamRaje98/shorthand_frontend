@@ -12,7 +12,7 @@ const AttendanceDownload = () => {
             setLoading(true);
             setError('');
             try {
-                const response = await axios.get('http://shorthandonlineexam.in:3000/get-pdfs');
+                const response = await axios.get('http://localhost:3000/get-pdfs');
                 setData(response.data);
             } catch (error) {
                 console.error("Error fetching data:", error);

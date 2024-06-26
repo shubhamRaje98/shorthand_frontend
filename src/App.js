@@ -10,6 +10,7 @@ import AttendanceDownload from './components/attendanceDownload/attendanceDownlo
 import CenterwiseStudentCount from './components/centerwiseStudentExamCountTracking/centerwiseCountReport'
 import AbsenteeRoll  from './components/attendeeRoll/attendeeRoll';
 import ControllerPassword from './components/controllerPassword/controllerPassword';
+import FetchUpdateTable from './components/superAdmin/fetchUpdateTables';
 axios.defaults.withCredentials = true;
 const App = () => {
     return (
@@ -22,7 +23,7 @@ const App = () => {
                 <Route path='/centerwise-student-count' element={<CenterwiseStudentCount/>}/>
                 <Route path='/absentee-roll' element={<AbsenteeRoll/>}></Route>
                 <Route path="/controller-password" element={<ControllerPassword />} />
-                
+                <Route path="/fetch-update-table" element={<FetchUpdateTable/>}/>
             </Routes>
         </Router>
     );

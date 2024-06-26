@@ -33,7 +33,7 @@ const StudentTable = () => {
     };
 
     const handleFetch = () => {
-        let url = 'http://shorthandonlineexam.in:3000/track-students-on-exam-center-code';
+        let url = 'http://localhost:3000/track-students-on-exam-center-code';
         if (examCenterCode && batchNo) {
             url += `/${examCenterCode}/${batchNo}`;
         } else if (examCenterCode) {
