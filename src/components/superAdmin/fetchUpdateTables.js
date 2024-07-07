@@ -104,6 +104,13 @@ const FetchUpdateTable = () => {
           subjectId: subjectIdFilter
         }
       }
+      if(selectedTable === 'finalpassagesubmit'){
+        fetchParams = {
+          ...fetchParams,
+          student_id: studentIdFilter
+        }
+      }
+      //alert("student-id " + fetchParams.subjectId)
       
       const response = await axios.post('http://localhost:3000/fetch-update-tables', fetchParams);
 
