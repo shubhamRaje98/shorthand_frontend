@@ -34,12 +34,8 @@ const StudentTable = () => {
 
     const handleFetch = () => {
         let url = 'http://localhost:3000/track-students-on-exam-center-code';
-        if (examCenterCode && batchNo) {
-            url += `/${examCenterCode}/${batchNo}`;
-        } else if (examCenterCode) {
-            url += `/${examCenterCode}`;
-        } else if (batchNo) {
-            url += `/0/${batchNo}`;
+        if (batchNo) {
+            url += `/${batchNo}`;
         }
         fetchData(url);
     };
@@ -58,7 +54,7 @@ const StudentTable = () => {
     }, [handleFetch, updateInterval]);
 
     useEffect(() => {
-        handleFetch(); // Initial fetch when component mounts
+        handleFetch();
     }, []);
 
     const getCellClass = (value) => {
@@ -70,11 +66,11 @@ const StudentTable = () => {
         }
         const numValue = Number(value);
         if (isNaN(numValue)) return 'cell-red';
-        if (numValue === 0) return 'cell-red';
-        if (numValue > 0 && numValue < 100) {
+        if (numValue >= 0 && numValue <=10) return 'cell-red';
+        if (numValue > 10 && numValue <90) {
             return 'cell-yellow';
         }
-        if (numValue === 100) return 'cell-green';
+        if (numValue >= 90) return 'cell-green';
         return '';
     };
 
@@ -84,16 +80,7 @@ const StudentTable = () => {
             <div className="home-container">
                 <div className="container-fluid">
                     <div className="row mb-3">
-                        <div className="col-md-4">
-                            <label htmlFor="examCenterCode" className="form-label">Exam Center Code:</label>
-                            <input 
-                                type="text" 
-                                className="form-control" 
-                                id="examCenterCode" 
-                                value={examCenterCode} 
-                                onChange={(e) => setExamCenterCode(e.target.value)} 
-                            />
-                        </div>
+                        
                         <div className="col-md-4">
                             <label htmlFor="batchNo" className="form-label">Batch Number:</label>
                             <input 
@@ -126,7 +113,7 @@ const StudentTable = () => {
                                     <th>Audio Track B</th>
                                     <th>Passage B</th>
                                     <th>Feedback</th>
-                                    <th>Logout</th>
+                                    
                                 </tr>
                             </thead>
                             <tbody>
@@ -135,14 +122,14 @@ const StudentTable = () => {
                                         <td>{item.center}</td>
                                         <td>{item.batchNo}</td>
                                         <td>{item.student_id}</td>
-                                        <td className={getCellClass(item.login)}>{item.loginTime}</td>
+                                        <td>{item.loginTime}</td>
                                         <td className={getCellClass(item.trial)}>{formatDateTime(item.trial_time)}</td>
                                         <td className={getCellClass(item.passageA)}>{formatDateTime(item.audio1_time)}</td>
                                         <td>{formatDateTime(item.passage1_time)}</td>
                                         <td className={getCellClass(item.passageB)}>{formatDateTime(item.audio2_time)}</td>
                                         <td>{formatDateTime(item.passage2_time)}</td>
                                         <td>{formatDateTime(item.feedback_time)}</td>
-                                        <td>{formatDateTime(item.logout_time)}</td>
+                                        
                                     </tr>
                                 ))}
                             </tbody>

@@ -11,6 +11,8 @@ import CenterwiseStudentCount from './components/centerwiseStudentExamCountTrack
 import AbsenteeRoll  from './components/attendeeRoll/attendeeRoll';
 import ControllerPassword from './components/controllerPassword/controllerPassword';
 import FetchUpdateTable from './components/superAdmin/fetchUpdateTables';
+import PCRegistration from './components/pcRegistration/pcRegistration';
+
 axios.defaults.withCredentials = true;
 const App = () => {
     return (
@@ -24,6 +26,7 @@ const App = () => {
                 <Route path='/absentee-roll' element={<AbsenteeRoll/>}></Route>
                 <Route path="/controller-password" element={<ControllerPassword />} />
                 <Route path="/fetch-update-table" element={<FetchUpdateTable/>}/>
+                <Route path="/fetch-pc-registration" element={<PCRegistration/>}/>
             </Routes>
         </Router>
     );

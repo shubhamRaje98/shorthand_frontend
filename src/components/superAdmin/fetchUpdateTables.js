@@ -2,10 +2,27 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+const tableOptions = [
+  'students',
+  'admindb',
+  'aduiologs',
+  'batchdb',
+  'controllerdb',
+  'examcenterdb',
+  'feedbackdb',
+  'finalpassagesubmit',
+  'loginlogs',
+  'pcregistrations',
+  'studentlogs',
+  'subjectdb',
+  'textlogs'
+];
+
 const FetchUpdateTable = () => {
   const [data, setData] = useState([]);
   const [editingIndex, setEditingIndex] = useState(null);
   const [editingData, setEditingData] = useState({});
+  const [selectedTable, setSelectedTable] = useState(tableOptions[0]);
 
   useEffect(() => {
     fetchData();
@@ -32,10 +49,11 @@ const FetchUpdateTable = () => {
 
   const handleSave = async (index) => {
     try {
-      await axios.put(`http://localhost:3000/table/your_table_name/${editingData.student_id}`, editingData);
+      await axios.put(`http://localhost:3000/update-table/${selectedTable}/${editingData.student_id}`, editingData);
       const updatedData = [...data];
       updatedData[index] = editingData;
       setData(updatedData);
+      //console.log("Data after setting: "+editingData);
       setEditingIndex(null);
     } catch (error) {
       console.error('Error saving data:', error);
@@ -45,6 +63,21 @@ const FetchUpdateTable = () => {
   return (
     <div className="container mt-5">
       <h1 className="mb-4">Admin Panel</h1>
+      <div className="mb-3">
+        <label htmlFor="tableSelect" className="form-label">Select Table</label>
+        <select
+          id="tableSelect"
+          className="form-select"
+          value={selectedTable}
+          onChange={(e) => setSelectedTable(e.target.value)}
+        >
+          {tableOptions.map((table, index) => (
+            <option key={index} value={table}>
+              {table}
+            </option>
+          ))}
+        </select>
+      </div>
       <table className="table table-bordered">
         <thead className="thead-dark">
           <tr>
@@ -61,6 +94,8 @@ const FetchUpdateTable = () => {
             <th>Photo</th>
             <th>Reporting Time</th>
             <th>Start Time</th>
+            <th>End Time</th>
+            <th>Day</th>
             <th>Actions</th>
           </tr>
         </thead>

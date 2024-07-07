@@ -52,6 +52,9 @@ const NavBar = () => {
                     <li className="nav-item">
                         <Link to="/controller-password" className="nav-link">Controller-Password</Link>
                     </li>
+                    <li className="nav-item">
+                        <Link to="/fetch-pc-registration" className="nav-link">PC Registrations</Link>
+                    </li>
                 </ul>
             </div>
         </nav>
