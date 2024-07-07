@@ -104,7 +104,7 @@ const FetchUpdateTable = () => {
           subjectId: subjectIdFilter
         }
       }
-      alert(fetchParams.center);
+      
       const response = await axios.post('http://localhost:3000/fetch-update-tables', fetchParams);
 
       const fetchedData = response.data;
