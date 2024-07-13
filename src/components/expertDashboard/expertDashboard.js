@@ -1,60 +1,79 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './expertDash.css'; // Import the CSS file
+import { useNavigate, Outlet } from 'react-router-dom'; // Import the useNavigate hook
+// import FinalPassage from './finalPassageTextlog'; // Import the FinalStudentPassage component
 
 const ExpertDashboard = () => {
     const [expertDetails, setExpertDetails] = useState(null);
+    const [items, setItems] = useState([]);
+    const [selectedStudentId, setSelectedStudentId] = useState(null);
+    const navigate = useNavigate(); // Initialize the useNavigate hook
 
     useEffect(() => {
-        const fetchExpertDetails = async () => {
+        const fetchData = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/expert-details', {
-                    withCredentials: true
-                });
-                if (response.status === 200) {
-                    setExpertDetails(response.data);
+                const [expertResponse, itemsResponse] = await Promise.all([
+                    axios.get('http://localhost:3000/expert-details', { withCredentials: true }),
+                    axios.get('http://localhost:3000/expert-assignments', { withCredentials: true })
+                ]);
+
+                if (expertResponse.status === 200) {
+                    setExpertDetails(expertResponse.data);
+                }
+
+                if (itemsResponse.status === 200) {
+                    setItems(itemsResponse.data);
                 }
             } catch (err) {
-                console.error('Error fetching expert details:', err);
+                console.error('Error fetching data:', err);
             }
         };
 
-        fetchExpertDetails();
+        fetchData();
     }, []);
 
-    // Static content for demonstration purposes
-    const staticItems = [
-        { title: 'Item 1', description: 'Description for item 1' },
-        { title: 'Item 2', description: 'Description for item 2' },
-        { title: 'Item 3', description: 'Description for item 3' },
-        { title: 'Item 4', description: 'Description for item 4' },
-        { title: 'Item 5', description: 'Description for item 5' },
-        { title: 'Item 6', description: 'Description for item 6' },
-        { title: 'Item 7', description: 'Description for item 7' },
-    ];
+    const handleButtonClick = (studentId) => {
+        setSelectedStudentId(studentId);
+        navigate(`/expertDashboard/student-passages/${studentId}`); // Navigate with parameterized URL
+    };
+
+    const handleBackClick = () => {
+        setSelectedStudentId(null);
+    };
 
     return (
         <div className="dashboard-container">
             <div className="box">
+                {selectedStudentId && (
+                    <button className="back-button" onClick={handleBackClick}>Back</button>
+                )}
                 {expertDetails ? (
                     <div className="expert-details">
-                        <h4 className="expert-id">Expert ID: {expertDetails.expertId}</h4>
-                        <h4 className="expert-name">Expert Name: {expertDetails.expert_name}</h4>
+                        <h5 className="expert-id">Expert ID: {expertDetails.expertId}</h5>
+                        <h5 className="expert-name">Expert Name: {expertDetails.expert_name}</h5>
                     </div>
                 ) : (
                     <p>Loading...</p>
                 )}
             </div>
             <div className="box dynamic-content">
-                {staticItems.length > 0 ? (
-                    staticItems.map((item, index) => (
-                        <div key={index} className="item">
-                            <div className="item-title">{item.title}</div>
-                            <div className="item-description">{item.description}</div>
-                        </div>
-                    ))
+                {selectedStudentId ? (
+                    <Outlet />
                 ) : (
-                    <p>Loading items...</p>
+                    items.length > 0 ? (
+                        items.map((item, index) => (
+                            <button
+                                key={index}
+                                className={`item-button ${selectedStudentId === item.student_id ? 'selected' : ''}`}
+                                onClick={() => handleButtonClick(item.student_id)}
+                            >
+                                <div className="item-title">{item.student_id}</div>
+                            </button>
+                        ))
+                    ) : (
+                        <p>Loading items...</p>
+                    )
                 )}
             </div>
         </div>

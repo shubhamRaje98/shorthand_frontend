@@ -8,29 +8,33 @@ import ExpertLogin from './components/expertLogin/expertLogin';
 import StudentTable from './components/studentExamTracking/StudentTable';
 import Home from './components/Home/home';
 import ExpertDashboard from './components/expertDashboard/expertDashboard';
-import AttendanceDownload from './components/attendanceDownload/attendanceDownload'
-import CenterwiseStudentCount from './components/centerwiseStudentExamCountTracking/centerwiseCountReport'
-import AbsenteeRoll  from './components/attendeeRoll/attendeeRoll';
+import FinalPassageTextlog from './components/expertDashboard/finalPassageTextlog';
+import AttendanceDownload from './components/attendanceDownload/attendanceDownload';
+import CenterwiseStudentCount from './components/centerwiseStudentExamCountTracking/centerwiseCountReport';
+import AbsenteeRoll from './components/attendeeRoll/attendeeRoll';
 import ControllerPassword from './components/controllerPassword/controllerPassword';
 import FetchUpdateTable from './components/superAdmin/fetchUpdateTables';
 import PCRegistration from './components/pcRegistration/pcRegistration';
 
 axios.defaults.withCredentials = true;
+
 const App = () => {
     return (
         <Router>
             <Routes>
                 <Route path="/" element={<Login />} />
-                <Route path="/expert-login" element={<ExpertLogin/>}/>
+                <Route path="/expert-login" element={<ExpertLogin />} />
                 <Route path="/student-table" element={<StudentTable />} />
-                <Route path="/home" element={<Home/>} />
-                <Route path="/expertDashboard" element={<ExpertDashboard/>} />
-                <Route path="/attendance-download" element={<AttendanceDownload/>}/>
-                <Route path='/centerwise-student-count' element={<CenterwiseStudentCount/>}/>
-                <Route path='/absentee-roll' element={<AbsenteeRoll/>}></Route>
+                <Route path="/home" element={<Home />} />
+                <Route path="/expertDashboard" element={<ExpertDashboard />}>
+                    <Route path="student-passages/:studentId" element={<FinalPassageTextlog />} />
+                </Route>
+                <Route path="/attendance-download" element={<AttendanceDownload />} />
+                <Route path="/centerwise-student-count" element={<CenterwiseStudentCount />} />
+                <Route path="/absentee-roll" element={<AbsenteeRoll />} />
                 <Route path="/controller-password" element={<ControllerPassword />} />
-                <Route path="/fetch-update-table" element={<FetchUpdateTable/>}/>
-                <Route path="/fetch-pc-registration" element={<PCRegistration/>}/>
+                <Route path="/fetch-update-table" element={<FetchUpdateTable />} />
+                <Route path="/fetch-pc-registration" element={<PCRegistration />} />
             </Routes>
         </Router>
     );

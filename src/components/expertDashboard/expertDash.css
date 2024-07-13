@@ -15,11 +15,11 @@ body {
 .dashboard-container {
     display: grid;
     grid-template-columns: 1fr; /* One column that takes full width */
-    grid-template-rows: 1fr 3fr; /* First row takes 1/4th of available space, second row takes 3/4th */
-    gap: 20px; /* Space between grid items */
-    height: 80vh; /* Adjusted viewport height for better aesthetics */
-    width: 80vw; /* Adjusted viewport width for better aesthetics */
-    padding: 20px; /* Space inside the container */
+    grid-template-rows: 1fr 8fr; /* First row takes 1/4th of available space, second row takes 3/4th */
+    gap: 10px; /* Space between grid items */
+    height: 98vh;
+    width: 99vw;
+    padding: 10px; /* Space inside the container */
     box-sizing: border-box; /* Ensures padding and border are included in width/height */
     background-color: white;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for a modern look */
@@ -27,8 +27,9 @@ body {
 }
 
 .box {
+    position: relative; /* Position relative to enable absolute positioning of child elements */
     background-color: #e3f2fd; /* Light blue background for each box */
-    padding: 20px; /* Space inside each box */
+    padding: 10px; /* Space inside each box */
     text-align: center; /* Center aligns the text inside the box */
     border: 1px solid #90caf9; /* Border around each box */
     border-radius: 10px; /* Rounded corners for each box */
@@ -41,7 +42,7 @@ body {
 }
 
 .expert-id, .expert-name {
-    margin: 10px 0; /* Margin around each text element for spacing */
+    margin: 5px 0; /* Margin around each text element for spacing */
     color: #1976d2; /* Primary blue color for text */
 }
 
@@ -58,7 +59,7 @@ p {
     align-items: stretch; /* Ensure items take full width */
 }
 
-.item {
+.item-button {
     background-color: #ffffff; /* White background for each item */
     padding: 10px;
     margin-bottom: 10px; /* Space between items */
@@ -68,6 +69,12 @@ p {
     display: flex;
     flex-direction: column; /* Stack title and description vertically */
     align-items: flex-start; /* Align text to the left */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s ease; /* Smooth transition for background color */
+}
+
+.item-button:hover {
+    background-color: #e3f2fd; /* Light blue background on hover */
 }
 
 .item-title {
@@ -78,4 +85,15 @@ p {
 .item-description {
     font-weight: 400; /* Regular weight for the description */
     color: #555; /* Gray color for the description */
+}
+
+.back-button {
+    position: absolute; /* Position absolute to be placed relative to .box */
+    left: 10px; /* Left corner of the .box */
+    top: 10px; /* Top corner of the .box */
+    background-color: #f5f5f5;
+    border: 1px solid #ccc;
+    padding: 5px 10px;
+    border-radius: 10px;
+    cursor: pointer;
 }
