@@ -35,11 +35,12 @@ const ExpertDashboard = () => {
 
     const handleButtonClick = (studentId) => {
         setSelectedStudentId(studentId);
-        navigate(`/expertDashboard/student-passages/${studentId}`); // Navigate with parameterized URL
+        navigate(`/expertDashboard/student-passages/${studentId}`, {replace: true}); // Navigate with parameterized URL
     };
 
     const handleBackClick = () => {
         setSelectedStudentId(null);
+        navigate('/expertDashboard', {replace: true})
     };
 
     return (
