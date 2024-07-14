@@ -69,3 +69,18 @@
     border: 1px solid #ddd;
     border-radius: 0.2em;
 }
+
+.added {
+    background-color: #e6ffe6;
+    color: green;
+}
+
+.removed {
+    background-color: #ffe6e6;
+    color: red;
+    text-decoration: line-through;
+}
+
+.equal {
+    color: black;
+}
