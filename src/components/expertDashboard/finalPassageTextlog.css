@@ -84,3 +84,8 @@
 .equal {
     color: black;
 }
+
+.highlighted {
+    background-color: yellow;
+    font-weight: bold;
+  }

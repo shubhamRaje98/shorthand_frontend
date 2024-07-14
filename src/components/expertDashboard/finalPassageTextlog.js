@@ -71,7 +71,7 @@ const FinalPassageTextlog = () => {
         const newDiffs = diffWords(userAnswer, modelAnswer);
         setDiffs(newDiffs);
 
-        const newMistakes = getColoredWords(newDiffs);
+        const newMistakes = getColoredWords(modelAnswer, userAnswer);
         setMistakes(newMistakes);
     }, [activePassage, passages]);
 
@@ -79,42 +79,86 @@ const FinalPassageTextlog = () => {
         setActivePassage(passage);
     };
 
-    const getColoredWords = (diffs) => {
+    const getColoredWords = (modelAnswer, userAnswer) => {
         const missedWords = [];
         const extraAdded = [];
         const spellingMistakes = [];
-        const otherMistakes = [];
 
-        diffs.forEach(part => {
-            const words = part.value.split(/\s+/).filter(word => word.length > 0);
-            if (part.added) {
-                extraAdded.push(...words);
-            } else if (part.removed) {
-                missedWords.push(...words);
-            } else {
-                // Check for spelling mistakes (words that are partially equal)
-                words.forEach(word => {
-                    if (diffs.some(p => p.added && p.value.includes(word))) {
-                        spellingMistakes.push(word);
-                    }
-                });
+        const modelWords = modelAnswer.toLowerCase().match(/\b\w+\b/g) || [];
+        const userWords = userAnswer.toLowerCase().match(/\b\w+\b/g) || [];
+
+        const modelWordSet = new Set(modelWords);
+        const userWordSet = new Set(userWords);
+
+        // Find missed words
+        modelWords.forEach(word => {
+            if (!userWordSet.has(word)) {
+                missedWords.push(word);
             }
         });
 
-        // Other mistakes are words that are both added and removed
-        const allWords = new Set([...missedWords, ...extraAdded]);
-        allWords.forEach(word => {
-            if (missedWords.includes(word) && extraAdded.includes(word)) {
-                otherMistakes.push(word);
+        // Find extra added words
+        userWords.forEach(word => {
+            if (!modelWordSet.has(word)) {
+                // Check if it's a spelling mistake
+                const similarWord = findSimilarWord(word, modelWords);
+                if (similarWord) {
+                    spellingMistakes.push(`${word} (possibly meant: ${similarWord})`);
+                } else {
+                    extraAdded.push(word);
+                }
             }
         });
 
         return {
-            "Missed Words": missedWords.filter(w => !otherMistakes.includes(w)),
-            "Extra Added": extraAdded.filter(w => !otherMistakes.includes(w)),
-            "Spelling Mistakes": spellingMistakes,
-            "Other Mistakes": otherMistakes
+            "Missed Words": missedWords,
+            "Extra Added": extraAdded,
+            "Spelling Mistakes": spellingMistakes
         };
+    };
+
+    const findSimilarWord = (word, wordList) => {
+        for (let modelWord of wordList) {
+            if (calculateSimilarity(word, modelWord) >= 0.6) {
+                return modelWord;
+            }
+        }
+        return null;
+    };
+
+    const calculateSimilarity = (s1, s2) => {
+        const longer = s1.length > s2.length ? s1 : s2;
+        const shorter = s1.length > s2.length ? s2 : s1;
+        const longerLength = longer.length;
+        if (longerLength === 0) {
+            return 1.0;
+        }
+        return (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength);
+    };
+
+    const editDistance = (s1, s2) => {
+        s1 = s1.toLowerCase();
+        s2 = s2.toLowerCase();
+        const costs = [];
+        for (let i = 0; i <= s1.length; i++) {
+            let lastValue = i;
+            for (let j = 0; j <= s2.length; j++) {
+                if (i === 0) {
+                    costs[j] = j;
+                } else if (j > 0) {
+                    let newValue = costs[j - 1];
+                    if (s1.charAt(i - 1) !== s2.charAt(j - 1)) {
+                        newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+                    }
+                    costs[j - 1] = lastValue;
+                    lastValue = newValue;
+                }
+            }
+            if (i > 0) {
+                costs[s2.length] = lastValue;
+            }
+        }
+        return costs[s2.length];
     };
 
     return (
