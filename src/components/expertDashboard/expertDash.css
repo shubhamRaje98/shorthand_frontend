@@ -10,90 +10,93 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
+    font-size: 0.9em;
 }
 
 .dashboard-container {
     display: grid;
-    grid-template-columns: 1fr; /* One column that takes full width */
-    grid-template-rows: 1fr 8fr; /* First row takes 1/4th of available space, second row takes 3/4th */
-    gap: 10px; /* Space between grid items */
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 8fr;
+    gap: 0.5em;
     height: 98vh;
     width: 99vw;
-    padding: 10px; /* Space inside the container */
-    box-sizing: border-box; /* Ensures padding and border are included in width/height */
+    padding: 0.5em;
+    box-sizing: border-box;
     background-color: white;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for a modern look */
-    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 0.2em 0.4em rgba(0, 0, 0, 0.1);
+    border-radius: 0.5em;
 }
 
 .box {
-    position: relative; /* Position relative to enable absolute positioning of child elements */
-    background-color: #e3f2fd; /* Light blue background for each box */
-    padding: 10px; /* Space inside each box */
-    text-align: center; /* Center aligns the text inside the box */
-    border: 1px solid #90caf9; /* Border around each box */
-    border-radius: 10px; /* Rounded corners for each box */
-    width: 100%; /* Each box takes up the full width of its container */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for a modern look */
+    position: relative;
+    background-color: #e3f2fd;
+    padding: 0.5em;
+    text-align: center;
+    border: 1px solid #90caf9;
+    border-radius: 0.5em;
+    width: 100%;
+    box-shadow: 0 0.2em 0.4em rgba(0, 0, 0, 0.1);
 }
 
 .expert-details {
-    text-align: center; /* Align text to the center */
+    text-align: center;
 }
 
 .expert-id, .expert-name {
-    margin: 5px 0; /* Margin around each text element for spacing */
-    color: #1976d2; /* Primary blue color for text */
+    margin: 0.25em 0;
+    font-size: 17px;
+    color: #1976d2;
 }
 
 p {
-    color: #1976d2; /* Primary blue color for loading text */
+    color: #1976d2;
 }
 
 .dynamic-content {
-    overflow-y: auto; /* Enables vertical scrollbar */
-    max-height: 100%; /* Limits the max height of the content area */
-    width: 100%; /* Full width of the box */
-    display: flex; /* Use flexbox for layout */
-    flex-direction: column; /* Stack items vertically */
-    align-items: stretch; /* Ensure items take full width */
+    overflow-y: auto;
+    max-height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
 }
 
 .item-button {
-    background-color: #ffffff; /* White background for each item */
-    padding: 10px;
-    margin-bottom: 10px; /* Space between items */
-    border: 1px solid #90caf9; /* Border around each item */
-    border-radius: 5px; /* Rounded corners for each item */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for a modern look */
+    background-color: #ffffff;
+    padding: 0.5em;
+    margin-bottom: 0.5em;
+    border: 1px solid #90caf9;
+    border-radius: 0.25em;
+    box-shadow: 0 0.1em 0.2em rgba(0, 0, 0, 0.1);
     display: flex;
-    flex-direction: column; /* Stack title and description vertically */
-    align-items: flex-start; /* Align text to the left */
-    cursor: pointer; /* Pointer cursor on hover */
-    transition: background-color 0.3s ease; /* Smooth transition for background color */
+    flex-direction: column;
+    align-items: flex-start;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 .item-button:hover {
-    background-color: #e3f2fd; /* Light blue background on hover */
+    background-color: #e3f2fd;
 }
 
 .item-title {
-    font-weight: 500; /* Medium weight for the title */
-    color: #1976d2; /* Primary blue color for the title */
+    font-weight: 500;
+    color: #1976d2;
 }
 
 .item-description {
-    font-weight: 400; /* Regular weight for the description */
-    color: #555; /* Gray color for the description */
+    font-weight: 400;
+    color: #555;
 }
 
 .back-button {
-    position: absolute; /* Position absolute to be placed relative to .box */
-    left: 10px; /* Left corner of the .box */
-    top: 10px; /* Top corner of the .box */
+    position: absolute;
+    left: 0.5em;
+    top: 0.5em;
     background-color: #f5f5f5;
     border: 1px solid #ccc;
-    padding: 5px 10px;
-    border-radius: 10px;
+    padding: 0.25em 0.5em;
+    border-radius: 0.5em;
     cursor: pointer;
+    font-size: 0.9em;
 }

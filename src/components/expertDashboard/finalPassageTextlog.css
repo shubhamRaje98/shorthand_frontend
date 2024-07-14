@@ -1,39 +1,71 @@
 .final-passage-container {
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* Creates three equal columns */
-    gap: 10px; /* Space between grid items */
-    padding: 10px; /* Space inside the container */
-    background-color: #ffffff; /* White background for the container */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for a modern look */
-    border-radius: 10px; /* Rounded corners */
-    box-sizing: border-box; /* Ensures padding and border are included in width/height */
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5em;
+    padding: 0.5em;
+    background-color: #ffffff;
+    box-shadow: 0 0.2em 0.4em rgba(0, 0, 0, 0.1);
+    border-radius: 0.5em;
+    box-sizing: border-box;
+    font-size: 0.9em;
+}
+
+.passage-buttons {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: center;
+    gap: 0.5em;
+}
+
+.passage-button {
+    padding: 0.5em 1em;
+    font-size: 0.9em;
+    background-color: #e0e0e0;
+    border: none;
+    border-radius: 0.25em;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.passage-button:hover {
+    background-color: #d0d0d0;
+}
+
+.passage-button.active {
+    background-color: #1565c0;
+    color: white;
 }
 
 .grid-item {
-    background-color: hsl(205, 87%, 94%); /* Light blue background for each grid item */
-    padding: 20px; /* Space inside each grid item */
-    border: 1px solid #90caf9; /* Border around each grid item */
-    border-radius: 5px; /* Rounded corners for each grid item */
-    text-align: left; /* Align the content to the left */
-    overflow: hidden; /* Prevents content from overflowing */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for a modern look */
+    background-color: hsl(205, 87%, 94%);
+    padding: 0.5em;
+    border: 1px solid #90caf9;
+    border-radius: 0.25em;
+    text-align: left;
+    overflow: hidden;
+    box-shadow: 0 0.1em 0.2em rgba(0, 0, 0, 0.1);
+}
+
+.column-header {
+    font-size: 1em;
+    font-weight: bold;
+    margin-bottom: 0.5em;
+    color: #1565c0;
+    border-bottom: 1px solid #1565c0;
 }
 
 .preformatted-text {
-    white-space: pre-wrap; /* Preserves whitespace and allows wrapping */
-    word-wrap: break-word; /* Breaks long words to prevent overflow */
-    overflow-wrap: break-word; /* Ensures long words break and fit within the container */
-    text-align: left; /* Aligns text to the left for better readability */
-    font-family: 'Courier New', Courier, monospace; /* Use a monospace font for consistent spacing */
-    font-size: 14px; /* Adjust as needed */
-    line-height: 1.5; /* Improves readability */
-    max-width: 100%; /* Ensures the text doesn't overflow the container */
-    overflow-x: auto; /* Adds horizontal scrollbar if needed */
-    background-color: #f5f5f5; /* Light background for better visibility */
-    padding: 10px; /* Adds some padding around the text */
-    border: 1px solid #ddd; /* Adds a border for visual separation */
-    border-radius: 4px; /* Rounds the corners */
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    text-align: left;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.8em;
+    line-height: 1.4;
+    max-width: 100%;
+    overflow-x: auto;
+    background-color: #f5f5f5;
+    padding: 0.5em;
+    border: 1px solid #ddd;
+    border-radius: 0.2em;
 }
-
-
-
