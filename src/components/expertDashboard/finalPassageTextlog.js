@@ -37,7 +37,7 @@ const MistakesList = ({ mistakes }) => {
 };
 
 const FinalPassageTextlog = () => {
-    const { studentId } = useParams();
+    const { subjectId, qset } = useParams();
     const [passages, setPassages] = useState({ 
         passageA: '', 
         passageB: '', 
@@ -51,7 +51,7 @@ const FinalPassageTextlog = () => {
     useEffect(() => {
         const fetchPassages = async () => {
             try {
-                const response = await axios.get(`http://localhost:3000/student-passages/${studentId}`, { withCredentials: true });
+                const response = await axios.get(`http://localhost:3000/expert-assigned-passages/${subjectId}/${qset}`, { withCredentials: true });
                 if (response.status === 200) {
                     console.log("Raw data:", JSON.stringify(response.data));
                     setPassages(response.data);
@@ -62,7 +62,7 @@ const FinalPassageTextlog = () => {
         };
     
         fetchPassages();
-    }, [studentId]);
+    }, [subjectId, qset]);
 
     useEffect(() => {
         const modelAnswer = passages[`ansPassage${activePassage}`];

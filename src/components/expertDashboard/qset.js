@@ -1,4 +1,3 @@
-// qset.js
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -18,7 +17,7 @@ const QSet = () => {
         const response = await axios.get(`http://localhost:3000/qsets/${subjectId}`, { withCredentials: true });
         if (response.status === 200) {
           // Sort the QSets in ascending order
-          const sortedQSets = response.data.sort((a, b) => a.qset - b.qset);
+          const sortedQSets = response.data.sort((a, b) => a - b);
           setQsets(sortedQSets);
         }
       } catch (err) {
@@ -31,9 +30,17 @@ const QSet = () => {
     fetchQSets();
   }, [subjectId]);
 
-  const handleQSetClick = (qset) => {
-    setSelectedQSet(qset);
-    navigate(`/expertDashboard/${subjectId}/${qset}`);
+  const handleQSetClick = async (qset) => {
+    try {
+      const response = await axios.post(`http://localhost:3000/assignStudent/${subjectId}/${qset}`, {}, { withCredentials: true });
+      if (response.status === 200) {
+        setSelectedQSet(qset);
+        navigate(`/expertDashboard/${subjectId}/${qset}`);
+      }
+    } catch (err) {
+      console.error('Error assigning student for QSet:', err);
+      // Handle error (e.g., show an error message to the user)
+    }
   };
 
   if (loading) {
@@ -46,13 +53,13 @@ const QSet = () => {
 
   return (
     <>
-      {qsets.map((qsetObj) => (
+      {qsets.map((qset) => (
         <button
-          key={qsetObj.qset}
-          className={`item-button ${selectedQSet === qsetObj.qset ? 'selected' : ''}`}
-          onClick={() => handleQSetClick(qsetObj.qset)}
+          key={qset}
+          className={`item-button ${selectedQSet === qset ? 'selected' : ''}`}
+          onClick={() => handleQSetClick(qset)}
         >
-          <div className="item-title">QSet: {qsetObj.qset}</div>
+          <div className="item-title">QSet: {qset}</div>
         </button>
       ))}
     </>
