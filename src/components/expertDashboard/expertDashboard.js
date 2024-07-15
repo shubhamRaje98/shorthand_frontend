@@ -1,29 +1,30 @@
+// expertDashboard.js
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import './expertDash.css'; // Import the CSS file
-import { useNavigate, Outlet } from 'react-router-dom'; // Import the useNavigate hook
-// import FinalPassage from './finalPassageTextlog'; // Import the FinalStudentPassage component
+import './expertDash.css';
+import { useNavigate, Outlet, useParams } from 'react-router-dom';
 
 const ExpertDashboard = () => {
     const [expertDetails, setExpertDetails] = useState(null);
-    const [items, setItems] = useState([]);
-    const [selectedStudentId, setSelectedStudentId] = useState(null);
-    const navigate = useNavigate(); // Initialize the useNavigate hook
+    const [subjects, setSubjects] = useState([]);
+    const [selectedSubject, setSelectedSubject] = useState(null);
+    const navigate = useNavigate();
+    const { subjectId } = useParams();
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [expertResponse, itemsResponse] = await Promise.all([
+                const [expertResponse, subjectsResponse] = await Promise.all([
                     axios.get('http://localhost:3000/expert-details', { withCredentials: true }),
-                    axios.get('http://localhost:3000/expert-assignments', { withCredentials: true })
+                    axios.get('http://localhost:3000/all-subjects', { withCredentials: true })
                 ]);
 
                 if (expertResponse.status === 200) {
                     setExpertDetails(expertResponse.data);
                 }
 
-                if (itemsResponse.status === 200) {
-                    setItems(itemsResponse.data);
+                if (subjectsResponse.status === 200) {
+                    setSubjects(subjectsResponse.data);
                 }
             } catch (err) {
                 console.error('Error fetching data:', err);
@@ -33,20 +34,26 @@ const ExpertDashboard = () => {
         fetchData();
     }, []);
 
-    const handleButtonClick = (studentId) => {
-        setSelectedStudentId(studentId);
-        navigate(`/expertDashboard/student-passages/${studentId}`, {replace: true}); // Navigate with parameterized URL
+    useEffect(() => {
+        if (subjectId) {
+            setSelectedSubject(subjectId);
+        }
+    }, [subjectId]);
+
+    const handleSubjectClick = (subjectId) => {
+        setSelectedSubject(subjectId);
+        navigate(`/expertDashboard/${subjectId}`, {replace: true});
     };
 
     const handleBackClick = () => {
-        setSelectedStudentId(null);
-        navigate('/expertDashboard', {replace: true})
+        setSelectedSubject(null);
+        navigate('/expertDashboard', {replace: true});
     };
 
     return (
         <div className="dashboard-container">
             <div className="box">
-                {selectedStudentId && (
+                {selectedSubject && (
                     <button className="back-button" onClick={handleBackClick}>Back</button>
                 )}
                 {expertDetails ? (
@@ -59,17 +66,17 @@ const ExpertDashboard = () => {
                 )}
             </div>
             <div className="box dynamic-content">
-                {selectedStudentId ? (
+                {selectedSubject ? (
                     <Outlet />
                 ) : (
-                    items.length > 0 ? (
-                        items.map((item, index) => (
+                    subjects.length > 0 ? (
+                        subjects.map((subject) => (
                             <button
-                                key={index}
-                                className={`item-button ${selectedStudentId === item.student_id ? 'selected' : ''}`}
-                                onClick={() => handleButtonClick(item.student_id)}
+                                key={subject.subjectId}
+                                className={`item-button ${selectedSubject === subject.subjectId ? 'selected' : ''}`}
+                                onClick={() => handleSubjectClick(subject.subjectId)}
                             >
-                                <div className="item-title">{item.student_id}</div>
+                                <div className="item-title">{subject.subject_name}</div>
                             </button>
                         ))
                     ) : (

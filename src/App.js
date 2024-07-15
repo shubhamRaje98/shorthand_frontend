@@ -9,6 +9,7 @@ import StudentTable from './components/studentExamTracking/StudentTable';
 import Home from './components/Home/home';
 import ExpertDashboard from './components/expertDashboard/expertDashboard';
 import FinalPassageTextlog from './components/expertDashboard/finalPassageTextlog';
+import QSet from './components/expertDashboard/qset';
 import AttendanceDownload from './components/attendanceDownload/attendanceDownload';
 import CenterwiseStudentCount from './components/centerwiseStudentExamCountTracking/centerwiseCountReport';
 import AbsenteeRoll from './components/attendeeRoll/attendeeRoll';
@@ -22,12 +23,13 @@ const App = () => {
     return (
         <Router>
             <Routes>
-                <Route path="/" element={<Login />} />
+            <Route path="/" element={<Login />} />
                 <Route path="/expert-login" element={<ExpertLogin />} />
                 <Route path="/student-table" element={<StudentTable />} />
                 <Route path="/home" element={<Home />} />
                 <Route path="/expertDashboard" element={<ExpertDashboard />}>
-                    <Route path="student-passages/:studentId" element={<FinalPassageTextlog />} />
+                    <Route path=":subjectId" element={<QSet />} />
+                    <Route path=":subjectId/:qset" element={<FinalPassageTextlog />} />
                 </Route>
                 <Route path="/attendance-download" element={<AttendanceDownload />} />
                 <Route path="/centerwise-student-count" element={<CenterwiseStudentCount />} />
