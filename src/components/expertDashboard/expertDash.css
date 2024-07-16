@@ -1,41 +1,29 @@
 /* expertDash.css */
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
-
-body {
-    font-family: 'Roboto', sans-serif;
-    background-color: #f4f4f9;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    font-size: 0.9em;
-}
-
 .dashboard-container {
     display: grid;
     grid-template-columns: 1fr;
     grid-template-rows: auto 1fr;
-    gap: 0.5em;
+    gap: 1rem;
     height: 98vh;
     width: 99vw;
-    padding: 0.5em;
+    padding: 1rem;
     box-sizing: border-box;
-    background-color: white;
-    box-shadow: 0 0.2em 0.4em rgba(0, 0, 0, 0.1);
-    border-radius: 0.5em;
+    background-color: #ffffff;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    border-radius: 0.5rem;
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.9rem;
 }
 
 .box {
     position: relative;
-    background-color: #e3f2fd;
-    padding: 0.5em;
+    background-color: #f8f9fa;
+    padding: 1rem;
     text-align: center;
-    border: 1px solid #90caf9;
-    border-radius: 0.5em;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
     width: 100%;
-    box-shadow: 0 0.2em 0.4em rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0.1rem 0.25rem rgba(0, 0, 0, 0.05);
 }
 
 .expert-details {
@@ -43,13 +31,13 @@ body {
 }
 
 .expert-id, .expert-name {
-    margin: 0.25em 0;
-    font-size: 17px;
-    color: #1976d2;
+    margin: 0.5rem 0;
+    font-size: 1.1rem;
+    color: #007bff;
 }
 
 p {
-    color: #1976d2;
+    color: #495057;
 }
 
 .dynamic-content {
@@ -63,7 +51,7 @@ p {
 .languages-container {
     display: flex;
     flex-direction: column;
-    gap: 1em;
+    gap: 1.5rem;
     max-width: 1200px;
     width: 100%;
 }
@@ -75,84 +63,90 @@ p {
 }
 
 .language-title {
-    color: #1976d2;
-    margin-bottom: 1.5em;
-    margin-top: 1.5em;
-    font-size: 1.2em;
+    color: #007bff;
+    margin: 0.5rem 0;
+    font-size: 1.2rem;
     text-align: center;
+    font-weight: 500;
 }
 
 .subjects-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 0.5em;
+    gap: 1rem;
     width: 100%;
     justify-content: center;
 }
 
 .item-button {
     background-color: #ffffff;
-    padding: 0.5em;
-    border: 1px solid #90caf9;
-    border-radius: 0.25em;
-    box-shadow: 0 0.1em 0.2em rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    box-shadow: 0 0.1rem 0.25rem rgba(0, 0, 0, 0.05);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
     height: 100%;
     text-align: center;
 }
 
 .item-button:hover {
-    background-color: #e3f2fd;
+    background-color: #f8f9fa;
+    transform: translateY(-2px);
+    box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.1);
 }
 
 .item-title {
     font-weight: 500;
-    color: #1976d2;
+    color: #007bff;
 }
 
 .item-count {
-    font-size: 0.8em;
-    color: #666;
-    margin-top: 5px;
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-top: 0.5rem;
 }
 
 .back-button {
     position: absolute;
-    left: 0.5em;
-    top: 0.5em;
-    background-color: #f5f5f5;
-    border: 1px solid #ccc;
-    padding: 0.25em 0.5em;
-    border-radius: 0.5em;
+    left: 1rem;
+    top: 1rem;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
     cursor: pointer;
-    font-size: 0.9em;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
 }
 
+.back-button:hover {
+    background-color: #e9ecef;
+}
 
 /* Styles specific to QSet component */
 .qset-container {
     display: flex;
-    flex-wrap: nowrap; /* Prevent wrapping to next line */
-    gap: 0.5em;
-    justify-content: center; /* Center the buttons horizontally */
-    align-items: stretch; /* Stretch items vertically */
-    height: 100%; /* Take full height of parent */
-    padding: 1em;
-  }
-  
-  .qset-container .item-button {
-    flex: 1; /* Distribute available space equally */
-    max-width: none; /* Remove max-width constraint */
-    height: fit-content; /* Allow height to adjust based on content */
+    flex-wrap: nowrap;
+    gap: 1rem;
+    justify-content: center;
+    align-items: stretch;
+    height: 100%;
+    padding: 1rem;
+}
+
+.qset-container .item-button {
+    flex: 1;
+    max-width: none;
+    height: fit-content;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 1em;
-    margin: 0; /* Remove margin */
-  }
+    padding: 1rem;
+    margin: 0;
+}
