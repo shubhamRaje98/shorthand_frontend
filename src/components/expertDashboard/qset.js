@@ -17,7 +17,7 @@ const QSet = () => {
         const response = await axios.get(`http://localhost:3000/qsets/${subjectId}`, { withCredentials: true });
         if (response.status === 200) {
           // Sort the QSets in ascending order
-          const sortedQSets = response.data.sort((a, b) => a - b);
+          const sortedQSets = response.data.sort((a, b) => a.qset - b.qset);
           setQsets(sortedQSets);
         }
       } catch (err) {
@@ -53,13 +53,14 @@ const QSet = () => {
 
   return (
     <>
-      {qsets.map((qset) => (
+      {qsets.map((qsetObj) => (
         <button
-          key={qset}
-          className={`item-button ${selectedQSet === qset ? 'selected' : ''}`}
-          onClick={() => handleQSetClick(qset)}
+          key={qsetObj.qset}
+          className={`item-button ${selectedQSet === qsetObj.qset ? 'selected' : ''}`}
+          onClick={() => handleQSetClick(qsetObj.qset)}
         >
-          <div className="item-title">QSet: {qset}</div>
+          <div className="item-title">QSet: {qsetObj.qset}</div>
+          <div className="item-count">Students: {qsetObj.student_count}</div>
         </button>
       ))}
     </>

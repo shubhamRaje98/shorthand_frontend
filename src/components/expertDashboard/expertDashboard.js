@@ -77,6 +77,7 @@ const ExpertDashboard = () => {
                                 onClick={() => handleSubjectClick(subject.subjectId)}
                             >
                                 <div className="item-title">{subject.subject_name}</div>
+                                <div className="item-count">Students: {subject.student_count}</div>
                             </button>
                         ))
                     ) : (

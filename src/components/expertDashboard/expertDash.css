@@ -89,6 +89,12 @@ p {
     color: #555;
 }
 
+.item-count {
+    font-size: 0.8em;
+    color: #666;
+    margin-top: 5px;
+}
+
 .back-button {
     position: absolute;
     left: 0.5em;
