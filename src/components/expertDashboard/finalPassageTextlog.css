@@ -3,9 +3,9 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 0.75rem;
-    background-color: #f8f9fa;
+    /* background-color: #f8f9fa; */
     border-radius: 0.5rem;
-    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.05);
+    /* box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.05); */
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: #333;
     font-size: 0.9rem;
@@ -87,7 +87,6 @@
 .mistakes-list h3 {
     font-size: 0.9rem;
     color: #495057;
-    margin-top: 0.75rem;
     margin-bottom: 0.25rem;
 }
 
@@ -118,4 +117,35 @@
 .highlighted {
     background-color: #fef3c7;
     font-weight: 600;
+}
+
+/* Modern and aesthetic scrollbar styles */
+.preformatted-text::-webkit-scrollbar,
+.mistakes-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.preformatted-text::-webkit-scrollbar-track,
+.mistakes-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.preformatted-text::-webkit-scrollbar-thumb,
+.mistakes-list::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+.preformatted-text::-webkit-scrollbar-thumb:hover,
+.mistakes-list::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* For Firefox */
+.preformatted-text,
+.mistakes-list {
+    scrollbar-width: thin;
+    scrollbar-color: #c1c1c1 #f1f1f1;
 }
