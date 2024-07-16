@@ -24,7 +24,26 @@ const ExpertDashboard = () => {
                 }
 
                 if (subjectsResponse.status === 200) {
-                    setSubjects(subjectsResponse.data);
+                    // Group subjects by language and sort by speed
+                    const groupedSubjects = subjectsResponse.data.reduce((acc, subject) => {
+                        const [language] = subject.subject_name.split(' ');
+                        if (!acc[language]) {
+                            acc[language] = [];
+                        }
+                        acc[language].push(subject);
+                        return acc;
+                    }, {});
+
+                    // Sort each language group by speed
+                    Object.keys(groupedSubjects).forEach(language => {
+                        groupedSubjects[language].sort((a, b) => {
+                            const speedA = parseInt(a.subject_name.match(/\d+/)[0]);
+                            const speedB = parseInt(b.subject_name.match(/\d+/)[0]);
+                            return speedA - speedB;
+                        });
+                    });
+
+                    setSubjects(groupedSubjects);
                 }
             } catch (err) {
                 console.error('Error fetching data:', err);
@@ -69,17 +88,26 @@ const ExpertDashboard = () => {
                 {selectedSubject ? (
                     <Outlet />
                 ) : (
-                    subjects.length > 0 ? (
-                        subjects.map((subject) => (
-                            <button
-                                key={subject.subjectId}
-                                className={`item-button ${selectedSubject === subject.subjectId ? 'selected' : ''}`}
-                                onClick={() => handleSubjectClick(subject.subjectId)}
-                            >
-                                <div className="item-title">{subject.subject_name}</div>
-                                <div className="item-count">Students: {subject.student_count}</div>
-                            </button>
-                        ))
+                    Object.keys(subjects).length > 0 ? (
+                        <div className="languages-container">
+                            {Object.entries(subjects).map(([language, languageSubjects]) => (
+                                <div key={language} className="language-group">
+                                    <h3 className="language-title">{language} Shorthand</h3>
+                                    <div className="subjects-grid">
+                                        {languageSubjects.map((subject) => (
+                                            <button
+                                                key={subject.subjectId}
+                                                className={`item-button ${selectedSubject === subject.subjectId ? 'selected' : ''}`}
+                                                onClick={() => handleSubjectClick(subject.subjectId)}
+                                            >
+                                                <div className="item-title">{subject.subject_name}</div>
+                                                <div className="item-count">Students: {subject.student_count}</div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     ) : (
                         <p>Loading items...</p>
                     )

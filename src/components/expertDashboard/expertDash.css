@@ -1,4 +1,4 @@
-/* Import Google Fonts */
+/* expertDash.css */
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 
 body {
@@ -16,7 +16,7 @@ body {
 .dashboard-container {
     display: grid;
     grid-template-columns: 1fr;
-    grid-template-rows: 1fr 8fr;
+    grid-template-rows: auto 1fr;
     gap: 0.5em;
     height: 98vh;
     width: 99vw;
@@ -57,22 +57,53 @@ p {
     max-height: 100%;
     width: 100%;
     display: flex;
+    justify-content: center;
+}
+
+.languages-container {
+    display: flex;
     flex-direction: column;
-    align-items: stretch;
+    gap: 1em;
+    max-width: 1200px;
+    width: 100%;
+}
+
+.language-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.language-title {
+    color: #1976d2;
+    margin-bottom: 1.5em;
+    margin-top: 1.5em;
+    font-size: 1.2em;
+    text-align: center;
+}
+
+.subjects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.5em;
+    width: 100%;
+    justify-content: center;
 }
 
 .item-button {
     background-color: #ffffff;
     padding: 0.5em;
-    margin-bottom: 0.5em;
     border: 1px solid #90caf9;
     border-radius: 0.25em;
     box-shadow: 0 0.1em 0.2em rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    height: 100%;
+    text-align: center;
 }
 
 .item-button:hover {
@@ -82,11 +113,6 @@ p {
 .item-title {
     font-weight: 500;
     color: #1976d2;
-}
-
-.item-description {
-    font-weight: 400;
-    color: #555;
 }
 
 .item-count {
@@ -106,3 +132,27 @@ p {
     cursor: pointer;
     font-size: 0.9em;
 }
+
+
+/* Styles specific to QSet component */
+.qset-container {
+    display: flex;
+    flex-wrap: nowrap; /* Prevent wrapping to next line */
+    gap: 0.5em;
+    justify-content: center; /* Center the buttons horizontally */
+    align-items: stretch; /* Stretch items vertically */
+    height: 100%; /* Take full height of parent */
+    padding: 1em;
+  }
+  
+  .qset-container .item-button {
+    flex: 1; /* Distribute available space equally */
+    max-width: none; /* Remove max-width constraint */
+    height: fit-content; /* Allow height to adjust based on content */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 1em;
+    margin: 0; /* Remove margin */
+  }

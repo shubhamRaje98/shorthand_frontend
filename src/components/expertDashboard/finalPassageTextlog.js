@@ -1,3 +1,4 @@
+//finalPassageTextlog.js
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { diffWords } from 'diff';
@@ -161,6 +162,23 @@ const FinalPassageTextlog = () => {
         return costs[s2.length];
     };
 
+    const MistakesList = ({ mistakes }) => {
+        return (
+          <div className="mistakes-list">
+            {Object.entries(mistakes).map(([category, words]) => (
+              <div key={category}>
+                <h3>{category}</h3>
+                <ul>
+                  {words.map((word, index) => (
+                    <li key={index}>{word}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        );
+      };
+
     return (
         <div className="final-passage-container">
             <div className="passage-buttons">
@@ -177,18 +195,18 @@ const FinalPassageTextlog = () => {
                     Passage B
                 </button>
             </div>
-            <div className="grid-item">
-                <h2 className="column-header">Model Answer</h2>
-                <pre className="preformatted-text">{passages[`ansPassage${activePassage}`]}</pre>
-            </div>
-            <div className="grid-item">
-                <h2 className="column-header">Answer Passage</h2>
-                <ColoredText diffs={diffs} />
-            </div>
-            <div className="grid-item">
-                <h2 className="column-header">Mistakes</h2>
-                <MistakesList mistakes={mistakes} />
-            </div>
+                <div className="grid-item">
+                    <h2 className="column-header">Model Answer</h2>
+                    <pre className="preformatted-text">{passages[`ansPassage${activePassage}`]}</pre>
+                </div>
+                <div className="grid-item">
+                    <h2 className="column-header">Answer Passage</h2>
+                    <ColoredText diffs={diffs} />
+                </div>
+                <div className="grid-item">
+                    <h2 className="column-header">Mistakes</h2>
+                    <MistakesList mistakes={mistakes} />
+                </div>
         </div>
     );
 };

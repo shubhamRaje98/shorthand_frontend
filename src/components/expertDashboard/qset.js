@@ -52,7 +52,7 @@ const QSet = () => {
   }
 
   return (
-    <>
+    <div className="qset-container">
       {qsets.map((qsetObj) => (
         <button
           key={qsetObj.qset}
@@ -63,7 +63,7 @@ const QSet = () => {
           <div className="item-count">Students: {qsetObj.student_count}</div>
         </button>
       ))}
-    </>
+    </div>
   );
 };
 
