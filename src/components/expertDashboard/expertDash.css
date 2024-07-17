@@ -30,10 +30,14 @@
     text-align: center;
 }
 
-.expert-id, .expert-name {
+.expert-id, .expert-name, .selected-subject {
     margin: 0.5rem 0;
     font-size: 1.1rem;
     color: #007bff;
+}
+
+.selected-subject {
+    color: #28a745;  /* Green color for the selected subject */
 }
 
 p {
@@ -149,6 +153,32 @@ p {
     align-items: center;
     padding: 1rem;
     margin: 0;
+}
+
+.selected-qset {
+    position: absolute;
+    top: 0.6rem;
+    right: 2rem;
+    margin: 0;
+    font-size: 1.1rem;
+    color: #dc3545; /* Red color for the selected QSet */
+    background-color: #fff;
+    padding: 0.3rem 0.6rem;
+    border-radius: 0.25rem;
+    box-shadow: 0 0.1rem 0.25rem rgba(0, 0, 0, 0.1);
+}
+
+.qset-student-count {
+    position: absolute;
+    top: 2.8rem; /* Adjusted to position below the selected-qset */
+    right: 0.6rem;
+    margin: 0;
+    padding: 0.3rem 0.6rem;
+    background-color: #f0f0f0;
+    border-radius: 0.25rem;
+    font-size: 1.1rem;
+    color: #0e1d42; /* Green color for student count */
+    box-shadow: 0 0.1rem 0.25rem rgba(0, 0, 0, 0.1);
 }
 
 /* Modern and aesthetic scrollbar styles */

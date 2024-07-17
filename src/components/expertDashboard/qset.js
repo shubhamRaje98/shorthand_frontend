@@ -1,13 +1,13 @@
+// qset.js
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import './expertDash.css';
 
-const QSet = () => {
+const QSet = ({ subjectId, onQSetSelect }) => {
   const [qsets, setQsets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedQSet, setSelectedQSet] = useState(null);
-  const { subjectId } = useParams();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -16,7 +16,6 @@ const QSet = () => {
         setLoading(true);
         const response = await axios.get(`http://localhost:3000/qsets/${subjectId}`, { withCredentials: true });
         if (response.status === 200) {
-          // Sort the QSets in ascending order
           const sortedQSets = response.data.sort((a, b) => a.qset - b.qset);
           setQsets(sortedQSets);
         }
@@ -30,16 +29,16 @@ const QSet = () => {
     fetchQSets();
   }, [subjectId]);
 
-  const handleQSetClick = async (qset) => {
+  const handleQSetClick = async (qset, studentCount) => {
     try {
       const response = await axios.post(`http://localhost:3000/assignStudent/${subjectId}/${qset}`, {}, { withCredentials: true });
       if (response.status === 200) {
         setSelectedQSet(qset);
+        onQSetSelect(qset, studentCount);
         navigate(`/expertDashboard/${subjectId}/${qset}`);
       }
     } catch (err) {
       console.error('Error assigning student for QSet:', err);
-      // Handle error (e.g., show an error message to the user)
     }
   };
 
@@ -57,7 +56,7 @@ const QSet = () => {
         <button
           key={qsetObj.qset}
           className={`item-button ${selectedQSet === qsetObj.qset ? 'selected' : ''}`}
-          onClick={() => handleQSetClick(qsetObj.qset)}
+          onClick={() => handleQSetClick(qsetObj.qset, qsetObj.student_count)}
         >
           <div className="item-title">QSet: {qsetObj.qset}</div>
           <div className="item-count">Students: {qsetObj.student_count}</div>
