@@ -20,6 +20,63 @@ const ColoredText = ({ diffs }) => {
   );
 };
 
+const MistakesList = ({ mistakes, onIgnore, onUndo, fontSize }) => {
+  const [ignoredWords, setIgnoredWords] = useState({});
+
+  const handleIgnore = (category, index) => {
+    setIgnoredWords(prev => ({
+      ...prev,
+      [category]: { ...(prev[category] || {}), [index]: true }
+    }));
+    // onIgnore(category, index);
+  };
+
+  const handleUndo = (category, index) => {
+    setIgnoredWords(prev => ({
+      ...prev,
+      [category]: { ...(prev[category] || {}), [index]: false }
+    }));
+    // onUndo(category, index);
+  };
+
+  return (
+    <div className="mistakes-list" style={{ fontSize: `${fontSize}px` }}>
+      {Object.entries(mistakes).map(([category, words]) => (
+        <div key={category}>
+          <h3 style={{ fontSize: `${fontSize * 1.2}px` }}>{category}</h3>
+          <ul>
+            {words.map((word, index) => (
+              <li key={index}>
+                <div className="word-actions">
+                  <button 
+                    className="action-button ignore-button" 
+                    title="Ignore"
+                    onClick={() => handleIgnore(category, index)}
+                    style={{ fontSize: `${fontSize * 0.8}px` }}
+                  >
+                    <i className="fas fa-eye-slash"></i>
+                  </button>
+                  <button 
+                    className="action-button undo-button" 
+                    title="Undo"
+                    onClick={() => handleUndo(category, index)}
+                    style={{ fontSize: `${fontSize * 0.8}px` }}
+                  >
+                    <i className="fas fa-undo"></i>
+                  </button>
+                </div>
+                <span className={`mistake-word ${ignoredWords[category]?.[index] ? 'ignored' : ''}`}>
+                  {word}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 const FinalPassageTextlog = () => {
     const { subjectId, qset } = useParams();
     const [passages, setPassages] = useState({ 
@@ -64,12 +121,14 @@ const FinalPassageTextlog = () => {
     useEffect(() => {
         const modelAnswer = passages[`ansPassage${activePassage}`];
         const userAnswer = passages[`passage${activePassage}`];
+        sendActivePassageData();
         
         const newDiffs = diffWords(userAnswer, modelAnswer);
         setDiffs(newDiffs);
 
         const newMistakes = getColoredWords(modelAnswer, userAnswer);
         setMistakes(newMistakes);
+        
     }, [activePassage, passages]);
 
     useEffect(() => {
@@ -243,63 +302,6 @@ const FinalPassageTextlog = () => {
           }
       }
       return costs[s2.length];
-    };
-    
-    const MistakesList = ({ mistakes, onIgnore, onUndo, fontSize }) => {
-      const [ignoredWords, setIgnoredWords] = useState({});
-    
-      const handleIgnore = (category, index) => {
-        setIgnoredWords(prev => ({
-          ...prev,
-          [category]: { ...(prev[category] || {}), [index]: true }
-        }));
-        // onIgnore(category, index);
-      };
-    
-      const handleUndo = (category, index) => {
-        setIgnoredWords(prev => ({
-          ...prev,
-          [category]: { ...(prev[category] || {}), [index]: false }
-        }));
-        // onUndo(category, index);
-      };
-    
-      return (
-        <div className="mistakes-list" style={{ fontSize: `${fontSize}px` }}>
-          {Object.entries(mistakes).map(([category, words]) => (
-            <div key={category}>
-              <h3 style={{ fontSize: `${fontSize * 1.2}px` }}>{category}</h3>
-              <ul>
-                {words.map((word, index) => (
-                  <li key={index}>
-                    <div className="word-actions">
-                      <button 
-                        className="action-button ignore-button" 
-                        title="Ignore"
-                        onClick={() => handleIgnore(category, index)}
-                        style={{ fontSize: `${fontSize * 0.8}px` }}
-                      >
-                        <i className="fas fa-eye-slash"></i>
-                      </button>
-                      <button 
-                        className="action-button undo-button" 
-                        title="Undo"
-                        onClick={() => handleUndo(category, index)}
-                        style={{ fontSize: `${fontSize * 0.8}px` }}
-                      >
-                        <i className="fas fa-undo"></i>
-                      </button>
-                    </div>
-                    <span className={`mistake-word ${ignoredWords[category]?.[index] ? 'ignored' : ''}`}>
-                      {word}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      );
     };
 
     return (
