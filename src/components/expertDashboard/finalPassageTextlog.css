@@ -2,7 +2,7 @@
 .final-passage-container {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 0.75rem;
+    gap: 0.6rem;
     /* background-color: #f8f9fa; */
     border-radius: 0.5rem;
     /* box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.05); */
@@ -77,11 +77,13 @@
     border: 1px solid #e9ecef;
 }
 
-.preformatted-text {
+pre.preformatted-text {
     font-family: 'Courier New', Courier, monospace;
     white-space: pre-wrap;
     word-wrap: break-word;
     text-align: left;
+    margin: 0;
+
 }
 
 .mistakes-list h3 {
@@ -96,9 +98,44 @@
 }
 
 .mistakes-list li {
-    margin-bottom: 0.2rem;
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.4rem;
 }
 
+.word-actions {
+    display: flex;
+    margin-right: 0.5rem;
+  }
+  
+  .action-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.2rem;
+    font-size: 0.8rem;
+    color: #6c757d;
+    transition: color 0.3s ease;
+  }
+  
+  .action-button:hover {
+    color: #007bff;
+  }
+  
+  .ignore-button {
+    margin-right: 0.2rem;
+  }
+  
+  .mistake-word {
+    flex-grow: 1;
+  }
+
+  .mistake-word.ignored {
+    text-decoration: line-through;
+    color: #a0aec0;
+    transition: all 0.3s ease;
+  }
+  
 .added {
     background-color: #e6fffa;
     color: #047857;
@@ -118,6 +155,40 @@
     background-color: #fef3c7;
     font-weight: 600;
 }
+
+/* Zoom content */
+.zoom-buttons {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+}
+
+.zoom-buttons button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.3rem;
+    margin-left: 0.3rem;
+    font-size: 1rem;
+    color: #6c757d;
+    transition: color 0.3s ease;
+}
+
+.zoom-buttons button:hover {
+    color: #007bff;
+}
+
+.preformatted-text, .mistakes-list {
+    transition: font-size 0.3s ease;
+}
+
+
+
+
+
+
+
+
 
 /* Modern and aesthetic scrollbar styles */
 .preformatted-text::-webkit-scrollbar,
