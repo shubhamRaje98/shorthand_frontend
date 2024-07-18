@@ -94,6 +94,7 @@ const FinalPassageTextlog = () => {
         answerPassage: 14,
         mistakes: 14
     });
+    const [isSwapped, setIsSwapped] = useState(false)
 
     const handleZoom = (column, action) => {
         setFontSizes(prev => ({
@@ -101,6 +102,10 @@ const FinalPassageTextlog = () => {
             [column]: action === 'in' ? prev[column] + 2 : Math.max(prev[column] - 2, 8)
         }));
     };
+
+    const handleIsSwapped = () => {
+      setIsSwapped(!isSwapped)
+    }
 
     useEffect(() => {
         const fetchPassages = async () => {
@@ -321,17 +326,20 @@ const FinalPassageTextlog = () => {
                 </button>
             </div>
             <div className="grid-item">
-                <h2 className="column-header">Model Answer</h2>
+                <h2 className="column-header">
+                  {isSwapped ? 'User Answer' : 'Model Answer'}
+                </h2>
                 <pre className="preformatted-text" style={{ fontSize: `${fontSizes.modelAnswer}px`}}>
-                    {passages[`ansPassage${activePassage}`]}
+                    {isSwapped ? passages[`passage${activePassage}`] : passages[`ansPassage${activePassage}`]}
                 </pre>
                 <div className="zoom-buttons">
+                    <button onClick={handleIsSwapped}><i className="fas fa-exchange-alt"></i></button>
                     <button onClick={() => handleZoom('modelAnswer', 'in')}><i className="fas fa-search-plus"></i></button>
                     <button onClick={() => handleZoom('modelAnswer', 'out')}><i className="fas fa-search-minus"></i></button>
                 </div>
             </div>
             <div className="grid-item">
-                <h2 className="column-header">Answer Passage</h2>
+                <h2 className="column-header">Difference Passage</h2>
                 <div className="preformatted-text" style={{ fontSize: `${fontSizes.answerPassage}px` }}>
                     <ColoredText diffs={diffs} />
                 </div>

@@ -78,7 +78,7 @@
 }
 
 pre.preformatted-text {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;;
     white-space: pre-wrap;
     word-wrap: break-word;
     text-align: left;

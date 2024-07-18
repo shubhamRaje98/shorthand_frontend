@@ -139,6 +139,10 @@
     opacity: 1;
     transform: translateY(0);
   }
+
+  label{
+    margin-bottom: 0.8rem;
+  }
   
   @keyframes fadeInUp {
     from { opacity: 0; transform: translateY(20px); }
