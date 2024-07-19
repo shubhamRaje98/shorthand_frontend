@@ -14,7 +14,7 @@ const ColoredText = ({ coloredWords, highlightedWord }) => {
           {word.word}{' '}
         </span>
       ))}
-    </pre>
+    </>
   );
 };
 
