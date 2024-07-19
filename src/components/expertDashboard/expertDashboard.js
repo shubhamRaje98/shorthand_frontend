@@ -74,17 +74,17 @@ const ExpertDashboard = () => {
     const handleSubjectClick = (subject) => {
         setSelectedSubject(subject);
         setSelectedQSetStudentCount(null);
-        navigate(`/expertDashboard/${subject.subjectId}`);
+        navigate(`/expertDashboard/${subject.subjectId}`, {replace: true});
     };
 
     const handleBackClick = () => {
         if (qset) {
             setSelectedQSetStudentCount(null);
-            navigate(`/expertDashboard/${subjectId}`);
+            navigate(`/expertDashboard/${subjectId}`, {replace: true});
         } else {
             setSelectedSubject(null);
             setSelectedQSetStudentCount(null);
-            navigate('/expertDashboard');
+            navigate('/expertDashboard', {replace: true});
         }
     };
 
