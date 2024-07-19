@@ -5,7 +5,7 @@ import { useParams } from 'react-router-dom';
 
 const ColoredText = ({ coloredWords, highlightedWord }) => {
   return (
-    <pre className="preformatted-text">
+    <>
       {coloredWords.map((word, index) => (
         <span 
           key={index} 
@@ -18,15 +18,17 @@ const ColoredText = ({ coloredWords, highlightedWord }) => {
   );
 };
 
-const MistakesList = ({ mistakes, onWordHover, onUndoWord, onAddIgnoreWord }) => {
+const MistakesList = ({ mistakes, onAddIgnoreWord, onUndoWord, onWordHover, fontSize }) => {
   return (
     <div className="mistakes-list">
       {Object.entries(mistakes).map(([category, words]) => (
         <div key={category}>
-          <h3>{category === 'missed' ? 'Missed Words' : 
-               category === 'added' ? 'Extra Added Words' :
-               category === 'spelling' ? 'Spelling Mistakes' :
-               category === 'grammar' ? 'Grammar Mistakes' : category}</h3>
+          <h3 style={{ fontSize: `${fontSize * 1.2}px` }}>
+            {category === 'missed' ? 'Missed Words' :
+            category === 'added' ? 'Extra Added Words' :
+            category === 'spelling' ? 'Spelling Mistakes' :
+            category === 'grammar' ? 'Grammar Mistakes' : category}
+          </h3>
           <ul>
             {words.map((word, index) => (
               <li 
@@ -34,9 +36,27 @@ const MistakesList = ({ mistakes, onWordHover, onUndoWord, onAddIgnoreWord }) =>
                 onMouseEnter={() => onWordHover(Array.isArray(word) ? word[0] : word)}
                 onMouseLeave={() => onWordHover(null)}
               >
-                {Array.isArray(word) ? `${word[0]} (${word[1]})` : word}
-                <button onClick={() => onUndoWord(category, index)}>Undo</button>
-                <button onClick={() => onAddIgnoreWord(Array.isArray(word) ? word[0] : word)}>Ignore</button>
+                <div className="word-actions">
+                  <button 
+                    className="action-button ignore-button" 
+                    title="Ignore"
+                    onClick={() => onAddIgnoreWord(Array.isArray(word) ? word[0] : word)}
+                    style={{ fontSize: `${fontSize * 0.8}px` }}
+                  >
+                    <i className="fas fa-eye-slash"></i>
+                  </button>
+                  <button 
+                    className="action-button undo-button" 
+                    title="Undo"
+                    onClick={() => onUndoWord(category, index)}
+                    style={{ fontSize: `${fontSize * 0.8}px` }}
+                  >
+                    <i className="fas fa-undo"></i>
+                  </button>
+                </div>
+                <span className="mistake-word">
+                  {Array.isArray(word) ? `${word[0]} (${word[1]})` : word}
+                </span>
               </li>
             ))}
           </ul>
@@ -55,50 +75,71 @@ const FinalPassageTextlog = () => {
         ansPassageB: '' 
     });
     const [activePassage, setActivePassage] = useState('A');
-    const [coloredWords, setColoredWords] = useState([]);
     const [mistakes, setMistakes] = useState({});
     const [ignoreList, setIgnoreList] = useState([]);
+    const [fontSizes, setFontSizes] = useState({
+        modelAnswer: 14,
+        answerPassage: 14,
+        mistakes: 14
+    });
+    const [isSwapped, setIsSwapped] = useState(false);
+    const [coloredWords, setColoredWords] = useState([]);
     const [highlightedWord, setHighlightedWord] = useState(null);
 
+    const handleZoom = (column, action) => {
+        setFontSizes(prev => ({
+            ...prev,
+            [column]: action === 'in' ? prev[column] + 2 : Math.max(prev[column] - 2, 8)
+        }));
+    };
+
+    const handleIsSwapped = () => {
+      setIsSwapped(!isSwapped);
+    };
+
     useEffect(() => {
-        const fetchPassages = async () => {
-            try {
-                const response = await axios.get(`http://localhost:3000/expert-assigned-passages/${subjectId}/${qset}`, { withCredentials: true });
-                if (response.status === 200) {
-                    console.log("Raw data:", JSON.stringify(response.data));
-                    setPassages(response.data);
-                }
-            } catch (err) {
-                console.error('Error fetching passages:', err);
-            }
-        };
-    
-        fetchPassages();
+      const fetchPassages = async () => {
+          try {
+              const response = await axios.get(`http://localhost:3000/expert-assigned-passages/${subjectId}/${qset}`, { withCredentials: true });
+              if (response.status === 200) {
+                  console.log("Raw data:", JSON.stringify(response.data));
+                  setPassages(response.data);
+              }
+          } catch (err) {
+              console.error('Error fetching passages:', err);
+          }
+      };
+  
+      fetchPassages();
     }, [subjectId, qset]);
 
     useEffect(() => {
-        const sendActivePassageData = async () => {
-            try {
-                console.log(subjectId, qset, activePassage);
-                
-                const response = await axios.post('http://localhost:3000/active-passage', {
-                    subjectId,
-                    qset,
-                    activePassage
-                }, { withCredentials: true });
-            
-                if (response.status === 200) {
-                    console.log("Active passage data sent successfully");
-                    setIgnoreList(response.data.ignoreList || []);
-                    console.log("Ignore list:", response.data.ignoreList);
-                }
-            } catch (err) {
-                console.error('Error sending active passage data:', err);
-            }
-        };
+      const sendActivePassageData = async () => {
+          try {
+              console.log(subjectId, qset, activePassage);
+              
+              const response = await axios.post('http://localhost:3000/active-passage', {
+                  subjectId,
+                  qset,
+                  activePassage
+              }, { withCredentials: true });
+          
+              if (response.status === 200) {
+                  console.log("Active passage data sent successfully");
+                  setIgnoreList(response.data.ignoreList || []);
+                  console.log("Ignore list:", response.data.ignoreList);
+              }
+          } catch (err) {
+              console.error('Error sending active passage data:', err);
+          }
+      };
 
-        sendActivePassageData();
+      sendActivePassageData();
     }, [subjectId, qset, activePassage]);
+
+    const handlePassageChange = (passage) => {
+        setActivePassage(passage);
+    };
 
     const comparePassages = useCallback(async () => {
         const modelAnswer = passages[`ansPassage${activePassage}`];
@@ -133,13 +174,8 @@ const FinalPassageTextlog = () => {
         comparePassages();
     }, [comparePassages]);
 
-    const handlePassageChange = (passage) => {
-        setActivePassage(passage);
-    };
-
     const handleWordHover = useCallback((word) => {
       if (word) {
-        // If the word is in the format "word (correction)", extract just the word
         const actualWord = word.split('(')[0].trim();
         setHighlightedWord(actualWord);
       } else {
@@ -186,8 +222,6 @@ const FinalPassageTextlog = () => {
         if (response.status === 200) {
           setIgnoreList(prevList => [...prevList, word.toLowerCase()]);
           console.log(`Word "${word}" added to ignore list`);
-
-          // Trigger a recomparison of passages
           comparePassages();
         }
       } catch (err) {
@@ -216,17 +250,28 @@ const FinalPassageTextlog = () => {
                 <pre className="preformatted-text">{passages[`ansPassage${activePassage}`]}</pre>
             </div>
             <div className="grid-item">
-                <h2 className="column-header">Answer Passage</h2>
-                <ColoredText coloredWords={coloredWords} highlightedWord={highlightedWord} />
+                <h2 className="column-header">Difference Passage</h2>
+                <div className="preformatted-text" style={{ fontSize: `${fontSizes.answerPassage}px` }}>
+                    <ColoredText coloredWords={coloredWords} highlightedWord={highlightedWord} />
+                </div>
+                <div className="zoom-buttons">
+                    <button onClick={() => handleZoom('answerPassage', 'in')}><i className="fas fa-search-plus"></i></button>
+                    <button onClick={() => handleZoom('answerPassage', 'out')}><i className="fas fa-search-minus"></i></button>
+                </div>
             </div>
             <div className="grid-item">
                 <h2 className="column-header">Mistakes</h2>
                 <MistakesList 
                   mistakes={mistakes} 
-                  onWordHover={handleWordHover} 
-                  onUndoWord={handleUndoWord}
+                  fontSize={fontSizes.mistakes}
                   onAddIgnoreWord={handleAddIgnoreWord}
-                />
+                  onUndoWord={handleUndoWord}
+                  onWordHover={handleWordHover}
+              />
+              <div className="zoom-buttons">
+                  <button onClick={() => handleZoom('mistakes', 'in')}><i className="fas fa-search-plus"></i></button>
+                  <button onClick={() => handleZoom('mistakes', 'out')}><i className="fas fa-search-minus"></i></button>
+              </div>
             </div>
         </div>
     );

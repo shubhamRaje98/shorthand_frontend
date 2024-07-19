@@ -93,7 +93,7 @@ pre.preformatted-text {
 .mistakes-list h3 {
     font-size: 0.9rem;
     color: #495057;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.7rem;
 }
 
 .mistakes-list ul {
@@ -186,7 +186,9 @@ pre.preformatted-text {
     transition: font-size 0.3s ease;
 }
 
-
+.red { color: red; }
+.green { color: green; }
+.black { color: black; }
 
 
 

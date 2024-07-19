@@ -19,7 +19,12 @@ const ExpertLogin = () => {
                 withCredentials: true
             });
             if (response.status === 200) {
-                navigate(`/expertDashboard`);
+                if (response.data.expertId === 8){
+                    navigate(`/expertAdmin`);
+                }
+                else{
+                    navigate(`/expertDashboard`);
+                }
             }
         } catch (err) {
             setError('Invalid Expert Code or Password');
