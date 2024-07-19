@@ -1,57 +1,46 @@
-//finalPassageTextlog.js
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
-import { diffWords } from 'diff';
 import './finalPassageTextlog.css';
 import { useParams } from 'react-router-dom';
 
-const ColoredText = ({ diffs }) => {
+const ColoredText = ({ coloredWords, highlightedWord }) => {
   return (
     <>
-      {diffs.map((part, index) => (
+      {coloredWords.map((word, index) => (
         <span 
           key={index} 
-          className={part.added ? 'added' : part.removed ? 'removed' : 'equal'}
+          className={`${word.color} ${word.word.includes(highlightedWord) ? 'highlighted' : ''}`}
         >
-          {part.value}
+          {word.word}{' '}
         </span>
       ))}
     </>
   );
 };
 
-const MistakesList = ({ mistakes, onIgnore, onUndo, fontSize }) => {
-  const [ignoredWords, setIgnoredWords] = useState({});
-
-  const handleIgnore = (category, index) => {
-    setIgnoredWords(prev => ({
-      ...prev,
-      [category]: { ...(prev[category] || {}), [index]: true }
-    }));
-    // onIgnore(category, index);
-  };
-
-  const handleUndo = (category, index) => {
-    setIgnoredWords(prev => ({
-      ...prev,
-      [category]: { ...(prev[category] || {}), [index]: false }
-    }));
-    // onUndo(category, index);
-  };
-
+const MistakesList = ({ mistakes, onAddIgnoreWord, onUndoWord, onWordHover, fontSize }) => {
   return (
     <div className="mistakes-list" style={{ fontSize: `${fontSize}px` }}>
       {Object.entries(mistakes).map(([category, words]) => (
         <div key={category}>
-          <h3 style={{ fontSize: `${fontSize * 1.2}px` }}>{category}</h3>
+          <h3 style={{ fontSize: `${fontSize * 1.2}px` }}>
+            {category === 'missed' ? 'Missed Words' :
+            category === 'added' ? 'Extra Added Words' :
+            category === 'spelling' ? 'Spelling Mistakes' :
+            category === 'grammar' ? 'Grammar Mistakes' : category}
+          </h3>
           <ul>
             {words.map((word, index) => (
-              <li key={index}>
+              <li 
+                key={index}
+                onMouseEnter={() => onWordHover(Array.isArray(word) ? word[0] : word)}
+                onMouseLeave={() => onWordHover(null)}
+              >
                 <div className="word-actions">
                   <button 
                     className="action-button ignore-button" 
                     title="Ignore"
-                    onClick={() => handleIgnore(category, index)}
+                    onClick={() => onAddIgnoreWord(Array.isArray(word) ? word[0] : word)}
                     style={{ fontSize: `${fontSize * 0.8}px` }}
                   >
                     <i className="fas fa-eye-slash"></i>
@@ -59,14 +48,14 @@ const MistakesList = ({ mistakes, onIgnore, onUndo, fontSize }) => {
                   <button 
                     className="action-button undo-button" 
                     title="Undo"
-                    onClick={() => handleUndo(category, index)}
+                    onClick={() => onUndoWord(category, index)}
                     style={{ fontSize: `${fontSize * 0.8}px` }}
                   >
                     <i className="fas fa-undo"></i>
                   </button>
                 </div>
-                <span className={`mistake-word ${ignoredWords[category]?.[index] ? 'ignored' : ''}`}>
-                  {word}
+                <span className="mistake-word">
+                  {Array.isArray(word) ? `${word[0]} (${word[1]})` : word}
                 </span>
               </li>
             ))}
@@ -86,7 +75,6 @@ const FinalPassageTextlog = () => {
         ansPassageB: '' 
     });
     const [activePassage, setActivePassage] = useState('A');
-    const [diffs, setDiffs] = useState([]);
     const [mistakes, setMistakes] = useState({});
     const [ignoreList, setIgnoreList] = useState([]);
     const [fontSizes, setFontSizes] = useState({
@@ -94,7 +82,9 @@ const FinalPassageTextlog = () => {
         answerPassage: 14,
         mistakes: 14
     });
-    const [isSwapped, setIsSwapped] = useState(false)
+    const [isSwapped, setIsSwapped] = useState(false);
+    const [coloredWords, setColoredWords] = useState([]);
+    const [highlightedWord, setHighlightedWord] = useState(null);
 
     const handleZoom = (column, action) => {
         setFontSizes(prev => ({
@@ -104,210 +94,140 @@ const FinalPassageTextlog = () => {
     };
 
     const handleIsSwapped = () => {
-      setIsSwapped(!isSwapped)
-    }
+      setIsSwapped(!isSwapped);
+    };
 
     useEffect(() => {
-        const fetchPassages = async () => {
-            try {
-                const response = await axios.get(`http://localhost:3000/expert-assigned-passages/${subjectId}/${qset}`, { withCredentials: true });
-                if (response.status === 200) {
-                    console.log("Raw data:", JSON.stringify(response.data));
-                    setPassages(response.data);
-                }
-            } catch (err) {
-                console.error('Error fetching passages:', err);
-            }
-        };
-    
-        fetchPassages();
+      const fetchPassages = async () => {
+          try {
+              const response = await axios.get(`http://localhost:3000/expert-assigned-passages/${subjectId}/${qset}`, { withCredentials: true });
+              if (response.status === 200) {
+                  console.log("Raw data:", JSON.stringify(response.data));
+                  setPassages(response.data);
+              }
+          } catch (err) {
+              console.error('Error fetching passages:', err);
+          }
+      };
+  
+      fetchPassages();
     }, [subjectId, qset]);
 
     useEffect(() => {
-        const modelAnswer = passages[`ansPassage${activePassage}`];
-        const userAnswer = passages[`passage${activePassage}`];
-        sendActivePassageData();
-        
-        const newDiffs = diffWords(userAnswer, modelAnswer);
-        setDiffs(newDiffs);
+      const sendActivePassageData = async () => {
+          try {
+              console.log(subjectId, qset, activePassage);
+              
+              const response = await axios.post('http://localhost:3000/active-passage', {
+                  subjectId,
+                  qset,
+                  activePassage
+              }, { withCredentials: true });
+          
+              if (response.status === 200) {
+                  console.log("Active passage data sent successfully");
+                  setIgnoreList(response.data.ignoreList || []);
+                  console.log("Ignore list:", response.data.ignoreList);
+              }
+          } catch (err) {
+              console.error('Error sending active passage data:', err);
+          }
+      };
 
-        const newMistakes = getColoredWords(modelAnswer, userAnswer);
-        setMistakes(newMistakes);
-        
-    }, [activePassage, passages]);
-
-    useEffect(() => {
-      if (ignoreList.length > 0) {
-          const filteredDiffs = filterIgnoredWords(diffs);
-          setDiffs(filteredDiffs);
-
-          const filteredMistakes = filterIgnoredMistakes(mistakes);
-          setMistakes(filteredMistakes);
-      }
-    }, [ignoreList]);
+      sendActivePassageData();
+    }, [subjectId, qset, activePassage]);
 
     const handlePassageChange = (passage) => {
         setActivePassage(passage);
     };
-    
-    const sendActivePassageData = async () => {
+
+    const comparePassages = useCallback(async () => {
+        const modelAnswer = passages[`ansPassage${activePassage}`];
+        const userAnswer = passages[`passage${activePassage}`];
+        
+        if (!modelAnswer || !userAnswer) return;
+
+        try {
+            const response = await axios.post('http://localhost:5000/compare', {
+                text1: modelAnswer,
+                text2: userAnswer,
+                ignore_list: ignoreList,
+                ignore_case: true
+            });
+
+            if (response.status === 200) {
+                const { colored_words, added, missed, spelling, grammar } = response.data;
+                setColoredWords(colored_words);
+                setMistakes({
+                    added,
+                    missed,
+                    spelling,
+                    grammar
+                });
+            }
+        } catch (err) {
+            console.error('Error comparing passages:', err);
+        }
+    }, [activePassage, passages, ignoreList]);
+
+    useEffect(() => {
+        comparePassages();
+    }, [comparePassages]);
+
+    const handleWordHover = useCallback((word) => {
+      if (word) {
+        const actualWord = word.split('(')[0].trim();
+        setHighlightedWord(actualWord);
+      } else {
+        setHighlightedWord(null);
+      }
+    }, []);
+
+    const handleUndoWord = useCallback(async (category, index) => {
       try {
-        console.log( subjectId,
-          qset,
-          activePassage)
-          
-        const response = await axios.post('http://localhost:3000/active-passage', {
+        const wordToUndo = mistakes[category][index];
+        const wordText = Array.isArray(wordToUndo) ? wordToUndo[0] : wordToUndo;
+
+        const response = await axios.post('http://localhost:3000/undo-word', {
           subjectId,
           qset,
-          activePassage
+          activePassage,
+          category,
+          word: wordText
         }, { withCredentials: true });
-    
+
         if (response.status === 200) {
-          console.log("Active passage data sent successfully");
-          setIgnoreList(response.data.ignoreList || []);
-          console.log("Ignore list:", response.data.ignoreList); // Added this line
+          setMistakes(prevMistakes => {
+            const updatedMistakes = { ...prevMistakes };
+            updatedMistakes[category] = [...updatedMistakes[category]];
+            updatedMistakes[category].splice(index, 1);
+            return updatedMistakes;
+          });
+          console.log(`Word "${wordText}" undone from ${category} category`);
         }
       } catch (err) {
-        console.error('Error sending active passage data:', err);
+        console.error('Error undoing word:', err);
       }
-    };
+    }, [mistakes, subjectId, qset, activePassage]);
 
-    const filterIgnoredWords = (diffs) => {
-      return diffs.map(part => {
-          if (part.added || part.removed) {
-              const words = part.value.split(/\s+/);
-              const filteredWords = words.filter(word => !ignoreList.includes(word.toLowerCase()));
-              return {...part, value: filteredWords.join(' ')};
-          }
-          return part;
-      });
-    };
+    const handleAddIgnoreWord = useCallback(async (word) => {
+      try {
+        const response = await axios.post('http://localhost:3000/add-ignore-word', {
+          subjectId,
+          qset,
+          activePassage,
+          newWord: word
+        }, { withCredentials: true });
 
-    const filterIgnoredMistakes = (mistakes) => {
-      const filteredMistakes = {};
-      for (const [category, words] of Object.entries(mistakes)) {
-          if (category === 'missedWords') {
-              filteredMistakes[category] = words.filter(word => !ignoreList.includes(word.toLowerCase()));
-          } else if (category === 'extraAdded') {
-              filteredMistakes[category] = words.filter(word => !ignoreList.includes(word.toLowerCase()));
-          } else if (category === 'spellingMistakes') {
-              filteredMistakes[category] = words.filter(mistake => {
-                  const [word, correction] = mistake.split('(');
-                  const cleanWord = word.trim().toLowerCase();
-                  return !ignoreList.includes(cleanWord);
-              }).map(mistake => {
-                  const [word, correction] = mistake.split('(');
-                  const cleanCorrection = correction.trim().slice(0, -1);
-                  return ignoreList.includes(word.trim().toLowerCase()) ? cleanCorrection : mistake;
-              });
-          } else {
-              filteredMistakes[category] = words;
-          }
-      }
-      return filteredMistakes;
-    };
-
-    const getColoredWords = (modelAnswer, userAnswer) => {
-      const missedWords = [];
-      const extraAdded = [];
-      const spellingMistakes = [];
-      const others = [];  // Added this category
-    
-      const modelWords = modelAnswer.match(/[\u0900-\u097F\w]+/g) || [];
-      const userWords = userAnswer.match(/[\u0900-\u097F\w]+/g) || [];
-    
-      const modelWordSet = new Set(modelWords);
-      const userWordSet = new Set(userWords);
-    
-      let i = 0;
-      while (i < userWords.length) {
-        const word = userWords[i];
-        if (!modelWordSet.has(word)) {
-          // Check if it's a merged word
-          const nextWord = userWords[i + 1];
-          if (nextWord && modelWordSet.has(word.slice(-word.length) + nextWord)) {
-            spellingMistakes.push(`${word}${nextWord} (${word.slice(-word.length)}${nextWord})`);
-            i += 2;
-          } else {
-            // Check if it's a spelling mistake
-            const similarWord = findSimilarWord(word, modelWords);
-            if (similarWord) {
-              // Check if the next word is green (correct)
-              const nextCorrectWord = userWords[i + 1];
-              if (nextCorrectWord && modelWordSet.has(nextCorrectWord)) {
-                spellingMistakes.push(`${word} ${nextCorrectWord} (${similarWord} ${nextCorrectWord})`);
-                i += 2;
-              } else {
-                spellingMistakes.push(`${word} (${similarWord})`);
-                i++;
-              }
-            } else {
-              extraAdded.push(word);
-              i++;
-            }
-          }
-        } else {
-          i++;
+        if (response.status === 200) {
+          setIgnoreList(prevList => [...prevList, word.toLowerCase()]);
+          console.log(`Word "${word}" added to ignore list`);
+          comparePassages();
         }
+      } catch (err) {
+        console.error('Error adding word to ignore list:', err);
       }
-    
-      modelWords.forEach(word => {
-        if (!userWordSet.has(word) && !spellingMistakes.some(mistake => mistake.includes(word))) {
-          missedWords.push(word);
-        }
-      });
-    
-      return {
-        missedWords,
-        extraAdded,
-        spellingMistakes,
-        others
-      };
-    };
-
-    const findSimilarWord = (word, wordList) => {
-      for (let modelWord of wordList) {
-          if (calculateSimilarity(word, modelWord) >= 0.6) {
-              return modelWord;
-          }
-      }
-      return null;
-    };
-
-    const calculateSimilarity = (s1, s2) => {
-      const longer = s1.length > s2.length ? s1 : s2;
-      const shorter = s1.length > s2.length ? s2 : s1;
-      const longerLength = longer.length;
-      if (longerLength === 0) {
-          return 1.0;
-      }
-      return (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength);
-    };
-
-    const editDistance = (s1, s2) => {
-      s1 = s1.toLowerCase();
-      s2 = s2.toLowerCase();
-      const costs = [];
-      for (let i = 0; i <= s1.length; i++) {
-          let lastValue = i;
-          for (let j = 0; j <= s2.length; j++) {
-              if (i === 0) {
-                  costs[j] = j;
-              } else if (j > 0) {
-                  let newValue = costs[j - 1];
-                  if (s1.charAt(i - 1) !== s2.charAt(j - 1)) {
-                      newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
-                  }
-                  costs[j - 1] = lastValue;
-                  lastValue = newValue;
-              }
-          }
-          if (i > 0) {
-              costs[s2.length] = lastValue;
-          }
-      }
-      return costs[s2.length];
-    };
+    }, [subjectId, qset, activePassage, comparePassages]);
 
     return (
         <div className="final-passage-container">
@@ -341,7 +261,7 @@ const FinalPassageTextlog = () => {
             <div className="grid-item">
                 <h2 className="column-header">Difference Passage</h2>
                 <div className="preformatted-text" style={{ fontSize: `${fontSizes.answerPassage}px` }}>
-                    <ColoredText diffs={diffs} />
+                    <ColoredText coloredWords={coloredWords} highlightedWord={highlightedWord} />
                 </div>
                 <div className="zoom-buttons">
                     <button onClick={() => handleZoom('answerPassage', 'in')}><i className="fas fa-search-plus"></i></button>
@@ -353,8 +273,9 @@ const FinalPassageTextlog = () => {
               <MistakesList 
                   mistakes={mistakes} 
                   fontSize={fontSizes.mistakes}
-                  // onIgnore={(category, index) => {/* implement ignore logic */}}
-                  // onUndo={(category, index) => {/* implement undo logic */}}
+                  onAddIgnoreWord={handleAddIgnoreWord}
+                  onUndoWord={handleUndoWord}
+                  onWordHover={handleWordHover}
               />
               <div className="zoom-buttons">
                   <button onClick={() => handleZoom('mistakes', 'in')}><i className="fas fa-search-plus"></i></button>
