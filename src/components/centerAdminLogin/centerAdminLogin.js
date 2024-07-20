@@ -17,6 +17,8 @@ const Login = () => {
             const response = await axios.post('http://localhost:3000/center_admin_login', {
                 centerId,
                 password
+            }, {
+                withCredentials: true
             });
             if (response.status === 200) {
                 navigate(`/home`);
@@ -25,6 +27,7 @@ const Login = () => {
             setError('Invalid Center Code or Password');
         }
     };
+    
 
     return (
         <div className="login-container">

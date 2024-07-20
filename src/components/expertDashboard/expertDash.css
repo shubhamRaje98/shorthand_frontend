@@ -1,0 +1,208 @@
+/* expertDash.css */
+.dashboard-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    gap: 0.6rem;
+    height: 100vh;
+    width: 100vw;
+    padding: 0.5rem;
+    box-sizing: border-box;
+    background-color: #ffffff;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    border-radius: 0.5rem;
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.9rem;
+}
+
+.box {
+    position: relative;
+    background-color: #f0f4f8; /* Slightly different background color */
+    padding: 0.6rem;
+    text-align: center;
+    border: 1px solid #b6ccf0; /* Changed border color */
+    border-radius: 0.5rem;
+    width: 100%;
+    box-shadow: 0 0.1rem 0.25rem rgba(0, 123, 255, 0.1); /* Blue-tinted shadow */
+}
+
+.expert-details {
+    text-align: center;
+}
+
+.expert-id, .expert-name, .selected-subject {
+    margin: 0.5rem 0;
+    font-size: 1.1rem;
+    color: #007bff;
+}
+
+.selected-subject {
+    color: #28a745;  /* Green color for the selected subject */
+}
+
+p {
+    color: #495057;
+}
+
+.dynamic-content {
+    overflow-y: auto;
+    max-height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.languages-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 1200px;
+    width: 100%;
+}
+
+.language-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.language-title {
+    color: #007bff;
+    margin: 0.5rem 0;
+    font-size: 1.2rem;
+    text-align: center;
+    font-weight: 500;
+}
+
+.subjects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    width: 100%;
+    justify-content: center;
+}
+
+.item-button {
+    background-color: #ffffff;
+    padding: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    box-shadow: 0 0.1rem 0.25rem rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    height: 100%;
+    text-align: center;
+}
+
+.item-button:hover {
+    background-color: #f8f9fa;
+    transform: translateY(-2px);
+    box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.1);
+}
+
+.item-title {
+    font-weight: 500;
+    color: #007bff;
+}
+
+.item-count {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-top: 0.5rem;
+}
+
+.back-button {
+    position: absolute;
+    left: 1rem;
+    top: 1rem;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.back-button:hover {
+    background-color: #e9ecef;
+}
+
+/* Styles specific to QSet component */
+.qset-container {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 1rem;
+    justify-content: center;
+    align-items: stretch;
+    height: 100%;
+    padding: 1rem;
+}
+
+.qset-container .item-button {
+    flex: 1;
+    max-width: none;
+    height: fit-content;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    margin: 0;
+}
+
+.selected-qset {
+    position: absolute;
+    top: 0.6rem;
+    right: 2rem;
+    margin: 0;
+    font-size: 1.1rem;
+    color: #dc3545; /* Red color for the selected QSet */
+    background-color: #fff;
+    padding: 0.3rem 0.6rem;
+    border-radius: 0.25rem;
+    box-shadow: 0 0.1rem 0.25rem rgba(0, 0, 0, 0.1);
+}
+
+.qset-student-count {
+    position: absolute;
+    top: 2.8rem; /* Adjusted to position below the selected-qset */
+    right: 0.6rem;
+    margin: 0;
+    padding: 0.3rem 0.6rem;
+    background-color: #f0f0f0;
+    border-radius: 0.25rem;
+    font-size: 1.1rem;
+    color: #0e1d42; /* Green color for student count */
+    box-shadow: 0 0.1rem 0.25rem rgba(0, 0, 0, 0.1);
+}
+
+/* Modern and aesthetic scrollbar styles */
+.dynamic-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.dynamic-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.dynamic-content::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+.dynamic-content::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* For Firefox */
+.dynamic-content {
+    scrollbar-width: thin;
+    scrollbar-color: #c1c1c1 #f1f1f1;
+}
