@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import * as XLSX from 'xlsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const tableOptions = [
@@ -21,7 +22,8 @@ const FetchUpdateTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [studentIdFilter, setStudentIdFilter] = useState('');
   const [subjectIdFilter, setSubjectIdFilter] = useState('');
-  
+  const [newEntryData, setNewEntryData] = useState({});
+
   const itemsPerPage = 700;
 
   useEffect(() => {
@@ -41,76 +43,74 @@ const FetchUpdateTable = () => {
           batchNo: batchNoFilter
         };
       }
-      if(selectedTable==='audiologs'){
+      if (selectedTable === 'audiologs') {
         fetchParams = {
           ...fetchParams,
           student_id: studentIdFilter
-        }
+        };
       }
-      if(selectedTable==='studentlogs'){
-        
+      if (selectedTable === 'studentlogs') {
         fetchParams = {
           ...fetchParams,
           student_id: studentIdFilter,
           center: centerFilter
-        }
+        };
       }
-      if(selectedTable === 'textlogs'){
+      if (selectedTable === 'textlogs') {
         fetchParams = {
           ...fetchParams,
           student_id: studentIdFilter
-        }
+        };
       }
-      if(selectedTable === 'loginlogs'){
+      if (selectedTable === 'loginlogs') {
         fetchParams = {
           ...fetchParams,
           student_id: studentIdFilter
-        }
+        };
       }
-      if(selectedTable === 'batchdb'){
+      if (selectedTable === 'batchdb') {
         fetchParams = {
           ...fetchParams,
           batchNo: batchNoFilter
-        }
+        };
       }
-      if(selectedTable === 'controllerdb'){
+      if (selectedTable === 'controllerdb') {
         fetchParams = {
           ...fetchParams,
           center: centerFilter,
           batchNo: batchNoFilter
-        }
+        };
       }
-      if(selectedTable === 'examcenterdb'){
+      if (selectedTable === 'examcenterdb') {
         fetchParams = {
           ...fetchParams,
           center: centerFilter,
-        }
+        };
       }
-      if(selectedTable === 'feedbackdb'){
+      if (selectedTable === 'feedbackdb') {
         fetchParams = {
           ...fetchParams,
           student_id: studentIdFilter
-        }
+        };
       }
-      if(selectedTable === 'pcregistration'){
+      if (selectedTable === 'pcregistration') {
         fetchParams = {
           ...fetchParams,
           center: centerFilter
-        }
+        };
       }
-      if(selectedTable === 'subjectdb'){
+      if (selectedTable === 'subjectdb') {
         fetchParams = {
           ...fetchParams,
           subjectId: subjectIdFilter
-        }
+        };
       }
-      if(selectedTable === 'finalpassagesubmit'){
+      if (selectedTable === 'finalpassagesubmit') {
         fetchParams = {
           ...fetchParams,
           student_id: studentIdFilter
-        }
+        };
       }
-      //alert("student-id " + fetchParams.subjectId)
       
       const response = await axios.post('http://localhost:3000/fetch-update-tables', fetchParams);
 
@@ -138,6 +138,11 @@ const FetchUpdateTable = () => {
     setEditingData({ ...editingData, [name]: value });
   };
 
+  const handleNewEntryChange = (e) => {
+    const { name, value } = e.target;
+    setNewEntryData({ ...newEntryData, [name]: value });
+  };
+
   const handleSave = async (index) => {
     try {
       await axios.put(`http://localhost:3000/update-table/${selectedTable}/${editingData.student_id}`, editingData);
@@ -150,21 +155,25 @@ const FetchUpdateTable = () => {
     }
   };
 
+  const handleAddNewEntry = async () => {
+    try {
+      const response = await axios.post(`http://localhost:3000/add-entry/${selectedTable}`, newEntryData);
+      setData([...data, response.data]);
+      setNewEntryData({});
+    } catch (error) {
+      console.error('Error adding new entry:', error);
+    }
+  };
+
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
 
-  const exportToCSV = () => {
-    const csvContent = "data:text/csv;charset=utf-8,"
-      + headers.join(",") + "\n"
-      + data.map(row => headers.map(field => row[field]).join(",")).join("\n");
-
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `${selectedTable}_export.csv`);
-    document.body.appendChild(link);
-    link.click();
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, selectedTable);
+    XLSX.writeFile(workbook, `${selectedTable}_export.xlsx`);
   };
 
   const totalPages = Math.ceil(data.length / itemsPerPage);
@@ -386,8 +395,8 @@ const FetchUpdateTable = () => {
           </div>
         </>
       )}
-      <button className="btn btn-primary mb-3" onClick={exportToCSV}>
-        Export to CSV
+      <button className="btn btn-primary mb-3" onClick={exportToExcel}>
+        Export to excel
       </button>
       <table className="table table-bordered">
         <thead className="thead-dark">
@@ -400,6 +409,28 @@ const FetchUpdateTable = () => {
           </tr>
         </thead>
         <tbody>
+        <tr>
+            <td>New entry</td>
+            {headers.map((key, index) => (
+              <td key={index}>
+                <input
+                  type="text"
+                  name={key}
+                  value={newEntryData[key] || ''}
+                  onChange={handleNewEntryChange}
+                  className="form-control"
+                />
+              </td>
+            ))}
+            <td>
+              <button
+                className="btn btn-success"
+                onClick={handleAddNewEntry}
+              >
+                Add
+              </button>
+            </td>
+          </tr>
           {currentData.map((item, index) =>
             editingIndex === index ? (
               <tr key={index}>
@@ -441,6 +472,7 @@ const FetchUpdateTable = () => {
               </tr>
             )
           )}
+          
         </tbody>
       </table>
       <div className="d-flex justify-content-center mt-3">
