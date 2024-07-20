@@ -1,14 +1,14 @@
 // qset.js
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import './expertDash.css';
 
-const QSet = ({ subjectId, onQSetSelect }) => {
+const QSet = () => {
   const [qsets, setQsets] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedQSet, setSelectedQSet] = useState(null);
   const navigate = useNavigate();
+  const { subjectId } = useParams();
 
   useEffect(() => {
     const fetchQSets = async () => {
@@ -29,12 +29,10 @@ const QSet = ({ subjectId, onQSetSelect }) => {
     fetchQSets();
   }, [subjectId]);
 
-  const handleQSetClick = async (qset, studentCount) => {
+  const handleQSetClick = async (qset) => {
     try {
       const response = await axios.post(`http://localhost:3000/assignStudent/${subjectId}/${qset}`, {}, { withCredentials: true });
       if (response.status === 200) {
-        setSelectedQSet(qset);
-        onQSetSelect(qset, studentCount);
         navigate(`/expertDashboard/${subjectId}/${qset}`);
       }
     } catch (err) {
@@ -55,8 +53,8 @@ const QSet = ({ subjectId, onQSetSelect }) => {
       {qsets.map((qsetObj) => (
         <button
           key={qsetObj.qset}
-          className={`item-button ${selectedQSet === qsetObj.qset ? 'selected' : ''}`}
-          onClick={() => handleQSetClick(qsetObj.qset, qsetObj.student_count)}
+          className="item-button"
+          onClick={() => handleQSetClick(qsetObj.qset)}
         >
           <div className="item-title">QSet: {qsetObj.qset}</div>
           <div className="item-count">Students: {qsetObj.student_count}</div>

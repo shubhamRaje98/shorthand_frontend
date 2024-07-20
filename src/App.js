@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './components/centerAdminLogin/centerAdminLogin';
 import ExpertLogin from './components/expertLogin/expertLogin';
 import ExpertAdmin from './components/expertLogin/expertAdmin';
+import SubjectSelection from './components/expertDashboard/SubjectSelection';
 import StudentTable from './components/studentExamTracking/StudentTable';
 import Home from './components/Home/home';
 import ExpertDashboard from './components/expertDashboard/expertDashboard';
@@ -26,13 +27,14 @@ const App = () => {
             <Routes>
             <Route path="/" element={<Login />} />
                 <Route path="/expert-login" element={<ExpertLogin />} />
+                <Route path="/expertAdmin" element={<ExpertAdmin/>} />
                 <Route path="/student-table" element={<StudentTable />} />
                 <Route path="/home" element={<Home />} />
                 <Route path="/expertDashboard" element={<ExpertDashboard />}>
+                    <Route index element={<SubjectSelection />} />
                     <Route path=":subjectId" element={<QSet />} />
                     <Route path=":subjectId/:qset" element={<FinalPassageTextlog />} />
                 </Route>
-                <Route path="/expertAdmin" element={<ExpertAdmin/>} />
                 <Route path="/attendance-download" element={<AttendanceDownload />} />
                 <Route path="/centerwise-student-count" element={<CenterwiseStudentCount />} />
                 <Route path="/absentee-roll" element={<AbsenteeRoll />} />
