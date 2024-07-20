@@ -19,7 +19,7 @@ const ColoredText = ({ coloredWords, highlightedWord }) => {
   );
 };
 
-const MistakesList = ({ mistakes, onAddIgnoreWord, onUndoWord, onWordHover, fontSize }) => {
+const MistakesList = ({ mistakes, onAddIgnoreWord, onUndoWord, onWordHover, fontSize, ignoreList }) => {
   return (
     <div className="mistakes-list" style={{ fontSize: `${fontSize}px` }}>
       {Object.entries(mistakes).map(([category, words]) => (
@@ -31,35 +31,41 @@ const MistakesList = ({ mistakes, onAddIgnoreWord, onUndoWord, onWordHover, font
             category === 'grammar' ? 'Grammar Mistakes' : category}
           </h3>
           <ul>
-            {words.map((word, index) => (
-              <li 
-                key={index}
-                onMouseEnter={() => onWordHover(Array.isArray(word) ? word[0] : word)}
-                onMouseLeave={() => onWordHover(null)}
-              >
-                <div className="word-actions">
-                  <button 
-                    className="action-button ignore-button" 
-                    title="Ignore"
-                    onClick={() => onAddIgnoreWord(Array.isArray(word) ? word[0] : word)}
-                    style={{ fontSize: `${fontSize * 0.8}px` }}
-                  >
-                    <i className="fas fa-eye-slash"></i>
-                  </button>
-                  <button 
-                    className="action-button undo-button" 
-                    title="Undo"
-                    onClick={() => onUndoWord(category, index)}
-                    style={{ fontSize: `${fontSize * 0.8}px` }}
-                  >
-                    <i className="fas fa-undo"></i>
-                  </button>
-                </div>
-                <span className="mistake-word">
-                  {Array.isArray(word) ? `${word[0]} (${word[1]})` : word}
-                </span>
-              </li>
-            ))}
+            {words.map((word, index) => {
+              const wordText = Array.isArray(word) ? word[0] : word;
+              const isIgnored = ignoreList.includes(wordText.toLowerCase());
+              return (
+                <li 
+                  key={index}
+                  onMouseEnter={() => onWordHover(wordText)}
+                  onMouseLeave={() => onWordHover(null)}
+                >
+                  <div className="word-actions">
+                    <button 
+                      className="action-button ignore-button" 
+                      title={isIgnored ? "Undo Ignore" : "Ignore"}
+                      onClick={() => isIgnored ? onUndoWord(category, index) : onAddIgnoreWord(wordText)}
+                      style={{ fontSize: `${fontSize * 0.8}px` }}
+                    >
+                      <i className={`fas ${isIgnored ? 'fa-undo' : 'fa-eye-slash'}`}></i>
+                    </button>
+                    {!isIgnored && (
+                      <button 
+                        className="action-button undo-button" 
+                        title="Undo"
+                        onClick={() => onUndoWord(category, index)}
+                        style={{ fontSize: `${fontSize * 0.8}px` }}
+                      >
+                        <i className="fas fa-undo"></i>
+                      </button>
+                    )}
+                  </div>
+                  <span className={`mistake-word ${isIgnored ? 'ignored' : ''}`}>
+                    {Array.isArray(word) ? `${word[0]} (${word[1]})` : word}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         </div>
       ))}
@@ -184,33 +190,6 @@ const FinalPassageTextlog = () => {
       }
     }, []);
 
-    const handleUndoWord = useCallback(async (category, index) => {
-      try {
-        const wordToUndo = mistakes[category][index];
-        const wordText = Array.isArray(wordToUndo) ? wordToUndo[0] : wordToUndo;
-
-        const response = await axios.post('http://localhost:3000/undo-word', {
-          subjectId,
-          qset,
-          activePassage,
-          category,
-          word: wordText
-        }, { withCredentials: true });
-
-        if (response.status === 200) {
-          setMistakes(prevMistakes => {
-            const updatedMistakes = { ...prevMistakes };
-            updatedMistakes[category] = [...updatedMistakes[category]];
-            updatedMistakes[category].splice(index, 1);
-            return updatedMistakes;
-          });
-          console.log(`Word "${wordText}" undone from ${category} category`);
-        }
-      } catch (err) {
-        console.error('Error undoing word:', err);
-      }
-    }, [mistakes, subjectId, qset, activePassage]);
-
     const handleAddIgnoreWord = useCallback(async (word) => {
       try {
         const response = await axios.post('http://localhost:3000/add-ignore-word', {
@@ -219,16 +198,39 @@ const FinalPassageTextlog = () => {
           activePassage,
           newWord: word
         }, { withCredentials: true });
-
+    
         if (response.status === 200) {
           setIgnoreList(prevList => [...prevList, word.toLowerCase()]);
           console.log(`Word "${word}" added to ignore list`);
-          comparePassages();
+          // We don't need to call comparePassages() here anymore
         }
       } catch (err) {
         console.error('Error adding word to ignore list:', err);
       }
-    }, [subjectId, qset, activePassage, comparePassages]);
+    }, [subjectId, qset, activePassage]);
+    
+    const handleUndoWord = useCallback(async (category, index) => {
+      try {
+        const wordToUndo = mistakes[category][index];
+        const wordText = Array.isArray(wordToUndo) ? wordToUndo[0] : wordToUndo;
+    
+        const response = await axios.post('http://localhost:3000/undo-word', {
+          subjectId,
+          qset,
+          activePassage,
+          category,
+          word: wordText
+        }, { withCredentials: true });
+    
+        if (response.status === 200) {
+          setIgnoreList(prevList => prevList.filter(w => w !== wordText.toLowerCase()));
+          console.log(`Word "${wordText}" removed from ignore list`);
+          comparePassages();
+        }
+      } catch (err) {
+        console.error('Error undoing word:', err);
+      }
+    }, [mistakes, subjectId, qset, activePassage, comparePassages]);
 
     return (
         <div className="final-passage-container">
@@ -272,11 +274,12 @@ const FinalPassageTextlog = () => {
             <div className="grid-item">
               <h2 className="column-header">Mistakes</h2>
               <MistakesList 
-                  mistakes={mistakes} 
-                  fontSize={fontSizes.mistakes}
-                  onAddIgnoreWord={handleAddIgnoreWord}
-                  onUndoWord={handleUndoWord}
-                  onWordHover={handleWordHover}
+                mistakes={mistakes} 
+                fontSize={fontSizes.mistakes}
+                onAddIgnoreWord={handleAddIgnoreWord}
+                onUndoWord={handleUndoWord}
+                onWordHover={handleWordHover}
+                ignoreList={ignoreList}
               />
               <div className="zoom-buttons">
                   <button onClick={() => handleZoom('mistakes', 'in')}><i className="fas fa-search-plus"></i></button>
