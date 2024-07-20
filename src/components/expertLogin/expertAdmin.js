@@ -1,14 +1,32 @@
-//expertAdmin.js
+// expertAdmin.js
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const ExpertAdmin = () => {
     const [studentId, setStudentId] = useState('');
     const [error, setError] = useState('');
     const [message, setMessage] = useState('');
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
-      console.log("Submit Clicked")
+        e.preventDefault();
+        setError('');
+        setMessage('');
+
+        try {
+            const response = await axios.post('http://localhost:3000/get-student-passages', { studentId }, { withCredentials: true });
+            
+            if (response.status === 200 && response.data) {
+                const { subjectId, qset } = response.data;
+                navigate(`/expertDashboard/${subjectId}/${qset}`);
+            } else {
+                setError('No matching record found for this Student ID');
+            }
+        } catch (err) {
+            console.error('Error fetching student details:', err);
+            setError('An error occurred while fetching student details');
+        }
     };
 
     return (

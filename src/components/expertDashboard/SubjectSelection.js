@@ -2,10 +2,12 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useDashboard } from './DashboardContext';
 
 const SubjectSelection = () => {
     const [subjects, setSubjects] = useState({});
     const navigate = useNavigate();
+    const { setSelectedSubject, setSelectedQSet } = useDashboard();
 
     useEffect(() => {
         const fetchSubjects = async () => {
@@ -40,6 +42,8 @@ const SubjectSelection = () => {
     }, []);
 
     const handleSubjectClick = (subject) => {
+        setSelectedSubject(subject);
+        setSelectedQSet(null);  // Reset QSet when a new subject is selected
         navigate(`/expertDashboard/${subject.subjectId}`);
     };
 
