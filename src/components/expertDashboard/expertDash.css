@@ -132,6 +132,59 @@ p {
     background-color: #e9ecef;
 }
 
+/* Logout Button */
+.logout-button {
+    position: absolute;
+    left: 1rem;
+    top: 1rem;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.logout-button:hover {
+    background-color: #c82333;
+}
+
+/* Submit Button */
+
+.passage-buttons-container {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 1em;
+    position: relative;
+}
+
+.passage-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 0.5em;
+}
+
+.submit-button {
+    position: absolute;
+    right: 1em;
+    padding: 0.5em 1em;
+    font-size: 0.9em;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 0.25em;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-weight: 600;
+}
+
+.submit-button:hover {
+    background-color: #218838;
+}
 /* Styles specific to QSet component */
 .qset-container {
     display: flex;

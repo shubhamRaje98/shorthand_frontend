@@ -1,12 +1,14 @@
+// expertDashboard.js
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './expertDash.css';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useDashboard } from './DashboardContext';
 
 const ExpertDashboard = () => {
     const [expertDetails, setExpertDetails] = useState(null);
     const { selectedSubject, selectedQSet, setSelectedSubject, setSelectedQSet } = useDashboard();
+    const navigate = useNavigate();
     const location = useLocation();
 
     useEffect(() => {
@@ -25,6 +27,20 @@ const ExpertDashboard = () => {
     }, []);
 
     useEffect(() => {
+        const heartbeatInterval = setInterval(() => {
+            axios.post('http://localhost:3000/expert-heartbeat', {}, { withCredentials: true })
+                .catch((error) => {
+                    if (error.response && error.response.status === 401) {
+                        // Unauthorized, session might have expired
+                        navigate('/expert-login');
+                    }
+                });
+        }, 30000); // Send heartbeat every 30 seconds
+
+        return () => clearInterval(heartbeatInterval);
+    }, [navigate]);
+
+    useEffect(() => {
         // Reset selected subject and QSet based on the current URL
         const path = location.pathname.split('/');
         if (path.length === 2) { // At /expertDashboard/
@@ -35,9 +51,19 @@ const ExpertDashboard = () => {
         }
     }, [location, setSelectedSubject, setSelectedQSet]);
 
+    const handleLogout = async () => {
+        try {
+            await axios.post('http://localhost:3000/expert-logout', {}, { withCredentials: true });
+            navigate('/expert-login');
+        } catch (error) {
+            console.error('Error logging out:', error);
+        }
+    };
+
     return (
         <div className="dashboard-container">
             <div className="box">
+                <button className="logout-button" onClick={handleLogout}>Logout</button>
                 {expertDetails ? (
                     <div className="expert-details">
                         <h5 className="expert-id">Expert ID: {expertDetails.expertId}</h5>

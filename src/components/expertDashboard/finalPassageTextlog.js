@@ -2,7 +2,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import './finalPassageTextlog.css';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate  } from 'react-router-dom';
+import { toast } from 'react-toastify';
+
 
 const ColoredText = ({ coloredWords, highlightedWord }) => {
   return (
@@ -21,7 +23,7 @@ const ColoredText = ({ coloredWords, highlightedWord }) => {
 
 const MistakesList = ({ mistakes, onAddIgnoreWord, onUndoWord, onWordHover, fontSize, ignoreList }) => {
   return (
-    <div className="mistakes-list" style={{ fontSize: `${fontSize}px` }}>
+    <div className="mistakes-list">
       {Object.entries(mistakes).map(([category, words]) => (
         <div key={category}>
           <h3 style={{ fontSize: `${fontSize * 1.2}px` }}>
@@ -74,6 +76,7 @@ const MistakesList = ({ mistakes, onAddIgnoreWord, onUndoWord, onWordHover, font
 };
 
 const FinalPassageTextlog = () => {
+    const navigate = useNavigate();
     const { subjectId, qset } = useParams();
     const [passages, setPassages] = useState({ 
         passageA: '', 
@@ -103,6 +106,25 @@ const FinalPassageTextlog = () => {
     const handleIsSwapped = () => {
       setIsSwapped(!isSwapped);
     };
+
+    const handleSubmit = async () => {
+      try {
+          const response = await axios.post(
+              `http://localhost:3000/submit-passage-review/${subjectId}/${qset}`, 
+              {}, 
+              { withCredentials: true }
+          );
+
+          if (response.status === 200) {
+              toast.success('Passage review submitted successfully');
+              navigate(`/expertDashboard/${subjectId}`);
+          }
+      } catch (err) {
+          console.error('Error submitting passage review:', err);
+          toast.error('Error submitting passage review. Please try again.');
+      }
+    };
+
 
     useEffect(() => {
       const fetchPassages = async () => {
@@ -233,61 +255,64 @@ const FinalPassageTextlog = () => {
     }, [mistakes, subjectId, qset, activePassage, comparePassages]);
 
     return (
-        <div className="final-passage-container">
-            <div className="passage-buttons">
-                <button 
-                    className={`passage-button ${activePassage === 'A' ? 'active' : ''}`}
-                    onClick={() => handlePassageChange('A')}
-                >
-                    Passage A
-                </button>
-                <button 
-                    className={`passage-button ${activePassage === 'B' ? 'active' : ''}`}
-                    onClick={() => handlePassageChange('B')}
-                >
-                    Passage B
-                </button>
-            </div>
-            <div className="grid-item">
-                <h2 className="column-header">
-                  {isSwapped ? 'User Answer' : 'Model Answer'}
-                </h2>
-                <pre className="preformatted-text" style={{ fontSize: `${fontSizes.modelAnswer}px`}}>
-                    {isSwapped ? passages[`passage${activePassage}`] : passages[`ansPassage${activePassage}`]}
-                </pre>
-                <div className="zoom-buttons">
-                    <button onClick={handleIsSwapped}><i className="fas fa-exchange-alt"></i></button>
-                    <button onClick={() => handleZoom('modelAnswer', 'in')}><i className="fas fa-search-plus"></i></button>
-                    <button onClick={() => handleZoom('modelAnswer', 'out')}><i className="fas fa-search-minus"></i></button>
-                </div>
-            </div>
-            <div className="grid-item">
-                <h2 className="column-header">Difference Passage</h2>
-                <div className="preformatted-text" style={{ fontSize: `${fontSizes.answerPassage}px` }}>
-                    <ColoredText coloredWords={coloredWords} highlightedWord={highlightedWord} />
-                </div>
-                <div className="zoom-buttons">
-                    <button onClick={() => handleZoom('answerPassage', 'in')}><i className="fas fa-search-plus"></i></button>
-                    <button onClick={() => handleZoom('answerPassage', 'out')}><i className="fas fa-search-minus"></i></button>
-                </div>
-            </div>
-            <div className="grid-item">
-              <h2 className="column-header">Mistakes</h2>
-              <MistakesList 
-                mistakes={mistakes} 
-                fontSize={fontSizes.mistakes}
-                onAddIgnoreWord={handleAddIgnoreWord}
-                onUndoWord={handleUndoWord}
-                onWordHover={handleWordHover}
-                ignoreList={ignoreList}
-              />
-              <div className="zoom-buttons">
-                  <button onClick={() => handleZoom('mistakes', 'in')}><i className="fas fa-search-plus"></i></button>
-                  <button onClick={() => handleZoom('mistakes', 'out')}><i className="fas fa-search-minus"></i></button>
+      <div className="final-passage-container">
+          <div className="passage-buttons-container">
+              <div className="passage-buttons">
+                  <button 
+                      className={`passage-button ${activePassage === 'A' ? 'active' : ''}`}
+                      onClick={() => handlePassageChange('A')}
+                  >
+                      Passage A
+                  </button>
+                  <button 
+                      className={`passage-button ${activePassage === 'B' ? 'active' : ''}`}
+                      onClick={() => handlePassageChange('B')}
+                  >
+                      Passage B
+                  </button>
               </div>
+              <button className="submit-button"  onClick={handleSubmit}>Submit</button>
+          </div>
+          <div className="grid-item">
+              <h2 className="column-header">
+                {isSwapped ? 'User Answer' : 'Model Answer'}
+              </h2>
+              <pre className="preformatted-text" style={{ fontSize: `${fontSizes.modelAnswer}px`}}>
+                  {isSwapped ? passages[`passage${activePassage}`] : passages[`ansPassage${activePassage}`]}
+              </pre>
+              <div className="zoom-buttons">
+                  <button onClick={handleIsSwapped}><i className="fas fa-exchange-alt"></i></button>
+                  <button onClick={() => handleZoom('modelAnswer', 'in')}><i className="fas fa-search-plus"></i></button>
+                  <button onClick={() => handleZoom('modelAnswer', 'out')}><i className="fas fa-search-minus"></i></button>
+              </div>
+          </div>
+          <div className="grid-item">
+              <h2 className="column-header">Difference Passage</h2>
+              <div className="preformatted-text" style={{ fontSize: `${fontSizes.answerPassage}px` }}>
+                  <ColoredText coloredWords={coloredWords} highlightedWord={highlightedWord} />
+              </div>
+              <div className="zoom-buttons">
+                  <button onClick={() => handleZoom('answerPassage', 'in')}><i className="fas fa-search-plus"></i></button>
+                  <button onClick={() => handleZoom('answerPassage', 'out')}><i className="fas fa-search-minus"></i></button>
+              </div>
+          </div>
+          <div className="grid-item">
+            <h2 className="column-header">Mistakes</h2>
+            <MistakesList 
+              mistakes={mistakes} 
+              fontSize={fontSizes.mistakes}
+              onAddIgnoreWord={handleAddIgnoreWord}
+              onUndoWord={handleUndoWord}
+              onWordHover={handleWordHover}
+              ignoreList={ignoreList}
+            />
+            <div className="zoom-buttons">
+                <button onClick={() => handleZoom('mistakes', 'in')}><i className="fas fa-search-plus"></i></button>
+                <button onClick={() => handleZoom('mistakes', 'out')}><i className="fas fa-search-minus"></i></button>
             </div>
-        </div>
-    );
+          </div>
+      </div>
+  );
 };
 
 export default FinalPassageTextlog;
