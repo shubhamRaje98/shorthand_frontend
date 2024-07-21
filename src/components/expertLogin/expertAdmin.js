@@ -15,7 +15,7 @@ const ExpertAdmin = () => {
         setMessage('');
 
         try {
-            const response = await axios.post('http://localhost:3000/get-student-passages', { studentId }, { withCredentials: true });
+            const response = await axios.post('http://13.127.206.181:3000/get-student-passages', { studentId }, { withCredentials: true });
             
             if (response.status === 200 && response.data) {
                 const { subjectId, qset } = response.data;

@@ -4,6 +4,8 @@ import axios from 'axios';
 import './finalPassageTextlog.css';
 import { useParams, useNavigate  } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUndo, faEyeSlash, faExchangeAlt, faSearchPlus, faSearchMinus } from '@fortawesome/free-solid-svg-icons';
 
 
 const ColoredText = ({ coloredWords, highlightedWord }) => {
@@ -48,8 +50,8 @@ const MistakesList = ({ mistakes, onAddIgnoreWord, onUndoWord, onWordHover, font
                       title={isIgnored ? "Undo Ignore" : "Ignore"}
                       onClick={() => isIgnored ? onUndoWord(category, index) : onAddIgnoreWord(wordText)}
                       style={{ fontSize: `${fontSize * 0.8}px` }}
-                    >
-                      <i className={`fas ${isIgnored ? 'fa-undo' : 'fa-eye-slash'}`}></i>
+                      >
+                      <FontAwesomeIcon icon={isIgnored ? faUndo : faEyeSlash} />
                     </button>
                     {!isIgnored && (
                       <button 
@@ -58,7 +60,7 @@ const MistakesList = ({ mistakes, onAddIgnoreWord, onUndoWord, onWordHover, font
                         onClick={() => onUndoWord(category, index)}
                         style={{ fontSize: `${fontSize * 0.8}px` }}
                       >
-                        <i className="fas fa-undo"></i>
+                        <FontAwesomeIcon icon={faUndo} />
                       </button>
                     )}
                   </div>
@@ -110,7 +112,7 @@ const FinalPassageTextlog = () => {
     const handleSubmit = async () => {
       try {
           const response = await axios.post(
-              `http://localhost:3000/submit-passage-review/${subjectId}/${qset}`, 
+              `http://13.127.206.181:3000/submit-passage-review/${subjectId}/${qset}`, 
               {}, 
               { withCredentials: true }
           );
@@ -129,7 +131,7 @@ const FinalPassageTextlog = () => {
     useEffect(() => {
       const fetchPassages = async () => {
           try {
-              const response = await axios.get(`http://localhost:3000/expert-assigned-passages/${subjectId}/${qset}`, { withCredentials: true });
+              const response = await axios.get(`http://13.127.206.181:3000/expert-assigned-passages/${subjectId}/${qset}`, { withCredentials: true });
               if (response.status === 200) {
                   console.log("Raw data:", JSON.stringify(response.data));
                   setPassages(response.data);
@@ -147,7 +149,7 @@ const FinalPassageTextlog = () => {
           try {
               console.log(subjectId, qset, activePassage);
               
-              const response = await axios.post('http://localhost:3000/active-passage', {
+              const response = await axios.post('http://13.127.206.181:3000/active-passage', {
                   subjectId,
                   qset,
                   activePassage
@@ -177,7 +179,7 @@ const FinalPassageTextlog = () => {
         if (!modelAnswer || !userAnswer) return;
 
         try {
-            const response = await axios.post('http://localhost:5000/compare', {
+            const response = await axios.post('http://13.233.196.0:5000/compare', {
                 text1: modelAnswer,
                 text2: userAnswer,
                 ignore_list: ignoreList,
@@ -214,7 +216,7 @@ const FinalPassageTextlog = () => {
 
     const handleAddIgnoreWord = useCallback(async (word) => {
       try {
-        const response = await axios.post('http://localhost:3000/add-ignore-word', {
+        const response = await axios.post('http://13.127.206.181:3000/add-ignore-word', {
           subjectId,
           qset,
           activePassage,
@@ -236,7 +238,7 @@ const FinalPassageTextlog = () => {
         const wordToUndo = mistakes[category][index];
         const wordText = Array.isArray(wordToUndo) ? wordToUndo[0] : wordToUndo;
     
-        const response = await axios.post('http://localhost:3000/undo-word', {
+        const response = await axios.post('http://13.127.206.181:3000/undo-word', {
           subjectId,
           qset,
           activePassage,
@@ -281,9 +283,9 @@ const FinalPassageTextlog = () => {
                   {isSwapped ? passages[`passage${activePassage}`] : passages[`ansPassage${activePassage}`]}
               </pre>
               <div className="zoom-buttons">
-                  <button onClick={handleIsSwapped}><i className="fas fa-exchange-alt"></i></button>
-                  <button onClick={() => handleZoom('modelAnswer', 'in')}><i className="fas fa-search-plus"></i></button>
-                  <button onClick={() => handleZoom('modelAnswer', 'out')}><i className="fas fa-search-minus"></i></button>
+                <button onClick={handleIsSwapped}><FontAwesomeIcon icon={faExchangeAlt} /></button>
+                <button onClick={() => handleZoom('modelAnswer', 'in')}><FontAwesomeIcon icon={faSearchPlus} /></button>
+                <button onClick={() => handleZoom('modelAnswer', 'out')}><FontAwesomeIcon icon={faSearchMinus} /></button>
               </div>
           </div>
           <div className="grid-item">
@@ -292,8 +294,8 @@ const FinalPassageTextlog = () => {
                   <ColoredText coloredWords={coloredWords} highlightedWord={highlightedWord} />
               </div>
               <div className="zoom-buttons">
-                  <button onClick={() => handleZoom('answerPassage', 'in')}><i className="fas fa-search-plus"></i></button>
-                  <button onClick={() => handleZoom('answerPassage', 'out')}><i className="fas fa-search-minus"></i></button>
+                  <button onClick={() => handleZoom('answerPassage', 'in')}><FontAwesomeIcon icon={faSearchPlus} /></button>
+                  <button onClick={() => handleZoom('answerPassage', 'out')}><FontAwesomeIcon icon={faSearchMinus} /></button>
               </div>
           </div>
           <div className="grid-item">
@@ -307,8 +309,8 @@ const FinalPassageTextlog = () => {
               ignoreList={ignoreList}
             />
             <div className="zoom-buttons">
-                <button onClick={() => handleZoom('mistakes', 'in')}><i className="fas fa-search-plus"></i></button>
-                <button onClick={() => handleZoom('mistakes', 'out')}><i className="fas fa-search-minus"></i></button>
+                <button onClick={() => handleZoom('mistakes', 'in')}><FontAwesomeIcon icon={faSearchPlus} /></button>
+                <button onClick={() => handleZoom('mistakes', 'out')}><FontAwesomeIcon icon={faSearchMinus} /></button>
             </div>
           </div>
       </div>

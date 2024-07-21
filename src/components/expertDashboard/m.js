@@ -72,7 +72,7 @@ const FinalPassageTextlog = () => {
     useEffect(() => {
         const fetchPassages = async () => {
             try {
-                const response = await axios.get(`http://localhost:3000/expert-assigned-passages/${subjectId}/${qset}`, { withCredentials: true });
+                const response = await axios.get(`http://13.127.206.181:3000/expert-assigned-passages/${subjectId}/${qset}`, { withCredentials: true });
                 if (response.status === 200) {
                     console.log("Raw data:", JSON.stringify(response.data));
                     setPassages(response.data);
@@ -90,7 +90,7 @@ const FinalPassageTextlog = () => {
             try {
                 console.log(subjectId, qset, activePassage);
                 
-                const response = await axios.post('http://localhost:3000/active-passage', {
+                const response = await axios.post('http://13.127.206.181:3000/active-passage', {
                     subjectId,
                     qset,
                     activePassage

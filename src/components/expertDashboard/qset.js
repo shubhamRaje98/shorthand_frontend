@@ -17,7 +17,7 @@ const QSet = () => {
     const fetchQSets = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:3000/qsets/${subjectId}`, { withCredentials: true });
+        const response = await axios.get(`http://13.127.206.181:3000/qsets/${subjectId}`, { withCredentials: true });
         if (response.status === 200) {
           const sortedQSets = response.data.sort((a, b) => a.qset - b.qset);
           setQsets(sortedQSets);
@@ -35,7 +35,7 @@ const QSet = () => {
 
   const handleQSetClick = async (qsetObj) => {
     try {
-      const response = await axios.post(`http://localhost:3000/assignStudent/${subjectId}/${qsetObj.qset}`, {}, { withCredentials: true });
+      const response = await axios.post(`http://13.127.206.181:3000/assignStudent/${subjectId}/${qsetObj.qset}`, {}, { withCredentials: true });
       if (response.status === 200) {
         setSelectedQSet(qsetObj);
         navigate(`/expertDashboard/${subjectId}/${qsetObj.qset}`);
