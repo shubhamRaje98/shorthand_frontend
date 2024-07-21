@@ -45,7 +45,7 @@ const NavBar = () => {
                         {showDashboards && (
                             <div className="dropdown-menu show">
                                 <Link to="/student-table" className="dropdown-item">Track Students Exam</Link>
-                                <Link className="dropdown-item">Centerwise Student Count</Link>
+                                {/*<Link className="dropdown-item">Centerwise Student Count</Link>*/}
                             </div>
                         )}
                     </li>

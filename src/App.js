@@ -26,6 +26,8 @@ import { io } from 'socket.io-client';
 import { SocketContext } from './SocketContext';
 
 const socket = io('http://localhost:3000');
+import SubjectWiseResultSummary from './components/subjectWiseSummaryDash/subjectWiseSummaryDash';
+
 
 axios.defaults.withCredentials = true;
 
@@ -52,10 +54,12 @@ const App = () => {
                         <Route path="/controller-password" element={<ControllerPassword />} />
                         <Route path="/fetch-update-table" element={<FetchUpdateTable />} />
                         <Route path="/fetch-pc-registration" element={<PCRegistration />} />
+                        <Route path="/result-subjectwise-summary" element={<SubjectWiseResultSummary />} />
                     </Routes>
                 </Router>
             </DashboardProvider>
         </SocketContext.Provider>
+
     );
 };
 
