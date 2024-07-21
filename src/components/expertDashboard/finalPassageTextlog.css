@@ -182,8 +182,10 @@ pre.preformatted-text {
     transition: font-size 0.3s ease;
 }
 
-.red { color: red; }
-.green { color: green; }
+.red {     background-color: #fee2e2;
+    color: #b91c1c; }
+.green {     background-color: #e6fffa;
+    color: #047857;}
 .black { color: black; }
 
 
