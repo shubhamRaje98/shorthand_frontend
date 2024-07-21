@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { redirect } from 'react-router-dom';
 
 const tableOptions = [
   'students', 'admindb', 'audiologs', 'batchdb', 'controllerdb',
@@ -160,6 +161,8 @@ const FetchUpdateTable = () => {
       const response = await axios.post(`http://localhost:3000/add-entry/${selectedTable}`, newEntryData);
       setData([...data, response.data]);
       setNewEntryData({});
+      alert(response);
+      redirect("/fetch-update-table");
     } catch (error) {
       console.error('Error adding new entry:', error);
     }

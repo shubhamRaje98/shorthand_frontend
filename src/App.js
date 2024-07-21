@@ -22,6 +22,7 @@ import AbsenteeRoll from './components/attendeeRoll/attendeeRoll';
 import ControllerPassword from './components/controllerPassword/controllerPassword';
 import FetchUpdateTable from './components/superAdmin/fetchUpdateTables';
 import PCRegistration from './components/pcRegistration/pcRegistration';
+import SubjectWiseResultSummary from './components/subjectWiseSummaryDash/subjectWiseSummaryDash';
 
 axios.defaults.withCredentials = true;
 
@@ -47,6 +48,7 @@ const App = () => {
                     <Route path="/controller-password" element={<ControllerPassword />} />
                     <Route path="/fetch-update-table" element={<FetchUpdateTable />} />
                     <Route path="/fetch-pc-registration" element={<PCRegistration />} />
+                    <Route path="/result-subjectwise-summary" element={<SubjectWiseResultSummary />} />
                 </Routes>
             </Router>
         </DashboardProvider>
