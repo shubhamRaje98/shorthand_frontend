@@ -23,7 +23,7 @@ const ColoredText = ({ coloredWords, highlightedWord }) => {
 
 const MistakesList = ({ mistakes, onAddIgnoreWord, onUndoWord, onWordHover, fontSize, ignoreList }) => {
   return (
-    <div className="mistakes-list" style={{ fontSize: `${fontSize}px` }}>
+    <div className="mistakes-list">
       {Object.entries(mistakes).map(([category, words]) => (
         <div key={category}>
           <h3 style={{ fontSize: `${fontSize * 1.2}px` }}>
