@@ -22,11 +22,13 @@ import AbsenteeRoll from './components/attendeeRoll/attendeeRoll';
 import ControllerPassword from './components/controllerPassword/controllerPassword';
 import FetchUpdateTable from './components/superAdmin/fetchUpdateTables';
 import PCRegistration from './components/pcRegistration/pcRegistration';
+
 import { io } from 'socket.io-client';
 import { SocketContext } from './SocketContext';
+import SubjectWiseResultSummary from './components/subjectWiseSummaryDash/subjectWiseSummaryDash';
+import ResultFetchUpdate from './components/resultSuperAdmin/fetchUpdateTables';
 
 const socket = io('http://localhost:3000');
-import SubjectWiseResultSummary from './components/subjectWiseSummaryDash/subjectWiseSummaryDash';
 
 
 axios.defaults.withCredentials = true;
@@ -55,6 +57,7 @@ const App = () => {
                         <Route path="/fetch-update-table" element={<FetchUpdateTable />} />
                         <Route path="/fetch-pc-registration" element={<PCRegistration />} />
                         <Route path="/result-subjectwise-summary" element={<SubjectWiseResultSummary />} />
+                        <Route path="/result-super-admin" element={< ResultFetchUpdate />} />
                     </Routes>
                 </Router>
             </DashboardProvider>
