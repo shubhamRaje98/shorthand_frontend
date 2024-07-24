@@ -7,6 +7,7 @@ import { toast } from 'react-toastify';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUndo, faEyeSlash, faExchangeAlt, faSearchPlus, faSearchMinus } from '@fortawesome/free-solid-svg-icons';
 
+
 const ColoredText = ({ coloredWords, highlightedWord }) => {
   return (
     <>
@@ -22,11 +23,11 @@ const ColoredText = ({ coloredWords, highlightedWord }) => {
   );
 };
 
-const MistakesList = ({ mistakes, onAddIgnoreWord, onUndoWord, onWordHover, fontSize, ignoreList }) => {
+const MistakesList = ({ mistakes, onAddIgnoreWord, onWordHover, fontSize, ignoreList }) => {
   const orderedCategories = ['spelling', 'missed', 'added', 'grammar'];
 
   return (
-    <div className="mistakes-list">
+    <div>
       {orderedCategories.map((category) => {
         if (!mistakes[category] || mistakes[category].length === 0) return null;
         
@@ -70,43 +71,33 @@ const MistakesList = ({ mistakes, onAddIgnoreWord, onUndoWord, onWordHover, font
             <h3 style={{ ...headingStyle, ...categoryStyle }}>
               {categoryTitle}
             </h3>
-            <ul style={{ fontSize: `${fontSize}px` }}>
+            <div style={{ fontSize: `${fontSize}px`, marginLeft: '1rem' }}>
               {mistakes[category].map((word, index) => {
                 const wordText = Array.isArray(word) ? word[0] : word;
                 const isIgnored = ignoreList.includes(wordText.toLowerCase());
                 return (
-                  <li 
+                  <div 
                     key={index}
+                    className="mistake-item"
+                    style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}
                     onMouseEnter={() => onWordHover(wordText)}
                     onMouseLeave={() => onWordHover(null)}
                   >
-                    <div className="word-actions">
-                      <button 
-                        className="action-button ignore-button" 
-                        title={isIgnored ? "Undo Ignore" : "Ignore"}
-                        onClick={() => isIgnored ? onUndoWord(category, index) : onAddIgnoreWord(wordText)}
-                        style={{ fontSize: `${fontSize * 0.8}px` }}
-                      >
-                        <FontAwesomeIcon icon={isIgnored ? faUndo : faEyeSlash} />
-                      </button>
-                      {!isIgnored && (
-                        <button 
-                          className="action-button undo-button" 
-                          title="Undo"
-                          onClick={() => onUndoWord(category, index)}
-                          style={{ fontSize: `${fontSize * 0.8}px` }}
-                        >
-                          <FontAwesomeIcon icon={faUndo} />
-                        </button>
-                      )}
-                    </div>
+                    <button 
+                      className="action-button ignore-button" 
+                      title={isIgnored ? "Undo Ignore" : "Ignore"}
+                      onClick={() => onAddIgnoreWord(wordText)}
+                      style={{ fontSize: `${fontSize * 0.8}px`, marginRight: '5px' }}
+                    >
+                      <FontAwesomeIcon icon={isIgnored ? faUndo : faEyeSlash} />
+                    </button>
                     <span className={`mistake-word ${isIgnored ? 'ignored' : ''}`}>
                       {Array.isArray(word) ? `${word[0]} (${word[1]})` : word}
                     </span>
-                  </li>
+                  </div>
                 );
               })}
-            </ul>
+            </div>
           </div>
         );
       })}
@@ -259,35 +250,53 @@ const FetchPassageById = () => {
     
         if (response.status === 200) {
           setIgnoreList(prevList => [...prevList, word.toLowerCase()]);
-          console.log(`Word "${word}" added to ignore list`);
+          toast.success(`Word "${word}" added to ignore list`);
         }
       } catch (err) {
         console.error('Error adding word to ignore list:', err);
+        toast.error(`Failed to add "${word}" to ignore list`);
       }
     }, [passages.subjectId, passages.qset, activePassage]);
     
-    const handleUndoWord = useCallback(async (category, index) => {
+    const handleUndoWord = useCallback(async (wordToRemove) => {
       try {
-        const wordToUndo = mistakes[category][index];
-        const wordText = Array.isArray(wordToUndo) ? wordToUndo[0] : wordToUndo;
-    
         const response = await axios.post('http://localhost:3000/undo-word', {
           subjectId: passages.subjectId,
           qset: passages.qset,
           activePassage,
-          category,
-          word: wordText
+          wordToRemove
         }, { withCredentials: true });
     
         if (response.status === 200) {
-          setIgnoreList(prevList => prevList.filter(w => w !== wordText.toLowerCase()));
-          console.log(`Word "${wordText}" removed from ignore list`);
+          setIgnoreList(prevList => prevList.filter(w => w.toLowerCase() !== wordToRemove.toLowerCase()));
+          toast.success(`Word "${wordToRemove}" removed from ignore list`);
           comparePassages();
         }
       } catch (err) {
-        console.error('Error undoing word:', err);
+        console.error('Error removing word from ignore list:', err);
+        toast.error('Failed to remove word from ignore list');
       }
-    }, [mistakes, passages.subjectId, passages.qset, activePassage, comparePassages]);
+    }, [passages.subjectId, passages.qset, activePassage, comparePassages]);
+
+    const IgnoredList = ({ ignoreList, fontSize, onUndoIgnore }) => {
+      return (
+        <div className="ignored-list" style={{ fontSize: `${fontSize}px`, marginLeft: '1rem' }}>
+          {ignoreList.map((word, index) => (
+            <div key={index} className="ignored-item" style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
+              <button 
+                className="action-button undo-button" 
+                title="Remove from Ignore List"
+                onClick={() => onUndoIgnore(word)}
+                style={{ fontSize: `${fontSize * 0.8}px`, marginRight: '5px' }}
+              >
+                <FontAwesomeIcon icon={faUndo} />
+              </button>
+              <span className="ignored-word">{word}</span>
+            </div>
+          ))}
+        </div>
+      );
+    };
 
     return (
       <div className="final-passage-container">
@@ -341,18 +350,31 @@ const FetchPassageById = () => {
               </div>
           </div>
           <div className="grid-item">
-            <h2 className="column-header">Mistakes</h2>
-            <MistakesList 
-              mistakes={mistakes} 
-              fontSize={fontSizes.mistakes}
-              onAddIgnoreWord={handleAddIgnoreWord}
-              onUndoWord={handleUndoWord}
-              onWordHover={handleWordHover}
-              ignoreList={ignoreList}
-            />
+            <h2 className="column-header">Mistakes and Ignored Words</h2>
+            <div className="mistakes-ignored-container">
+              <div className="mistakes-container">
+                <h5 style={{color: 'red'}}>Mistakes List</h5>
+                <MistakesList 
+                  mistakes={mistakes} 
+                  fontSize={fontSizes.mistakes}
+                  onAddIgnoreWord={handleAddIgnoreWord}
+                  onUndoWord={handleUndoWord}
+                  onWordHover={handleWordHover}
+                  ignoreList={ignoreList}
+                />
+              </div>
+              <div className="ignored-container">
+                <h5 style={{color: 'red'}}>Ignored List</h5>
+                <IgnoredList 
+                  ignoreList={ignoreList}
+                  fontSize={fontSizes.mistakes}
+                  onUndoIgnore={handleUndoWord}
+                />
+              </div>
+            </div>
             <div className="zoom-buttons">
-                <button onClick={() => handleZoom('mistakes', 'in')}><FontAwesomeIcon icon={faSearchPlus} /></button>
-                <button onClick={() => handleZoom('mistakes', 'out')}><FontAwesomeIcon icon={faSearchMinus} /></button>
+              <button onClick={() => handleZoom('mistakes', 'in')}><FontAwesomeIcon icon={faSearchPlus} /></button>
+              <button onClick={() => handleZoom('mistakes', 'out')}><FontAwesomeIcon icon={faSearchMinus} /></button>
             </div>
           </div>
       </div>

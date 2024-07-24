@@ -3,9 +3,7 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 0.6rem;
-    /* background-color: #f8f9fa; */
     border-radius: 0.5rem;
-    /* box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.05); */
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: #333;
     font-size: 0.9rem;
@@ -55,6 +53,7 @@
     display: flex;
     flex-direction: column;
     transition: box-shadow 0.3s ease;
+    height: 100%;
 }
 
 .grid-item:hover {
@@ -68,6 +67,7 @@
     color: #007bff;
     padding-bottom: 0.5em;
     border-bottom: 1px solid #e9ecef;
+    flex-shrink: 0;
 }
 
 .preformatted-text, .mistakes-list {
@@ -79,15 +79,15 @@
     background-color: #f8f9fa;
     border-radius: 0.25rem;
     border: 1px solid #e9ecef;
+    max-height: none;
 }
 
 pre.preformatted-text {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     white-space: pre-wrap;
     word-wrap: break-word;
     text-align: left;
     margin: 0;
-
 }
 
 .mistakes-list h3 {
@@ -110,9 +110,9 @@ pre.preformatted-text {
 .word-actions {
     display: flex;
     margin-right: 3rem;
-  }
-  
-  .action-button {
+}
+
+.action-button {
     background: none;
     border: none;
     cursor: pointer;
@@ -120,26 +120,26 @@ pre.preformatted-text {
     font-size: 0.8rem;
     color: #6c757d;
     transition: color 0.3s ease;
-  }
-  
-  .action-button:hover {
-    color: #007bff;
-  }
-  
-  .ignore-button {
-    margin-right: 3rem;
-  }
-  
-  .mistake-word {
-    flex-grow: 1;
-  }
+}
 
-  .mistake-word.ignored {
+.action-button:hover {
+    color: #007bff;
+}
+
+.ignore-button {
+    margin-right: 3rem;
+}
+
+.mistake-word {
+    flex-grow: 1;
+}
+
+.mistake-word.ignored {
     text-decoration: line-through;
     color: #a0aec0;
     transition: all 0.3s ease;
-  }
-  
+}
+
 .added {
     background-color: #e6fffa;
     color: #047857;
@@ -160,11 +160,11 @@ pre.preformatted-text {
     font-weight: 600;
 }
 
-/* Zoom content */
 .zoom-buttons {
     display: flex;
     justify-content: flex-end;
-    margin-top: 0.5rem;
+    margin-top: auto;
+    padding-top: 0.5rem;
 }
 
 .zoom-buttons button {
@@ -182,11 +182,6 @@ pre.preformatted-text {
     color: #007bff;
 }
 
-.preformatted-text, .mistakes-list {
-    transition: font-size 0.3s ease;
-}
-
-/* Submit Button */
 .submit-button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
@@ -217,90 +212,101 @@ pre.preformatted-text {
     opacity: 1;
 }
 
-.red {     background-color: #fee2e2;
-    color: #b91c1c; }
-.green {     background-color: #e6fffa;
-    color: #047857;}
-.black { color: black; }
+.red {
+    background-color: #fee2e2;
+    color: #b91c1c;
+}
 
-/* Modify these existing styles */
-.grid-item {
-    display: flex;
-    flex-direction: column;
-    height: 100%; /* Ensure full height */
-    overflow: hidden; /* Prevent overflow */
+.green {
+    background-color: #e6fffa;
+    color: #047857;
+}
+
+.black {
+    color: black;
 }
 
 .mistakes-ignored-container {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     height: 100%;
-    overflow: hidden; /* Prevent overflow */
+    overflow: hidden;
 }
 
 .mistakes-container, .ignored-container {
-    flex: 1 1 0; /* Allow containers to grow and shrink, but start at 0 height */
-    overflow-y: auto; /* Add scrollbar when content overflows */
-    padding: 0.75rem;
+    flex: 1;
     background-color: #f8f9fa;
     border-radius: 0.25rem;
     border: 1px solid #e9ecef;
-    margin-bottom: 0.5rem;
-    min-height: 0; /* Allow containers to shrink */
+    margin-right: 0.5rem;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 .ignored-container {
-    margin-bottom: 0;
+    margin-right: 0;
 }
 
-/* Ensure the zoom buttons don't push content */
-.zoom-buttons {
-    margin-top: auto; /* Push to bottom */
-    padding-top: 0.5rem;
-}
-
-/* Remove or adjust this if it's causing issues */
-.preformatted-text, .mistakes-list {
-    max-height: none; /* Remove max-height restriction */
+.mistakes-container > div, .ignored-container > div {
     overflow-y: auto;
+    max-height: 100%;
+    padding: 0rem 0.75rem;
+    padding-right: 0; /* Remove right padding to allow scrollbar to touch the edge */
 }
 
-/* Add this new style */
-.column-header {
-    flex-shrink: 0; /* Prevent header from shrinking */
+.mistakes-container h5, .ignored-container h5 {
+    margin-bottom: 0;
+    position: sticky;
+    top: 0;
+    background-color: #f8f9fa;
+    padding: 0.75rem 0.75rem 0.2rem;
+    z-index: 1;
 }
-
-
-
-
 
 /* Modern and aesthetic scrollbar styles */
 .preformatted-text::-webkit-scrollbar,
-.mistakes-list::-webkit-scrollbar {
+.mistakes-list::-webkit-scrollbar,
+.mistakes-container > div::-webkit-scrollbar,
+.ignored-container > div::-webkit-scrollbar {
     width: 8px;
 }
 
 .preformatted-text::-webkit-scrollbar-track,
-.mistakes-list::-webkit-scrollbar-track {
+.mistakes-list::-webkit-scrollbar-track,
+.mistakes-container > div::-webkit-scrollbar-track,
+.ignored-container > div::-webkit-scrollbar-track {
     background: #f1f1f1;
     border-radius: 4px;
 }
 
 .preformatted-text::-webkit-scrollbar-thumb,
-.mistakes-list::-webkit-scrollbar-thumb {
+.mistakes-list::-webkit-scrollbar-thumb,
+.mistakes-container > div::-webkit-scrollbar-thumb,
+.ignored-container > div::-webkit-scrollbar-thumb {
     background: #c1c1c1;
     border-radius: 4px;
     transition: background 0.3s ease;
 }
 
 .preformatted-text::-webkit-scrollbar-thumb:hover,
-.mistakes-list::-webkit-scrollbar-thumb:hover {
+.mistakes-list::-webkit-scrollbar-thumb:hover,
+.mistakes-container > div::-webkit-scrollbar-thumb:hover,
+.ignored-container > div::-webkit-scrollbar-thumb:hover {
     background: #a8a8a8;
 }
 
 /* For Firefox */
 .preformatted-text,
-.mistakes-list {
+.mistakes-list,
+.mistakes-container > div,
+.ignored-container > div {
     scrollbar-width: thin;
     scrollbar-color: #c1c1c1 #f1f1f1;
+}
+
+/* Ensure content doesn't overlap with scrollbar */
+.mistakes-container > div > *,
+.ignored-container > div > * {
+    padding-right: 8px; /* Width of the scrollbar */
 }

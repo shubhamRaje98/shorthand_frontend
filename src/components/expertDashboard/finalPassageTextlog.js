@@ -258,36 +258,34 @@ const FinalPassageTextlog = () => {
     
         if (response.status === 200) {
           setIgnoreList(prevList => [...prevList, word.toLowerCase()]);
-          console.log(`Word "${word}" added to ignore list`);
+          toast.success(`Word "${word}" added to ignore list`);
           // We don't need to call comparePassages() here anymore
         }
       } catch (err) {
         console.error('Error adding word to ignore list:', err);
+        toast.error(`Failed to add "${word}" to ignore list`);
       }
     }, [subjectId, qset, activePassage]);
     
-    const handleUndoWord = useCallback(async (category, index) => {
+    const handleUndoWord = useCallback(async (wordToRemove) => {
       try {
-        const wordToUndo = mistakes[category][index];
-        const wordText = Array.isArray(wordToUndo) ? wordToUndo[0] : wordToUndo;
-    
         const response = await axios.post('http://localhost:3000/undo-word', {
           subjectId,
           qset,
           activePassage,
-          category,
-          word: wordText
+          wordToRemove
         }, { withCredentials: true });
     
         if (response.status === 200) {
-          setIgnoreList(prevList => prevList.filter(w => w !== wordText.toLowerCase()));
-          console.log(`Word "${wordText}" removed from ignore list`);
+          setIgnoreList(prevList => prevList.filter(word => word.toLowerCase() !== wordToRemove.toLowerCase()));
+          toast.success(`Word "${wordToRemove}" removed from ignore list`);
           comparePassages();
         }
       } catch (err) {
-        console.error('Error undoing word:', err);
+        console.error('Error removing word from ignore list:', err);
+        toast.error('Failed to remove word from ignore list');
       }
-    }, [mistakes, subjectId, qset, activePassage, comparePassages]);
+    }, [subjectId, qset, activePassage, comparePassages]);
 
     const IgnoredList = ({ ignoreList, fontSize, onUndoIgnore }) => {
       return (
@@ -296,7 +294,7 @@ const FinalPassageTextlog = () => {
             <div key={index} className="ignored-item" style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
               <button 
                 className="action-button undo-button" 
-                title="Undo Ignore"
+                title="Remove from Ignore List"
                 onClick={() => onUndoIgnore(word)}
                 style={{ fontSize: `${fontSize * 0.8}px`, marginRight: '5px' }}
               >
