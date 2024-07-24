@@ -32,7 +32,7 @@ const ExpertDashboard = () => {
                 .catch((error) => {
                     if (error.response && error.response.status === 401) {
                         // Unauthorized, session might have expired
-                        navigate('/expert-login');
+                        navigate('/expert-login', {replace: true});
                     }
                 });
         }, 30000); // Send heartbeat every 30 seconds
@@ -54,7 +54,7 @@ const ExpertDashboard = () => {
     const handleLogout = async () => {
         try {
             await axios.post('http://localhost:3000/expert-logout', {}, { withCredentials: true });
-            navigate('/expert-login');
+            navigate('/expert-login', {replace: true});
         } catch (error) {
             console.error('Error logging out:', error);
         }

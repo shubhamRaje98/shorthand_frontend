@@ -21,7 +21,7 @@ const Login = () => {
                 withCredentials: true
             });
             if (response.status === 200) {
-                navigate(`/home`);
+                navigate(`/home`, {replace: true});
             }
         } catch (err) {
             setError('Invalid Center Code or Password');

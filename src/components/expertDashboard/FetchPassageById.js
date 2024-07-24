@@ -1,4 +1,4 @@
-// finalPassageTextlog.js
+// FetchPassageById.js
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import './finalPassageTextlog.css';
@@ -105,14 +105,16 @@ const MistakesList = ({ mistakes, onAddIgnoreWord, onWordHover, fontSize, ignore
   );
 };
 
-const FinalPassageTextlog = () => {
+const FetchPassageById = () => {
     const navigate = useNavigate();
-    const { subjectId, qset } = useParams();
+    const { studentId } = useParams();
     const [passages, setPassages] = useState({ 
         passageA: '', 
         passageB: '', 
         ansPassageA: '', 
-        ansPassageB: '' 
+        ansPassageB: '',
+        subjectId: '',
+        qset: ''
     });
     const [activePassage, setActivePassage] = useState('A');
     const [mistakes, setMistakes] = useState({});
@@ -127,7 +129,6 @@ const FinalPassageTextlog = () => {
     const [highlightedWord, setHighlightedWord] = useState(null);
     const [passageBViewed, setPassageBViewed] = useState(false);
 
-
     const handleZoom = (column, action) => {
         setFontSizes(prev => ({
             ...prev,
@@ -141,47 +142,38 @@ const FinalPassageTextlog = () => {
 
     const handleSubmit = async () => {
       try {
-          const response = await axios.post(
-              `http://localhost:3000/submit-passage-review/${subjectId}/${qset}`, 
-              {}, 
-              { withCredentials: true }
-          );
-
-          if (response.status === 200) {
-              toast.success('Passage review submitted successfully');
-              navigate(`/expertDashboard/${subjectId}`, {replace: true});
-          }
+          toast.success('Passage review submitted successfully');
+          navigate(`/expertAdmin`, {replace: true});
       } catch (err) {
           console.error('Error submitting passage review:', err);
           toast.error('Error submitting passage review. Please try again.');
       }
     };
 
-
     useEffect(() => {
-      const fetchPassages = async () => {
-          try {
-              const response = await axios.get(`http://localhost:3000/expert-assigned-passages/${subjectId}/${qset}`, { withCredentials: true });
-              if (response.status === 200) {
-                  console.log("Raw data:", JSON.stringify(response.data));
-                  setPassages(response.data);
-              }
-          } catch (err) {
-              console.error('Error fetching passages:', err);
-          }
-      };
+        const fetchPassages = async () => {
+            try {
+                const response = await axios.post('http://localhost:3000/get-student-passages', { studentId }, { withCredentials: true });
+                if (response.status === 200 && response.data && Object.keys(response.data).length > 0) {
+                    console.log("Raw data:", JSON.stringify(response.data));
+                    setPassages(response.data);
+                } else {
+                    console.error('No matching record found for this Student ID');
+                }
+            } catch (err) {
+                console.error('Error fetching passages:', err);
+            }
+        };
   
       fetchPassages();
-    }, [subjectId, qset]);
+    }, [studentId]);
 
     useEffect(() => {
       const sendActivePassageData = async () => {
-          try {
-              console.log(subjectId, qset, activePassage);
-              
+          try {              
               const response = await axios.post('http://localhost:3000/active-passage', {
-                  subjectId,
-                  qset,
+                  subjectId: passages.subjectId,
+                  qset: passages.qset,
                   activePassage
               }, { withCredentials: true });
           
@@ -196,7 +188,7 @@ const FinalPassageTextlog = () => {
       };
 
       sendActivePassageData();
-    }, [subjectId, qset, activePassage]);
+    }, [passages.subjectId, passages.qset, activePassage]);
 
     const handlePassageChange = (passage) => {
       setActivePassage(passage);
@@ -250,8 +242,8 @@ const FinalPassageTextlog = () => {
     const handleAddIgnoreWord = useCallback(async (word) => {
       try {
         const response = await axios.post('http://localhost:3000/add-ignore-word', {
-          subjectId,
-          qset,
+          subjectId: passages.subjectId,
+          qset: passages.qset,
           activePassage,
           newWord: word
         }, { withCredentials: true });
@@ -259,25 +251,24 @@ const FinalPassageTextlog = () => {
         if (response.status === 200) {
           setIgnoreList(prevList => [...prevList, word.toLowerCase()]);
           toast.success(`Word "${word}" added to ignore list`);
-          // We don't need to call comparePassages() here anymore
         }
       } catch (err) {
         console.error('Error adding word to ignore list:', err);
         toast.error(`Failed to add "${word}" to ignore list`);
       }
-    }, [subjectId, qset, activePassage]);
+    }, [passages.subjectId, passages.qset, activePassage]);
     
     const handleUndoWord = useCallback(async (wordToRemove) => {
       try {
         const response = await axios.post('http://localhost:3000/undo-word', {
-          subjectId,
-          qset,
+          subjectId: passages.subjectId,
+          qset: passages.qset,
           activePassage,
           wordToRemove
         }, { withCredentials: true });
     
         if (response.status === 200) {
-          setIgnoreList(prevList => prevList.filter(word => word.toLowerCase() !== wordToRemove.toLowerCase()));
+          setIgnoreList(prevList => prevList.filter(w => w.toLowerCase() !== wordToRemove.toLowerCase()));
           toast.success(`Word "${wordToRemove}" removed from ignore list`);
           comparePassages();
         }
@@ -285,7 +276,7 @@ const FinalPassageTextlog = () => {
         console.error('Error removing word from ignore list:', err);
         toast.error('Failed to remove word from ignore list');
       }
-    }, [subjectId, qset, activePassage, comparePassages]);
+    }, [passages.subjectId, passages.qset, activePassage, comparePassages]);
 
     const IgnoredList = ({ ignoreList, fontSize, onUndoIgnore }) => {
       return (
@@ -390,4 +381,4 @@ const FinalPassageTextlog = () => {
   );
 };
 
-export default FinalPassageTextlog;
+export default FetchPassageById;
