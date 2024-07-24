@@ -38,7 +38,7 @@ const FetchUpdateTable = () => {
       if (selectedTable === 'expertreviewlogs') {
         fetchParams = {
           ...fetchParams,
-          studentId : studentIdFilter,
+          student_id : studentIdFilter,
         };
       }
       if (selectedTable === 'qsetdb') {
@@ -48,6 +48,8 @@ const FetchUpdateTable = () => {
         };
       }
       
+      //console.log("fetchparams: "+fetchParams.subject_id);
+
       const response = await axios.post('http://localhost:3000/fetch-update-resultdb', fetchParams);
 
       const fetchedData = response.data;
