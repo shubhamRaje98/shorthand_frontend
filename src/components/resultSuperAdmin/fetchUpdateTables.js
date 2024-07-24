@@ -5,7 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { redirect } from 'react-router-dom';
 
 const tableOptions = [
-  'expertreviewlogs', 'expertdb', 'procesed_withignore', 'result-qset', 'subjectsdb'
+  'expertreviewlogs', 'expertdb', 'procesed_withignore', 'qsetdb', 'subjectsdb'
 ];
 
 const sensitiveFields = ['password'];
@@ -41,13 +41,13 @@ const FetchUpdateTable = () => {
           studentId : studentIdFilter,
         };
       }
-      if (selectedTable === 'audiologs') {
+      if (selectedTable === 'qsetdb') {
         fetchParams = {
           ...fetchParams,
-          student_id: studentIdFilter
+          subject_id: subjectIdFilter
         };
       }
- 
+      
       const response = await axios.post('http://localhost:3000/fetch-update-resultdb', fetchParams);
 
       const fetchedData = response.data;
@@ -149,26 +149,16 @@ const FetchUpdateTable = () => {
           </div>
         </>
       )}
-      {selectedTable === 'controllerdb' && (
+      {selectedTable === 'qsetdb' && (
         <>
           <div className="mb-2">
-            <label htmlFor="studentIdFilter" className="form-label">Filter center:</label>
+            <label htmlFor="subjectIdFilter" className="form-label">Filter subject_id:</label>
             <input
               type="text"
-              id="centerFilter"
+              id="subjectIdFilter"
               className="form-control"
-              value={centerFilter}
-              onChange={(e) => setCenterFilter(e.target.value)}
-            />
-          </div>
-          <div className="mb-3">
-            <label htmlFor="centerFilter" className="form-label">Filter by batch number</label>
-            <input
-              id="batchFilter"
-              type="text"
-              className="form-control"
-              value={batchNoFilter}
-              onChange={(e) => setBatchNoFilter(e.target.value)}
+              value={subjectIdFilter}
+              onChange={(e) => setSubjectIdFilter(e.target.value)}
             />
           </div>
         </>
