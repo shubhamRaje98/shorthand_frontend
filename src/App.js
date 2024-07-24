@@ -23,7 +23,14 @@ import AbsenteeRoll from './components/attendeeRoll/attendeeRoll';
 import ControllerPassword from './components/controllerPassword/controllerPassword';
 import FetchUpdateTable from './components/superAdmin/fetchUpdateTables';
 import PCRegistration from './components/pcRegistration/pcRegistration';
-import FetchPassageById from './components/expertDashboard/FetchPassageById';
+
+import { io } from 'socket.io-client';
+import { SocketContext } from './SocketContext';
+import SubjectWiseResultSummary from './components/subjectWiseSummaryDash/subjectWiseSummaryDash';
+import ResultFetchUpdate from './components/resultSuperAdmin/fetchUpdateTables';
+
+const socket = io('http://localhost:3000');
+
 
 axios.defaults.withCredentials = true;
 
