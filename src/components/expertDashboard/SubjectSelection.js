@@ -12,7 +12,7 @@ const SubjectSelection = () => {
     useEffect(() => {
         const fetchSubjects = async () => {
             try {
-                const response = await axios.get('http://13.127.206.181:3000/all-subjects', { withCredentials: true });
+                const response = await axios.get('http://localhost:3000/all-subjects', { withCredentials: true });
                 if (response.status === 200) {
                     const groupedSubjects = response.data.reduce((acc, subject) => {
                         const [language] = subject.subject_name.split(' ');

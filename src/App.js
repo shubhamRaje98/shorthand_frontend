@@ -23,6 +23,7 @@ import AbsenteeRoll from './components/attendeeRoll/attendeeRoll';
 import ControllerPassword from './components/controllerPassword/controllerPassword';
 import FetchUpdateTable from './components/superAdmin/fetchUpdateTables';
 import PCRegistration from './components/pcRegistration/pcRegistration';
+import FetchPassageById from './components/expertDashboard/FetchPassageById';
 
 axios.defaults.withCredentials = true;
 
@@ -37,11 +38,15 @@ const App = () => {
                     <Route path="/expertAdmin" element={<ExpertAdmin/>} />
                     <Route path="/student-table" element={<StudentTable />} />
                     <Route path="/home" element={<Home />} />
+                    
                     <Route path="/expertDashboard" element={<ExpertDashboard />}>
                         <Route index element={<SubjectSelection />} />
                         <Route path=":subjectId" element={<QSet />} />
                         <Route path=":subjectId/:qset" element={<FinalPassageTextlog />} />
+                        {/* Add the new route here as a nested route */}
+                        <Route path=":subjectId/:qset/:studentId" element={<FetchPassageById />} />
                     </Route>
+                    
                     <Route path="/attendance-download" element={<AttendanceDownload />} />
                     <Route path="/centerwise-student-count" element={<CenterwiseStudentCount />} />
                     <Route path="/absentee-roll" element={<AbsenteeRoll />} />

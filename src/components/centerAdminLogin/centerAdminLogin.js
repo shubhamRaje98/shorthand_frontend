@@ -14,14 +14,14 @@ const Login = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://13.127.206.181:3000/center_admin_login', {
+            const response = await axios.post('http://localhost:3000/center_admin_login', {
                 centerId,
                 password
             }, {
                 withCredentials: true
             });
             if (response.status === 200) {
-                navigate(`/home`);
+                navigate(`/home`, {replace: true});
             }
         } catch (err) {
             setError('Invalid Center Code or Password');

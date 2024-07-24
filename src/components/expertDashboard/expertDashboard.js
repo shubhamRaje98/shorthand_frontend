@@ -14,7 +14,7 @@ const ExpertDashboard = () => {
     useEffect(() => {
         const fetchExpertDetails = async () => {
             try {
-                const response = await axios.get('http://13.127.206.181:3000/expert-details', { withCredentials: true });
+                const response = await axios.get('http://localhost:3000/expert-details', { withCredentials: true });
                 if (response.status === 200) {
                     setExpertDetails(response.data);
                 }
@@ -28,11 +28,11 @@ const ExpertDashboard = () => {
 
     useEffect(() => {
         const heartbeatInterval = setInterval(() => {
-            axios.post('http://13.127.206.181:3000/expert-heartbeat', {}, { withCredentials: true })
+            axios.post('http://localhost:3000/expert-heartbeat', {}, { withCredentials: true })
                 .catch((error) => {
                     if (error.response && error.response.status === 401) {
                         // Unauthorized, session might have expired
-                        navigate('/expert-login');
+                        navigate('/expert-login', {replace: true});
                     }
                 });
         }, 30000); // Send heartbeat every 30 seconds
@@ -53,8 +53,8 @@ const ExpertDashboard = () => {
 
     const handleLogout = async () => {
         try {
-            await axios.post('http://13.127.206.181:3000/expert-logout', {}, { withCredentials: true });
-            navigate('/expert-login');
+            await axios.post('http://localhost:3000/expert-logout', {}, { withCredentials: true });
+            navigate('/expert-login', {replace: true});
         } catch (error) {
             console.error('Error logging out:', error);
         }

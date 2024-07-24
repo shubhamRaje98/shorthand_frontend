@@ -109,7 +109,7 @@ pre.preformatted-text {
 
 .word-actions {
     display: flex;
-    margin-right: 0.5rem;
+    margin-right: 3rem;
   }
   
   .action-button {
@@ -127,7 +127,7 @@ pre.preformatted-text {
   }
   
   .ignore-button {
-    margin-right: 0.2rem;
+    margin-right: 3rem;
   }
   
   .mistake-word {
@@ -184,6 +184,37 @@ pre.preformatted-text {
 
 .preformatted-text, .mistakes-list {
     transition: font-size 0.3s ease;
+}
+
+/* Submit Button */
+.submit-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.submit-button-container {
+    position: relative;
+    display: inline-block;
+}
+
+.submit-tooltip {
+    position: absolute;
+    left: 75%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.submit-button:disabled:hover + .submit-tooltip {
+    visibility: visible;
+    opacity: 1;
 }
 
 .red {     background-color: #fee2e2;
