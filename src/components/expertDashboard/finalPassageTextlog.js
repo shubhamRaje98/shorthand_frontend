@@ -290,7 +290,7 @@ const FinalPassageTextlog = () => {
     const IgnoredList = ({ ignoreList, fontSize, onUndoIgnore }) => {
       return (
         <div className="ignored-list" style={{ fontSize: `${fontSize}px`, marginLeft: '1rem' }}>
-          {ignoreList.map((word, index) => (
+          {ignoreList.slice().reverse().map((word, index) => (
             <div key={index} className="ignored-item" style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
               <button 
                 className="action-button undo-button" 

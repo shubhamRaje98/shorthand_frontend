@@ -5,7 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { redirect } from 'react-router-dom';
 
 const tableOptions = [
-  'expertreviewlogs', 'expertdb', 'procesed_withignore', 'qsetdb', 'subjectsdb'
+  'expertreviewlog', 'expertdb', 'procesed_withignore', 'qsetdb', 'subjectsdb'
 ];
 
 const sensitiveFields = ['password'];
@@ -35,7 +35,7 @@ const FetchUpdateTable = () => {
         tableName: selectedTable
       };
 
-      if (selectedTable === 'expertreviewlogs') {
+      if (selectedTable === 'expertreviewlog') {
         fetchParams = {
           ...fetchParams,
           student_id : studentIdFilter,
@@ -137,7 +137,7 @@ const FetchUpdateTable = () => {
           ))}
         </select>
       </div>
-      {selectedTable === 'expertreviewlogs' && (
+      {selectedTable === 'expertreviewlog' && (
         <>
           <div className="mb-2">
             <label htmlFor="studentIdFilter" className="form-label">Filter by student_id:</label>
