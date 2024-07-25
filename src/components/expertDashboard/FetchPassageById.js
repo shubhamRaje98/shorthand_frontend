@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import './finalPassageTextlog.css';
-import { useParams, useNavigate  } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUndo, faEyeSlash, faExchangeAlt, faSearchPlus, faSearchMinus } from '@fortawesome/free-solid-svg-icons';
@@ -151,22 +151,24 @@ const FetchPassageById = () => {
     };
 
     useEffect(() => {
-        const fetchPassages = async () => {
-            try {
-                const response = await axios.post('http://localhost:3000/get-student-passages', { studentId }, { withCredentials: true });
-                if (response.status === 200 && response.data && Object.keys(response.data).length > 0) {
-                    console.log("Raw data:", JSON.stringify(response.data));
-                    setPassages(response.data);
-                } else {
-                    console.error('No matching record found for this Student ID');
-                }
-            } catch (err) {
-                console.error('Error fetching passages:', err);
-            }
-        };
+      const fetchPassages = async () => {
+          try {
+              const response = await axios.post('http://localhost:3000/get-student-passages', { studentId }, { withCredentials: true });
+              if (response.status === 200 && response.data && Object.keys(response.data).length > 0) {
+                  console.log("Raw data:", JSON.stringify(response.data));
+                  setPassages(response.data);
+                  // Update the URL with the fetched subjectId and qset
+                  navigate(`/expertDashboard/${response.data.subjectId}/${response.data.qset}/${studentId}`, { replace: true });
+              } else {
+                  console.error('No matching record found for this Student ID');
+              }
+          } catch (err) {
+              console.error('Error fetching passages:', err);
+          }
+      };
   
       fetchPassages();
-    }, [studentId]);
+  }, [studentId, navigate]);
 
     useEffect(() => {
       const sendActivePassageData = async () => {
