@@ -264,6 +264,71 @@ pre.preformatted-text {
     z-index: 1;
 }
 
+.passage-buttons-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.passage-buttons {
+    display: flex;
+    gap: 0.5em;
+    margin-right: 1rem;
+}
+
+.mistake-counts {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-right: 10rem;
+}
+
+.mistake-count {
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.25rem;
+    white-space: nowrap;
+}
+
+.submit-button-container {
+    margin-left: auto;
+}
+
+@media (max-width: 1200px) {
+    .passage-buttons-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .passage-buttons, .mistake-counts, .submit-button-container {
+        margin-bottom: 0.5rem;
+    }
+
+    .submit-button-container {
+        align-self: flex-end;
+    }
+}
+
+@media (max-width: 768px) {
+    .passage-buttons-container {
+        align-items: stretch;
+    }
+
+    .mistake-counts {
+        justify-content: flex-start;
+        margin: 0.5rem 0;
+    }
+
+    .submit-button-container {
+        align-self: stretch;
+    }
+
+    .submit-button {
+        width: 100%;
+    }
+}
 /* Modern and aesthetic scrollbar styles */
 .preformatted-text::-webkit-scrollbar,
 .mistakes-list::-webkit-scrollbar,

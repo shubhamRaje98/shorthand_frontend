@@ -189,12 +189,21 @@ const FinalPassageTextlog = () => {
                   console.log("Active passage data sent successfully");
                   setIgnoreList(response.data.ignoreList || []);
                   console.log("Ignore list:", response.data.ignoreList);
+                  console.log("Debug info:", response.data.debug);
+                  
+                  // You can add additional checks here if needed
+                  if (response.data.debug.student_id) {
+                      console.log(`Fetched data for student_id: ${response.data.debug.student_id}`);
+                  }
               }
           } catch (err) {
               console.error('Error sending active passage data:', err);
+              if (err.response) {
+                  console.error('Error debug info:', err.response.data.debug);
+              }
           }
       };
-
+    
       sendActivePassageData();
     }, [subjectId, qset, activePassage]);
 
@@ -212,12 +221,12 @@ const FinalPassageTextlog = () => {
         if (!modelAnswer || !userAnswer) return;
 
         try {
-            const response = await axios.post('http://43.204.22.53:5000/compare', {
-                text1: modelAnswer,
-                text2: userAnswer,
-                ignore_list: ignoreList,
-                ignore_case: true
-            });
+          const response = await axios.post('http://localhost:5000/compare', {
+            text1: modelAnswer,
+            text2: userAnswer,
+            ignore_list: ignoreList,
+            ignore_case: true
+          }, { withCredentials: true });
 
             if (response.status === 200) {
                 const { colored_words, added, missed, spelling, grammar } = response.data;
@@ -257,9 +266,9 @@ const FinalPassageTextlog = () => {
         }, { withCredentials: true });
     
         if (response.status === 200) {
-          setIgnoreList(prevList => [...prevList, word.toLowerCase()]);
+          setIgnoreList(response.data.ignoreList);
           toast.success(`Word "${word}" added to ignore list`);
-          // We don't need to call comparePassages() here anymore
+          console.log("Debug info:", response.data.debug);
         }
       } catch (err) {
         console.error('Error adding word to ignore list:', err);
@@ -277,9 +286,10 @@ const FinalPassageTextlog = () => {
         }, { withCredentials: true });
     
         if (response.status === 200) {
-          setIgnoreList(prevList => prevList.filter(word => word.toLowerCase() !== wordToRemove.toLowerCase()));
+          setIgnoreList(response.data.ignoreList);
           toast.success(`Word "${wordToRemove}" removed from ignore list`);
           comparePassages();
+          console.log("Debug info:", response.data.debug);
         }
       } catch (err) {
         console.error('Error removing word from ignore list:', err);
@@ -290,7 +300,7 @@ const FinalPassageTextlog = () => {
     const IgnoredList = ({ ignoreList, fontSize, onUndoIgnore }) => {
       return (
         <div className="ignored-list" style={{ fontSize: `${fontSize}px`, marginLeft: '1rem' }}>
-          {ignoreList.slice().reverse().map((word, index) => (
+          {ignoreList.map((word, index) => (
             <div key={index} className="ignored-item" style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
               <button 
                 className="action-button undo-button" 

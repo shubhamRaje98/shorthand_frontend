@@ -128,6 +128,8 @@ const FetchPassageById = () => {
     const [coloredWords, setColoredWords] = useState([]);
     const [highlightedWord, setHighlightedWord] = useState(null);
     const [passageBViewed, setPassageBViewed] = useState(false);
+    const [categoryCounts, setCategoryCounts] = useState({});
+
 
     const handleZoom = (column, action) => {
         setFontSizes(prev => ({
@@ -232,6 +234,31 @@ const FetchPassageById = () => {
         comparePassages();
     }, [comparePassages]);
 
+    // Add the new useEffect hook here
+    useEffect(() => {
+      const orderedCategories = ['spelling', 'missed', 'added', 'grammar'];
+      const counts = orderedCategories.reduce((counts, category) => {
+        counts[category] = mistakes[category] ? mistakes[category].length : 0;
+        return counts;
+      }, {});
+    
+      const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
+      let average = 50 - (total / 3) ;
+      if (average<0) {
+        average = 0
+      }
+    
+      setCategoryCounts({
+        ...counts,
+        total,
+        average: average.toFixed(2) // Rounds to 2 decimal places
+      });
+    
+      console.log('Mistake category counts:', counts);
+      console.log('Total mistakes:', total);
+      console.log('Average mistakes:', average.toFixed(2));
+    }, [mistakes]);
+
     const handleWordHover = useCallback((word) => {
       if (word) {
         const actualWord = word.split('(')[0].trim();
@@ -302,32 +329,40 @@ const FetchPassageById = () => {
 
     return (
       <div className="final-passage-container">
-          <div className="passage-buttons-container">
-              <div className="passage-buttons">
-                  <button 
-                      className={`passage-button ${activePassage === 'A' ? 'active' : ''}`}
-                      onClick={() => handlePassageChange('A')}
-                  >
-                      Passage A
-                  </button>
-                  <button 
-                      className={`passage-button ${activePassage === 'B' ? 'active' : ''}`}
-                      onClick={() => handlePassageChange('B')}
-                  >
-                      Passage B
-                  </button>
-              </div>
-                  <button 
-                      className="submit-button" 
-                      onClick={handleSubmit} 
-                      disabled={!passageBViewed}
-                  >
-                      Submit
-                  </button>
-                  {!passageBViewed && (
-                      <span className="submit-tooltip">Please view Passage B before submitting</span>
-                  )}
-              </div>
+        <div className="passage-buttons-container">
+          <div className="passage-buttons">
+            <button 
+              className={`passage-button ${activePassage === 'A' ? 'active' : ''}`}
+              onClick={() => handlePassageChange('A')}
+            >
+              Passage A
+            </button>
+            <button 
+              className={`passage-button ${activePassage === 'B' ? 'active' : ''}`}
+              onClick={() => handlePassageChange('B')}
+            >
+              Passage B
+            </button>
+          </div>
+          <button 
+            className="submit-button" 
+            onClick={handleSubmit} 
+            disabled={!passageBViewed}
+          >
+            Submit
+          </button>
+          {!passageBViewed && (
+            <span className="submit-tooltip">Please view Passage B before submitting</span>
+          )}
+          <div className="mistake-counts">
+            <span className="mistake-count spelling">Spelling: {categoryCounts.spelling}</span>
+            <span className="mistake-count missed">Missed: {categoryCounts.missed}</span>
+            <span className="mistake-count added">Added: {categoryCounts.added}</span>
+            <span className="mistake-count grammar">Grammar: {categoryCounts.grammar}</span>
+            <span className="mistake-count total">Total: {categoryCounts.total}</span>
+            <span className="mistake-count average">Marks: {categoryCounts.average}</span>
+          </div>
+        </div>
           <div className="grid-item">
               <h2 className="column-header">
                 {isSwapped ? 'User Answer' : 'Model Answer'}
