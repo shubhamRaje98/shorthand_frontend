@@ -297,25 +297,25 @@ const FinalPassageTextlog = () => {
       }
     }, [subjectId, qset, activePassage, comparePassages]);
 
-    const IgnoredList = ({ ignoreList, fontSize, onUndoIgnore }) => {
-      return (
-        <div className="ignored-list" style={{ fontSize: `${fontSize}px`, marginLeft: '1rem' }}>
-          {ignoreList.map((word, index) => (
-            <div key={index} className="ignored-item" style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
-              <button 
-                className="action-button undo-button" 
-                title="Remove from Ignore List"
-                onClick={() => onUndoIgnore(word)}
-                style={{ fontSize: `${fontSize * 0.8}px`, marginRight: '5px' }}
-              >
-                <FontAwesomeIcon icon={faUndo} />
-              </button>
-              <span className="ignored-word">{word}</span>
-            </div>
-          ))}
+const IgnoredList = ({ ignoreList, fontSize, onUndoIgnore }) => {
+  return (
+    <div className="ignored-list" style={{ fontSize: `${fontSize}px`, marginLeft: '1rem' }}>
+      {ignoreList.map((word, index) => (
+        <div key={index} className="ignored-item" style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
+          <button 
+            className="action-button undo-button" 
+            title="Remove from Ignore List"
+            onClick={() => onUndoIgnore(word)}
+            style={{ fontSize: `${fontSize * 0.8}px`, marginRight: '5px' }}
+          >
+            <FontAwesomeIcon icon={faUndo} />
+          </button>
+          <span className="ignored-word">{word}</span>
         </div>
-      );
-    };
+      ))}
+    </div>
+  );
+};
 
     return (
       <div className="final-passage-container">

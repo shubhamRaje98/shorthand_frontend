@@ -107,7 +107,7 @@ const MistakesList = ({ mistakes, onAddIgnoreWord, onWordHover, fontSize, ignore
 
 const FetchPassageById = () => {
     const navigate = useNavigate();
-    const { studentId } = useParams();
+    const { studentId, subjectId, qset } = useParams();
     const [passages, setPassages] = useState({ 
         passageA: '', 
         passageB: '', 
@@ -155,12 +155,10 @@ const FetchPassageById = () => {
     useEffect(() => {
       const fetchPassages = async () => {
           try {
-              const response = await axios.post('http://localhost:3000/get-student-passages', { studentId }, { withCredentials: true });
-              if (response.status === 200 && response.data && Object.keys(response.data).length > 0) {
-                  console.log("Raw data:", JSON.stringify(response.data));
-                  setPassages(response.data);
-                  // Update the URL with the fetched subjectId and qset
-                  navigate(`/expertDashboard/${response.data.subjectId}/${response.data.qset}/${studentId}`, { replace: true });
+                const response = await axios.get(`http://localhost:3000/student-passages/${subjectId}/${qset}/${studentId}`, { withCredentials: true });
+                if (response.status === 200 && response.data && Object.keys(response.data).length > 0) {
+                console.log("Raw data:", JSON.stringify(response.data));
+                setPassages(response.data);
               } else {
                   console.error('No matching record found for this Student ID');
               }
@@ -168,16 +166,18 @@ const FetchPassageById = () => {
               console.error('Error fetching passages:', err);
           }
       };
-  
+
       fetchPassages();
-  }, [studentId, navigate]);
+  }, [subjectId, qset, studentId]);
 
     useEffect(() => {
       const sendActivePassageData = async () => {
-          try {              
+          try {
+              console.log(subjectId, qset, activePassage);
+              
               const response = await axios.post('http://localhost:3000/active-passage', {
-                  subjectId: passages.subjectId,
-                  qset: passages.qset,
+                  subjectId,
+                  qset,
                   activePassage
               }, { withCredentials: true });
           
@@ -185,14 +185,23 @@ const FetchPassageById = () => {
                   console.log("Active passage data sent successfully");
                   setIgnoreList(response.data.ignoreList || []);
                   console.log("Ignore list:", response.data.ignoreList);
+                  console.log("Debug info:", response.data.debug);
+                  
+                  // You can add additional checks here if needed
+                  if (response.data.debug.student_id) {
+                      console.log(`Fetched data for student_id: ${response.data.debug.student_id}`);
+                  }
               }
           } catch (err) {
               console.error('Error sending active passage data:', err);
+              if (err.response) {
+                  console.error('Error debug info:', err.response.data.debug);
+              }
           }
       };
-
+    
       sendActivePassageData();
-    }, [passages.subjectId, passages.qset, activePassage]);
+    }, [subjectId, qset, activePassage]);
 
     const handlePassageChange = (passage) => {
       setActivePassage(passage);
