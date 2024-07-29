@@ -168,17 +168,18 @@ const FetchPassageById = () => {
       };
 
       fetchPassages();
-  }, [subjectId, qset, studentId]);
+    }, [subjectId, qset, studentId]);
 
     useEffect(() => {
       const sendActivePassageData = async () => {
           try {
-              console.log(subjectId, qset, activePassage);
+              console.log(subjectId, qset, activePassage, studentId);
               
-              const response = await axios.post('http://localhost:3000/active-passage', {
+              const response = await axios.post('http://localhost:3000/student-active-passage', {
                   subjectId,
                   qset,
-                  activePassage
+                  activePassage,
+                  studentId
               }, { withCredentials: true });
           
               if (response.status === 200) {
@@ -201,7 +202,7 @@ const FetchPassageById = () => {
       };
     
       sendActivePassageData();
-    }, [subjectId, qset, activePassage]);
+    }, [subjectId, qset, activePassage, studentId]);
 
     const handlePassageChange = (passage) => {
       setActivePassage(passage);

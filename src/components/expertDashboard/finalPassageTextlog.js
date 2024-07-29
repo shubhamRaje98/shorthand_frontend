@@ -182,7 +182,7 @@ const FinalPassageTextlog = () => {
               const response = await axios.post('http://localhost:3000/active-passage', {
                   subjectId,
                   qset,
-                  activePassage
+                  activePassage,
               }, { withCredentials: true });
           
               if (response.status === 200) {
