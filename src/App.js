@@ -24,8 +24,7 @@ import ControllerPassword from './components/controllerPassword/controllerPasswo
 import FetchUpdateTable from './components/superAdmin/fetchUpdateTables';
 import PCRegistration from './components/pcRegistration/pcRegistration';
 import FetchPassageById from './components/expertDashboard/FetchPassageById'
-import ResultFetchUpdate from './components/resultSuperAdmin/fetchUpdateTables'; // Correct import
-
+import ResultFetchUpdate from './components/resultSuperAdmin/fetchUpdateTables'; 
 
 axios.defaults.withCredentials = true;
 

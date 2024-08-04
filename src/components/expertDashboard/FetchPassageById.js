@@ -280,42 +280,44 @@ const FetchPassageById = () => {
 
     const handleAddIgnoreWord = useCallback(async (word) => {
       try {
-        const response = await axios.post('http://localhost:3000/add-ignore-word', {
-          subjectId: passages.subjectId,
-          qset: passages.qset,
+        const response = await axios.post('http://localhost:3000/student-add-ignore-word', {
+          subjectId,
+          qset,
           activePassage,
           newWord: word
         }, { withCredentials: true });
     
         if (response.status === 200) {
-          setIgnoreList(prevList => [...prevList, word.toLowerCase()]);
+          setIgnoreList(response.data.ignoreList);
           toast.success(`Word "${word}" added to ignore list`);
+          console.log("Debug info:", response.data.debug);
         }
       } catch (err) {
         console.error('Error adding word to ignore list:', err);
         toast.error(`Failed to add "${word}" to ignore list`);
       }
-    }, [passages.subjectId, passages.qset, activePassage]);
+    }, [subjectId, qset, activePassage]);
     
     const handleUndoWord = useCallback(async (wordToRemove) => {
       try {
-        const response = await axios.post('http://localhost:3000/undo-word', {
-          subjectId: passages.subjectId,
-          qset: passages.qset,
+        const response = await axios.post('http://localhost:3000/student-undo-word', {
+          subjectId,
+          qset,
           activePassage,
           wordToRemove
         }, { withCredentials: true });
     
         if (response.status === 200) {
-          setIgnoreList(prevList => prevList.filter(w => w.toLowerCase() !== wordToRemove.toLowerCase()));
+          setIgnoreList(response.data.ignoreList);
           toast.success(`Word "${wordToRemove}" removed from ignore list`);
           comparePassages();
+          console.log("Debug info:", response.data.debug);
         }
       } catch (err) {
         console.error('Error removing word from ignore list:', err);
         toast.error('Failed to remove word from ignore list');
       }
-    }, [passages.subjectId, passages.qset, activePassage, comparePassages]);
+    }, [subjectId, qset, activePassage, comparePassages]);
 
     const IgnoredList = ({ ignoreList, fontSize, onUndoIgnore }) => {
       return (
