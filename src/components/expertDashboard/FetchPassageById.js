@@ -6,6 +6,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUndo, faEyeSlash, faExchangeAlt, faSearchPlus, faSearchMinus } from '@fortawesome/free-solid-svg-icons';
+import { faToggleOn, faToggleOff } from '@fortawesome/free-solid-svg-icons';
 
 
 const ColoredText = ({ coloredWords, highlightedWord }) => {
@@ -129,6 +130,8 @@ const FetchPassageById = () => {
     const [highlightedWord, setHighlightedWord] = useState(null);
     const [passageBViewed, setPassageBViewed] = useState(false);
     const [categoryCounts, setCategoryCounts] = useState({});
+    const [isIgnoreListVisible, setisIgnoreListVisible] = useState(true)
+    const [tempIgnoreList, settempIgnoreList] = useState([])
 
 
     const handleZoom = (column, action) => {
@@ -151,6 +154,18 @@ const FetchPassageById = () => {
           toast.error('Error submitting passage review. Please try again.');
       }
     };
+
+    const handleToggleIgnoreList = () => {
+      if (isIgnoreListVisible) {
+        settempIgnoreList(ignoreList);
+        setIgnoreList([]);
+      }
+      else{
+        setIgnoreList(tempIgnoreList);
+        settempIgnoreList([]);
+      }
+      setisIgnoreListVisible(!isIgnoreListVisible)
+    } 
 
     useEffect(() => {
       const fetchPassages = async () => {
@@ -212,33 +227,33 @@ const FetchPassageById = () => {
     };
 
     const comparePassages = useCallback(async () => {
-        const modelAnswer = passages[`ansPassage${activePassage}`];
-        const userAnswer = passages[`passage${activePassage}`];
-        
-        if (!modelAnswer || !userAnswer) return;
-
-        try {
-            const response = await axios.post('http://localhost:5000/compare', {
-                text1: modelAnswer,
-                text2: userAnswer,
-                ignore_list: ignoreList,
-                ignore_case: true
-            });
-
-            if (response.status === 200) {
-                const { colored_words, added, missed, spelling, grammar } = response.data;
-                setColoredWords(colored_words);
-                setMistakes({
-                    added,
-                    missed,
-                    spelling,
-                    grammar
-                });
-            }
-        } catch (err) {
-            console.error('Error comparing passages:', err);
-        }
-    }, [activePassage, passages, ignoreList]);
+      const modelAnswer = passages[`ansPassage${activePassage}`];
+      const userAnswer = passages[`passage${activePassage}`];
+      
+      if (!modelAnswer || !userAnswer) return;
+  
+      try {
+          const response = await axios.post('http://localhost:5000/compare', {
+              text1: modelAnswer,
+              text2: userAnswer,
+              ignore_list: ignoreList, // Remove tempIgnoreList from here
+              ignore_case: true
+          });
+  
+          if (response.status === 200) {
+              const { colored_words, added, missed, spelling, grammar } = response.data;
+              setColoredWords(colored_words);
+              setMistakes({
+                  added,
+                  missed,
+                  spelling,
+                  grammar
+              });
+          }
+      } catch (err) {
+          console.error('Error comparing passages:', err);
+      }
+  }, [activePassage, passages, ignoreList]); // Remove tempIgnoreList from dependencies
 
     useEffect(() => {
         comparePassages();
@@ -284,7 +299,8 @@ const FetchPassageById = () => {
           subjectId,
           qset,
           activePassage,
-          newWord: word
+          newWord: word,
+          studentId
         }, { withCredentials: true });
     
         if (response.status === 200) {
@@ -296,7 +312,7 @@ const FetchPassageById = () => {
         console.error('Error adding word to ignore list:', err);
         toast.error(`Failed to add "${word}" to ignore list`);
       }
-    }, [subjectId, qset, activePassage]);
+    }, [subjectId, qset, activePassage, studentId]);
     
     const handleUndoWord = useCallback(async (wordToRemove) => {
       try {
@@ -304,7 +320,8 @@ const FetchPassageById = () => {
           subjectId,
           qset,
           activePassage,
-          wordToRemove
+          wordToRemove, 
+          studentId
         }, { withCredentials: true });
     
         if (response.status === 200) {
@@ -317,9 +334,10 @@ const FetchPassageById = () => {
         console.error('Error removing word from ignore list:', err);
         toast.error('Failed to remove word from ignore list');
       }
-    }, [subjectId, qset, activePassage, comparePassages]);
+    }, [subjectId, qset, activePassage, comparePassages, studentId]);
 
-    const IgnoredList = ({ ignoreList, fontSize, onUndoIgnore }) => {
+    const IgnoredList = ({ ignoreList, fontSize, onUndoIgnore, isVisible }) => {
+      if (!isVisible) return null;
       return (
         <div className="ignored-list" style={{ fontSize: `${fontSize}px`, marginLeft: '1rem' }}>
           {ignoreList.map((word, index) => (
@@ -418,10 +436,12 @@ const FetchPassageById = () => {
                   ignoreList={ignoreList}
                   fontSize={fontSizes.mistakes}
                   onUndoIgnore={handleUndoWord}
+                  isVisible={isIgnoreListVisible}
                 />
               </div>
             </div>
             <div className="zoom-buttons">
+              <button onClick={handleToggleIgnoreList}><FontAwesomeIcon icon={isIgnoreListVisible ? faToggleOn : faToggleOff} /></button>
               <button onClick={() => handleZoom('mistakes', 'in')}><FontAwesomeIcon icon={faSearchPlus} /></button>
               <button onClick={() => handleZoom('mistakes', 'out')}><FontAwesomeIcon icon={faSearchMinus} /></button>
             </div>
