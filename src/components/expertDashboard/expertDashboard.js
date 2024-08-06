@@ -69,12 +69,14 @@ const ExpertDashboard = () => {
                         <h5 className="expert-id">Expert ID: {expertDetails.expertId}</h5>
                         <h5 className="expert-name">Expert Name: {expertDetails.expert_name}</h5>
                         {selectedSubject && (
-                            <h5 className="selected-subject">Selected Subject: {selectedSubject.subject_name}</h5>
+                            <>
+                                <h5 className="selected-subject">Selected Subject: {selectedSubject.subject_name}</h5>
+                            </>
                         )}
                         {selectedQSet && (
                             <>
                                 <h5 className="selected-qset">Selected QSet: {selectedQSet.qset}</h5>
-                                <h5 className="qset-student-count">Student Count: {selectedQSet.student_count}</h5>
+                                <h5 className="qset-student-count">Student Count: {selectedQSet.incomplete_count}/{selectedQSet.total_count}</h5>
                             </>
                         )}
                     </div>

@@ -1,4 +1,3 @@
-// SubjectSelection.js
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -47,6 +46,10 @@ const SubjectSelection = () => {
         navigate(`/expertDashboard/${subject.subjectId}`);
     };
 
+    if (Object.keys(subjects).length === 0) {
+        return <p>Empty Subjects. All students checked!</p>;
+    }
+
     return (
         <div className="languages-container">
             {Object.entries(subjects).map(([language, languageSubjects]) => (
@@ -60,7 +63,7 @@ const SubjectSelection = () => {
                                 onClick={() => handleSubjectClick(subject)}
                             >
                                 <div className="item-title">{subject.subject_name}</div>
-                                <div className="item-count">Students: {subject.student_count}</div>
+                                <div className="item-count">Students: {subject.incomplete_count}/{subject.total_count}</div>
                             </button>
                         ))}
                     </div>

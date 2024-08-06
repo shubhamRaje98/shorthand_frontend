@@ -1,4 +1,3 @@
-// qset.js
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -55,7 +54,7 @@ const QSet = () => {
   }
 
   if (qsets.length === 0) {
-    return <p>Empty QSets</p>;
+    return <p>Empty QSets. All students checked!</p>;
   }
 
   return (
@@ -67,7 +66,7 @@ const QSet = () => {
           onClick={() => handleQSetClick(qsetObj)}
         >
           <div className="item-title">QSet: {qsetObj.qset}</div>
-          <div className="item-count">Students: {qsetObj.student_count}</div>
+          <div className="item-count">Students: {qsetObj.incomplete_count}/{qsetObj.total_count}</div>
         </button>
       ))}
     </div>
