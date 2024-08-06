@@ -37,7 +37,7 @@ const QSet = () => {
       const response = await axios.post(`http://localhost:3000/assignStudent/${subjectId}/${qsetObj.qset}`, {}, { withCredentials: true });
       if (response.status === 200) {
         setSelectedQSet(qsetObj);
-        navigate(`/expertDashboard/${subjectId}/${qsetObj.qset}`);
+        navigate(`/expertDashboard/${subjectId}/${qsetObj.qset}`, {replace: true});
       }
     } catch (err) {
       console.error('Error assigning student for QSet:', err);
