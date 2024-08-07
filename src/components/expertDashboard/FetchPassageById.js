@@ -7,6 +7,8 @@ import { toast } from 'react-toastify';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUndo, faEyeSlash, faExchangeAlt, faSearchPlus, faSearchMinus } from '@fortawesome/free-solid-svg-icons';
 import { faToggleOn, faToggleOff } from '@fortawesome/free-solid-svg-icons';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
+
 
 
 const ColoredText = ({ coloredWords, highlightedWord }) => {
@@ -44,17 +46,17 @@ const MistakesList = ({ mistakes, onAddIgnoreWord, onWordHover, fontSize, ignore
   
         switch(category) {
           case 'missed':
-            categoryTitle = 'Extra Added Words';
-            categoryStyle = {
-              backgroundColor: '#e6fffa',
-              color: '#047857'
-            };
-            break;
-          case 'added':
             categoryTitle = 'Omitted Words';
             categoryStyle = {
               backgroundColor: '#fee2e2',
               color: '#b91c1c'
+            };
+            break;
+          case 'added':
+            categoryTitle = 'Extra Added Words';
+            categoryStyle = {
+              backgroundColor: '#e6fffa',
+              color: '#047857'
             };
             break;
           case 'spelling':
@@ -170,7 +172,7 @@ const FetchPassageById = () => {
     useEffect(() => {
       const fetchPassages = async () => {
           try {
-                const response = await axios.get(`http://52.66.236.172:3000/student-passages/${subjectId}/${qset}/${studentId}`, { withCredentials: true });
+                const response = await axios.get(`http://localhost:3000/student-passages/${subjectId}/${qset}/${studentId}`, { withCredentials: true });
                 if (response.status === 200 && response.data && Object.keys(response.data).length > 0) {
                 console.log("Raw data:", JSON.stringify(response.data));
                 setPassages(response.data);
@@ -190,7 +192,7 @@ const FetchPassageById = () => {
           try {
               console.log(subjectId, qset, activePassage, studentId);
               
-              const response = await axios.post('http://52.66.236.172:3000/student-active-passage', {
+              const response = await axios.post('http://localhost:3000/student-active-passage', {
                   subjectId,
                   qset,
                   activePassage,
@@ -233,7 +235,7 @@ const FetchPassageById = () => {
       if (!modelAnswer || !userAnswer) return;
   
       try {
-          const response = await axios.post('http://43.204.22.53:5000/compare', {
+          const response = await axios.post('http://localhost:5000/compare', {
               text1: modelAnswer,
               text2: userAnswer,
               ignore_list: ignoreList, // Remove tempIgnoreList from here
@@ -295,7 +297,7 @@ const FetchPassageById = () => {
 
     const handleAddIgnoreWord = useCallback(async (word) => {
       try {
-        const response = await axios.post('http://52.66.236.172:3000/student-add-ignore-word', {
+        const response = await axios.post('http://localhost:3000/student-add-ignore-word', {
           subjectId,
           qset,
           activePassage,
@@ -316,7 +318,7 @@ const FetchPassageById = () => {
     
     const handleUndoWord = useCallback(async (wordToRemove) => {
       try {
-        const response = await axios.post('http://52.66.236.172:3000/student-undo-word', {
+        const response = await axios.post('http://localhost:3000/student-undo-word', {
           subjectId,
           qset,
           activePassage,
@@ -335,6 +337,27 @@ const FetchPassageById = () => {
         toast.error('Failed to remove word from ignore list');
       }
     }, [subjectId, qset, activePassage, comparePassages, studentId]);
+
+    const handleClearIgnoreList = useCallback(async () => {
+      try {
+        const response = await axios.post('http://localhost:3000/student-clear-ignore-list', {
+          subjectId,
+          qset,
+          activePassage,
+          studentId
+        }, { withCredentials: true });
+    
+        if (response.status === 200) {
+          setIgnoreList([]);
+          toast.success('Ignore list cleared successfully');
+          comparePassages();
+          console.log("Debug info:", response.data.debug);
+        }
+      } catch (err) {
+        console.error('Error clearing ignore list:', err);
+        toast.error('Failed to clear ignore list');
+      }
+    }, [subjectId, qset, activePassage, comparePassages]);
 
     const IgnoredList = ({ ignoreList, fontSize, onUndoIgnore, isVisible }) => {
       if (!isVisible) return null;
@@ -431,7 +454,16 @@ const FetchPassageById = () => {
                 />
               </div>
               <div className="ignored-container">
-                <h5 style={{color: 'red'}}>Ignored List</h5>
+                <h5 style={{color: 'red', display: 'flex', alignItems: 'center'}}>
+                  Ignored List
+                <button 
+                  className="dustbin-button" 
+                  onClick={handleClearIgnoreList}
+                  style={{marginLeft: '0.5rem', background: 'none', border: 'none', cursor: 'pointer'}}
+                >
+                  <FontAwesomeIcon icon={faTrash} />
+                </button>
+                </h5>
                 <IgnoredList 
                   ignoreList={ignoreList}
                   fontSize={fontSizes.mistakes}

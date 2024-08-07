@@ -12,14 +12,14 @@ const ExpertLogin = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://52.66.236.172:3000/expert-login', {
+            const response = await axios.post('http://localhost:3000/expert-login', {
                 expertId,
                 password
             }, {
                 withCredentials: true
             });
             if (response.status === 200) {
-                if (response.data.expertId === 8){
+                if (response.data.expertId === 8 || response.data.expertId === 100){
                     navigate(`/expertAdmin`);
                 }
                 else{

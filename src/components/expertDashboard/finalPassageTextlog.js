@@ -148,7 +148,7 @@ const FinalPassageTextlog = () => {
     const handleSubmit = async () => {
       try {
           const response = await axios.post(
-              `http://52.66.236.172:3000/submit-passage-review/${subjectId}/${qset}`, 
+              `http://localhost:3000/submit-passage-review/${subjectId}/${qset}`, 
               {}, 
               { withCredentials: true }
           );
@@ -178,7 +178,7 @@ const FinalPassageTextlog = () => {
     useEffect(() => {
       const fetchPassages = async () => {
           try {
-              const response = await axios.get(`http://52.66.236.172:3000/expert-assigned-passages/${subjectId}/${qset}`, { withCredentials: true });
+              const response = await axios.get(`http://localhost:3000/expert-assigned-passages/${subjectId}/${qset}`, { withCredentials: true });
               if (response.status === 200) {
                   console.log("Raw data:", JSON.stringify(response.data));
                   setPassages(response.data);
@@ -196,7 +196,7 @@ const FinalPassageTextlog = () => {
           try {
               console.log(subjectId, qset, activePassage);
               
-              const response = await axios.post('http://52.66.236.172:3000/active-passage', {
+              const response = await axios.post('http://localhost:3000/active-passage', {
                   subjectId,
                   qset,
                   activePassage,
@@ -238,7 +238,7 @@ const FinalPassageTextlog = () => {
         if (!modelAnswer || !userAnswer) return;
 
         try {
-          const response = await axios.post('http://43.204.22.53:5000/compare', {
+          const response = await axios.post('http://localhost:5000/compare', {
             text1: modelAnswer,
             text2: userAnswer,
             ignore_list: ignoreList,
@@ -299,7 +299,7 @@ const FinalPassageTextlog = () => {
 
     const handleAddIgnoreWord = useCallback(async (word) => {
       try {
-        const response = await axios.post('http://52.66.236.172:3000/add-ignore-word', {
+        const response = await axios.post('http://localhost:3000/add-ignore-word', {
           subjectId,
           qset,
           activePassage,
@@ -319,7 +319,7 @@ const FinalPassageTextlog = () => {
     
     const handleUndoWord = useCallback(async (wordToRemove) => {
       try {
-        const response = await axios.post('http://52.66.236.172:3000/undo-word', {
+        const response = await axios.post('http://localhost:3000/undo-word', {
           subjectId,
           qset,
           activePassage,
@@ -340,7 +340,7 @@ const FinalPassageTextlog = () => {
 
     const handleClearIgnoreList = useCallback(async () => {
       try {
-        const response = await axios.post('http://52.66.236.172:3000/clear-ignore-list', {
+        const response = await axios.post('http://localhost:3000/clear-ignore-list', {
           subjectId,
           qset,
           activePassage
