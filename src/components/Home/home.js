@@ -21,7 +21,7 @@ const Home = () => {
                 console.log(`Fetching details for center: ${center}`);
                 
                 // Using POST request as required by your API
-                const response = await axios.get(`http://localhost:3000/get-center-details`);
+                const response = await axios.get(`http://52.66.236.172:3000/get-center-details`);
                 console.log("API Response:", response.data);
 
                 if (response.data && response.data.length > 0) {

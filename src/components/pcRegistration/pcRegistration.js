@@ -18,7 +18,7 @@ const PCRegistration = () => {
             setLoading(true);
             setError('');
             try {
-                const response = await axios.get(`http://localhost:3000/get-pcregistration`);
+                const response = await axios.get(`http://52.66.236.172:3000/get-pcregistration`);
                 
                 setData(response.data);
             } catch (error) {

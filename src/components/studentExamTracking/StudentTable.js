@@ -33,7 +33,7 @@ const StudentTable = () => {
     };
 
     const handleFetch = () => {
-        let url = 'http://localhost:3000/track-students-on-exam-center-code';
+        let url = 'http://52.66.236.172:3000/track-students-on-exam-center-code';
         if (batchNo) {
             url += `/${batchNo}`;
         }

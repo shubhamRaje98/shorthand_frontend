@@ -226,6 +226,15 @@ pre.preformatted-text {
     color: black;
 }
 
+.dustbin-button {
+    color: #6c757d;
+    transition: color 0.3s ease;
+  }
+  
+  .dustbin-button:hover {
+    color: #dc3545;
+  }
+
 .mistakes-ignored-container {
     display: flex;
     flex-direction: row;

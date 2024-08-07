@@ -14,7 +14,7 @@ const ExpertAdmin = () => {
 
         if (studentId) {
             try {
-                const response = await axios.post('http://localhost:3000/get-student-passages', { studentId }, { withCredentials: true });
+                const response = await axios.post('http://52.66.236.172:3000/get-student-passages', { studentId }, { withCredentials: true });
                 if (response.status === 200 && response.data) {
                     const { subjectId, qset } = response.data;
                     navigate(`/expertDashboard/${subjectId}/${qset}/${studentId}`);

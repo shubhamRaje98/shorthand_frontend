@@ -6,6 +6,9 @@ import { useParams, useNavigate  } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUndo, faEyeSlash, faExchangeAlt, faSearchPlus, faSearchMinus } from '@fortawesome/free-solid-svg-icons';
+import { faToggleOn, faToggleOff } from '@fortawesome/free-solid-svg-icons';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
+
 
 
 const ColoredText = ({ coloredWords, highlightedWord }) => {
@@ -43,17 +46,17 @@ const MistakesList = ({ mistakes, onAddIgnoreWord, onWordHover, fontSize, ignore
   
         switch(category) {
           case 'missed':
-            categoryTitle = 'Extra Added Words';
-            categoryStyle = {
-              backgroundColor: '#e6fffa',
-              color: '#047857'
-            };
-            break;
-          case 'added':
             categoryTitle = 'Omitted Words';
             categoryStyle = {
               backgroundColor: '#fee2e2',
               color: '#b91c1c'
+            };
+            break;
+          case 'added':
+            categoryTitle = 'Extra Added Words';
+            categoryStyle = {
+              backgroundColor: '#e6fffa',
+              color: '#047857'
             };
             break;
           case 'spelling':
@@ -126,6 +129,9 @@ const FinalPassageTextlog = () => {
     const [coloredWords, setColoredWords] = useState([]);
     const [highlightedWord, setHighlightedWord] = useState(null);
     const [passageBViewed, setPassageBViewed] = useState(false);
+    const [categoryCounts, setCategoryCounts] = useState({});
+    const [isIgnoreListVisible, setisIgnoreListVisible] = useState(true)
+    const [tempIgnoreList, settempIgnoreList] = useState([])
 
 
     const handleZoom = (column, action) => {
@@ -142,7 +148,7 @@ const FinalPassageTextlog = () => {
     const handleSubmit = async () => {
       try {
           const response = await axios.post(
-              `http://localhost:3000/submit-passage-review/${subjectId}/${qset}`, 
+              `http://52.66.236.172:3000/submit-passage-review/${subjectId}/${qset}`, 
               {}, 
               { withCredentials: true }
           );
@@ -157,11 +163,22 @@ const FinalPassageTextlog = () => {
       }
     };
 
+    const handleToggleIgnoreList = () => {
+      if (isIgnoreListVisible) {
+        settempIgnoreList(ignoreList);
+        setIgnoreList([]);
+      }
+      else{
+        setIgnoreList(tempIgnoreList);
+        settempIgnoreList([]);
+      }
+      setisIgnoreListVisible(!isIgnoreListVisible)
+    } 
 
     useEffect(() => {
       const fetchPassages = async () => {
           try {
-              const response = await axios.get(`http://localhost:3000/expert-assigned-passages/${subjectId}/${qset}`, { withCredentials: true });
+              const response = await axios.get(`http://52.66.236.172:3000/expert-assigned-passages/${subjectId}/${qset}`, { withCredentials: true });
               if (response.status === 200) {
                   console.log("Raw data:", JSON.stringify(response.data));
                   setPassages(response.data);
@@ -179,7 +196,7 @@ const FinalPassageTextlog = () => {
           try {
               console.log(subjectId, qset, activePassage);
               
-              const response = await axios.post('http://localhost:3000/active-passage', {
+              const response = await axios.post('http://52.66.236.172:3000/active-passage', {
                   subjectId,
                   qset,
                   activePassage,
@@ -221,7 +238,7 @@ const FinalPassageTextlog = () => {
         if (!modelAnswer || !userAnswer) return;
 
         try {
-          const response = await axios.post('http://localhost:5000/compare', {
+          const response = await axios.post('http://43.204.22.53:5000/compare', {
             text1: modelAnswer,
             text2: userAnswer,
             ignore_list: ignoreList,
@@ -247,6 +264,30 @@ const FinalPassageTextlog = () => {
         comparePassages();
     }, [comparePassages]);
 
+    useEffect(() => {
+      const orderedCategories = ['spelling', 'missed', 'added', 'grammar'];
+      const counts = orderedCategories.reduce((counts, category) => {
+        counts[category] = mistakes[category] ? mistakes[category].length : 0;
+        return counts;
+      }, {});
+    
+      const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
+      let average = 50 - (total / 3) ;
+      if (average<0) {
+        average = 0
+      }
+    
+      setCategoryCounts({
+        ...counts,
+        total,
+        average: average.toFixed(2) // Rounds to 2 decimal places
+      });
+    
+      console.log('Mistake category counts:', counts);
+      console.log('Total mistakes:', total);
+      console.log('Average mistakes:', average.toFixed(2));
+    }, [mistakes]);
+
     const handleWordHover = useCallback((word) => {
       if (word) {
         const actualWord = word.split('(')[0].trim();
@@ -258,7 +299,7 @@ const FinalPassageTextlog = () => {
 
     const handleAddIgnoreWord = useCallback(async (word) => {
       try {
-        const response = await axios.post('http://localhost:3000/add-ignore-word', {
+        const response = await axios.post('http://52.66.236.172:3000/add-ignore-word', {
           subjectId,
           qset,
           activePassage,
@@ -278,7 +319,7 @@ const FinalPassageTextlog = () => {
     
     const handleUndoWord = useCallback(async (wordToRemove) => {
       try {
-        const response = await axios.post('http://localhost:3000/undo-word', {
+        const response = await axios.post('http://52.66.236.172:3000/undo-word', {
           subjectId,
           qset,
           activePassage,
@@ -294,6 +335,26 @@ const FinalPassageTextlog = () => {
       } catch (err) {
         console.error('Error removing word from ignore list:', err);
         toast.error('Failed to remove word from ignore list');
+      }
+    }, [subjectId, qset, activePassage, comparePassages]);
+
+    const handleClearIgnoreList = useCallback(async () => {
+      try {
+        const response = await axios.post('http://52.66.236.172:3000/clear-ignore-list', {
+          subjectId,
+          qset,
+          activePassage
+        }, { withCredentials: true });
+    
+        if (response.status === 200) {
+          setIgnoreList([]);
+          toast.success('Ignore list cleared successfully');
+          comparePassages();
+          console.log("Debug info:", response.data.debug);
+        }
+      } catch (err) {
+        console.error('Error clearing ignore list:', err);
+        toast.error('Failed to clear ignore list');
       }
     }, [subjectId, qset, activePassage, comparePassages]);
 
@@ -344,6 +405,14 @@ const IgnoredList = ({ ignoreList, fontSize, onUndoIgnore }) => {
                   {!passageBViewed && (
                       <span className="submit-tooltip">Please view Passage B before submitting</span>
                   )}
+                  <div className="mistake-counts">
+                    <span className="mistake-count spelling">Spelling: {categoryCounts.spelling}</span>
+                    <span className="mistake-count missed">Missed: {categoryCounts.missed}</span>
+                    <span className="mistake-count added">Added: {categoryCounts.added}</span>
+                    <span className="mistake-count grammar">Grammar: {categoryCounts.grammar}</span>
+                    <span className="mistake-count total">Total: {categoryCounts.total}</span>
+                    <span className="mistake-count average">Marks: {categoryCounts.average}</span>
+                  </div>                  
               </div>
           <div className="grid-item">
               <h2 className="column-header">
@@ -383,15 +452,26 @@ const IgnoredList = ({ ignoreList, fontSize, onUndoIgnore }) => {
                 />
               </div>
               <div className="ignored-container">
-                <h5 style={{color: 'red'}}>Ignored List</h5>
+                <h5 style={{color: 'red', display: 'flex', alignItems: 'center'}}>
+                  Ignored List
+                <button 
+                  className="dustbin-button" 
+                  onClick={handleClearIgnoreList}
+                  style={{marginLeft: '0.5rem', background: 'none', border: 'none', cursor: 'pointer'}}
+                >
+                  <FontAwesomeIcon icon={faTrash} />
+                </button>
+                </h5>
                 <IgnoredList 
                   ignoreList={ignoreList}
                   fontSize={fontSizes.mistakes}
                   onUndoIgnore={handleUndoWord}
+                  isVisible={isIgnoreListVisible}
                 />
               </div>
             </div>
             <div className="zoom-buttons">
+              <button onClick={handleToggleIgnoreList}><FontAwesomeIcon icon={isIgnoreListVisible ? faToggleOn : faToggleOff} /></button>
               <button onClick={() => handleZoom('mistakes', 'in')}><FontAwesomeIcon icon={faSearchPlus} /></button>
               <button onClick={() => handleZoom('mistakes', 'out')}><FontAwesomeIcon icon={faSearchMinus} /></button>
             </div>
