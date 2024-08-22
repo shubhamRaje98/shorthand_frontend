@@ -25,6 +25,7 @@ import FetchUpdateTable from './components/superAdmin/fetchUpdateTables';
 import PCRegistration from './components/pcRegistration/pcRegistration';
 import FetchPassageById from './components/expertDashboard/FetchPassageById'
 import ResultFetchUpdate from './components/resultSuperAdmin/fetchUpdateTables'; 
+import StudentAssignmentReport from './components/expertDashboard/StudentAssignmentReport'
 
 axios.defaults.withCredentials = true;
 
@@ -39,6 +40,7 @@ const App = () => {
                     <Route path="/expertAdmin" element={<ExpertAdmin />} />
                     <Route path="/student-table" element={<StudentTable />} />
                     <Route path="/home" element={<Home />} />
+                    <Route path="/student-assignment-report/:subjectId/:qset/:studentId" element={<StudentAssignmentReport />} />
 
                     <Route path="/expertDashboard" element={<ExpertDashboard />}>
                         <Route index element={<SubjectSelection />} />

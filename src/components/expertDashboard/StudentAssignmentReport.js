@@ -108,7 +108,7 @@ const MistakesList = ({ mistakes, onAddIgnoreWord, onWordHover, fontSize, ignore
   );
 };
 
-const FetchPassageById = () => {
+const StudentAssignmentReport = () => {
     const navigate = useNavigate();
     const { studentId, subjectId, qset } = useParams();
     const [passages, setPassages] = useState({ 
@@ -381,105 +381,83 @@ const FetchPassageById = () => {
     };
 
     return (
-      <div className="final-passage-container">
-        <div className="passage-buttons-container">
-          <div className="passage-buttons">
+        <div className="final-passage-container">
+          <div className="passage-buttons-container">
+                        {/* Add the studentId display here */}
+            <div className="student-id" style={{ marginRight: '1rem', fontWeight: '700' }}>
+              Student ID: {studentId}
+            </div>
+            <div className="passage-buttons">
+              <button 
+                className={`passage-button ${activePassage === 'A' ? 'active' : ''}`}
+                onClick={() => handlePassageChange('A')}
+              >
+                Passage A
+              </button>
+              <button 
+                className={`passage-button ${activePassage === 'B' ? 'active' : ''}`}
+                onClick={() => handlePassageChange('B')}
+              >
+                Passage B
+              </button>
+            </div>
             <button 
-              className={`passage-button ${activePassage === 'A' ? 'active' : ''}`}
-              onClick={() => handlePassageChange('A')}
+              className="submit-button" 
+              onClick={handleSubmit} 
+              disabled={!passageBViewed}
             >
-              Passage A
+              Submit
             </button>
-            <button 
-              className={`passage-button ${activePassage === 'B' ? 'active' : ''}`}
-              onClick={() => handlePassageChange('B')}
-            >
-              Passage B
-            </button>
+            {!passageBViewed && (
+              <span className="submit-tooltip">Please view Passage B before submitting</span>
+            )}
+            <div className="mistake-counts">
+              <span className="mistake-count spelling">Spelling: {categoryCounts.spelling}</span>
+              <span className="mistake-count missed">Missed: {categoryCounts.missed}</span>
+              <span className="mistake-count added">Added: {categoryCounts.added}</span>
+              <span className="mistake-count grammar">Grammar: {categoryCounts.grammar}</span>
+              <span className="mistake-count total">Total: {categoryCounts.total}</span>
+              <span className="mistake-count average">Marks: {categoryCounts.average}</span>
+            </div>
           </div>
-          <button 
-            className="submit-button" 
-            onClick={handleSubmit} 
-            disabled={!passageBViewed}
-          >
-            Submit
-          </button>
-          {!passageBViewed && (
-            <span className="submit-tooltip">Please view Passage B before submitting</span>
-          )}
-          <div className="mistake-counts">
-            <span className="mistake-count spelling">Spelling: {categoryCounts.spelling}</span>
-            <span className="mistake-count missed">Missed: {categoryCounts.missed}</span>
-            <span className="mistake-count added">Added: {categoryCounts.added}</span>
-            <span className="mistake-count grammar">Grammar: {categoryCounts.grammar}</span>
-            <span className="mistake-count total">Total: {categoryCounts.total}</span>
-            <span className="mistake-count average">Marks: {categoryCounts.average}</span>
-          </div>
+            <div className="grid-item">
+                <h2 className="column-header">
+                  Model Answer
+                </h2>
+                <pre className="preformatted-text" style={{ fontSize: `${fontSizes.modelAnswer}px`}}>
+                    {passages[`ansPassage${activePassage}`]}
+                </pre>
+                <div className="zoom-buttons">
+                  {/* <button onClick={handleIsSwapped}><FontAwesomeIcon icon={faExchangeAlt} /></button> */}
+                  <button onClick={() => handleZoom('modelAnswer', 'in')}><FontAwesomeIcon icon={faSearchPlus} /></button>
+                  <button onClick={() => handleZoom('modelAnswer', 'out')}><FontAwesomeIcon icon={faSearchMinus} /></button>
+                </div>
+            </div>
+            <div className="grid-item">
+                <h2 className="column-header">
+                  User Answer
+                </h2>
+                <pre className="preformatted-text" style={{ fontSize: `${fontSizes.modelAnswer}px`}}>
+                    {passages[`passage${activePassage}`]}
+                </pre>
+                <div className="zoom-buttons">
+                  {/* <button onClick={handleIsSwapped}><FontAwesomeIcon icon={faExchangeAlt} /></button> */}
+                  <button onClick={() => handleZoom('modelAnswer', 'in')}><FontAwesomeIcon icon={faSearchPlus} /></button>
+                  <button onClick={() => handleZoom('modelAnswer', 'out')}><FontAwesomeIcon icon={faSearchMinus} /></button>
+                </div>
+            </div>
+            <div className="grid-item">
+                <h2 className="column-header">Difference Passage</h2>
+                <div className="preformatted-text" style={{ fontSize: `${fontSizes.answerPassage}px` }}>
+                    <ColoredText coloredWords={coloredWords} highlightedWord={highlightedWord} />
+                </div>
+                <div className="zoom-buttons">
+                    <button onClick={() => handleZoom('answerPassage', 'in')}><FontAwesomeIcon icon={faSearchPlus} /></button>
+                    <button onClick={() => handleZoom('answerPassage', 'out')}><FontAwesomeIcon icon={faSearchMinus} /></button>
+                </div>
+            </div>
         </div>
-          <div className="grid-item">
-              <h2 className="column-header">
-                {isSwapped ? 'User Answer' : 'Model Answer'}
-              </h2>
-              <pre className="preformatted-text" style={{ fontSize: `${fontSizes.modelAnswer}px`}}>
-                  {isSwapped ? passages[`passage${activePassage}`] : passages[`ansPassage${activePassage}`]}
-              </pre>
-              <div className="zoom-buttons">
-                <button onClick={handleIsSwapped}><FontAwesomeIcon icon={faExchangeAlt} /></button>
-                <button onClick={() => handleZoom('modelAnswer', 'in')}><FontAwesomeIcon icon={faSearchPlus} /></button>
-                <button onClick={() => handleZoom('modelAnswer', 'out')}><FontAwesomeIcon icon={faSearchMinus} /></button>
-              </div>
-          </div>
-          <div className="grid-item">
-              <h2 className="column-header">Difference Passage</h2>
-              <div className="preformatted-text" style={{ fontSize: `${fontSizes.answerPassage}px` }}>
-                  <ColoredText coloredWords={coloredWords} highlightedWord={highlightedWord} />
-              </div>
-              <div className="zoom-buttons">
-                  <button onClick={() => handleZoom('answerPassage', 'in')}><FontAwesomeIcon icon={faSearchPlus} /></button>
-                  <button onClick={() => handleZoom('answerPassage', 'out')}><FontAwesomeIcon icon={faSearchMinus} /></button>
-              </div>
-          </div>
-          <div className="grid-item">
-            <h2 className="column-header">Mistakes and Ignored Words</h2>
-            <div className="mistakes-ignored-container">
-              <div className="mistakes-container">
-                <h5 style={{color: 'red'}}>Mistakes List</h5>
-                <MistakesList 
-                  mistakes={mistakes} 
-                  fontSize={fontSizes.mistakes}
-                  onAddIgnoreWord={handleAddIgnoreWord}
-                  onUndoWord={handleUndoWord}
-                  onWordHover={handleWordHover}
-                  ignoreList={ignoreList}
-                />
-              </div>
-              <div className="ignored-container">
-                <h5 style={{color: 'red', display: 'flex', alignItems: 'center'}}>
-                  Ignored List
-                <button 
-                  className="dustbin-button" 
-                  onClick={handleClearIgnoreList}
-                  style={{marginLeft: '0.5rem', background: 'none', border: 'none', cursor: 'pointer'}}
-                >
-                  <FontAwesomeIcon icon={faTrash} />
-                </button>
-                </h5>
-                <IgnoredList 
-                  ignoreList={ignoreList}
-                  fontSize={fontSizes.mistakes}
-                  onUndoIgnore={handleUndoWord}
-                  isVisible={isIgnoreListVisible}
-                />
-              </div>
-            </div>
-            <div className="zoom-buttons">
-              <button onClick={handleToggleIgnoreList}><FontAwesomeIcon icon={isIgnoreListVisible ? faToggleOn : faToggleOff} /></button>
-              <button onClick={() => handleZoom('mistakes', 'in')}><FontAwesomeIcon icon={faSearchPlus} /></button>
-              <button onClick={() => handleZoom('mistakes', 'out')}><FontAwesomeIcon icon={faSearchMinus} /></button>
-            </div>
-          </div>
-      </div>
   );
 };
 
-export default FetchPassageById;
+export default StudentAssignmentReport;

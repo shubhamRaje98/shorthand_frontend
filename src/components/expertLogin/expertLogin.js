@@ -19,7 +19,7 @@ const ExpertLogin = () => {
                 withCredentials: true
             });
             if (response.status === 200) {
-                if (response.data.expertId === 8 || response.data.expertId === 100){
+                if (response.data.expertId === 8 || response.data.expertId === 100 || response.data.expertId === 101){
                     navigate(`/expertAdmin`);
                 }
                 else{
