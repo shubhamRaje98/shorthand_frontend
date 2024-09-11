@@ -1,61 +1,52 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import './navBar.css'; // Import custom CSS
+import './navBar.css';
 
 const NavBar = () => {
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [showDownloads, setShowDownloads] = useState(false);
     const [showDashboards, setShowDashboards] = useState(false);
 
-    const handleDownloadsClick = () => {
-        setShowDownloads(!showDownloads);
-        setShowDashboards(false);
-    };
+    const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
-    const handleDashboardsClick = () => {
-        setShowDashboards(!showDashboards);
-        setShowDownloads(false);
+    const handleDropdownClick = (dropdown) => {
+        if (dropdown === 'downloads') {
+            setShowDownloads(!showDownloads);
+            setShowDashboards(false);
+        } else if (dropdown === 'dashboards') {
+            setShowDashboards(!showDashboards);
+            setShowDownloads(false);
+        }
     };
 
     return (
-        <nav className="navbar navbar-expand-md navbar-light bg-light">
-            <Link to="/home" className="navbar-brand">Center Admin</Link>
-            <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span className="navbar-toggler-icon"></span>
-            </button>
-            <div className="collapse navbar-collapse" id="navbarNav">
-                <ul className="navbar-nav ml-auto">
-                    <li className="nav-item">
-                        <Link to="/home" className="nav-link">Home</Link>
-                    </li>
-                    <li className="nav-item dropdown">
-                        <button className="nav-link dropdown-toggle btn btn-link" onClick={handleDownloadsClick} aria-expanded={showDownloads}>
+        <nav className="navbar">
+            <div className="navbar-container">
+                <Link to="/home" className="navbar-brand">Center Admin</Link>
+                <button className="navbar-toggler" onClick={toggleMenu}>
+                    <span className="navbar-toggler-icon"></span>
+                </button>
+                <div className={`navbar-menu ${isMenuOpen ? 'is-active' : ''}`}>
+                    <Link to="/home" className="navbar-item">Home</Link>
+                    <div className="navbar-item has-dropdown">
+                        <button className="navbar-link" onClick={() => handleDropdownClick('downloads')}>
                             Downloads
                         </button>
-                        {showDownloads && (
-                            <div className="dropdown-menu show">
-                                <Link to="/attendance-download" className="dropdown-item">pdfs</Link>
-                                
-                            </div>
-                        )}
-                    </li>
-                    <li className="nav-item dropdown">
-                        <button className="nav-link dropdown-toggle btn btn-link" onClick={handleDashboardsClick} aria-expanded={showDashboards}>
+                        <div className={`navbar-dropdown ${showDownloads ? 'is-active' : ''}`}>
+                            <Link to="/attendance-download" className="navbar-item">PDFs</Link>
+                        </div>
+                    </div>
+                    <div className="navbar-item has-dropdown">
+                        <button className="navbar-link" onClick={() => handleDropdownClick('dashboards')}>
                             Dashboards
                         </button>
-                        {showDashboards && (
-                            <div className="dropdown-menu show">
-                                <Link to="/student-table" className="dropdown-item">Track Students Exam</Link>
-                                {/*<Link className="dropdown-item">Centerwise Student Count</Link>*/}
-                            </div>
-                        )}
-                    </li>
-                    <li className="nav-item">
-                        <Link to="/controller-password" className="nav-link">Controller-Password</Link>
-                    </li>
-                    <li className="nav-item">
-                        <Link to="/fetch-pc-registration" className="nav-link">PC Registrations</Link>
-                    </li>
-                </ul>
+                        <div className={`navbar-dropdown ${showDashboards ? 'is-active' : ''}`}>
+                            <Link to="/student-table" className="navbar-item">Track Students Exam</Link>
+                        </div>
+                    </div>
+                    <Link to="/controller-password" className="navbar-item">Controller-Password</Link>
+                    <Link to="/fetch-pc-registration" className="navbar-item">PC Registrations</Link>
+                </div>
             </div>
         </nav>
     );

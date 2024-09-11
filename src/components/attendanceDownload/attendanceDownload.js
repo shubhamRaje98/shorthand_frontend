@@ -1,52 +1,82 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
-import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
+import 'bootstrap/dist/css/bootstrap.min.css';
 import NavBar from '../navBar/navBar';
+import './AttendanceDownload.css';
+
 const AttendanceDownload = () => {
-    const [data, setData] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [batchNo, setBatchNo] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
-    useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            setError('');
-            try {
-                const response = await axios.get('http://localhost:3000/get-pdfs');
-                setData(response.data);
-            } catch (error) {
-                console.error("Error fetching data:", error);
-                setError('Failed to fetch data');
-            }
-            setLoading(false);
-        };
+    const handleDownload = async (reportType) => {
+        setIsLoading(true);
+        setError('');
 
-        fetchData();
-    }, []);
+        try {
+            const response = await axios({
+                url: `http://localhost:3000/center/${reportType}-pdf-download`,
+                method: 'POST',
+                data: { batchNo },
+                responseType: 'blob',
+            });
+
+            const file = new Blob([response.data], { type: 'application/pdf' });
+            const fileURL = URL.createObjectURL(file);
+            const link = document.createElement('a');
+            link.href = fileURL;
+            link.setAttribute('download', `${reportType}_report.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(fileURL);
+        } catch (err) {
+            console.error(`Error downloading the ${reportType} PDF:`, err);
+            setError(`An error occurred while downloading the ${reportType} PDF. Please try again.`);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
         <div>
-            <NavBar/>
-            <div className="container mt-5">
-                <h2>Download Attendance and Reports</h2>
-                {loading && <p>Loading...</p>}
-                {error && <p className="text-danger">{error}</p>}
-                {!loading && !error && Array.isArray(data) && data.length > 0 && (
-                    <div className="list-group">
-                        {data.map((item, index) => (
-                            <div key={index} className="list-group-item">
-                                <h5>Attendance Roll</h5>
-                                <a href={item.attendanceroll} target="_blank" rel="noopener noreferrer" className="btn btn-primary mb-2">Download Attendance Roll</a>
-                                <h5>Absentee Report</h5>
-                                <a href={item.absenteereport} target="_blank" rel="noopener noreferrer" className="btn btn-primary mb-2">Download Absentee Report</a>
-                                <h5>Answer Sheet</h5>
-                                <a href={item.answersheet} target="_blank" rel="noopener noreferrer" className="btn btn-primary mb-2">Download Answer Sheet</a>
-                                <h5>Blank Answer Sheet</h5>
-                                <a href={item.blankanswersheet} target="_blank" rel="noopener noreferrer" className="btn btn-primary mb-2">Download Blank Answer Sheet</a>
-                            </div>
-                        ))}
-                    </div>
-                )}
+            <NavBar />
+            <div className="attendance-download-container">
+                <div className="content-wrapper">
+                    <h2 className="title">Download Attendance Report</h2>
+                    <form className="download-form">
+                        <div className="form-group">
+                            <label htmlFor="batchNo" className="form-label">Batch Number:</label>
+                            <input
+                                type="number"
+                                className="form-control"
+                                id="batchNo"
+                                value={batchNo}
+                                onChange={(e) => setBatchNo(e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div className="button-group">
+                            <button 
+                                type="button" 
+                                className="btn btn-primary download-btn"
+                                disabled={isLoading || !batchNo}
+                                onClick={() => handleDownload('absentee')}
+                            >
+                                {isLoading ? 'Generating...' : 'Download Absentee Report'}
+                            </button>
+                            <button 
+                                type="button" 
+                                className="btn btn-primary download-btn"
+                                disabled={isLoading || !batchNo}
+                                onClick={() => handleDownload('attendance')}
+                            >
+                                {isLoading ? 'Generating...' : 'Download Attendance Report'}
+                            </button>
+                        </div>
+                    </form>
+                    {error && <div className="alert alert-danger mt-3">{error}</div>}
+                </div>
             </div>
         </div>
     );
