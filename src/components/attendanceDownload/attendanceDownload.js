@@ -9,6 +9,9 @@ const AttendanceDownload = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
+    // Available batch numbers
+    const availableBatches = [100, 101, 102];
+
     const handleDownload = async (reportType) => {
         setIsLoading(true);
         setError('');
@@ -25,7 +28,7 @@ const AttendanceDownload = () => {
             const fileURL = URL.createObjectURL(file);
             const link = document.createElement('a');
             link.href = fileURL;
-            link.setAttribute('download', `${reportType}_report.pdf`);
+            link.setAttribute('download', `${reportType}_report_batch_${batchNo}.pdf`);
             document.body.appendChild(link);
             link.click();
             link.remove();
@@ -47,14 +50,20 @@ const AttendanceDownload = () => {
                     <form className="download-form">
                         <div className="form-group">
                             <label htmlFor="batchNo" className="form-label">Batch Number:</label>
-                            <input
-                                type="number"
+                            <select
                                 className="form-control"
                                 id="batchNo"
                                 value={batchNo}
                                 onChange={(e) => setBatchNo(e.target.value)}
                                 required
-                            />
+                            >
+                                <option value="">Select a batch number</option>
+                                {availableBatches.map((batch) => (
+                                    <option key={batch} value={batch}>
+                                        {batch}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
                         <div className="button-group">
                             <button 
