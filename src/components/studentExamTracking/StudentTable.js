@@ -15,6 +15,7 @@ const StudentTable = () => {
     const [updateInterval, setUpdateInterval] = useState(100000);
     const [batches, setBatches] = useState([]);
     const [subjects, setSubjects] = useState([]);
+    const [allSubjects, setAllSubjects] = useState([]);
 
     const formatDateTime = (dateTimeString) => {
         if (!dateTimeString) return '';
@@ -22,60 +23,64 @@ const StudentTable = () => {
         return dateTime.toLocaleString();
     }
 
-    const fetchData = async (url) => {
+    const fetchSubjects = async () => {
+        try {
+            const response = await axios.get('http://localhost:3000/subjects');
+            if (response.data.subjects) {
+                setAllSubjects(response.data.subjects);
+            }
+        } catch (error) {
+            console.error('Error fetching subjects:', error);
+            setError('Failed to fetch subjects');
+        }
+    };
+
+    const fetchData = async () => {
         setLoading(true);
         setError('');
         try {
-            const response = await axios.post(url);
-            console.log("response: ", response);
+            let url = 'http://localhost:3000/track-students-on-exam-center-code';
+            if (batchNo) {
+                url += `/${batchNo}`;
+            }
+            
+            const params = new URLSearchParams();
+            if (subject) params.append('subject_name', subject);
+            if (loginStatus) params.append('loginStatus', loginStatus);
+            
+            if (params.toString()) {
+                url += `?${params.toString()}`;
+            }
+
+            console.log("Fetching data from URL:", url);
+            const response = await axios.post(url, { withCredentials: true });
+            console.log("Response:", response.data);
             setData(response.data);
             
             // Extract distinct batch numbers from the data
             const distinctBatches = [...new Set(response.data.map(item => item.batchNo))];
             setBatches(distinctBatches);
             
-            // Extract distinct subjects (if available in the data)
-            if (response.data[0] && response.data[0].subject) {
-                const distinctSubjects = [...new Set(response.data.map(item => item.subject))];
-                setSubjects(distinctSubjects);
-            }
+            // Extract distinct subjects
+            const distinctSubjects = [...new Set(response.data.map(item => item.subject_name))];
+            setSubjects(distinctSubjects);
         } catch (error) {
             console.error("Error fetching data:", error);
-            setError('Failed to fetch data ' + error);
+            setError("No students found for provided filter parametrs please check the parameters!!!");
         }
         setLoading(false);
     };
 
-    const handleFetch = () => {
-        let url = 'http://localhost:3000/track-students-on-exam-center-code';
-        if (batchNo) {
-            url += `/${batchNo}`;
-        }
-        // Add query parameters for additional filters
-        url += `?subject=${subject}&loginStatus=${loginStatus}`;
-        fetchData(url);
-    };
-
     useEffect(() => {
-        console.log("Setting interval with updateInterval:", updateInterval);
-        const interval = setInterval(() => {
-            console.log("Fetching data...");
-            handleFetch();
-        }, updateInterval);
-
-        return () => {
-            console.log("Clearing interval...");
-            clearInterval(interval);
-        };
-    }, [updateInterval, batchNo, subject, loginStatus]);
-
-    useEffect(() => {
-        handleFetch();
-    }, []);
+        fetchSubjects();
+        fetchData();
+        const interval = setInterval(fetchData, updateInterval);
+        return () => clearInterval(interval);
+    }, [batchNo, subject, loginStatus, updateInterval]);
 
     const getCellClass = (value) => {
         let backgroundClass = '';
-        let textColorClass = 'text-white'; // Default to white text
+        let textColorClass = 'text-white';
 
         if (value === true) {
             backgroundClass = 'cell-green';
@@ -83,7 +88,7 @@ const StudentTable = () => {
             backgroundClass = 'cell-red';
         } else if (Number(value) > 10 && Number(value) < 90) {
             backgroundClass = 'cell-yellow';
-            textColorClass = 'text-black'; // Black text for yellow background
+            textColorClass = 'text-black';
         } else if (Number(value) >= 90) {
             backgroundClass = 'cell-green';
         }
@@ -120,8 +125,10 @@ const StudentTable = () => {
                                 onChange={(e) => setSubject(e.target.value)}
                             >
                                 <option value="">All Subjects</option>
-                                {subjects.map((subj, index) => (
-                                    <option key={index} value={subj}>{subj}</option>
+                                {allSubjects.map((subj) => (
+                                    <option key={subj.subjectId} value={subj.subject_name}>
+                                        {subj.subject_name}
+                                    </option>
                                 ))}
                             </select>
                         </div>
@@ -134,12 +141,12 @@ const StudentTable = () => {
                                 onChange={(e) => setLoginStatus(e.target.value)}
                             >
                                 <option value="">All</option>
-                                <option value="logged_in">Logged In</option>
-                                <option value="logged_out">Logged Out</option>
+                                <option value="loggedin">Logged In</option>
+                                <option value="loggedout">Logged Out</option>
                             </select>
                         </div>
                         <div className="col-md-3 col-sm-6 mb-2 d-flex align-items-end">
-                            <button onClick={handleFetch} className="btn btn-primary w-100">Fetch Data</button>
+                            <button onClick={fetchData} className="btn btn-primary w-100">Fetch Data</button>
                         </div>
                     </div>
                     {loading ? (
