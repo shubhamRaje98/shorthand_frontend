@@ -56,10 +56,15 @@ const StudentTable = () => {
             const response = await axios.post(url, { withCredentials: true });
             console.log("Response:", response.data);
             setData(response.data);
+
+            
             
             // Extract distinct batch numbers from the data
             const distinctBatches = [...new Set(response.data.map(item => item.batchNo))];
-            setBatches(distinctBatches);
+            setBatches(prevBatches => {
+                const newBatches = [...new Set([...prevBatches, ...distinctBatches])];
+                return newBatches.sort();
+            });
             
             // Extract distinct subjects
             const distinctSubjects = [...new Set(response.data.map(item => item.subject_name))];

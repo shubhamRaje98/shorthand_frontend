@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import NavBar from '../navBar/navBar';
@@ -8,9 +8,25 @@ const AttendanceDownload = () => {
     const [batchNo, setBatchNo] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
+    const [batches, setBatches] = useState([]);
 
-    // Available batch numbers
-    const availableBatches = [100, 101, 102];
+    useEffect(() => {
+        fetchBatches();
+    }, []);
+
+    const fetchBatches = async () => {
+        try {
+            const response = await axios.post('http://localhost:3000/track-students-on-exam-center-code');
+            const distinctBatches = [...new Set(response.data.map(item => item.batchNo))];
+            setBatches(prevBatches => {
+                const newBatches = [...new Set([...prevBatches, ...distinctBatches])];
+                return newBatches.sort((a, b) => a - b);
+            });
+        } catch (error) {
+            console.error("Error fetching batches:", error);
+            setError("Failed to fetch batch numbers. Please try again later.");
+        }
+    };
 
     const handleDownload = async (reportType) => {
         setIsLoading(true);
@@ -24,18 +40,29 @@ const AttendanceDownload = () => {
                 responseType: 'blob',
             });
 
-            const file = new Blob([response.data], { type: 'application/pdf' });
-            const fileURL = URL.createObjectURL(file);
-            const link = document.createElement('a');
-            link.href = fileURL;
-            link.setAttribute('download', `${reportType}_report_batch_${batchNo}.pdf`);
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-            URL.revokeObjectURL(fileURL);
+            const contentType = response.headers['content-type'];
+            if (contentType === 'application/pdf') {
+                const file = new Blob([response.data], { type: 'application/pdf' });
+                const fileURL = URL.createObjectURL(file);
+                const link = document.createElement('a');
+                link.href = fileURL;
+                link.setAttribute('download', `${reportType}_report_batch_${batchNo}.pdf`);
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                URL.revokeObjectURL(fileURL);
+            } else {
+                // It's likely an error message
+                const reader = new FileReader();
+                reader.onload = function() {
+                    const errorMessage = JSON.parse(reader.result);
+                    setError("Download is not available at this time.");
+                };
+                reader.readAsText(response.data);
+            }
         } catch (err) {
             console.error(`Error downloading the ${reportType} PDF:`, err);
-            setError(`An error occurred while downloading the ${reportType} PDF. Please try again.`);
+            setError("Download is not available at this time.");
         } finally {
             setIsLoading(false);
         }
@@ -58,7 +85,7 @@ const AttendanceDownload = () => {
                                 required
                             >
                                 <option value="">Select a batch number</option>
-                                {availableBatches.map((batch) => (
+                                {batches.map((batch) => (
                                     <option key={batch} value={batch}>
                                         {batch}
                                     </option>
