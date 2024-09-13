@@ -26,6 +26,7 @@ import PCRegistration from './components/pcRegistration/pcRegistration';
 import FetchPassageById from './components/expertDashboard/FetchPassageById'
 import ResultFetchUpdate from './components/resultSuperAdmin/fetchUpdateTables'; 
 import StudentAssignmentReport from './components/expertDashboard/StudentAssignmentReport'
+import DepartmentLogin from './components/department/DepartmentLogin';
 
 axios.defaults.withCredentials = true;
 
@@ -58,6 +59,7 @@ const App = () => {
                     <Route path="/fetch-pc-registration" element={<PCRegistration />} />
                     <Route path="/result-subjectwise-summary" element={<SubjectWiseResultSummary />} />
                     <Route path="/result-super-admin" element={< ResultFetchUpdate />} />
+                    <Route path='/department-login' element={<DepartmentLogin/>}/>
                 </Routes>
             </Router>
         </DashboardProvider>
