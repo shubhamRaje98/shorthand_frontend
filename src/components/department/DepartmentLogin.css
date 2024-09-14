@@ -1,0 +1,119 @@
+.department-login-container {
+    min-height: calc(100vh - 56px); /* Adjust based on your navbar height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f8f9fa;
+    padding: 20px;
+}
+
+.department-content-wrapper {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    width: 100%;
+    max-width: 400px;
+}
+
+.department-title {
+    color: #007bff;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.department-login-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.department-form-group {
+    margin-bottom: 20px;
+}
+
+.department-form-label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #495057;
+}
+
+.department-form-control {
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    font-size: 16px;
+    padding: 12px;
+    width: 100%;
+}
+
+/* Unique styles for the password field */
+.department-password-control {
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    font-size: 16px;
+    padding: 12px;
+    width: 100%;
+    background-color: #f0f0f0;
+    outline: none;
+}
+
+.department-button-group {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.department-login-btn {
+    padding: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    background-color: #007bff;
+    border: none;
+    color: white;
+    border-radius: 5px;
+    width: 100%;
+    cursor: pointer;
+}
+
+.department-login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.department-error-message {
+    color: red;
+    text-align: center;
+    margin-top: 10px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .department-content-wrapper {
+        padding: 20px;
+    }
+
+    .department-title {
+        font-size: 24px;
+    }
+
+    .department-form-control, .department-login-btn, .department-password-control {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .department-content-wrapper {
+        padding: 15px;
+    }
+
+    .department-title {
+        font-size: 20px;
+    }
+
+    .department-form-control, .department-login-btn, .department-password-control {
+        font-size: 12px;
+    }
+}

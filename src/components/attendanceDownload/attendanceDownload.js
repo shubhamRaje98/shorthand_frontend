@@ -71,14 +71,14 @@ const AttendanceDownload = () => {
     return (
         <div>
             <NavBar />
-            <div className="attendance-download-container">
-                <div className="content-wrapper">
-                    <h2 className="title">Download Attendance Report</h2>
-                    <form className="download-form">
-                        <div className="form-group">
-                            <label htmlFor="batchNo" className="form-label">Batch Number:</label>
+            <div className="attendance-download">
+                <div className="attendance-download__wrapper">
+                    <h2 className="attendance-download__title">Download Attendance Report</h2>
+                    <form className="attendance-download__form">
+                        <div className="attendance-download__form-group">
+                            <label htmlFor="batchNo" className="attendance-download__label">Batch Number:</label>
                             <select
-                                className="form-control"
+                                className="attendance-download__select"
                                 id="batchNo"
                                 value={batchNo}
                                 onChange={(e) => setBatchNo(e.target.value)}
@@ -92,10 +92,10 @@ const AttendanceDownload = () => {
                                 ))}
                             </select>
                         </div>
-                        <div className="button-group">
+                        <div className="attendance-download__button-group">
                             <button 
                                 type="button" 
-                                className="btn btn-primary download-btn"
+                                className="attendance-download__btn"
                                 disabled={isLoading || !batchNo}
                                 onClick={() => handleDownload('absentee')}
                             >
@@ -103,7 +103,7 @@ const AttendanceDownload = () => {
                             </button>
                             <button 
                                 type="button" 
-                                className="btn btn-primary download-btn"
+                                className="attendance-download__btn"
                                 disabled={isLoading || !batchNo}
                                 onClick={() => handleDownload('attendance')}
                             >
@@ -111,7 +111,7 @@ const AttendanceDownload = () => {
                             </button>
                         </div>
                     </form>
-                    {error && <div className="alert alert-danger mt-3">{error}</div>}
+                    {error && <div className="attendance-download__alert">{error}</div>}
                 </div>
             </div>
         </div>

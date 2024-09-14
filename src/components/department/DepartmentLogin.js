@@ -1,10 +1,10 @@
-//expertLogin.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import './DepartmentLogin.css';  // Import the CSS file
 
 const DepartmentLogin = () => {
-    const [departmentId, setDepartmentId] = useState(0);
+    const [departmentId, setDepartmentId] = useState('');
     const [password, setDepartmentPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
@@ -22,39 +22,43 @@ const DepartmentLogin = () => {
                alert(response.data);
             }
         } catch (err) {
-            setError('Invalid Expert Code or Password');
+            setError('Invalid Department Code or Password');
         }
     };
 
     return (
-        <div className="login-container">
-            <form onSubmit={handleLogin} className="login-form">
-                <h2>Expert Login</h2>
-                <div className="form-group">
-                    <label htmlFor="expertId">Department Code</label>
-                    <input
-                        type="text"
-                        id="expertId"
-                        className="form-control"
-                        value={departmentId}
-                        onChange={(e) => setDepartmentId(e.target.value)}
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="password">Department Password</label>
-                    <input
-                        type="password"
-                        id="password"
-                        className="form-control"
-                        value={password}
-                        onChange={(e) => setDepartmentPassword(e.target.value)}
-                        required
-                    />
-                </div>
-                {error && <p className="error-message">{error}</p>}
-                <button type="submit" className="btn btn-primary">Login</button>
-            </form>
+        <div className="department-login-container">
+            <div className="department-content-wrapper">
+                <form onSubmit={handleLogin} className="department-login-form">
+                    <h2 className="department-title">Department Login</h2>
+                    <div className="department-form-group">
+                        <label htmlFor="expertId" className="department-form-label">Department Code</label>
+                        <input
+                            type="text"
+                            id="expertId"
+                            className="department-form-control"
+                            value={departmentId}
+                            onChange={(e) => setDepartmentId(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="department-form-group">
+                        <label htmlFor="password" className="department-form-label">Department Password</label>
+                        <input
+                            type="password"
+                            id="password"
+                            className="department-password-control"  // Unique classname
+                            value={password}
+                            onChange={(e) => setDepartmentPassword(e.target.value)}
+                            required
+                        />
+                    </div>
+                    {error && <p className="department-error-message">{error}</p>}
+                    <div className="department-button-group">
+                        <button type="submit" className="department-login-btn">Login</button>
+                    </div>
+                </form>
+            </div>
         </div>
     );
 };

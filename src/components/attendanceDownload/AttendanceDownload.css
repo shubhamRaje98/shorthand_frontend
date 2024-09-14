@@ -1,6 +1,4 @@
-/* AttendanceDownload.css */
-
-.attendance-download-container {
+.attendance-download {
     min-height: calc(100vh - 56px); /* Adjust based on your navbar height */
     display: flex;
     justify-content: center;
@@ -9,7 +7,7 @@
     padding: 20px;
 }
 
-.content-wrapper {
+.attendance-download__wrapper {
     background-color: white;
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -18,7 +16,7 @@
     max-width: 500px;
 }
 
-.title {
+.attendance-download__title {
     color: #007bff;
     text-align: center;
     margin-bottom: 30px;
@@ -26,24 +24,25 @@
     font-weight: bold;
 }
 
-.download-form {
+.attendance-download__form {
     display: flex;
     flex-direction: column;
 }
 
-.form-group {
+.attendance-download__form-group {
     margin-bottom: 20px;
 }
 
-.form-label {
+.attendance-download__label {
     font-weight: bold;
     margin-bottom: 5px;
     color: #495057;
 }
 
-.form-control {
+.attendance-download__select {
     border: 1px solid #ced4da;
     border-radius: 5px;
+    width:100%;
     padding: 10px;
     font-size: 16px;
     appearance: none;
@@ -55,60 +54,62 @@
     background-size: 1em;
 }
 
-.button-group {
+.attendance-download__button-group {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-.download-btn {
+.attendance-download__btn {
     padding: 12px;
     font-size: 16px;
     font-weight: bold;
     text-transform: uppercase;
     transition: all 0.3s ease;
+    background-color: #007bff;
+    color: #f8f9fa;
 }
 
-.download-btn:hover:not(:disabled) {
+.attendance-download__btn:hover:not(:disabled) {
     transform: translateY(-2px);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.download-btn:disabled {
+.attendance-download__btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
 
-.alert {
+.attendance-download__alert {
     margin-top: 20px;
     text-align: center;
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-    .content-wrapper {
+    .attendance-download__wrapper {
         padding: 20px;
     }
 
-    .title {
+    .attendance-download__title {
         font-size: 24px;
     }
 
-    .form-control, .download-btn {
+    .attendance-download__select, .attendance-download__btn {
         font-size: 14px;
     }
 }
 
 @media (max-width: 480px) {
-    .content-wrapper {
+    .attendance-download__wrapper {
         padding: 15px;
     }
 
-    .title {
+    .attendance-download__title {
         font-size: 20px;
     }
 
-    .form-control, .download-btn {
+    .attendance-download__select, .attendance-download__btn {
         font-size: 12px;
     }
 }
