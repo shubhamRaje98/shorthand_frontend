@@ -1,0 +1,111 @@
+.camera-capture {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  max-width: 100vw;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.camera-capture-title {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.camera-container {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  height: 360px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+}
+
+.camera-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background-color: black; /* Ensure visibility */
+}
+
+.camera-capture-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-top: 10px;
+}
+
+.camera-capture-button:hover {
+  background-color: #0056b3;
+}
+
+.camera-close-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-top: 10px;
+}
+
+.camera-close-button:hover {
+  background-color: #c82333;
+}
+
+.camera-capture-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.camera-capture-item {
+  position: relative;
+  width: 100%;
+  max-width: 150px;
+  height: 150px;
+}
+
+.camera-capture-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.camera-capture-limit {
+  margin-top: 20px;
+  color: #dc3545;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .camera-capture-title {
+    font-size: 1.25rem;
+  }
+
+  .camera-capture-button,
+  .camera-close-button {
+    font-size: 0.875rem;
+    padding: 8px 16px;
+  }
+
+  .camera-capture-item {
+    max-width: 120px;
+    height: 120px;
+  }
+
+  .camera-capture-gallery {
+    gap: 5px;
+  }
+}
