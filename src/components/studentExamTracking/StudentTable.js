@@ -1,5 +1,3 @@
-// src/components/StudentTable.js
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './StudentTable.css';
@@ -10,12 +8,14 @@ const StudentTable = () => {
     const [batchNo, setBatchNo] = useState('');
     const [subject, setSubject] = useState('');
     const [loginStatus, setLoginStatus] = useState('');
+    const [batchDate, setBatchDate] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [updateInterval, setUpdateInterval] = useState(100000);
     const [batches, setBatches] = useState([]);
     const [subjects, setSubjects] = useState([]);
     const [allSubjects, setAllSubjects] = useState([]);
+    const [batchDates, setBatchDates] = useState([]);
 
     const formatDateTime = (dateTimeString) => {
         if (!dateTimeString) return '';
@@ -47,18 +47,23 @@ const StudentTable = () => {
             const params = new URLSearchParams();
             if (subject) params.append('subject_name', subject);
             if (loginStatus) params.append('loginStatus', loginStatus);
+            if (batchDate) {
+                // Create a date object and adjust for the time zone offset
+                const date = new Date(batchDate);
+                const offset = date.getTimezoneOffset();
+                date.setMinutes(date.getMinutes() - offset);
+                params.append('batchDate', date.toISOString().split('T')[0]);
+            }
             
             if (params.toString()) {
                 url += `?${params.toString()}`;
             }
-
+    
             console.log("Fetching data from URL:", url);
             const response = await axios.post(url, { withCredentials: true });
             console.log("Response:", response.data);
             setData(response.data);
-
-            
-            
+    
             // Extract distinct batch numbers from the data
             const distinctBatches = [...new Set(response.data.map(item => item.batchNo))];
             setBatches(prevBatches => {
@@ -69,9 +74,22 @@ const StudentTable = () => {
             // Extract distinct subjects
             const distinctSubjects = [...new Set(response.data.map(item => item.subject_name))];
             setSubjects(distinctSubjects);
+    
+            // Extract distinct batch dates
+            const distinctBatchDates = [...new Set(response.data
+                .filter(item => item.batchdate && typeof item.batchdate === 'string')
+                .map(item => {
+                    const date = new Date(item.batchdate);
+                    return date.toISOString().split('T')[0];
+                })
+            )];
+            setBatchDates(prevDates => {
+                const newDates = [...new Set([...prevDates, ...distinctBatchDates])];
+                return newDates.sort().reverse(); // Sort in descending order
+            });
         } catch (error) {
             console.error("Error fetching data:", error);
-            setError("No students found for provided filter parametrs please check the parameters!!!");
+            setError("No students found for provided filter parameters. Please check the parameters!");
         }
         setLoading(false);
     };
@@ -81,7 +99,7 @@ const StudentTable = () => {
         fetchData();
         const interval = setInterval(fetchData, updateInterval);
         return () => clearInterval(interval);
-    }, [batchNo, subject, loginStatus, updateInterval]);
+    }, [batchNo, subject, loginStatus, batchDate, updateInterval]);
 
     const getCellClass = (value) => {
         let backgroundClass = '';
@@ -150,8 +168,19 @@ const StudentTable = () => {
                                 <option value="loggedout">Logged Out</option>
                             </select>
                         </div>
-                        <div className="col-md-3 col-sm-6 mb-2 d-flex align-items-end">
-                            <button onClick={fetchData} className="btn btn-primary w-100">Fetch Data</button>
+                        <div className="col-md-3 col-sm-6 mb-2">
+                            <label htmlFor="batchDate" className="form-label">Batch Date:</label>
+                            <select 
+                                className="form-select" 
+                                id="batchDate" 
+                                value={batchDate} 
+                                onChange={(e) => setBatchDate(e.target.value)}
+                            >
+                                <option value="">All Dates</option>
+                                {batchDates.map((date, index) => (
+                                    <option key={index} value={date}>{date}</option>
+                                ))}
+                            </select>
                         </div>
                     </div>
                     {loading ? (

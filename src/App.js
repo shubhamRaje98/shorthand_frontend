@@ -5,7 +5,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { DashboardProvider } from './components/expertDashboard/DashboardContext';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
 // Import your components
 import SubjectWiseResultSummary from './components/subjectWiseSummaryDash/subjectWiseSummaryDash';
 import Login from './components/centerAdminLogin/centerAdminLogin';
@@ -27,6 +26,7 @@ import FetchPassageById from './components/expertDashboard/FetchPassageById'
 import ResultFetchUpdate from './components/resultSuperAdmin/fetchUpdateTables'; 
 import StudentAssignmentReport from './components/expertDashboard/StudentAssignmentReport'
 import DepartmentLogin from './components/department/DepartmentLogin';
+import StudentDetails from './components/Students/SudentDetails';
 
 axios.defaults.withCredentials = true;
 
@@ -50,6 +50,9 @@ const App = () => {
                         {/* Add the new route here as a nested route */}
                         <Route path=":subjectId/:qset/:studentId" element={<FetchPassageById />} />
                     </Route>
+
+                    <Route path='/student_info/:studentId' element = {<StudentDetails/>}/>
+
 
                     <Route path="/attendance-download" element={<AttendanceDownload />} />
                     <Route path="/centerwise-student-count" element={<CenterwiseStudentCount />} />
