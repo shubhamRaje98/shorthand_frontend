@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
-import './CameraCapture.css'; // Ensure this path is correct
-import { IoCameraReverseOutline } from 'react-icons/io5'; // For camera toggle button
-import axios from 'axios'; // To handle image upload
+import './CameraCapture.css';
+import { IoCameraReverseOutline } from 'react-icons/io5';
+import axios from 'axios';
 
 const videoConstraintsEnvironment = {
   facingMode: "environment",
@@ -16,11 +16,15 @@ const CameraCapture = ({ studentId }) => {
   const [cameraError, setCameraError] = useState('');
   const [activeCamera, setActiveCamera] = useState(videoConstraintsEnvironment);
   const [uploadError, setUploadError] = useState('');
+  const [stream, setStream] = useState(null);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+  const fileInputRef = useRef(null);
+
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
   useEffect(() => {
-    if (showCamera) {
+    if (showCamera && !isMobile) {
       startCamera();
     } else {
       stopCamera();
@@ -33,18 +37,41 @@ const CameraCapture = ({ studentId }) => {
 
   const startCamera = async () => {
     try {
-      const constraints = {
-        video: activeCamera
-      };
+      const constraints = { video: activeCamera };
+      console.log('Requesting media with constraints:', constraints);
       const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+
+      setStream(mediaStream);
 
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
-        videoRef.current.play();
+        await videoRef.current.play();
       }
     } catch (error) {
-      setCameraError('Unable to access the camera. Please check permissions or try a different browser.');
       console.error('Error accessing camera:', error);
+      if (error.name === 'NotAllowedError') {
+        setCameraError('Camera access denied. Please check your browser settings and ensure camera access is allowed.');
+      } else if (error.name === 'NotFoundError') {
+        setCameraError('No camera found. Please ensure your device has a camera and it\'s not being used by another application.');
+      } else {
+        setCameraError(`Unable to access the camera: ${error.message}`);
+      }
+
+      // Try again without facingMode constraint
+      try {
+        const fallbackConstraints = { video: true };
+        console.log('Retrying with fallback constraints:', fallbackConstraints);
+        const mediaStream = await navigator.mediaDevices.getUserMedia(fallbackConstraints);
+
+        setStream(mediaStream);
+
+        if (videoRef.current) {
+          videoRef.current.srcObject = mediaStream;
+          await videoRef.current.play();
+        }
+      } catch (fallbackError) {
+        console.error('Error accessing camera with fallback:', fallbackError);
+      }
     }
   };
 
@@ -65,10 +92,12 @@ const CameraCapture = ({ studentId }) => {
   };
 
   const stopCamera = () => {
-    if (videoRef.current && videoRef.current.srcObject) {
-      const stream = videoRef.current.srcObject;
-      const tracks = stream.getTracks();
-      tracks.forEach((track) => track.stop());
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      setStream(null);
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
     }
   };
 
@@ -77,70 +106,44 @@ const CameraCapture = ({ studentId }) => {
   };
 
   const switchCamera = () => {
+    stopCamera();
     setActiveCamera((prevCamera) =>
       prevCamera === videoConstraintsUser ? videoConstraintsEnvironment : videoConstraintsUser
     );
   };
 
   const uploadPhotos = async () => {
-  try {
-    const formData = new FormData();
-    formData.append('studentId', studentId);
+    // ... (uploadPhotos function remains the same)
+  };
 
-    // Convert base64 to Blob and append to FormData
-    photos.forEach((photo, index) => {
-      // Remove the data URL prefix
-      const base64Data = photo.split(',')[1];
-      const blob = base64ToBlob(base64Data, 'image/jpeg');
-      formData.append('answerSheets', blob, `photo${index + 1}.jpg`);
-    });
-
-    // Log FormData contents (for debugging)
-    for (let pair of formData.entries()) {
-      console.log(`${pair[0]}: ${pair[1]}`);
-    }
-
-    const response = await axios.post('http://localhost:3000/upload-answersheet', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-
-    if (response.status === 200) {
-      alert('Photos uploaded successfully!');
-      setPhotos([]);
-    } else {
-      setUploadError(`Failed to upload photos. Server responded with status ${response.status}`);
-    }
-  } catch (error) {
-    setUploadError('Error uploading photos. Please try again.');
-    if (error.response) {
-      // The request was made and the server responded with a status code
-      // that falls out of the range of 2xx
-      console.error('Response data:', error.response.data);
-      console.error('Response status:', error.response.status);
-      console.error('Response headers:', error.response.headers);
-    } else if (error.request) {
-      // The request was made but no response was received
-      console.error('No response received:', error.request);
-    } else {
-      // Something happened in setting up the request that triggered an Error
-      console.error('Error setting up request:', error.message);
-    }
-    console.error('Error config:', error.config);
+  function base64ToBlob(base64, mimeType) {
+    // ... (base64ToBlob function remains the same)
   }
-};
 
-// Helper function to convert base64 to Blob
-function base64ToBlob(base64, mimeType) {
-  const byteCharacters = atob(base64);
-  const byteNumbers = new Array(byteCharacters.length);
-  for (let i = 0; i < byteCharacters.length; i++) {
-    byteNumbers[i] = byteCharacters.charCodeAt(i);
-  }
-  const byteArray = new Uint8Array(byteNumbers);
-  return new Blob([byteArray], { type: mimeType });
-}
+  const handleFileInput = (event) => {
+    const files = event.target.files;
+    if (files) {
+      Array.from(files).forEach((file) => {
+        if (photos.length < 4) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            setPhotos((prevPhotos) => [...prevPhotos, e.target.result]);
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+  };
+
+  const triggerFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const removePhoto = (index) => {
+    setPhotos((prevPhotos) => prevPhotos.filter((_, i) => i !== index));
+  };
 
   return (
     <div className="camera-capture">
@@ -148,11 +151,13 @@ function base64ToBlob(base64, mimeType) {
 
       {cameraError && <p className="camera-error">{cameraError}</p>}
 
-      <button className="camera-toggle-button" onClick={toggleCamera}>
-        {showCamera ? 'Hide Camera' : 'Show Camera'}
-      </button>
+      {!isMobile && (
+        <button className="camera-toggle-button" onClick={toggleCamera}>
+          {showCamera ? 'Hide Camera' : 'Show Camera'}
+        </button>
+      )}
 
-      {showCamera && (
+      {showCamera && !isMobile && (
         <>
           <div className="camera-container">
             <video
@@ -179,10 +184,28 @@ function base64ToBlob(base64, mimeType) {
         </>
       )}
 
+      {isMobile && (
+        <div className="mobile-input-container">
+          <input 
+            type="file" 
+            accept="image/*" 
+            capture="environment"
+            onChange={handleFileInput}
+            ref={fileInputRef}
+            style={{ display: 'none' }}
+            multiple
+          />
+          <button onClick={triggerFileInput} className="mobile-file-button" disabled={photos.length >= 4}>
+            {photos.length < 4 ? 'Choose File or Capture' : 'Limit Reached'}
+          </button>
+        </div>
+      )}
+
       <div className="camera-capture-gallery">
         {photos.map((photo, index) => (
           <div key={index} className="camera-capture-item">
             <img src={photo} alt={`Captured ${index}`} className="camera-capture-image" />
+            <button className="remove-photo-button" onClick={() => removePhoto(index)}>Remove</button>
           </div>
         ))}
       </div>

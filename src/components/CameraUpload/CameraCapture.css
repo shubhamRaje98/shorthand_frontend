@@ -8,6 +8,42 @@
   overflow: hidden;
 }
 
+.mobile-file-button {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.mobile-file-button:hover {
+  background-color: #0056b3;
+}
+
+.mobile-file-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.remove-photo-button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: rgba(255, 0, 0, 0.7);
+  color: white;
+  border: none;
+  border-radius: 3px;
+  padding: 2px 5px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.camera-capture-item {
+  position: relative;
+}
 .camera-capture-title {
   font-size: 1.5rem;
   margin-bottom: 20px;
@@ -18,19 +54,25 @@
   position: relative;
   width: 100%;
   max-width: 640px;
-  height: 360px;
+  height: 0;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
   margin-bottom: 20px;
   border: 1px solid #ddd;
+  overflow: hidden;
 }
 
 .camera-video {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  background-color: black; /* Ensure visibility */
+  background-color: black;
 }
 
-.camera-capture-button {
+.camera-capture-button,
+.camera-toggle-button {
   background-color: #007bff;
   color: white;
   border: none;
@@ -39,25 +81,18 @@
   cursor: pointer;
   border-radius: 5px;
   margin-top: 10px;
+  width: 100%;
+  max-width: 300px;
 }
 
-.camera-capture-button:hover {
+.camera-capture-button:hover,
+.camera-toggle-button:hover {
   background-color: #0056b3;
 }
 
-.camera-close-button {
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  font-size: 1rem;
-  cursor: pointer;
-  border-radius: 5px;
-  margin-top: 10px;
-}
-
-.camera-close-button:hover {
-  background-color: #c82333;
+.camera-capture-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
 }
 
 .camera-capture-gallery {
@@ -71,9 +106,9 @@
 
 .camera-capture-item {
   position: relative;
-  width: 100%;
+  width: calc(50% - 5px);
   max-width: 150px;
-  height: 150px;
+  aspect-ratio: 1;
 }
 
 .camera-capture-image {
@@ -89,20 +124,25 @@
   text-align: center;
 }
 
+.camera-error {
+  color: #dc3545;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
 @media (max-width: 600px) {
   .camera-capture-title {
     font-size: 1.25rem;
   }
 
   .camera-capture-button,
-  .camera-close-button {
+  .camera-toggle-button {
     font-size: 0.875rem;
     padding: 8px 16px;
   }
 
   .camera-capture-item {
     max-width: 120px;
-    height: 120px;
   }
 
   .camera-capture-gallery {
