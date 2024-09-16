@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Table, Select, Typography, Space, Input, InputNumber, Button, Checkbox, message, Form, Popconfirm } from 'antd';
+import { Table, Select, Typography, Space, Input, InputNumber, Button, Checkbox, message, Form } from 'antd';
 import { SearchOutlined, DownloadOutlined, EditOutlined, SaveOutlined, CloseOutlined, UploadOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
 
@@ -136,96 +136,80 @@ const SuperAdminDashboard = () => {
             setTableData(dataWithKeys);
             setFilteredData(dataWithKeys);
             if (dataWithKeys.length > 0) {
-                const tableColumns = Object.keys(dataWithKeys[0]).map(key => {
-                    if (key === 'key') return null;
-                    const columnFilters = getColumnFilters(dataWithKeys, key);
-                    const useDropdownFilter = DROPDOWN_FILTER_COLUMNS.includes(key) || columnFilters.length < 15;
-                    
-                    return {
-                        title: key,
-                        dataIndex: key,
-                        key: key,
-                        filters: columnFilters,
-                        onFilter: (value, record) => {
-                            const cellValue = record[key];
-                            if (cellValue == null) return false;
-                            return cellValue.toString().toLowerCase() === value.toLowerCase();
-                        },
-                        filterDropdown: useDropdownFilter
-                            ? ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
-                                <div style={{ padding: 8 }}>
-                                    {columnFilters.map(filter => (
-                                        <div key={filter.value}>
-                                            <Checkbox
-                                                checked={selectedKeys.includes(filter.value)}
-                                                onChange={(e) => {
-                                                    const newSelectedKeys = e.target.checked
-                                                        ? [...selectedKeys, filter.value]
-                                                        : selectedKeys.filter(k => k !== filter.value);
-                                                    setSelectedKeys(newSelectedKeys);
-                                                }}
-                                            >
-                                                {filter.text}
-                                            </Checkbox>
+                const tableColumns = Object.keys(dataWithKeys[0])
+                    .filter(key => !(tableName === 'students' && key === 'base64')) // Ignore base64 column for students table
+                    .map(key => {
+                        if (key === 'key') return null;
+                        const columnFilters = getColumnFilters(dataWithKeys, key);
+                        const useDropdownFilter = DROPDOWN_FILTER_COLUMNS.includes(key) || columnFilters.length < 15;
+                        
+                        return {
+                            title: key,
+                            dataIndex: key,
+                            key: key,
+                            filters: columnFilters,
+                            onFilter: (value, record) => {
+                                const cellValue = record[key];
+                                if (cellValue == null) return false;
+                                return cellValue.toString().toLowerCase() === value.toLowerCase();
+                            },
+                            filterDropdown: useDropdownFilter
+                                ? ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+                                    <div style={{ padding: 8 }}>
+                                        {columnFilters.map(filter => (
+                                            <div key={filter.value}>
+                                                <Checkbox
+                                                    checked={selectedKeys.includes(filter.value)}
+                                                    onChange={(e) => {
+                                                        const newSelectedKeys = e.target.checked
+                                                            ? [...selectedKeys, filter.value]
+                                                            : selectedKeys.filter(k => k !== filter.value);
+                                                        setSelectedKeys(newSelectedKeys);
+                                                    }}
+                                                >
+                                                    {filter.text}
+                                                </Checkbox>
+                                            </div>
+                                        ))}
+                                        <div style={{ marginTop: 8 }}>
+                                            <Button type="primary" onClick={() => confirm()} size="small" style={{ width: 90, marginRight: 8 }}>
+                                                OK
+                                            </Button>
+                                            <Button onClick={() => clearFilters()} size="small" style={{ width: 90 }}>
+                                                Reset
+                                            </Button>
                                         </div>
-                                    ))}
-                                    <div style={{ marginTop: 8 }}>
-                                        <Button type="primary" onClick={() => confirm()} size="small" style={{ width: 90, marginRight: 8 }}>
-                                            OK
-                                        </Button>
-                                        <Button onClick={() => clearFilters()} size="small" style={{ width: 90 }}>
-                                            Reset
-                                        </Button>
                                     </div>
-                                </div>
-                            )
-                            : ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
-                                <div style={{ padding: 8 }}>
-                                    <Input
-                                        placeholder={`Search ${key}`}
-                                        value={selectedKeys[0]}
-                                        onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-                                        onPressEnter={() => confirm()}
-                                        style={{ width: 188, marginBottom: 8, display: 'block' }}
-                                    />
-                                    <Space>
-                                        <Button
-                                            type="primary"
-                                            onClick={() => confirm()}
-                                            icon={<SearchOutlined />}
-                                            size="small"
-                                            style={{ width: 90 }}
-                                        >
-                                            Search
-                                        </Button>
-                                        <Button onClick={() => clearFilters()} size="small" style={{ width: 90 }}>
-                                            Reset
-                                        </Button>
-                                    </Space>
-                                </div>
-                            ),
-                        filterIcon: filtered => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
-                        editable: true,
-                    };
-                }).filter(Boolean);
-
-                tableColumns.push({
-                    title: 'Action',
-                    key: 'action',
-                    render: (_, record) => {
-                        const editable = isEditing(record);
-                        return editable ? (
-                            <span>
-                                <Popconfirm title="Sure to save?" onConfirm={() => save(record.key)}>
-                                    <Button icon={<SaveOutlined />} style={{ marginRight: 8 }} />
-                                </Popconfirm>
-                                <Button icon={<CloseOutlined />} onClick={() => cancel()} />
-                            </span>
-                        ) : (
-                            <Button disabled={editingKey !== ''} onClick={() => edit(record)} icon={<EditOutlined />} />
-                        );
-                    },
-                });
+                                )
+                                : ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+                                    <div style={{ padding: 8 }}>
+                                        <Input
+                                            placeholder={`Search ${key}`}
+                                            value={selectedKeys[0]}
+                                            onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                                            onPressEnter={() => confirm()}
+                                            style={{ width: 188, marginBottom: 8, display: 'block' }}
+                                        />
+                                        <Space>
+                                            <Button
+                                                type="primary"
+                                                onClick={() => confirm()}
+                                                icon={<SearchOutlined />}
+                                                size="small"
+                                                style={{ width: 90 }}
+                                            >
+                                                Search
+                                            </Button>
+                                            <Button onClick={() => clearFilters()} size="small" style={{ width: 90 }}>
+                                                Reset
+                                            </Button>
+                                        </Space>
+                                    </div>
+                                ),
+                            filterIcon: filtered => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
+                            editable: true,
+                        };
+                    }).filter(Boolean);
 
                 setColumns(tableColumns);
             }
@@ -270,6 +254,42 @@ const SuperAdminDashboard = () => {
         };
     });
 
+    const actionColumn = {
+        title: 'Action',
+        key: 'action',
+        render: (_, record) => {
+            const editable = isEditing(record);
+            return (
+                <span>
+                    {editable ? (
+                        <>
+                            <Button 
+                                onClick={() => save(record.key)} 
+                                icon={<SaveOutlined />} 
+                                style={{ marginRight: 8 }}
+                            >
+                                Save
+                            </Button>
+                            <Button onClick={() => cancel()} icon={<CloseOutlined />}>
+                                Cancel
+                            </Button>
+                        </>
+                    ) : (
+                        <Button 
+                            disabled={editingKey !== ''} 
+                            onClick={() => edit(record)} 
+                            icon={<EditOutlined />}
+                        >
+                            Edit
+                        </Button>
+                    )}
+                </span>
+            );
+        },
+    };
+
+    const columnsWithAction = [...mergedColumns, actionColumn];
+
     return (
         <div style={{ padding: '20px' }}>
             <Space direction="vertical" size="large" style={{ display: 'flex' }}>
@@ -312,7 +332,7 @@ const SuperAdminDashboard = () => {
                                     cell: EditableCell,
                                 },
                             }}
-                            columns={mergedColumns} 
+                            columns={columnsWithAction}
                             dataSource={tableData} 
                             scroll={{ x: true }} 
                             pagination={{ pageSize: 10 }}
