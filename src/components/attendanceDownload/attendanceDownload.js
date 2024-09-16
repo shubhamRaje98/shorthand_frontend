@@ -6,7 +6,7 @@ import './AttendanceDownload.css';
 
 const AttendanceDownload = () => {
     const [batchNo, setBatchNo] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
+    const [loadingButton, setLoadingButton] = useState('');
     const [error, setError] = useState('');
     const [batches, setBatches] = useState([]);
 
@@ -29,7 +29,7 @@ const AttendanceDownload = () => {
     };
 
     const handleDownload = async (reportType) => {
-        setIsLoading(true);
+        setLoadingButton(reportType);
         setError('');
 
         try {
@@ -64,7 +64,7 @@ const AttendanceDownload = () => {
             console.error(`Error downloading the ${reportType} PDF:`, err);
             setError("Download is not available at this time.");
         } finally {
-            setIsLoading(false);
+            setLoadingButton('');
         }
     };
 
@@ -96,18 +96,26 @@ const AttendanceDownload = () => {
                             <button 
                                 type="button" 
                                 className="attendance-download__btn"
-                                disabled={isLoading || !batchNo}
+                                disabled={loadingButton !== '' || !batchNo}
                                 onClick={() => handleDownload('absentee')}
                             >
-                                {isLoading ? 'Generating...' : 'Download Absentee Report'}
+                                {loadingButton === 'absentee' ? 'Generating...' : 'Download Absentee Report'}
                             </button>
                             <button 
                                 type="button" 
                                 className="attendance-download__btn"
-                                disabled={isLoading || !batchNo}
+                                disabled={loadingButton !== '' || !batchNo}
                                 onClick={() => handleDownload('attendance')}
                             >
-                                {isLoading ? 'Generating...' : 'Download Attendance Report'}
+                                {loadingButton === 'attendance' ? 'Generating...' : 'Download Attendance Report'}
+                            </button>
+                            <button 
+                                type="button" 
+                                className="attendance-download__btn"
+                                disabled={loadingButton !== '' || !batchNo}
+                                onClick={() => handleDownload('blank-answer-sheet')}
+                            >
+                                {loadingButton === 'blank-answer-sheet' ? 'Generating...' : 'Download Blank Answersheet'}
                             </button>
                         </div>
                     </form>

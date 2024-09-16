@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './StudentTable.css';
+import './DepartmentDashboard.css';
 import NavBar from '../navBar/navBar';
 
 const DepartmentDashboard = () => {
@@ -8,6 +8,7 @@ const DepartmentDashboard = () => {
     const [batchNo, setBatchNo] = useState('');
     const [subject, setSubject] = useState('');
     const [loginStatus, setLoginStatus] = useState('');
+    const [exam_type , setExam_type] = useState('');
     const [batchDate, setBatchDate] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -47,7 +48,8 @@ const DepartmentDashboard = () => {
             if (subject) params.append('subject_name', subject);
             if (loginStatus) params.append('loginStatus', loginStatus);
             if (batchNo) params.append('batchNo', batchNo);
-            if (center) params.append('center',center);
+            if (center) params.append('center', center);
+            if(exam_type) params.append('exam_type', exam_type);
             if (batchDate) {
                 const date = new Date(batchDate);
                 const offset = date.getTimezoneOffset();
@@ -102,23 +104,23 @@ const DepartmentDashboard = () => {
         fetchData();
         const interval = setInterval(fetchData, updateInterval);
         return () => clearInterval(interval);
-    }, [batchNo, subject, loginStatus, batchDate, updateInterval, center]);
+    }, [batchNo, subject, loginStatus, batchDate, updateInterval, center,exam_type]);
 
     const getCellClass = (value) => {
         let backgroundClass = '';
-        let textColorClass = 'text-white';
-
+        let textColorClass = 'dept-text-white';
+    
         if (value === true) {
-            backgroundClass = 'cell-green';
+            backgroundClass = 'dept-cell-green';
         } else if (value === false || isNaN(Number(value)) || Number(value) <= 10) {
-            backgroundClass = 'cell-red';
+            backgroundClass = 'dept-cell-red';
         } else if (Number(value) > 10 && Number(value) < 90) {
-            backgroundClass = 'cell-yellow';
-            textColorClass = 'text-black';
+            backgroundClass = 'dept-cell-yellow';
+            textColorClass = 'dept-text-black';
         } else if (Number(value) >= 90) {
-            backgroundClass = 'cell-green';
+            backgroundClass = 'dept-cell-green';
         }
-
+    
         return `${backgroundClass} ${textColorClass}`;
     };
 
@@ -126,12 +128,12 @@ const DepartmentDashboard = () => {
         <div>
             <NavBar />
             <div className="home-container">
-                <div className="container-fluid">
-                    <div className="row mb-3">
-                        <div className="col-md-3 col-sm-6 mb-2">
-                            <label htmlFor="batchNo" className="form-label">Batch Number:</label>
+                <div className="dept-container-fluid">
+                    <div className="dept-row mb-3">
+                        <div className="dept-col-md-3 dept-col-sm-6 mb-2">
+                            <label htmlFor="batchNo" className="dept-form-label">Batch Number:</label>
                             <select 
-                                className="form-select scrollable-dropdown" 
+                                className="dept-form-select dept-scrollable-dropdown" 
                                 id="batchNo" 
                                 value={batchNo} 
                                 onChange={(e) => setBatchNo(e.target.value)}
@@ -142,10 +144,10 @@ const DepartmentDashboard = () => {
                                 ))}
                             </select>
                         </div>
-                        <div className="col-md-3 col-sm-6 mb-2">
-                            <label htmlFor="subject" className="form-label">Subject:</label>
+                        <div className="dept-col-md-3 dept-col-sm-6 mb-2">
+                            <label htmlFor="subject" className="dept-form-label">Subject:</label>
                             <select 
-                                className="form-select scrollable-dropdown" 
+                                className="dept-form-select dept-scrollable-dropdown" 
                                 id="subject" 
                                 value={subject} 
                                 onChange={(e) => setSubject(e.target.value)}
@@ -158,10 +160,10 @@ const DepartmentDashboard = () => {
                                 ))}
                             </select>
                         </div>
-                        <div className="col-md-3 col-sm-6 mb-2">
-                            <label htmlFor="loginStatus" className="form-label">Login Status:</label>
+                        <div className="dept-col-md-3 dept-col-sm-6 mb-2">
+                            <label htmlFor="loginStatus" className="dept-form-label">Login Status:</label>
                             <select 
-                                className="form-select" 
+                                className="dept-form-select" 
                                 id="loginStatus" 
                                 value={loginStatus} 
                                 onChange={(e) => setLoginStatus(e.target.value)}
@@ -171,10 +173,24 @@ const DepartmentDashboard = () => {
                                 <option value="loggedout">Logged Out</option>
                             </select>
                         </div>
-                        <div className="col-md-3 col-sm-6 mb-2">
-                            <label htmlFor="batchDate" className="form-label">Batch Date:</label>
+                        <div className="dept-col-md-3 dept-col-sm-6 mb-2">
+                            <label htmlFor="loginStatus" className="dept-form-label">Exam Status:</label>
                             <select 
-                                className="form-select" 
+                                className="dept-form-select" 
+                                id="loginStatus" 
+                                value={exam_type} 
+                                onChange={(e) => setExam_type(e.target.value)}
+                            >
+                                <option value="">All</option>
+                                <option value="shorthand">Short Hand</option>
+                                <option value="typewriting">Type Writing</option>
+                                <option value="both">Both</option>
+                            </select>
+                        </div>
+                        <div className="dept-col-md-3 dept-col-sm-6 mb-2">
+                            <label htmlFor="batchDate" className="dept-form-label">Batch Date:</label>
+                            <select 
+                                className="dept-form-select" 
                                 id="batchDate" 
                                 value={batchDate} 
                                 onChange={(e) => setBatchDate(e.target.value)}
@@ -185,10 +201,10 @@ const DepartmentDashboard = () => {
                                 ))}
                             </select>
                         </div>
-                        <div className="col-md-3 col-sm-6 mb-2">
-                            <label htmlFor="center" className="form-label">Center:</label>
+                        <div className="dept-col-md-3 dept-col-sm-6 mb-2">
+                            <label htmlFor="center" className="dept-form-label">Center:</label>
                             <select 
-                                className="form-select scrollable-dropdown" 
+                                className="dept-form-select dept-scrollable-dropdown" 
                                 id="center" 
                                 value={center} 
                                 onChange={(e) => setCenter(e.target.value)}
@@ -205,11 +221,12 @@ const DepartmentDashboard = () => {
                     ) : error ? (
                         <p>{error}</p>
                     ) : data.length > 0 ? (
-                        <div className="table-container">
-                            <table className="table table-bordered table-striped">
+                        <div className="dept-table-container">
+                            <table className="dept-table dept-table-bordered dept-table-striped dept-table-hover">
                                 <thead>
                                     <tr>
                                         <th>Batch Number</th>
+                                        <th>Center</th>
                                         <th>Seat No</th>
                                         <th>Login</th>
                                         <th>Trial</th>
@@ -223,7 +240,8 @@ const DepartmentDashboard = () => {
                                 <tbody>
                                     {data.map((item, index) => (
                                         <tr key={index}>
-                                            <td>{item.batchNo}</td>
+                                            <td className="batch-number-column">{item.batchNo}</td>
+                                            <td>{item.center}</td>
                                             <td>{item.student_id}</td>
                                             <td>{item.loginTime}</td>
                                             <td className={getCellClass(item.trial)}>{formatDateTime(item.trial_time)}</td>
