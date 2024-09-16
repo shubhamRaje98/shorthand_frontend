@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './StudentTable.css';
 import NavBar from '../navBar/navBar';
+import * as XLSX from 'xlsx';
 
 const StudentTable = () => {
     const [data, setData] = useState([]);
@@ -117,6 +118,23 @@ const StudentTable = () => {
         return `${backgroundClass} ${textColorClass}`;
     };
 
+    const exportToExcel = () => {
+        const worksheet = XLSX.utils.json_to_sheet(data.map(item => ({
+            "Batch Number": item.batchNo,
+            "Seat No": item.student_id,
+            "Login": item.loginTime,
+            "Trial": formatDateTime(item.trial_time),
+            "Audio Track A": formatDateTime(item.audio1_time),
+            "Passage A": formatDateTime(item.passage1_time),
+            "Audio Track B": formatDateTime(item.audio2_time),
+            "Passage B": formatDateTime(item.passage2_time),
+            "Feedback": formatDateTime(item.feedback_time)
+        })));
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Student Data");
+        XLSX.writeFile(workbook, "student_data.xlsx");
+    };
+
     return (
         <div>
             <NavBar />
@@ -167,10 +185,10 @@ const StudentTable = () => {
                             </select>
                         </div>
                         <div className="col-md-3 col-sm-6 mb-2">
-                            <label htmlFor="loginStatus" className="dept-form-label">Exam Status:</label>
+                            <label htmlFor="examStatus" className="form-label">Exam Status:</label>
                             <select 
-                                className="dept-form-select" 
-                                id="loginStatus" 
+                                className="form-select" 
+                                id="examStatus" 
                                 value={exam_type} 
                                 onChange={(e) => setExam_type(e.target.value)}
                             >
@@ -193,6 +211,9 @@ const StudentTable = () => {
                                     <option key={index} value={date}>{date}</option>
                                 ))}
                             </select>
+                        </div>
+                        <div className="col-md-3 col-sm-6 mb-2">
+                            <button className="btn btn-primary mt-4" onClick={exportToExcel}>Export to Excel</button>
                         </div>
                     </div>
                     {loading ? (
