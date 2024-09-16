@@ -29,6 +29,8 @@ import DepartmentLogin from './components/department/DepartmentLogin';
 import StudentDetails from './components/Students/SudentDetails';
 import DepartmentDashboard from './components/department/DepartmentDashboard';
 import CameraCapture from './components/CameraUpload/CameraCapture';
+import SuperAdminLogin from './components/super-admin/SuperAdminLogin';
+import SuperAdminDashboard from './components/super-admin/SuperAdminDashboard';
 
 axios.defaults.withCredentials = true;
 
@@ -40,6 +42,13 @@ const App = () => {
                 <Routes>
                     <Route path="/" element={<Login />} />
                     <Route path="/expert-login" element={<ExpertLogin />} />
+                    <Route path="/superAdminDashboard" element={<SuperAdminDashboard/>} />
+
+
+
+                    <Route path="/admin-login" element={<SuperAdminLogin />} />
+
+                    
                     <Route path="/expertAdmin" element={<ExpertAdmin />} />
                     <Route path="/student-table" element={<StudentTable />} />
                     <Route path="/home" element={<Home />} />
