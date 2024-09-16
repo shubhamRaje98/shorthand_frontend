@@ -43,9 +43,10 @@
 }
 
 .dept-form-label {
-    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
     color: #495057;
-    margin-bottom: 0.3rem;
 }
 
 .dept-btn {
@@ -81,14 +82,55 @@
     color: black !important;
 }
 
+.dept-form-select {
+    width: 100%;
+    padding: 10px 15px;
+    font-size: 14px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    background-color: #fff;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23343a40' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 0 0 .293 4.707l5 5a1 1 0 0 0 1.414 0l5-5a1 1 0 1 0-1.414-1.414z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 12px;
+    cursor: pointer;
+}
+
+.dept-form-select:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.dept-form-select:hover {
+    border-color: #b8c2cc;
+}
+
 .dept-scrollable-dropdown {
     max-height: 200px;
     overflow-y: auto;
 }
 
-.dept-form-select {
-    width: 100%;
-    margin-bottom: 1rem;
+.dept-scrollable-dropdown::-webkit-scrollbar {
+    width: 8px;
+}
+
+.dept-scrollable-dropdown::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.dept-scrollable-dropdown::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.dept-scrollable-dropdown::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }
 
 .dept-row {
@@ -122,6 +164,27 @@
     overflow: visible;
     white-space: normal;
     word-break: break-all;
+}
+
+.dept-export-btn {
+    margin-top: 25px;
+    width: 100%;
+    background-color: #28a745;
+    border-color: #28a745;
+    color: white;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.dept-export-btn:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+@media (max-width: 768px) {
+    .dept-export-btn {
+        margin-top: 0;
+    }
 }
 
 /* Responsive adjustments */

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './DepartmentDashboard.css';
 import NavBar from '../navBar/navBar';
+import * as XLSX from 'xlsx';
 
 const DepartmentDashboard = () => {
     const [data, setData] = useState([]);
@@ -124,6 +125,35 @@ const DepartmentDashboard = () => {
         return `${backgroundClass} ${textColorClass}`;
     };
 
+    const exportToExcel = () => {
+        // Define the visible columns
+        const visibleColumns = [
+            { key: 'batchNo', header: 'Batch Number' },
+            { key: 'center', header: 'Center' },
+            { key: 'student_id', header: 'Seat No' },
+            { key: 'loginTime', header: 'Login' },
+            { key: 'trial_time', header: 'Trial' },
+            { key: 'audio1_time', header: 'Audio Track A' },
+            { key: 'passage1_time', header: 'Passage A' },
+            { key: 'audio2_time', header: 'Audio Track B' },
+            { key: 'passage2_time', header: 'Passage B' },
+            { key: 'feedback_time', header: 'Feedback' }
+        ];
+         // Create a new array with only the visible columns
+         const exportData = data.map(item => {
+            const newItem = {};
+            visibleColumns.forEach(col => {
+                newItem[col.header] = item[col.key];
+            });
+            return newItem;
+        });
+
+        const ws = XLSX.utils.json_to_sheet(exportData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Students Data");
+        XLSX.writeFile(wb, "students_data.xlsx");
+    };
+
     return (
         <div>
             <NavBar />
@@ -214,6 +244,11 @@ const DepartmentDashboard = () => {
                                     <option key={index} value={centerOption}>{centerOption}</option>
                                 ))}
                             </select>
+                        </div>
+                        <div className="dept-col-md-3 dept-col-sm-6 mb-2">
+                            <button onClick={exportToExcel} className="dept-btn dept-btn-primary dept-export-btn">
+                                Export to Excel
+                            </button>
                         </div>
                     </div>
                     {loading ? (
