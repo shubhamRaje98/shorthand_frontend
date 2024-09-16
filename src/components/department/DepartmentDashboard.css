@@ -1,0 +1,259 @@
+/* src/components/DepartmentDashboard.css */
+
+.dept-container-fluid {
+    max-width: 100%;
+    padding: 0px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.dept-table-container {
+    max-height: calc(100vh - 250px);
+    overflow-y: auto;
+    margin-top: 20px;
+    width: 100%;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.dept-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.dept-table th, .dept-table td {
+    text-align: center;
+    vertical-align: middle;
+    padding: 10px;
+    word-wrap: break-word;
+    min-width: 100px;
+}
+
+.dept-table th {
+    position: sticky;
+    top: 0;
+    background-color: #343a40;
+    color: white;
+    z-index: 10;
+    padding: 15px 10px;
+}
+
+.dept-table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+    transition: background-color 0.3s ease;
+}
+
+.dept-form-label {
+    font-weight: bold;
+    color: #495057;
+    margin-bottom: 0.3rem;
+}
+
+.dept-btn {
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.dept-btn:hover {
+    background-color: #0056b3;
+    border-color: #004085;
+}
+
+.dept-cell-red {
+    background-color: #dc3545 !important;
+}
+
+.dept-cell-yellow {
+    background-color: #ffc107 !important;
+}
+
+.dept-cell-green {
+    background-color: #72d288 !important;
+}
+
+.dept-text-white {
+    color: white !important;
+}
+
+.dept-text-black {
+    color: black !important;
+}
+
+.dept-scrollable-dropdown {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.dept-form-select {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.dept-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -10px;
+    margin-left: -10px;
+}
+
+.dept-col-md-3, .dept-col-sm-6 {
+    padding-right: 10px;
+    padding-left: 10px;
+    flex: 0 0 20%;
+    max-width: 20%;
+}
+
+.dept-table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+.batch-number-column {
+    width: 80px;
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.batch-number-column:hover {
+    overflow: visible;
+    white-space: normal;
+    word-break: break-all;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .dept-container-fluid {
+        width: 98%;
+    }
+
+    .dept-form-label {
+        font-size: 15px;
+    }
+
+    .dept-btn, .dept-form-select {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+
+    .dept-table th, .dept-table td {
+        padding: 8px;
+        font-size: 14px;
+    }
+
+    .dept-col-md-3, .dept-col-sm-6 {
+        flex: 0 0 25%;
+        max-width: 25%;
+    }
+}
+
+@media (max-width: 992px) {
+    .dept-container-fluid {
+        width: 100%;
+        padding: 15px;
+    }
+
+    .dept-form-label {
+        font-size: 14px;
+    }
+
+    .dept-btn, .dept-form-select {
+        padding: 8px 16px;
+        font-size: 13px;
+    }
+
+    .dept-table th, .dept-table td {
+        padding: 6px;
+        font-size: 13px;
+    }
+
+    .dept-col-md-3, .dept-col-sm-6 {
+        flex: 0 0 33.333%;
+        max-width: 33.333%;
+    }
+}
+
+@media (max-width: 768px) {
+    .dept-form-label {
+        font-size: 13px;
+    }
+
+    .dept-btn, .dept-form-select {
+        padding: 8px 16px;
+        font-size: 12px;
+    }
+
+    .dept-table th, .dept-table td {
+        padding: 6px;
+        font-size: 12px;
+    }
+
+    .dept-col-md-3, .dept-col-sm-6 {
+        flex: 0 0 50%;
+        max-width: 50%;
+        margin-bottom: 15px;
+    }
+
+    .dept-table-container {
+        max-height: calc(100vh - 350px);
+        overflow-x: auto;
+    }
+
+    .dept-table {
+        min-width: 800px;
+    }
+}
+
+@media (max-width: 576px) {
+    .dept-container-fluid {
+        padding: 10px;
+    }
+
+    .dept-form-label {
+        font-size: 12px;
+    }
+
+    .dept-btn, .dept-form-select {
+        padding: 6px 12px;
+        font-size: 11px;
+    }
+
+    .dept-table th, .dept-table td {
+        padding: 4px;
+        font-size: 10px;
+    }
+
+    .dept-col-md-3, .dept-col-sm-6 {
+        flex: 0 0 100%;
+        max-width: 100%;
+        margin-bottom: 10px;
+        padding: 0 5px;
+    }
+
+    .dept-row {
+        margin-bottom: 15px;
+    }
+
+    .dept-table-container {
+        max-height: calc(100vh - 400px);
+    }
+}
+
+@media (max-width: 400px) {
+    .dept-form-label {
+        font-size: 11px;
+    }
+
+    .dept-btn, .dept-form-select {
+        padding: 5px 10px;
+        font-size: 10px;
+    }
+
+    .dept-table th, .dept-table td {
+        padding: 5px;
+        font-size: 10px;
+    }
+}

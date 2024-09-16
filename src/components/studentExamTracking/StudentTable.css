@@ -1,40 +1,19 @@
-/* src/components/StudentTable.css */
-
-.st-home-container {
-    max-width: 95%;
-    margin: 0 auto;
-}
-
-.st-container-fluid {
+.container-fluid {
+    max-width: 100%;
     padding: 20px;
 }
 
-.st-row {
-    display: flex;
-    flex-wrap: wrap;
-    margin-right: -15px;
-    margin-left: -15px;
-}
-
-.st-col-md-3 {
-    flex: 0 0 25%;
-    max-width: 25%;
-    padding-right: 15px;
-    padding-left: 15px;
-}
-
-.st-table-container {
+.table-container {
     max-height: calc(100vh - 250px);
     overflow-y: auto;
     margin-top: 20px;
 }
 
-.st-table {
+.table {
     width: 100%;
-    border-collapse: collapse;
 }
 
-.st-table th {
+.table th {
     position: sticky;
     top: 0;
     background-color: #343a40;
@@ -42,33 +21,22 @@
     z-index: 10;
 }
 
-.st-th, .st-td {
+th, td {
     text-align: center;
     vertical-align: middle;
     padding: 10px;
-    border: 1px solid #dee2e6;
 }
 
-.st-th-batch {
-    width: 10%;
-}
-
-.st-th-audio, .st-th-passage {
-    width: 15%;
-}
-
-.st-table-hover tbody tr:hover {
+.table-hover tbody tr:hover {
     background-color: #f2f2f2;
 }
 
-.st-form-label {
+.form-label {
     font-weight: bold;
     color: #495057;
-    display: block;
-    margin-bottom: 5px;
 }
 
-.st-btn {
+.btn {
     padding: 12px 24px;
     font-size: 16px;
     font-weight: 600;
@@ -76,166 +44,152 @@
     border-color: #007bff;
 }
 
-.st-btn:hover {
+.btn:hover {
     background-color: #0056b3;
     border-color: #004085;
 }
 
-.st-button:focus {
+button:focus {
     outline: none;
     box-shadow: none;
 }
 
-.st-cell-red {
+.cell-red {
     background-color: #dc3545 !important;
 }
 
-.st-cell-yellow {
+.cell-yellow {
     background-color: #ffc107 !important;
 }
 
-.st-cell-green {
+.cell-green {
     background-color: #72d288 !important;
 }
 
-.st-text-white {
+.text-white {
     color: white !important;
 }
 
-.st-text-black {
+.text-black {
     color: black !important;
 }
 
-.st-scrollable-dropdown {
+.scrollable-dropdown {
     max-height: 200px;
     overflow-y: auto;
 }
 
 /* Responsive adjustments */
 @media (max-width: 1200px) {
-    .st-form-label {
+    .form-label {
         font-size: 15px;
     }
 
-    .st-btn, .st-form-select {
+    .btn, .form-select {
         padding: 10px 20px;
         font-size: 14px;
     }
 
-    .st-th, .st-td {
+    th, td {
         padding: 8px;
         font-size: 14px;
     }
 }
 
 @media (max-width: 992px) {
-    .st-form-label {
+    .form-label {
         font-size: 14px;
     }
 
-    .st-btn, .st-form-select {
+    .btn, .form-select {
         padding: 8px 16px;
         font-size: 13px;
     }
 
-    .st-th, .st-td {
+    th, td {
         padding: 6px;
         font-size: 13px;
     }
 }
 
 @media (max-width: 768px) {
-    .st-col-md-3 {
-        flex: 0 0 50%;
-        max-width: 50%;
-    }
-
-    .st-form-label {
+    .form-label {
         font-size: 13px;
     }
 
-    .st-btn, .st-form-select {
+    .btn, .form-select {
         padding: 8px 16px;
         font-size: 12px;
     }
 
-    .st-th, .st-td {
+    th, td {
         padding: 6px;
         font-size: 12px;
     }
 
-    .st-col-sm-6 {
+    .col-sm-6 {
         margin-bottom: 15px;
     }
 
-    .st-table-container {
+    .table-container {
         max-height: calc(100vh - 350px);
     }
 }
 
 @media (max-width: 576px) {
-    .st-home-container {
-        max-width: 100%;
-    }
-
-    .st-container-fluid {
+    .container-fluid {
         padding: 10px;
     }
 
-    .st-col-md-3 {
-        flex: 0 0 100%;
-        max-width: 100%;
-    }
-
-    .st-form-label {
+    .form-label {
         font-size: 12px;
     }
 
-    .st-btn, .st-form-select {
+    .btn, .form-select {
         padding: 6px 12px;
         font-size: 11px;
     }
 
-    .st-th, .st-td {
+    th, td {
         padding: 4px;
         font-size: 10px;
     }
 
-    .st-table th, .st-table td {
+    .table th, .table td {
         padding: 4px;
         font-size: 10px;
     }
 
-    .st-col-sm-6 {
+    .col-sm-6 {
         width: 100%;
         margin-bottom: 10px;
     }
 
-    .st-row {
+    .row {
         margin-bottom: 15px;
     }
 
-    .st-table-container {
+    .table-container {
         max-height: calc(100vh - 400px);
     }
 }
 
 @media (max-width: 400px) {
-    .st-form-label {
+    .form-label {
         font-size: 11px;
     }
 
-    .st-btn, .st-form-select {
+    .btn, .form-select {
         padding: 5px 10px;
         font-size: 10px;
     }
 
-    .st-th, .st-td {
+    th, td {
         padding: 3px;
         font-size: 9px;
     }
 
-    .st-table th, .st-table td {
+    .table th, .table td {
         font-size: 8px;
     }
 }
