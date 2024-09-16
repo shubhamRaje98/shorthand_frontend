@@ -27,6 +27,7 @@ import ResultFetchUpdate from './components/resultSuperAdmin/fetchUpdateTables';
 import StudentAssignmentReport from './components/expertDashboard/StudentAssignmentReport'
 import DepartmentLogin from './components/department/DepartmentLogin';
 import StudentDetails from './components/Students/SudentDetails';
+import DepartmentDashboard from './components/department/DepartmentDashboard';
 
 axios.defaults.withCredentials = true;
 
@@ -63,6 +64,7 @@ const App = () => {
                     <Route path="/result-subjectwise-summary" element={<SubjectWiseResultSummary />} />
                     <Route path="/result-super-admin" element={< ResultFetchUpdate />} />
                     <Route path='/department-login' element={<DepartmentLogin/>}/>
+                    <Route path='/department-dashboard' element={<DepartmentDashboard/>}/>
                 </Routes>
             </Router>
         </DashboardProvider>

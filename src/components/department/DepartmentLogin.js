@@ -19,6 +19,7 @@ const DepartmentLogin = () => {
                 withCredentials: true
             });
             if (response.data) {
+                navigate("/department-dashboard");
                alert(response.data);
             }
         } catch (err) {
