@@ -8,6 +8,7 @@ const StudentTable = () => {
     const [batchNo, setBatchNo] = useState('');
     const [subject, setSubject] = useState('');
     const [loginStatus, setLoginStatus] = useState('');
+    const [exam_type , setExam_type] = useState('');
     const [batchDate, setBatchDate] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -47,6 +48,7 @@ const StudentTable = () => {
             const params = new URLSearchParams();
             if (subject) params.append('subject_name', subject);
             if (loginStatus) params.append('loginStatus', loginStatus);
+            if (exam_type) params.append('exam_type',exam_type);
             if (batchDate) {
                 const date = new Date(batchDate);
                 const offset = date.getTimezoneOffset();
@@ -95,7 +97,7 @@ const StudentTable = () => {
         fetchData();
         const interval = setInterval(fetchData, updateInterval);
         return () => clearInterval(interval);
-    }, [batchNo, subject, loginStatus, batchDate, updateInterval]);
+    }, [batchNo, subject, loginStatus, batchDate, updateInterval , exam_type]);
 
     const getCellClass = (value) => {
         let backgroundClass = '';
@@ -162,6 +164,20 @@ const StudentTable = () => {
                                 <option value="">All</option>
                                 <option value="loggedin">Logged In</option>
                                 <option value="loggedout">Logged Out</option>
+                            </select>
+                        </div>
+                        <div className="col-md-3 col-sm-6 mb-2">
+                            <label htmlFor="loginStatus" className="dept-form-label">Exam Status:</label>
+                            <select 
+                                className="dept-form-select" 
+                                id="loginStatus" 
+                                value={exam_type} 
+                                onChange={(e) => setExam_type(e.target.value)}
+                            >
+                                <option value="">All</option>
+                                <option value="shorthand">Short Hand</option>
+                                <option value="typewriting">Type Writing</option>
+                                <option value="both">Both</option>
                             </select>
                         </div>
                         <div className="col-md-3 col-sm-6 mb-2">
