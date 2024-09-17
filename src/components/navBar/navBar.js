@@ -17,11 +17,11 @@ const NavBar = () => {
         const fetchCenterDetails = async () => {
             try {
                 const response = await axios.get(`http://localhost:3000/get-center-details`);
-                console.log("API Response:", response.data);
+                // console.log("API Response:", response.data[0].examCenterDTO[0]);
 
-                if (response.data && response.data.length > 0) {
-                    setCenterDetails(response.data[0]);
-                    console.log("Center details:", response.data[0]);
+                if (response.data && response.data.examCenterDTO && response.data.examCenterDTO.length > 0) {
+                    setCenterDetails(response.data.examCenterDTO[0]);
+                    // console.log("Center details:", response.data[0]);
                 } else {
                     setCenterDetails(null);
                     console.log("No center details found");
