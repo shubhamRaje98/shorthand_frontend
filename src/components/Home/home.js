@@ -62,8 +62,12 @@ const Home = () => {
                                 {centerDetails ? (
                                     <div className="details-grid">
                                         <div className="detail-item">
-                                            <span className="detail-label">Center Name:</span>
+                                            <span className="detail-label">Center Code:</span>
                                             <span className="detail-value">{centerDetails.center}</span>
+                                        </div>
+                                        <div className="detail-item">
+                                            <span className="detail-label">Center Name:</span>
+                                            <span className="detail-value">{centerDetails.center_name}</span>
                                         </div>
                                         <div className="detail-item">
                                             <span className="detail-label">Center Address:</span>

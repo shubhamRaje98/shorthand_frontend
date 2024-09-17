@@ -1,3 +1,4 @@
+// NavBar.js
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
@@ -58,18 +59,22 @@ const NavBar = () => {
 
     return (
         <nav className="ca-navbar">
-            <div className="ca-navbar-container">
-                <div className="ca-navbar-logo">
-                    <img src={logo} alt="Logo" className="ca-logo" />
+        <div className="ca-navbar-container">
+            <div className="ca-navbar-logo">
+                <img src={logo} alt="Logo" className="ca-logo" />
+                <div className="ca-logo-text">
+                    <strong>MSCE PUNE COMPUTER SKILLTEST</strong><br />
+                    <span>{centerDetails.center} - {centerDetails.center_name}</span>
                 </div>
+            </div>
                 <button className={`ca-navbar-toggler ${isMenuOpen ? 'is-active' : ''}`} onClick={toggleMenu}>
                     <span className="ca-navbar-toggler-icon"></span>
                 </button>
                 <div className={`ca-navbar-menu ${isMenuOpen ? 'is-active' : ''}`}>
                     <div className="ca-navbar-brand-container">
                         <Link to="/home" className="ca-navbar-brand">Center Admin</Link>
-                        {centerDetails && centerDetails.center && (
-                            <span className="ca-center-name">{centerDetails.center}</span>
+                        {centerDetails && centerDetails.center_name && (
+                            <span className="ca-center-name">{centerDetails.center_name}</span>
                         )}
                     </div>
                     <Link to="/home" className="ca-navbar-item">Home</Link>
