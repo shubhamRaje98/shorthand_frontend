@@ -9,11 +9,27 @@ const AttendanceDownload = () => {
     const [loadingButton, setLoadingButton] = useState('');
     const [error, setError] = useState('');
     const [batches, setBatches] = useState([]);
+    const [controller,setController] = useState('');
 
     useEffect(() => {
         fetchBatches();
+        fecthController();
     }, []);
-
+    const fecthController= async () => {
+        try {
+            const response = await axios.post('http://localhost:3000/get-batch-controller-password' ,{
+                batchNo
+            })
+            if(response.data){
+                setController(response.data.results[0].controller_pass);
+            }
+            console.log(response);
+        } catch (error) {
+            console.log(error);
+            setError("Controller password will be Displayed 15 min before exam");
+        }
+        
+    }
     const fetchBatches = async () => {
         try {
             const response = await axios.post('http://localhost:3000/track-students-on-exam-center-code');
@@ -68,6 +84,49 @@ const AttendanceDownload = () => {
         }
     };
 
+    const handleExcelDownload = async () => {
+        setLoadingButton('excel');
+        setError('');
+
+        try {
+            const response = await axios({
+                url: 'http://localhost:3000/center/studentId-password',
+                method: 'POST',
+                data: { batchNo },
+                responseType: 'blob',
+                headers: {
+                    'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                }
+            });
+
+            const contentType = response.headers['content-type'];
+            if (contentType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+                const file = new Blob([response.data], { type: contentType });
+                const fileURL = URL.createObjectURL(file);
+                const link = document.createElement('a');
+                link.href = fileURL;
+                link.setAttribute('download', `studentId_password_batch_${batchNo}.xlsx`);
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                URL.revokeObjectURL(fileURL);
+            } else {
+                // It's likely an error message
+                const reader = new FileReader();
+                reader.onload = function() {
+                    const errorMessage = JSON.parse(reader.result);
+                    setError("Excel download is not available at this time.");
+                };
+                reader.readAsText(response.data);
+            }
+        } catch (err) {
+            console.error('Error downloading the Excel file:', err);
+            setError("Excel download is not available at this time.");
+        } finally {
+            setLoadingButton('');
+        }
+    };
+
     return (
         <div>
             <NavBar />
@@ -117,10 +176,27 @@ const AttendanceDownload = () => {
                             >
                                 {loadingButton === 'blank-answer-sheet' ? 'Generating...' : 'Download Blank Answersheet'}
                             </button>
+                            <button 
+                                type="button" 
+                                className="attendance-download__btn"
+                                disabled={loadingButton !== '' || !batchNo}
+                                onClick={() => handleDownload('answer-sheet')}
+                            >
+                                {loadingButton === 'answer-sheet' ? 'Generating...' : 'Download Answersheet'}
+                            </button>
+                            <button 
+                                type="button" 
+                                className="attendance-download__btn"
+                                disabled={loadingButton !== '' || !batchNo}
+                                onClick={handleExcelDownload}
+                            >
+                                {loadingButton === 'excel' ? 'Generating...' : 'Download Student Id and Password'}
+                            </button>
                         </div>
                     </form>
                     {error && <div className="attendance-download__alert">{error}</div>}
                 </div>
+                <div>{`Controller Passwordfor this Batch is :${controller}`}</div>
             </div>
         </div>
     );
