@@ -1,10 +1,11 @@
 .attendance-download {
-    min-height: calc(100vh - 56px); /* Adjust based on your navbar height */
+    min-height: calc(100vh - 56px);
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     background-color: #f8f9fa;
     padding: 20px;
+    position: relative;
 }
 
 .attendance-download__wrapper {
@@ -85,6 +86,35 @@
     text-align: center;
 }
 
+
+.attendance-download__controller-password {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    max-width: 300px;
+    font-weight: bold;
+    color: #007bff;
+}
+
+@media (max-width: 768px) {
+    .attendance-download {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .attendance-download__controller-password {
+        position: static;
+        margin-top: 20px;
+        width: 100%;
+        max-width: 500px;
+        text-align: center;
+    }
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .attendance-download__wrapper {
@@ -95,7 +125,7 @@
         font-size: 24px;
     }
 
-    .attendance-download__select, .attendance-download__btn {
+    .attendance-download_select, .attendance-download_btn {
         font-size: 14px;
     }
 }
@@ -109,7 +139,7 @@
         font-size: 20px;
     }
 
-    .attendance-download__select, .attendance-download__btn {
+    .attendance-download_select, .attendance-download_btn {
         font-size: 12px;
     }
 }

@@ -9,27 +9,36 @@ const AttendanceDownload = () => {
     const [loadingButton, setLoadingButton] = useState('');
     const [error, setError] = useState('');
     const [batches, setBatches] = useState([]);
-    const [controller,setController] = useState('');
+    const [controller, setController] = useState('');
+    const [isControllerPasswordVisible, setIsControllerPasswordVisible] = useState(false);
 
     useEffect(() => {
         fetchBatches();
-        fecthController();
     }, []);
-    const fecthController= async () => {
+
+    useEffect(() => {
+        if (batchNo) {
+            fetchController();
+        }
+    }, [batchNo]);
+
+    const fetchController = async () => {
         try {
-            const response = await axios.post('http://localhost:3000/get-batch-controller-password' ,{
+            const response = await axios.post('http://localhost:3000/get-batch-controller-password', {
                 batchNo
-            })
-            if(response.data){
+            });
+            if (response.data && response.data.results.length > 0) {
                 setController(response.data.results[0].controller_pass);
+                setIsControllerPasswordVisible(true);
+            } else {
+                setIsControllerPasswordVisible(false);
             }
-            console.log(response);
         } catch (error) {
             console.log(error);
-            setError("Controller password will be Displayed 15 min before exam");
+            setIsControllerPasswordVisible(false);
         }
-        
-    }
+    };
+
     const fetchBatches = async () => {
         try {
             const response = await axios.post('http://localhost:3000/track-students-on-exam-center-code');
@@ -68,10 +77,8 @@ const AttendanceDownload = () => {
                 link.remove();
                 URL.revokeObjectURL(fileURL);
             } else {
-                // It's likely an error message
                 const reader = new FileReader();
                 reader.onload = function() {
-                    const errorMessage = JSON.parse(reader.result);
                     setError("Download is not available at this time.");
                 };
                 reader.readAsText(response.data);
@@ -111,10 +118,8 @@ const AttendanceDownload = () => {
                 link.remove();
                 URL.revokeObjectURL(fileURL);
             } else {
-                // It's likely an error message
                 const reader = new FileReader();
                 reader.onload = function() {
-                    const errorMessage = JSON.parse(reader.result);
                     setError("Excel download is not available at this time.");
                 };
                 reader.readAsText(response.data);
@@ -196,7 +201,11 @@ const AttendanceDownload = () => {
                     </form>
                     {error && <div className="attendance-download__alert">{error}</div>}
                 </div>
-                <div>{`Controller Passwordfor this Batch is :${controller}`}</div>
+                {isControllerPasswordVisible && (
+                    <div className="attendance-download__controller-password">
+                        Controller Password for this Batch is: {controller}
+                    </div>
+                )}
             </div>
         </div>
     );
