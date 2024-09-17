@@ -72,10 +72,10 @@ const NavBar = () => {
                 </button>
                 <div className={`ca-navbar-menu ${isMenuOpen ? 'is-active' : ''}`}>
                     <div className="ca-navbar-brand-container">
-                        <Link to="/home" className="ca-navbar-brand">Center Admin</Link>
-                        {centerDetails && centerDetails.center_name && (
+                        {/* <Link to="/home" className="ca-navbar-brand">Center Admin</Link> */}
+                        {/* {centerDetails && centerDetails.center_name && (
                             <span className="ca-center-name">{centerDetails.center_name}</span>
-                        )}
+                        )} */}
                     </div>
                     <Link to="/home" className="ca-navbar-item">Home</Link>
                     <div className="ca-navbar-item has-dropdown">

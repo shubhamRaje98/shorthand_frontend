@@ -58,7 +58,7 @@ const Home = () => {
                     <Routes>
                         <Route path="/" element={
                             <div className="center-details">
-                                <h1>Center Details</h1>
+                                <h1>Center Admin</h1>
                                 {centerDetails ? (
                                     <div className="details-grid">
                                         <div className="detail-item">

@@ -29,7 +29,7 @@
     font-size: 0.8rem;
     line-height: 1.2;
     text-align: left;
-    margin-right: 1rem;
+    margin-right: -5rem;
 }
 
 .ca-logo-text strong {
@@ -41,6 +41,7 @@
 
 .ca-logo-text span {
     color: #28a745;
+    font-weight: 700;
 }
 
 .ca-navbar-brand-container {
