@@ -32,6 +32,7 @@ import CameraCapture from './components/CameraUpload/CameraCapture';
 import SuperAdminLogin from './components/super-admin/SuperAdminLogin';
 import SuperAdminDashboard from './components/super-admin/SuperAdminDashboard';
 import SuperAdminTrackDashboard from './components/SuperAdminTrackDashboard/SuperAdminTrackDashboard';
+import DownloadApps from './components/DownloadApps/DownloadApps';
 
 axios.defaults.withCredentials = true;
 
@@ -73,6 +74,7 @@ const App = () => {
                     <Route path='/department-login' element={<DepartmentLogin/>}/>
                     <Route path='/department-dashboard' element={<DepartmentDashboard/>}/>
                     <Route path='/camera-upload' element={<CameraCapture/>}/>
+                    <Route path='/download-apps' element={<DownloadApps/>}/>
                 </Routes>
             </Router>
         </DashboardProvider>

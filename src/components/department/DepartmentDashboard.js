@@ -109,22 +109,23 @@ const DepartmentDashboard = () => {
         return () => clearInterval(interval);
     }, [batchNo, subject, loginStatus, batchDate, updateInterval, center,exam_type]);
 
-    const getCellClass = (value) => {
-        let backgroundClass = '';
-        let textColorClass = 'dept-text-white';
-    
-        if (value === true) {
-            backgroundClass = 'dept-cell-green';
-        } else if (value === false || isNaN(Number(value)) || Number(value) <= 10) {
-            backgroundClass = 'dept-cell-red';
-        } else if (Number(value) > 10 && Number(value) < 90) {
-            backgroundClass = 'dept-cell-yellow';
-            textColorClass = 'dept-text-black';
-        } else if (Number(value) >= 90) {
-            backgroundClass = 'dept-cell-green';
+    const isValidData = (value) => {
+        return value && value !== "invalid date" && value !== "0" && !isNaN(new Date(value).getTime());
+    };
+
+    const getCellClass = (item, field) => {
+        const stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time', 'audio2_time', 'passage2_time', 'feedback_time'];
+        const currentStageIndex = stages.indexOf(field);
+        
+        if (currentStageIndex === -1) return '';
+        
+        if (isValidData(item[field])) {
+            return 'dept-cell-green dept-text-white';
+        } else if (currentStageIndex > 0 && isValidData(item[stages[currentStageIndex - 1]])) {
+            return 'dept-cell-yellow dept-text-black';
+        } else {
+            return 'dept-cell-red dept-text-white';
         }
-    
-        return `${backgroundClass} ${textColorClass}`;
     };
 
     const exportToExcel = () => {
@@ -303,7 +304,7 @@ const DepartmentDashboard = () => {
                                             <th>Passage A</th>
                                             <th>Audio Track B</th>
                                             <th>Passage B</th>
-                                            <th>Feedback</th>
+                                            {/* <th>Feedback</th> */}
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -312,13 +313,13 @@ const DepartmentDashboard = () => {
                                                 <td className="batch-number-column">{item.batchNo}</td>
                                                 <td>{item.center}</td>
                                                 <td>{item.student_id}</td>
-                                                <td>{item.loginTime}</td>
-                                                <td className={getCellClass(item.trial)}>{formatDateTime(item.trial_time)}</td>
-                                                <td className={getCellClass(item.passageA)}>{formatDateTime(item.audio1_time)}</td>
-                                                <td>{formatDateTime(item.passage1_time)}</td>
-                                                <td className={getCellClass(item.passageB)}>{formatDateTime(item.audio2_time)}</td>
-                                                <td>{formatDateTime(item.passage2_time)}</td>
-                                                <td>{formatDateTime(item.feedback_time)}</td>
+                                                <td className={getCellClass(item, 'loginTime')}>{formatDateTime(item.loginTime)}</td>
+                                                <td className={getCellClass(item, 'trial_time')}>{formatDateTime(item.trial_time)}</td>
+                                                <td className={getCellClass(item, 'audio1_time')}>{formatDateTime(item.audio1_time)}</td>
+                                                <td className={getCellClass(item, 'passage1_time')}>{formatDateTime(item.passage1_time)}</td>
+                                                <td className={getCellClass(item, 'audio2_time')}>{formatDateTime(item.audio2_time)}</td>
+                                                <td className={getCellClass(item, 'passage2_time')}>{formatDateTime(item.passage2_time)}</td>
+                                                {/* <td className={getCellClass(item, 'feedback_time')}>{formatDateTime(item.feedback_time)}</td> */}
                                             </tr>
                                         ))}
                                     </tbody>
