@@ -4,7 +4,7 @@
 }
 
 .table-container {
-    max-height: calc(100vh - 250px);
+    max-height: calc(100vh - 300px);
     overflow-y: auto;
     margin-top: 20px;
 }
@@ -79,6 +79,24 @@ button:focus {
     overflow-y: auto;
 }
 
+/* Pagination styles */
+.pagination {
+    margin-top: 20px;
+}
+
+.page-item.active .page-link {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.page-link {
+    color: #007bff;
+}
+
+.page-link:hover {
+    color: #0056b3;
+}
+
 /* Responsive adjustments */
 @media (max-width: 1200px) {
     .form-label {
@@ -132,7 +150,7 @@ button:focus {
     }
 
     .table-container {
-        max-height: calc(100vh - 350px);
+        max-height: calc(100vh - 400px);
     }
 }
 
@@ -170,7 +188,7 @@ button:focus {
     }
 
     .table-container {
-        max-height: calc(100vh - 400px);
+        max-height: calc(100vh - 450px);
     }
 }
 

@@ -9,7 +9,7 @@ const StudentTable = () => {
     const [batchNo, setBatchNo] = useState('');
     const [subject, setSubject] = useState('');
     const [loginStatus, setLoginStatus] = useState('');
-    const [exam_type , setExam_type] = useState('');
+    const [exam_type, setExam_type] = useState('');
     const [batchDate, setBatchDate] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -18,6 +18,10 @@ const StudentTable = () => {
     const [subjects, setSubjects] = useState([]);
     const [allSubjects, setAllSubjects] = useState([]);
     const [batchDates, setBatchDates] = useState([]);
+
+    // Pagination states
+    const [currentPage, setCurrentPage] = useState(1);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
 
     const formatDateTime = (dateTimeString) => {
         if (!dateTimeString) return '';
@@ -49,7 +53,7 @@ const StudentTable = () => {
             const params = new URLSearchParams();
             if (subject) params.append('subject_name', subject);
             if (loginStatus) params.append('loginStatus', loginStatus);
-            if (exam_type) params.append('exam_type',exam_type);
+            if (exam_type) params.append('exam_type', exam_type);
             if (batchDate) {
                 const date = new Date(batchDate);
                 const offset = date.getTimezoneOffset();
@@ -98,7 +102,7 @@ const StudentTable = () => {
         fetchData();
         const interval = setInterval(fetchData, updateInterval);
         return () => clearInterval(interval);
-    }, [batchNo, subject, loginStatus, batchDate, updateInterval , exam_type]);
+    }, [batchNo, subject, loginStatus, batchDate, updateInterval, exam_type]);
 
     const getCellClass = (value) => {
         let backgroundClass = '';
@@ -134,6 +138,18 @@ const StudentTable = () => {
         XLSX.utils.book_append_sheet(workbook, worksheet, "Student Data");
         XLSX.writeFile(workbook, "student_data.xlsx");
     };
+
+    // Pagination logic
+    const indexOfLastRow = rowsPerPage === 'all' ? data.length : currentPage * rowsPerPage;
+    const indexOfFirstRow = rowsPerPage === 'all' ? 0 : indexOfLastRow - rowsPerPage;
+    const currentRows = rowsPerPage === 'all' ? data : data.slice(indexOfFirstRow, indexOfLastRow);
+
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+    const pageNumbers = [];
+    for (let i = 1; i <= Math.ceil(data.length / (rowsPerPage === 'all' ? 1 : rowsPerPage)); i++) {
+        pageNumbers.push(i);
+    }
 
     return (
         <div>
@@ -198,6 +214,8 @@ const StudentTable = () => {
                                 <option value="both">Both</option>
                             </select>
                         </div>
+                    </div>
+                    <div className="row mb-3">
                         <div className="col-md-3 col-sm-6 mb-2">
                             <label htmlFor="batchDate" className="form-label">Batch Date:</label>
                             <select 
@@ -213,6 +231,25 @@ const StudentTable = () => {
                             </select>
                         </div>
                         <div className="col-md-3 col-sm-6 mb-2">
+                            <label htmlFor="rowsPerPage" className="form-label">Rows per page:</label>
+                            <select 
+                                className="form-select" 
+                                id="rowsPerPage" 
+                                value={rowsPerPage} 
+                                onChange={(e) => {
+                                    setRowsPerPage(e.target.value);
+                                    setCurrentPage(1);
+                                }}
+                            >
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                                <option value="all">All</option>
+                            </select>
+                        </div>
+                        <div className="col-md-3 col-sm-6 mb-2">
                             <button className="btn btn-primary mt-4" onClick={exportToExcel}>Export to Excel</button>
                         </div>
                     </div>
@@ -221,40 +258,55 @@ const StudentTable = () => {
                     ) : error ? (
                         <p>{error}</p>
                     ) : data.length > 0 ? (
-                        <div className="table-container">
-                            <table className="table table-bordered table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Batch Number</th>
-                                        <th>Seat No</th>
-                                        <th>Login</th>
-                                        <th>Trial</th>
-                                        <th>Audio Track A</th>
-                                        <th>Passage A</th>
-                                        <th>Audio Track B</th>
-                                        <th>Passage B</th>
-                                        <th>Feedback</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {data.map((item, index) => (
-                                        <tr key={index}>
-                                            <td>{item.batchNo}</td>
-                                            <td>{item.student_id}</td>
-                                            <td>{item.loginTime}</td>
-                                            <td className={getCellClass(item.trial)}>{formatDateTime(item.trial_time)}</td>
-                                            <td className={getCellClass(item.passageA)}>{formatDateTime(item.audio1_time)}</td>
-                                            <td>{formatDateTime(item.passage1_time)}</td>
-                                            <td className={getCellClass(item.passageB)}>{formatDateTime(item.audio2_time)}</td>
-                                            <td>{formatDateTime(item.passage2_time)}</td>
-                                            <td>{formatDateTime(item.feedback_time)}</td>
+                        <>
+                            <div className="table-container">
+                                <table className="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Batch Number</th>
+                                            <th>Seat No</th>
+                                            <th>Login</th>
+                                            <th>Trial</th>
+                                            <th>Audio Track A</th>
+                                            <th>Passage A</th>
+                                            <th>Audio Track B</th>
+                                            <th>Passage B</th>
+                                            <th>Feedback</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                    </thead>
+                                    <tbody>
+                                        {currentRows.map((item, index) => (
+                                            <tr key={index}>
+                                                <td>{item.batchNo}</td>
+                                                <td>{item.student_id}</td>
+                                                <td>{item.loginTime}</td>
+                                                <td className={getCellClass(item.trial)}>{formatDateTime(item.trial_time)}</td>
+                                                <td className={getCellClass(item.passageA)}>{formatDateTime(item.audio1_time)}</td>
+                                                <td>{formatDateTime(item.passage1_time)}</td>
+                                                <td className={getCellClass(item.passageB)}>{formatDateTime(item.audio2_time)}</td>
+                                                <td>{formatDateTime(item.passage2_time)}</td>
+                                                <td>{formatDateTime(item.feedback_time)}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </>
                     ) : (
                         <p>No records found</p>
+                    )}
+                    {data.length > rowsPerPage && rowsPerPage !== 'all' && (
+                        <nav>
+                            <ul className="pagination justify-content-center">
+                                {pageNumbers.map(number => (
+                                    <li key={number} className={`page-item ${currentPage === number ? 'active' : ''}`}>
+                                        <button onClick={() => paginate(number)} className="page-link">
+                                            {number}
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+                        </nav>
                     )}
                 </div>
             </div>

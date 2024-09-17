@@ -20,6 +20,8 @@ const DepartmentDashboard = () => {
     const [subjects, setSubjects] = useState([]);
     const [allSubjects, setAllSubjects] = useState([]);
     const [batchDates, setBatchDates] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
 
     const formatDateTime = (dateTimeString) => {
         if (!dateTimeString) return '';
@@ -126,7 +128,6 @@ const DepartmentDashboard = () => {
     };
 
     const exportToExcel = () => {
-        // Define the visible columns
         const visibleColumns = [
             { key: 'batchNo', header: 'Batch Number' },
             { key: 'center', header: 'Center' },
@@ -139,7 +140,6 @@ const DepartmentDashboard = () => {
             { key: 'passage2_time', header: 'Passage B' },
             { key: 'feedback_time', header: 'Feedback' }
         ];
-         // Create a new array with only the visible columns
          const exportData = data.map(item => {
             const newItem = {};
             visibleColumns.forEach(col => {
@@ -153,6 +153,18 @@ const DepartmentDashboard = () => {
         XLSX.utils.book_append_sheet(wb, ws, "Students Data");
         XLSX.writeFile(wb, "students_data.xlsx");
     };
+
+    // Pagination
+    const indexOfLastItem = itemsPerPage === 'all' ? data.length : currentPage * Number(itemsPerPage);
+    const indexOfFirstItem = itemsPerPage === 'all' ? 0 : indexOfLastItem - Number(itemsPerPage);
+    const currentItems = itemsPerPage === 'all' ? data : data.slice(indexOfFirstItem, indexOfLastItem);
+
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+    const pageNumbers = [];
+    for (let i = 1; i <= Math.ceil(data.length / (itemsPerPage === 'all' ? data.length : Number(itemsPerPage))); i++) {
+        pageNumbers.push(i);
+    }
 
     return (
         <div>
@@ -217,6 +229,8 @@ const DepartmentDashboard = () => {
                                 <option value="both">Both</option>
                             </select>
                         </div>
+                    </div>
+                    <div className="dept-row mb-3">
                         <div className="dept-col-md-3 dept-col-sm-6 mb-2">
                             <label htmlFor="batchDate" className="dept-form-label">Batch Date:</label>
                             <select 
@@ -246,6 +260,25 @@ const DepartmentDashboard = () => {
                             </select>
                         </div>
                         <div className="dept-col-md-3 dept-col-sm-6 mb-2">
+                            <label htmlFor="itemsPerPage" className="dept-form-label">Rows per page:</label>
+                            <select 
+                                className="dept-form-select" 
+                                id="itemsPerPage" 
+                                value={itemsPerPage} 
+                                onChange={(e) => {
+                                    setItemsPerPage(e.target.value);
+                                    setCurrentPage(1);
+                                }}
+                            >
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                                <option value="all">All</option>
+                            </select>
+                        </div>
+                        <div className="dept-col-md-3 dept-col-sm-6 mb-2">
                             <button onClick={exportToExcel} className="dept-btn dept-btn-primary dept-export-btn">
                                 Export to Excel
                             </button>
@@ -256,42 +289,53 @@ const DepartmentDashboard = () => {
                     ) : error ? (
                         <p>{error}</p>
                     ) : data.length > 0 ? (
-                        <div className="dept-table-container">
-                            <table className="dept-table dept-table-bordered dept-table-striped dept-table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Batch Number</th>
-                                        <th>Center</th>
-                                        <th>Seat No</th>
-                                        <th>Login</th>
-                                        <th>Trial</th>
-                                        <th>Audio Track A</th>
-                                        <th>Passage A</th>
-                                        <th>Audio Track B</th>
-                                        <th>Passage B</th>
-                                        <th>Feedback</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {data.map((item, index) => (
-                                        <tr key={index}>
-                                            <td className="batch-number-column">{item.batchNo}</td>
-                                            <td>{item.center}</td>
-                                            <td>{item.student_id}</td>
-                                            <td>{item.loginTime}</td>
-                                            <td className={getCellClass(item.trial)}>{formatDateTime(item.trial_time)}</td>
-                                            <td className={getCellClass(item.passageA)}>{formatDateTime(item.audio1_time)}</td>
-                                            <td>{formatDateTime(item.passage1_time)}</td>
-                                            <td className={getCellClass(item.passageB)}>{formatDateTime(item.audio2_time)}</td>
-                                            <td>{formatDateTime(item.passage2_time)}</td>
-                                            <td>{formatDateTime(item.feedback_time)}</td>
+                        <div>
+                            <div className="dept-table-container">
+                                <table className="dept-table dept-table-bordered dept-table-striped dept-table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Batch Number</th>
+                                            <th>Center</th>
+                                            <th>Seat No</th>
+                                            <th>Login</th>
+                                            <th>Trial</th>
+                                            <th>Audio Track A</th>
+                                            <th>Passage A</th>
+                                            <th>Audio Track B</th>
+                                            <th>Passage B</th>
+                                            <th>Feedback</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        {currentItems.map((item, index) => (
+                                            <tr key={index}>
+                                                <td className="batch-number-column">{item.batchNo}</td>
+                                                <td>{item.center}</td>
+                                                <td>{item.student_id}</td>
+                                                <td>{item.loginTime}</td>
+                                                <td className={getCellClass(item.trial)}>{formatDateTime(item.trial_time)}</td>
+                                                <td className={getCellClass(item.passageA)}>{formatDateTime(item.audio1_time)}</td>
+                                                <td>{formatDateTime(item.passage1_time)}</td>
+                                                <td className={getCellClass(item.passageB)}>{formatDateTime(item.audio2_time)}</td>
+                                                <td>{formatDateTime(item.passage2_time)}</td>
+                                                <td>{formatDateTime(item.feedback_time)}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     ) : (
                         <p>No records found</p>
+                    )}
+                    {itemsPerPage !== 'all' && (
+                        <div className="pagination">
+                            {pageNumbers.map(number => (
+                                <button key={number} onClick={() => paginate(number)} className={currentPage === number ? 'active' : ''}>
+                                    {number}
+                                </button>
+                            ))}
+                        </div>
                     )}
                 </div>
             </div>
