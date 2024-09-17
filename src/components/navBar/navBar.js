@@ -1,11 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 import './navBar.css';
+import logo from './../../Logo.ico'; // Import the logo
 
 const NavBar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [showDownloads, setShowDownloads] = useState(false);
     const [showDashboards, setShowDashboards] = useState(false);
+    const [centerDetails, setCenterDetails] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+
+    useEffect(() => {
+        const fetchCenterDetails = async () => {
+            try {
+                const response = await axios.get(`http://localhost:3000/get-center-details`);
+                console.log("API Response:", response.data);
+
+                if (response.data && response.data.length > 0) {
+                    setCenterDetails(response.data[0]);
+                    console.log("Center details:", response.data[0]);
+                } else {
+                    setCenterDetails(null);
+                    console.log("No center details found");
+                }
+                setLoading(false);
+            } catch (error) {
+                setError('Failed to fetch center details');
+                console.error("Error fetching center details:", error);
+                setLoading(false);
+            }
+        };
+
+        fetchCenterDetails();
+    }, []);
 
     const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
@@ -19,33 +48,49 @@ const NavBar = () => {
         }
     };
 
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+
+    if (error) {
+        return <div>{error}</div>;
+    }
+
     return (
-        <nav className="navbar">
-            <div className="navbar-container">
-                <Link to="/home" className="navbar-brand">Center Admin</Link>
-                <button className="navbar-toggler" onClick={toggleMenu}>
-                    <span className="navbar-toggler-icon"></span>
+        <nav className="ca-navbar">
+            <div className="ca-navbar-container">
+                <div className="ca-navbar-logo">
+                    <img src={logo} alt="Logo" className="ca-logo" />
+                </div>
+                <button className={`ca-navbar-toggler ${isMenuOpen ? 'is-active' : ''}`} onClick={toggleMenu}>
+                    <span className="ca-navbar-toggler-icon"></span>
                 </button>
-                <div className={`navbar-menu ${isMenuOpen ? 'is-active' : ''}`}>
-                    <Link to="/home" className="navbar-item">Home</Link>
-                    <div className="navbar-item has-dropdown">
-                        <button className="navbar-link" onClick={() => handleDropdownClick('downloads')}>
+                <div className={`ca-navbar-menu ${isMenuOpen ? 'is-active' : ''}`}>
+                    <div className="ca-navbar-brand-container">
+                        <Link to="/home" className="ca-navbar-brand">Center Admin</Link>
+                        {centerDetails && centerDetails.center && (
+                            <span className="ca-center-name">{centerDetails.center}</span>
+                        )}
+                    </div>
+                    <Link to="/home" className="ca-navbar-item">Home</Link>
+                    <div className="ca-navbar-item has-dropdown">
+                        <button className="ca-navbar-link" onClick={() => handleDropdownClick('downloads')}>
                             Downloads
                         </button>
-                        <div className={`navbar-dropdown ${showDownloads ? 'is-active' : ''}`}>
-                            <Link to="/attendance-download" className="navbar-item">PDFs</Link>
+                        <div className={`ca-navbar-dropdown ${showDownloads ? 'is-active' : ''}`}>
+                            <Link to="/attendance-download" className="ca-navbar-item">PDFs</Link>
                         </div>
                     </div>
-                    <div className="navbar-item has-dropdown">
-                        <button className="navbar-link" onClick={() => handleDropdownClick('dashboards')}>
+                    <div className="ca-navbar-item has-dropdown">
+                        <button className="ca-navbar-link" onClick={() => handleDropdownClick('dashboards')}>
                             Dashboards
                         </button>
-                        <div className={`navbar-dropdown ${showDashboards ? 'is-active' : ''}`}>
-                            <Link to="/student-table" className="navbar-item">Track Students Exam</Link>
+                        <div className={`ca-navbar-dropdown ${showDashboards ? 'is-active' : ''}`}>
+                            <Link to="/student-table" className="ca-navbar-item">Track Students Exam</Link>
                         </div>
                     </div>
-                    <Link to="/controller-password" className="navbar-item">Controller-Password</Link>
-                    <Link to="/fetch-pc-registration" className="navbar-item">PC Registrations</Link>
+                    <Link to="/controller-password" className="ca-navbar-item">Controller-Password</Link>
+                    <Link to="/fetch-pc-registration" className="ca-navbar-item">PC Registrations</Link>
                 </div>
             </div>
         </nav>

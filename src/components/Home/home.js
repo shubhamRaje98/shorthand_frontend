@@ -51,25 +51,35 @@ const Home = () => {
     }
 
     return (
-        <div>
+        <div className="home-wrapper">
             <NavBar />
             <div className="home-container">
-                
                 <div className="content">
                     <Routes>
                         <Route path="/" element={
-                            <div>
+                            <div className="center-details">
                                 <h1>Center Details</h1>
                                 {centerDetails ? (
-                                    <div>
-                                        <p>Center Name: {centerDetails.center}</p>
-                                        <p>Center Address: {centerDetails.center_address}</p>
-                                        <p>Max PC: {centerDetails.max_pc}</p>
-                                        <p>PC count: {centerDetails.pc_count}</p>
-                                        
+                                    <div className="details-grid">
+                                        <div className="detail-item">
+                                            <span className="detail-label">Center Name:</span>
+                                            <span className="detail-value">{centerDetails.center}</span>
+                                        </div>
+                                        <div className="detail-item">
+                                            <span className="detail-label">Center Address:</span>
+                                            <span className="detail-value">{centerDetails.center_address}</span>
+                                        </div>
+                                        <div className="detail-item">
+                                            <span className="detail-label">Max PC:</span>
+                                            <span className="detail-value">{centerDetails.max_pc}</span>
+                                        </div>
+                                        <div className="detail-item">
+                                            <span className="detail-label">PC Count:</span>
+                                            <span className="detail-value">{centerDetails.pc_count}</span>
+                                        </div>
                                     </div>
                                 ) : (
-                                    <p>No details available for this center.</p>
+                                    <p className="no-details">No details available for this center.</p>
                                 )}
                             </div>
                         } />
