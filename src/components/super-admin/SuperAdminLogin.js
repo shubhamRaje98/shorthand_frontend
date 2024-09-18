@@ -17,8 +17,11 @@ const SuperAdminLogin = () => {
             }, {
                 withCredentials: true
             });
-            if (response.status === 200) {
-                navigate('/superAdminDashboard');
+            if (response.status === 200 && userId == 'pune') {
+                navigate('/super-admin-track-dashboard');
+            }
+            else if(response.status === 200){
+                navigate('/superAdminDashboard')
             }
         } catch (err) {
             setError('Invalid Admin ID or Password');
