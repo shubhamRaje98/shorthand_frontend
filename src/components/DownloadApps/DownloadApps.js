@@ -1,6 +1,7 @@
 // DownloadApps.js
 import React from 'react';
 import './DownloadApps.css';
+import NavBar from './../navBar/navBar';
 
 const DownloadApps = () => {
     const handlePcRegistrationDownload = () => {
@@ -12,6 +13,9 @@ const DownloadApps = () => {
     };
 
     return (
+       <>
+      <NavBar/>
+      
         <div className="da-container">
             <h1 className="da-title">Download Applications</h1>
             <div className="da-button-container">
@@ -23,6 +27,7 @@ const DownloadApps = () => {
                 </button>
             </div>
         </div>
+        </>
     );
 };
 
