@@ -26,7 +26,7 @@ const PCRegistration = () => {
             setData(response.data);
         } catch (error) {
             console.error("Error fetching data:", error);
-            setError('Failed to fetch data');
+            setError('No PC registered');
         }
         setLoading(false);
     };

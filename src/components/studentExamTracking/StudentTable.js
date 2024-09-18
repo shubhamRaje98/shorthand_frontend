@@ -104,22 +104,23 @@ const StudentTable = () => {
         return () => clearInterval(interval);
     }, [batchNo, subject, loginStatus, batchDate, updateInterval, exam_type]);
 
-    const getCellClass = (value) => {
-        let backgroundClass = '';
-        let textColorClass = 'text-white';
+    const isValidData = (value) => {
+        return value && value !== "invalid date" && value !== "0" && !isNaN(new Date(value).getTime());
+    };
 
-        if (value === true) {
-            backgroundClass = 'cell-green';
-        } else if (value === false || isNaN(Number(value)) || Number(value) <= 10) {
-            backgroundClass = 'cell-red';
-        } else if (Number(value) > 10 && Number(value) < 90) {
-            backgroundClass = 'cell-yellow';
-            textColorClass = 'text-black';
-        } else if (Number(value) >= 90) {
-            backgroundClass = 'cell-green';
+    const getCellClass = (item, field) => {
+        const stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time', 'audio2_time', 'passage2_time', 'feedback_time'];
+        const currentStageIndex = stages.indexOf(field);
+        
+        if (currentStageIndex === -1) return '';
+        
+        if (isValidData(item[field])) {
+            return 'dept-cell-green dept-text-white';
+        } else if (currentStageIndex > 0 && isValidData(item[stages[currentStageIndex - 1]])) {
+            return 'dept-cell-yellow dept-text-black';
+        } else {
+            return 'dept-cell-red dept-text-white';
         }
-
-        return `${backgroundClass} ${textColorClass}`;
     };
 
     const exportToExcel = () => {
@@ -279,13 +280,13 @@ const StudentTable = () => {
                                             <tr key={index}>
                                                 <td>{item.batchNo}</td>
                                                 <td>{item.student_id}</td>
-                                                <td>{item.loginTime}</td>
-                                                <td className={getCellClass(item.trial)}>{formatDateTime(item.trial_time)}</td>
-                                                <td className={getCellClass(item.passageA)}>{formatDateTime(item.audio1_time)}</td>
-                                                <td>{formatDateTime(item.passage1_time)}</td>
-                                                <td className={getCellClass(item.passageB)}>{formatDateTime(item.audio2_time)}</td>
-                                                <td>{formatDateTime(item.passage2_time)}</td>
-                                                <td>{formatDateTime(item.feedback_time)}</td>
+                                                <td className={getCellClass(item, 'loginTime')}>{item.loginTime}</td>
+                                                <td className={getCellClass(item, 'trial_time')}>{formatDateTime(item.trial_time)}</td>
+                                                <td className={getCellClass(item, 'audio1_time')}>{formatDateTime(item.audio1_time)}</td>
+                                                <td className={getCellClass(item, 'passage1_time')}>{formatDateTime(item.passage1_time)}</td>
+                                                <td className={getCellClass(item, 'audio2_time')}>{formatDateTime(item.audio2_time)}</td>
+                                                <td className={getCellClass(item, 'passage2_time')}>{formatDateTime(item.passage2_time)}</td>
+                                                <td className={getCellClass(item, 'feedback_time')}>{formatDateTime(item.feedback_time)}</td>
                                             </tr>
                                         ))}
                                     </tbody>

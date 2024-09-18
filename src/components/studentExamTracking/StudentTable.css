@@ -3,7 +3,7 @@
     padding: 20px;
 }
 
-.table-container {
+.table-responsive {
     max-height: calc(100vh - 300px);
     overflow-y: auto;
     margin-top: 20px;
@@ -80,8 +80,18 @@ button:focus {
 }
 
 /* Pagination styles */
-.pagination {
+.pagination-container {
+    overflow-x: auto;
     margin-top: 20px;
+}
+
+.pagination {
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.page-item {
+    margin: 2px;
 }
 
 .page-item.active .page-link {
@@ -91,6 +101,7 @@ button:focus {
 
 .page-link {
     color: #007bff;
+    padding: 6px 12px;
 }
 
 .page-link:hover {
@@ -149,7 +160,7 @@ button:focus {
         margin-bottom: 15px;
     }
 
-    .table-container {
+    .table-responsive {
         max-height: calc(100vh - 400px);
     }
 }
@@ -187,8 +198,13 @@ button:focus {
         margin-bottom: 15px;
     }
 
-    .table-container {
+    .table-responsive {
         max-height: calc(100vh - 450px);
+    }
+
+    .page-link {
+        padding: 4px 8px;
+        font-size: 12px;
     }
 }
 
@@ -209,5 +225,10 @@ button:focus {
 
     .table th, .table td {
         font-size: 8px;
+    }
+
+    .page-link {
+        padding: 3px 6px;
+        font-size: 10px;
     }
 }

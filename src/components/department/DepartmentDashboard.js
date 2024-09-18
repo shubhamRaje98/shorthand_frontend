@@ -169,7 +169,7 @@ const DepartmentDashboard = () => {
 
     return (
         <div>
-            <NavBar />
+            {/* <NavBar /> */}
             <div className="home-container">
                 <div className="dept-container-fluid">
                     <div className="dept-row mb-3">
