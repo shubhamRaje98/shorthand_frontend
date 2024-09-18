@@ -17,7 +17,7 @@ const SuperAdminLogin = () => {
             }, {
                 withCredentials: true
             });
-            if (response.status === 200 && userId == 'pune') {
+            if (response.status === 200 && userId == '1234') {
                 navigate('/super-admin-track-dashboard');
             }
             else if(response.status === 200){

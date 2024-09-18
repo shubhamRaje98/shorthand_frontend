@@ -54,10 +54,7 @@ const DepartmentDashboard = () => {
             if (center) params.append('center', center);
             if(exam_type) params.append('exam_type', exam_type);
             if (batchDate) {
-                const date = new Date(batchDate);
-                const offset = date.getTimezoneOffset();
-                date.setMinutes(date.getMinutes() - offset);
-                params.append('batchDate', date.toISOString().split('T')[0]);
+                params.append('bathdate',batchDate);
             }
             
             if (params.toString()) {

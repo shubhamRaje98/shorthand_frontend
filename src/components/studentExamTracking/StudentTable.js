@@ -55,10 +55,7 @@ const StudentTable = () => {
             if (loginStatus) params.append('loginStatus', loginStatus);
             if (exam_type) params.append('exam_type', exam_type);
             if (batchDate) {
-                const date = new Date(batchDate);
-                const offset = date.getTimezoneOffset();
-                date.setMinutes(date.getMinutes() - offset);
-                params.append('batchDate', date.toISOString().split('T')[0]);
+               params.append('batchdate',batchDate);
             }
             
             if (params.toString()) {
@@ -82,8 +79,8 @@ const StudentTable = () => {
             const distinctBatchDates = [...new Set(response.data
                 .filter(item => item.batchdate && typeof item.batchdate === 'string')
                 .map(item => {
-                    const date = new Date(item.batchdate);
-                    return date.toISOString().split('T')[0];
+                   
+                    return item.batchdate
                 })
             )];
             setBatchDates(prevDates => {
