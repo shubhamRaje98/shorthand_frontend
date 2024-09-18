@@ -141,16 +141,77 @@ const StudentTable = () => {
     };
 
     // Pagination logic
-    const indexOfLastRow = rowsPerPage === 'all' ? data.length : currentPage * rowsPerPage;
-    const indexOfFirstRow = rowsPerPage === 'all' ? 0 : indexOfLastRow - rowsPerPage;
+    const indexOfLastRow = rowsPerPage === 'all' ? data.length : currentPage * Number(rowsPerPage);
+    const indexOfFirstRow = rowsPerPage === 'all' ? 0 : indexOfLastRow - Number(rowsPerPage);
     const currentRows = rowsPerPage === 'all' ? data : data.slice(indexOfFirstRow, indexOfLastRow);
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
     const pageNumbers = [];
-    for (let i = 1; i <= Math.ceil(data.length / (rowsPerPage === 'all' ? 1 : rowsPerPage)); i++) {
+    for (let i = 1; i <= Math.ceil(data.length / (rowsPerPage === 'all' ? 1 : Number(rowsPerPage))); i++) {
         pageNumbers.push(i);
     }
+
+    const renderPaginationItems = () => {
+        const totalPages = pageNumbers.length;
+        const currentPageNumber = Math.min(totalPages, Math.max(1, currentPage));
+        
+        let items = [];
+        
+        items.push(
+            <li key="first" className={`page-item ${currentPageNumber === 1 ? 'disabled' : ''}`}>
+                <button onClick={() => paginate(1)} className="page-link">&laquo;</button>
+            </li>
+        );
+        
+        if (totalPages <= 7) {
+            for (let i = 1; i <= totalPages; i++) {
+                items.push(
+                    <li key={i} className={`page-item ${currentPageNumber === i ? 'active' : ''}`}>
+                        <button onClick={() => paginate(i)} className="page-link">{i}</button>
+                    </li>
+                );
+            }
+        } else {
+            if (currentPageNumber <= 3) {
+                for (let i = 1; i <= 5; i++) {
+                    items.push(
+                        <li key={i} className={`page-item ${currentPageNumber === i ? 'active' : ''}`}>
+                            <button onClick={() => paginate(i)} className="page-link">{i}</button>
+                        </li>
+                    );
+                }
+                items.push(<li key="ellipsis1" className="page-item disabled"><span className="page-link">...</span></li>);
+            } else if (currentPageNumber >= totalPages - 2) {
+                items.push(<li key="ellipsis2" className="page-item disabled"><span className="page-link">...</span></li>);
+                for (let i = totalPages - 4; i <= totalPages; i++) {
+                    items.push(
+                        <li key={i} className={`page-item ${currentPageNumber === i ? 'active' : ''}`}>
+                            <button onClick={() => paginate(i)} className="page-link">{i}</button>
+                        </li>
+                    );
+                }
+            } else {
+                items.push(<li key="ellipsis3" className="page-item disabled"><span className="page-link">...</span></li>);
+                for (let i = currentPageNumber - 1; i <= currentPageNumber + 1; i++) {
+                    items.push(
+                        <li key={i} className={`page-item ${currentPageNumber === i ? 'active' : ''}`}>
+                            <button onClick={() => paginate(i)} className="page-link">{i}</button>
+                        </li>
+                    );
+                }
+                items.push(<li key="ellipsis4" className="page-item disabled"><span className="page-link">...</span></li>);
+            }
+        }
+        
+        items.push(
+            <li key="last" className={`page-item ${currentPageNumber === totalPages ? 'disabled' : ''}`}>
+                <button onClick={() => paginate(totalPages)} className="page-link">&raquo;</button>
+            </li>
+        );
+        
+        return items;
+    };
 
     return (
         <div>
@@ -267,11 +328,11 @@ const StudentTable = () => {
                                             <th>Batch Number</th>
                                             <th>Seat No</th>
                                             <th>Login</th>
-                                            <th>Trial</th>
-                                            <th>Audio Track A</th>
-                                            <th>Passage A</th>
-                                            <th>Audio Track B</th>
-                                            <th>Passage B</th>
+                                            {exam_type !== 'typewriting' && <th>Trial</th>}
+                                            {exam_type !== 'typewriting' && <th>Audio Track A</th>}
+                                            {exam_type !== 'typewriting' && <th>Passage A</th>}
+                                            {exam_type !== 'shorthand' && <th>Trial Typing</th>}
+                                            {exam_type !== 'shorthand' && <th>Typing Test</th>}
                                             <th>Feedback</th>
                                         </tr>
                                     </thead>
@@ -281,11 +342,11 @@ const StudentTable = () => {
                                                 <td>{item.batchNo}</td>
                                                 <td>{item.student_id}</td>
                                                 <td className={getCellClass(item, 'loginTime')}>{item.loginTime}</td>
-                                                <td className={getCellClass(item, 'trial_time')}>{formatDateTime(item.trial_time)}</td>
-                                                <td className={getCellClass(item, 'audio1_time')}>{formatDateTime(item.audio1_time)}</td>
-                                                <td className={getCellClass(item, 'passage1_time')}>{formatDateTime(item.passage1_time)}</td>
-                                                <td className={getCellClass(item, 'audio2_time')}>{formatDateTime(item.audio2_time)}</td>
-                                                <td className={getCellClass(item, 'passage2_time')}>{formatDateTime(item.passage2_time)}</td>
+                                                {exam_type !== 'typewriting' && <td className={getCellClass(item, 'trial_time')}>{formatDateTime(item.trial_time)}</td>}
+                                                {exam_type !== 'typewriting' && <td className={getCellClass(item, 'audio1_time')}>{formatDateTime(item.audio1_time)}</td>}
+                                                {exam_type !== 'typewriting' && <td className={getCellClass(item, 'passage1_time')}>{formatDateTime(item.passage1_time)}</td>}
+                                                {exam_type !== 'shorthand' && <td className={getCellClass(item, 'audio2_time')}>{formatDateTime(item.audio2_time)}</td>}
+                                                {exam_type !== 'shorthand' && <td className={getCellClass(item, 'passage2_time')}>{formatDateTime(item.passage2_time)}</td>}
                                                 <td className={getCellClass(item, 'feedback_time')}>{formatDateTime(item.feedback_time)}</td>
                                             </tr>
                                         ))}
@@ -299,13 +360,7 @@ const StudentTable = () => {
                     {data.length > rowsPerPage && rowsPerPage !== 'all' && (
                         <nav>
                             <ul className="pagination justify-content-center">
-                                {pageNumbers.map(number => (
-                                    <li key={number} className={`page-item ${currentPage === number ? 'active' : ''}`}>
-                                        <button onClick={() => paginate(number)} className="page-link">
-                                            {number}
-                                        </button>
-                                    </li>
-                                ))}
+                                {renderPaginationItems()}
                             </ul>
                         </nav>
                     )}

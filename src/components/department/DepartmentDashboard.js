@@ -9,7 +9,7 @@ const DepartmentDashboard = () => {
     const [batchNo, setBatchNo] = useState('');
     const [subject, setSubject] = useState('');
     const [loginStatus, setLoginStatus] = useState('');
-    const [exam_type , setExam_type] = useState('');
+    const [exam_type, setExam_type] = useState('');
     const [batchDate, setBatchDate] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -107,7 +107,7 @@ const DepartmentDashboard = () => {
         fetchData();
         const interval = setInterval(fetchData, updateInterval);
         return () => clearInterval(interval);
-    }, [batchNo, subject, loginStatus, batchDate, updateInterval, center,exam_type]);
+    }, [batchNo, subject, loginStatus, batchDate, updateInterval, center, exam_type]);
 
     const isValidData = (value) => {
         return value && value !== "invalid date" && value !== "0" && !isNaN(new Date(value).getTime());
@@ -134,12 +134,15 @@ const DepartmentDashboard = () => {
             { key: 'center', header: 'Center' },
             { key: 'student_id', header: 'Seat No' },
             { key: 'loginTime', header: 'Login' },
-            { key: 'trial_time', header: 'Trial' },
-            { key: 'audio1_time', header: 'Audio Track A' },
-            { key: 'passage1_time', header: 'Passage A' },
-            { key: 'audio2_time', header: 'Audio Track B' },
-            { key: 'passage2_time', header: 'Passage B' },
-            { key: 'feedback_time', header: 'Feedback' }
+            ...(exam_type !== 'typewriting' ? [{ key: 'trial_time', header: 'Trial' }] : []),
+            ...(exam_type !== 'typewriting' ? [
+                { key: 'audio1_time', header: 'Audio Track A' },
+                { key: 'passage1_time', header: 'Passage A' },
+            ] : []),
+            ...(exam_type !== 'shorthand' ? [
+                { key: 'audio2_time', header: 'Audio Track B' },
+                { key: 'passage2_time', header: 'Passage B' },
+            ] : []),
         ];
          const exportData = data.map(item => {
             const newItem = {};
@@ -166,6 +169,53 @@ const DepartmentDashboard = () => {
     for (let i = 1; i <= Math.ceil(data.length / (itemsPerPage === 'all' ? data.length : Number(itemsPerPage))); i++) {
         pageNumbers.push(i);
     }
+
+    const renderPaginationButtons = () => {
+        const totalPages = pageNumbers.length;
+        const maxButtonsToShow = 5;
+    
+        if (totalPages <= maxButtonsToShow) {
+            return pageNumbers.map(number => (
+                <button key={number} onClick={() => paginate(number)} className={currentPage === number ? 'active' : ''}>
+                    {number}
+                </button>
+            ));
+        }
+    
+        let startPage = Math.max(1, currentPage - Math.floor(maxButtonsToShow / 2));
+        let endPage = startPage + maxButtonsToShow - 1;
+    
+        if (endPage > totalPages) {
+            endPage = totalPages;
+            startPage = Math.max(1, endPage - maxButtonsToShow + 1);
+        }
+    
+        const buttons = [];
+    
+        if (startPage > 1) {
+            buttons.push(
+                <button key={1} onClick={() => paginate(1)}>1</button>,
+                <span key="ellipsis1">...</span>
+            );
+        }
+    
+        for (let i = startPage; i <= endPage; i++) {
+            buttons.push(
+                <button key={i} onClick={() => paginate(i)} className={currentPage === i ? 'active' : ''}>
+                    {i}
+                </button>
+            );
+        }
+    
+        if (endPage < totalPages) {
+            buttons.push(
+                <span key="ellipsis2">...</span>,
+                <button key={totalPages} onClick={() => paginate(totalPages)}>{totalPages}</button>
+            );
+        }
+    
+        return buttons;
+    };
 
     return (
         <div>
@@ -217,10 +267,10 @@ const DepartmentDashboard = () => {
                             </select>
                         </div>
                         <div className="dept-col-md-3 dept-col-sm-6 mb-2">
-                            <label htmlFor="loginStatus" className="dept-form-label">Exam Status:</label>
+                            <label htmlFor="examStatus" className="dept-form-label">Exam Status:</label>
                             <select 
                                 className="dept-form-select" 
-                                id="loginStatus" 
+                                id="examStatus" 
                                 value={exam_type} 
                                 onChange={(e) => setExam_type(e.target.value)}
                             >
@@ -299,12 +349,19 @@ const DepartmentDashboard = () => {
                                             <th>Center</th>
                                             <th>Seat No</th>
                                             <th>Login</th>
-                                            <th>Trial</th>
-                                            <th>Audio Track A</th>
-                                            <th>Passage A</th>
-                                            <th>Audio Track B</th>
-                                            <th>Passage B</th>
-                                            {/* <th>Feedback</th> */}
+                                            {exam_type !== 'typewriting' && <th>Trial</th>}
+                                            {exam_type !== 'typewriting' && (
+                                                <>
+                                                    <th>Audio Track A</th>
+                                                    <th>Passage A</th>
+                                                </>
+                                            )}
+                                            {exam_type !== 'shorthand' && (
+                                                <>
+                                                    <th>Trial Typing</th>
+                                                    <th>Typing Test</th>
+                                                </>
+                                            )}
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -314,12 +371,19 @@ const DepartmentDashboard = () => {
                                                 <td>{item.center}</td>
                                                 <td>{item.student_id}</td>
                                                 <td className={getCellClass(item, 'loginTime')}>{formatDateTime(item.loginTime)}</td>
-                                                <td className={getCellClass(item, 'trial_time')}>{formatDateTime(item.trial_time)}</td>
-                                                <td className={getCellClass(item, 'audio1_time')}>{formatDateTime(item.audio1_time)}</td>
-                                                <td className={getCellClass(item, 'passage1_time')}>{formatDateTime(item.passage1_time)}</td>
-                                                <td className={getCellClass(item, 'audio2_time')}>{formatDateTime(item.audio2_time)}</td>
-                                                <td className={getCellClass(item, 'passage2_time')}>{formatDateTime(item.passage2_time)}</td>
-                                                {/* <td className={getCellClass(item, 'feedback_time')}>{formatDateTime(item.feedback_time)}</td> */}
+                                                {exam_type !== 'typewriting' && <td className={getCellClass(item, 'trial_time')}>{formatDateTime(item.trial_time)}</td>}
+                                                {exam_type !== 'typewriting' && (
+                                                    <>
+                                                        <td className={getCellClass(item, 'audio1_time')}>{formatDateTime(item.audio1_time)}</td>
+                                                        <td className={getCellClass(item, 'passage1_time')}>{formatDateTime(item.passage1_time)}</td>
+                                                    </>
+                                                )}
+                                                {exam_type !== 'shorthand' && (
+                                                    <>
+                                                        <td className={getCellClass(item, 'audio2_time')}>{formatDateTime(item.audio2_time)}</td>
+                                                        <td className={getCellClass(item, 'passage2_time')}>{formatDateTime(item.passage2_time)}</td>
+                                                    </>
+                                                )}
                                             </tr>
                                         ))}
                                     </tbody>
@@ -331,11 +395,7 @@ const DepartmentDashboard = () => {
                     )}
                     {itemsPerPage !== 'all' && (
                         <div className="pagination">
-                            {pageNumbers.map(number => (
-                                <button key={number} onClick={() => paginate(number)} className={currentPage === number ? 'active' : ''}>
-                                    {number}
-                                </button>
-                            ))}
+                            {renderPaginationButtons()}
                         </div>
                     )}
                 </div>
