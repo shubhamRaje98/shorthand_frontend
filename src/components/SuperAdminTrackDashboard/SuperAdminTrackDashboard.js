@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import NavBar from '../navBar/navBar';
 import * as XLSX from 'xlsx';
+import './SuperAdminTrackDashboard.css'
 
 // Importing the utility functions
 const isValidData = (value) => {
@@ -41,6 +42,7 @@ const SuperAdminTrackDashboard = () => {
     const [subjects, setSubjects] = useState([]);
     const [allSubjects, setAllSubjects] = useState([]);
     const [batchDates, setBatchDates] = useState([]);
+    const [total_login_count, setTotal_login_count] = useState(0);
 
     // Pagination states
     const [currentPage, setCurrentPage] = useState(1);
@@ -64,6 +66,21 @@ const SuperAdminTrackDashboard = () => {
             setError('Failed to fetch subjects');
         }
     };
+
+    const fetchTotalLoginCount = async () => {
+       try {
+        const response = await axios.post('http://localhost:3000/total-login-count',{
+            center,batchNo,department:departmentId
+        })
+        if(response.data){
+            console.log(response.data);
+            setTotal_login_count(response.data.total_count);
+        }
+       } catch (error) {
+        console.log(error)
+       }
+        
+    }
 
     const fetchData = async () => {
         setLoading(true);
@@ -131,6 +148,7 @@ const SuperAdminTrackDashboard = () => {
 
     useEffect(() => {
         fetchSubjects();
+        fetchTotalLoginCount();
         fetchData();
         const interval = setInterval(fetchData, updateInterval);
         return () => clearInterval(interval);
@@ -353,12 +371,16 @@ const SuperAdminTrackDashboard = () => {
                         </div>
                     </div>
                     <div className="dept-row mb-3">
-                        <div className="dept-col-md-3 dept-col-sm-6 mb-2">
-                            <button onClick={exportToExcel} className="dept-btn dept-btn-primary dept-export-btn">
-                                Export to Excel
-                            </button>
-                        </div>
-                    </div>
+    <div className="dept-col-md-12 dept-col-sm-12 mb-2 d-flex align-items-center">
+        <button onClick={exportToExcel} className="dept-btn dept-btn-primary dept-export-btn me-3">
+            Export to Excel
+        </button>
+        <div className="dept-total-count-container ms-3">
+            <span className="dept-total-count-label">Total logged in students:</span>
+            <span className="dept-total-count-value">{total_login_count}</span>
+        </div>
+    </div>
+</div>
                     {loading ? (
                         <p>Loading...</p>
                     ) : error ? (
