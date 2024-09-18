@@ -1,8 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-// import './DepartmentDashboard.css';
 import NavBar from '../navBar/navBar';
 import * as XLSX from 'xlsx';
+
+// Importing the utility functions
+const isValidData = (value) => {
+    return value && value !== "invalid date" && value !== "0" && !isNaN(new Date(value).getTime());
+};
+
+const getCellClass = (item, field) => {
+    const stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time', 'audio2_time', 'passage2_time', 'feedback_time'];
+    const currentStageIndex = stages.indexOf(field);
+    
+    if (currentStageIndex === -1) return '';
+    
+    if (isValidData(item[field])) {
+        return 'dept-cell-green dept-text-white';
+    } else if (currentStageIndex > 0 && isValidData(item[stages[currentStageIndex - 1]])) {
+        return 'dept-cell-yellow dept-text-black';
+    } else {
+        return 'dept-cell-red dept-text-white';
+    }
+};
+
 const SuperAdminTrackDashboard = () => {
     const [data, setData] = useState([]);
     const [batchNo, setBatchNo] = useState('');
@@ -21,6 +41,11 @@ const SuperAdminTrackDashboard = () => {
     const [subjects, setSubjects] = useState([]);
     const [allSubjects, setAllSubjects] = useState([]);
     const [batchDates, setBatchDates] = useState([]);
+
+    // Pagination states
+    const [currentPage, setCurrentPage] = useState(1);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [totalPages, setTotalPages] = useState(0);
 
     const formatDateTime = (dateTimeString) => {
         if (!dateTimeString) return '';
@@ -68,6 +93,7 @@ const SuperAdminTrackDashboard = () => {
             const response = await axios.post(url, { withCredentials: true });
             console.log("Response:", response.data);
             setData(response.data);
+            setTotalPages(Math.ceil(response.data.length / rowsPerPage));
 
             const distinctBatches = [...new Set(response.data.map(item => item.batchNo))];
             setBatches(prevBatches => {
@@ -113,39 +139,28 @@ const SuperAdminTrackDashboard = () => {
         return () => clearInterval(interval);
     }, [batchNo, subject, loginStatus, batchDate, updateInterval, center, exam_type, departmentId]);
 
-    const getCellClass = (value) => {
-        let backgroundClass = '';
-        let textColorClass = 'dept-text-white';
-
-        if (value === true) {
-            backgroundClass = 'dept-cell-green';
-        } else if (value === false || isNaN(Number(value)) || Number(value) <= 10) {
-            backgroundClass = 'dept-cell-red';
-        } else if (Number(value) > 10 && Number(value) < 90) {
-            backgroundClass = 'dept-cell-yellow';
-            textColorClass = 'dept-text-black';
-        } else if (Number(value) >= 90) {
-            backgroundClass = 'dept-cell-green';
-        }
-
-        return `${backgroundClass} ${textColorClass}`;
-    };
+    useEffect(() => {
+        setTotalPages(Math.ceil(data.length / rowsPerPage));
+        setCurrentPage(1);
+    }, [data, rowsPerPage]);
 
     const exportToExcel = () => {
-        // Define the visible columns
         const visibleColumns = [
             { key: 'batchNo', header: 'Batch Number' },
             { key: 'center', header: 'Center' },
             { key: 'student_id', header: 'Seat No' },
             { key: 'loginTime', header: 'Login' },
-            { key: 'trial_time', header: 'Trial' },
-            { key: 'audio1_time', header: 'Audio Track A' },
-            { key: 'passage1_time', header: 'Passage A' },
-            { key: 'audio2_time', header: 'Audio Track B' },
-            { key: 'passage2_time', header: 'Passage B' },
+            ...(exam_type !== 'typewriting' ? [{ key: 'trial_time', header: 'Trial' }] : []),
+            ...(exam_type !== 'typewriting' ? [
+                { key: 'audio1_time', header: 'Audio Track A' },
+                { key: 'passage1_time', header: 'Passage A' },
+            ] : []),
+            ...(exam_type !== 'shorthand' ? [
+                { key: 'audio2_time', header: 'Trial Typing' },
+                { key: 'passage2_time', header: 'Typing Test' },
+            ] : []),
             { key: 'feedback_time', header: 'Feedback' }
         ];
-        // Create a new array with only the visible columns
         const exportData = data.map(item => {
             const newItem = {};
             visibleColumns.forEach(col => {
@@ -158,6 +173,63 @@ const SuperAdminTrackDashboard = () => {
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Students Data");
         XLSX.writeFile(wb, "students_data.xlsx");
+    };
+
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+    };
+
+    const handleRowsPerPageChange = (event) => {
+        setRowsPerPage(event.target.value === 'all' ? data.length : parseInt(event.target.value, 10));
+        setCurrentPage(1);
+    };
+
+    const getPaginatedData = () => {
+        const startIndex = (currentPage - 1) * rowsPerPage;
+        const endIndex = startIndex + rowsPerPage;
+        return data.slice(startIndex, endIndex);
+    };
+
+    const renderPaginationButtons = () => {
+        const pageNumbers = [];
+        if (totalPages <= 5) {
+            for (let i = 1; i <= totalPages; i++) {
+                pageNumbers.push(i);
+            }
+        } else {
+            if (currentPage <= 3) {
+                for (let i = 1; i <= 5; i++) {
+                    pageNumbers.push(i);
+                }
+                pageNumbers.push('...');
+                pageNumbers.push(totalPages);
+            } else if (currentPage >= totalPages - 2) {
+                pageNumbers.push(1);
+                pageNumbers.push('...');
+                for (let i = totalPages - 4; i <= totalPages; i++) {
+                    pageNumbers.push(i);
+                }
+            } else {
+                pageNumbers.push(1);
+                pageNumbers.push('...');
+                for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+                    pageNumbers.push(i);
+                }
+                pageNumbers.push('...');
+                pageNumbers.push(totalPages);
+            }
+        }
+
+        return pageNumbers.map((page, index) => (
+            <button
+                key={index}
+                onClick={() => page !== '...' && handlePageChange(page)}
+                className={`dept-btn ${currentPage === page ? 'dept-btn-primary' : 'dept-btn-secondary'}`}
+                disabled={page === '...'}
+            >
+                {page}
+            </button>
+        ));
     };
 
     return (
@@ -223,6 +295,8 @@ const SuperAdminTrackDashboard = () => {
                                 <option value="both">Both</option>
                             </select>
                         </div>
+                    </div>
+                    <div className="dept-row mb-3">
                         <div className="dept-col-md-3 dept-col-sm-6 mb-2">
                             <label htmlFor="batchDate" className="dept-form-label">Batch Date:</label>
                             <select
@@ -266,6 +340,24 @@ const SuperAdminTrackDashboard = () => {
                             </select>
                         </div>
                         <div className="dept-col-md-3 dept-col-sm-6 mb-2">
+                            <label htmlFor="rowsPerPage" className="dept-form-label">Rows per page:</label>
+                            <select
+                                className="dept-form-select"
+                                id="rowsPerPage"
+                                value={rowsPerPage}
+                                onChange={handleRowsPerPageChange}
+                            >
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                                <option value="all">All</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div className="dept-row mb-3">
+                        <div className="dept-col-md-3 dept-col-sm-6 mb-2">
                             <button onClick={exportToExcel} className="dept-btn dept-btn-primary dept-export-btn">
                                 Export to Excel
                             </button>
@@ -284,27 +376,43 @@ const SuperAdminTrackDashboard = () => {
                                         <th>Center</th>
                                         <th>Seat No</th>
                                         <th>Login</th>
-                                        <th>Trial</th>
-                                        <th>Audio Track A</th>
-                                        <th>Passage A</th>
-                                        <th>Audio Track B</th>
-                                        <th>Passage B</th>
+                                        {exam_type !== 'typewriting' && <th>Trial</th>}
+                                        {exam_type !== 'typewriting' && (
+                                            <>
+                                                <th>Audio Track A</th>
+                                                <th>Passage A</th>
+                                            </>
+                                        )}
+                                        {exam_type !== 'shorthand' && (
+                                            <>
+                                                <th>Trial Typing</th>
+                                                <th>Typing Test</th>
+                                            </>
+                                        )}
                                         <th>Feedback</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {data.map((item, index) => (
+                                    {getPaginatedData().map((item, index) => (
                                         <tr key={index}>
                                             <td className="batch-number-column">{item.batchNo}</td>
                                             <td>{item.center}</td>
                                             <td>{item.student_id}</td>
-                                            <td>{item.loginTime}</td>
-                                            <td className={getCellClass(item.trial)}>{formatDateTime(item.trial_time)}</td>
-                                            <td className={getCellClass(item.passageA)}>{formatDateTime(item.audio1_time)}</td>
-                                            <td>{formatDateTime(item.passage1_time)}</td>
-                                            <td className={getCellClass(item.passageB)}>{formatDateTime(item.audio2_time)}</td>
-                                            <td>{formatDateTime(item.passage2_time)}</td>
-                                            <td>{formatDateTime(item.feedback_time)}</td>
+                                            <td className={getCellClass(item, 'loginTime')}>{formatDateTime(item.loginTime)}</td>
+                                            {exam_type !== 'typewriting' && <td className={getCellClass(item, 'trial_time')}>{formatDateTime(item.trial_time)}</td>}
+                                            {exam_type !== 'typewriting' && (
+                                                <>
+                                                    <td className={getCellClass(item, 'audio1_time')}>{formatDateTime(item.audio1_time)}</td>
+                                                    <td className={getCellClass(item, 'passage1_time')}>{formatDateTime(item.passage1_time)}</td>
+                                                </>
+                                            )}
+                                            {exam_type !== 'shorthand' && (
+                                                <>
+                                                    <td className={getCellClass(item, 'audio2_time')}>{formatDateTime(item.audio2_time)}</td>
+                                                    <td className={getCellClass(item, 'passage2_time')}>{formatDateTime(item.passage2_time)}</td>
+                                                </>
+                                            )}
+                                            <td className={getCellClass(item, 'feedback_time')}>{formatDateTime(item.feedback_time)}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -313,10 +421,15 @@ const SuperAdminTrackDashboard = () => {
                     ) : (
                         <p>No records found</p>
                     )}
+                    {data.length > 0 && (
+                        <div className="dept-pagination" style={{ marginTop: '20px' }}>
+                            {renderPaginationButtons()}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
     );
 }
 
-export default SuperAdminTrackDashboard
+export default SuperAdminTrackDashboard;
