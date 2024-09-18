@@ -79,10 +79,7 @@ const SuperAdminTrackDashboard = () => {
             if (exam_type) params.append('exam_type', exam_type);
             if (departmentId) params.append('deprtmentId', departmentId);
             if (batchDate) {
-                const date = new Date(batchDate);
-                const offset = date.getTimezoneOffset();
-                date.setMinutes(date.getMinutes() - offset);
-                params.append('batchDate', date.toISOString().split('T')[0]);
+                params.append('batchdate',batchDate);
             }
 
             if (params.toString()) {
@@ -117,8 +114,8 @@ const SuperAdminTrackDashboard = () => {
             const distinctBatchDates = [...new Set(response.data
                 .filter(item => item.batchdate && typeof item.batchdate === 'string')
                 .map(item => {
-                    const date = new Date(item.batchdate);
-                    return date.toISOString().split('T')[0];
+                   
+                    return item.batchdate
                 })
             )];
             setBatchDates(prevDates => {
@@ -234,7 +231,6 @@ const SuperAdminTrackDashboard = () => {
 
     return (
         <div>
-            <NavBar />
             <div className="home-container">
                 <div className="dept-container-fluid">
                     <div className="dept-row mb-3">

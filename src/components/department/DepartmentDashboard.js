@@ -84,8 +84,8 @@ const DepartmentDashboard = () => {
             const distinctBatchDates = [...new Set(response.data
                 .filter(item => item.batchdate && typeof item.batchdate === 'string')
                 .map(item => {
-                    const date = new Date(item.batchdate);
-                    return date.toISOString().split('T')[0];
+                   
+                    return item.batchdate
                 })
             )];
             setBatchDates(prevDates => {
