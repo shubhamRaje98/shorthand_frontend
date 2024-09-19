@@ -3,6 +3,7 @@ import axios from 'axios';
 import NavBar from '../navBar/navBar';
 import * as XLSX from 'xlsx';
 import './SuperAdminTrackDashboard.css'
+import moment from 'moment-timezone'
 
 // Importing the utility functions
 const isValidData = (value) => {
@@ -51,8 +52,12 @@ const SuperAdminTrackDashboard = () => {
 
     const formatDateTime = (dateTimeString) => {
         if (!dateTimeString) return '';
-        const dateTime = new Date(dateTimeString);
-        return dateTime.toLocaleString();
+
+        // Parse the dateTimeString and convert it to Asia/Kolkata timezone
+        const dateTime = moment(dateTimeString).tz('Asia/Kolkata');
+    
+        // Format the date as dd-mm-yy hh:mm:ss
+        return dateTime.format('DD-MM-YY hh:mm:ss A');
     }
 
     const fetchSubjects = async () => {

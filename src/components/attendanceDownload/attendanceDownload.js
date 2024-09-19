@@ -11,9 +11,10 @@ const AttendanceDownload = () => {
     const [batches, setBatches] = useState([]);
     const [controller, setController] = useState('');
     const [isControllerPasswordVisible, setIsControllerPasswordVisible] = useState(false);
-
+    const [center ,setCenter] = useState();
     useEffect(() => {
         fetchBatches();
+        setCenter(localStorage.getItem('center'))
     }, []);
 
     useEffect(() => {
@@ -71,7 +72,7 @@ const AttendanceDownload = () => {
                 const fileURL = URL.createObjectURL(file);
                 const link = document.createElement('a');
                 link.href = fileURL;
-                link.setAttribute('download', `${reportType}_report_batch_${batchNo}.pdf`);
+                link.setAttribute('download', `${reportType}_report_batch_${batchNo}_center_${localStorage.getItem('center')}.pdf`);
                 document.body.appendChild(link);
                 link.click();
                 link.remove();
@@ -137,7 +138,7 @@ const AttendanceDownload = () => {
             <NavBar />
             <div className="attendance-download">
                 <div className="attendance-download__wrapper">
-                    <h2 className="attendance-download__title">Download Attendance Report</h2>
+                    <h2 className="attendance-download__title">Download Reports</h2>
                     <form className="attendance-download__form">
                         <div className="attendance-download__form-group">
                             <label htmlFor="batchNo" className="attendance-download__label">Batch Number:</label>
@@ -173,6 +174,15 @@ const AttendanceDownload = () => {
                             >
                                 {loadingButton === 'attendance' ? 'Generating...' : 'Download Attendance Report'}
                             </button>
+                           
+                            <button 
+                                type="button" 
+                                className="attendance-download__btn"
+                                disabled={loadingButton !== '' || !batchNo}
+                                onClick={() => handleDownload('answer-sheet')}
+                            >
+                                {loadingButton === 'answer-sheet' ? 'Generating...' : 'Download Student Answersheet'}
+                            </button>
                             <button 
                                 type="button" 
                                 className="attendance-download__btn"
@@ -180,14 +190,6 @@ const AttendanceDownload = () => {
                                 onClick={() => handleDownload('blank-answer-sheet')}
                             >
                                 {loadingButton === 'blank-answer-sheet' ? 'Generating...' : 'Download Blank Answersheet'}
-                            </button>
-                            <button 
-                                type="button" 
-                                className="attendance-download__btn"
-                                disabled={loadingButton !== '' || !batchNo}
-                                onClick={() => handleDownload('answer-sheet')}
-                            >
-                                {loadingButton === 'answer-sheet' ? 'Generating...' : 'Download Answersheet'}
                             </button>
                             <button 
                                 type="button" 

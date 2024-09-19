@@ -1,6 +1,5 @@
-// NavBar.js
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './navBar.css';
 import logo from './../../Logo.ico'; // Import the logo
@@ -12,6 +11,7 @@ const NavBar = () => {
     const [centerDetails, setCenterDetails] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const navigate = useNavigate(); // Used for navigation
 
     useEffect(() => {
         const fetchCenterDetails = async () => {
@@ -21,6 +21,7 @@ const NavBar = () => {
 
                 if (response.data && response.data.examCenterDTO && response.data.examCenterDTO.length > 0) {
                     setCenterDetails(response.data.examCenterDTO[0]);
+                    localStorage.setItem("center",response.data.examCenterDTO[0].center);
                     // console.log("Center details:", response.data[0]);
                 } else {
                     setCenterDetails(null);
@@ -49,6 +50,13 @@ const NavBar = () => {
         }
     };
 
+    const handleLogout = () => {
+        // Logic to handle user logout
+        console.log("User logged out");
+        // Redirect to login page after logout
+        navigate('/');
+    };
+
     if (loading) {
         return <div>Loading...</div>;
     }
@@ -59,44 +67,42 @@ const NavBar = () => {
 
     return (
         <nav className="ca-navbar">
-        <div className="ca-navbar-container">
-            <div className="ca-navbar-logo">
-                <img src={logo} alt="Logo" className="ca-logo" />
-                <div className="ca-logo-text">
-                    <strong>MSCE PUNE COMPUTER SKILLTEST</strong><br />
-                    <span>{centerDetails.center} - {centerDetails.center_name}</span>
-                </div>
-            </div>
-                <button className={`ca-navbar-toggler ${isMenuOpen ? 'is-active' : ''}`} onClick={toggleMenu}>
-                    <span className="ca-navbar-toggler-icon"></span>
-                </button>
-                <div className={`ca-navbar-menu ${isMenuOpen ? 'is-active' : ''}`}>
-                    <div className="ca-navbar-brand-container">
-                        {/* <Link to="/home" className="ca-navbar-brand">Center Admin</Link> */}
-                        {/* {centerDetails && centerDetails.center_name && (
-                            <span className="ca-center-name">{centerDetails.center_name}</span>
-                        )} */}
+            <div className="ca-navbar__container">
+                <div className="ca-navbar__logo-section">
+                    <img src={logo} alt="Logo" className="ca-navbar__logo" />
+                    <div className="ca-navbar__logo-text">
+                        <strong>MSCE PUNE COMPUTER SKILLTEST</strong><br />
+                        <span>{centerDetails.center} - {centerDetails.center_name}</span>
                     </div>
-                    <Link to="/home" className="ca-navbar-item">Home</Link>
-                    <div className="ca-navbar-item has-dropdown">
-                        <button className="ca-navbar-link" onClick={() => handleDropdownClick('downloads')}>
+                </div>
+                <button className={`ca-navbar__toggler ${isMenuOpen ? 'is-active' : ''}`} onClick={toggleMenu}>
+                    <span className="ca-navbar__toggler-icon"></span>
+                </button>
+                <div className={`ca-navbar__menu ${isMenuOpen ? 'is-active' : ''}`}>
+                    <Link to="/home" className="ca-navbar__item">Home</Link>
+                    <div className="ca-navbar__item ca-navbar__has-dropdown">
+                        <button className="ca-navbar__link" onClick={() => handleDropdownClick('downloads')}>
                             Downloads
                         </button>
-                        <div className={`ca-navbar-dropdown ${showDownloads ? 'is-active' : ''}`}>
-                            <Link to="/attendance-download" className="ca-navbar-item">PDFs</Link>
-                            <Link to="/download-apps" className="ca-navbar-item">Download App</Link>
+                        <div className={`ca-navbar__dropdown ${showDownloads ? 'is-active' : ''}`}>
+                            <Link to="/attendance-download" className="ca-navbar__dropdown-item">Reports</Link>
+                            <Link to="/download-apps" className="ca-navbar__dropdown-item">Download Software</Link>
                         </div>
                     </div>
-                    <div className="ca-navbar-item has-dropdown">
-                        <button className="ca-navbar-link" onClick={() => handleDropdownClick('dashboards')}>
+                    <div className="ca-navbar__item ca-navbar__has-dropdown">
+                        <button className="ca-navbar__link" onClick={() => handleDropdownClick('dashboards')}>
                             Dashboards
                         </button>
-                        <div className={`ca-navbar-dropdown ${showDashboards ? 'is-active' : ''}`}>
-                            <Link to="/student-table" className="ca-navbar-item">Track Students Exam</Link>
+                        <div className={`ca-navbar__dropdown ${showDashboards ? 'is-active' : ''}`}>
+                            <Link to="/student-table" className="ca-navbar__dropdown-item">Track Students Exam</Link>
                         </div>
                     </div>
-                    <Link to="/controller-password" className="ca-navbar-item">Controller-Password</Link>
-                    <Link to="/fetch-pc-registration" className="ca-navbar-item">PC Registrations</Link>
+                    <Link to="/controller-password" className="ca-navbar__item">Controller-Password</Link>
+                    <Link to="/fetch-pc-registration" className="ca-navbar__item">PC Registrations</Link>
+                    {/* Logout Button */}
+                    <button className=" ca-navbar__logout-button" onClick={handleLogout}>
+                        Logout
+                    </button>
                 </div>
             </div>
         </nav>

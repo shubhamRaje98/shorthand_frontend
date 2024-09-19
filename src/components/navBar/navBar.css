@@ -1,12 +1,10 @@
-/* navBar.css */
-
 .ca-navbar {
     background-color: #f8f9fa;
     padding: 0.5rem 1rem;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.ca-navbar-container {
+.ca-navbar__container {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -14,71 +12,46 @@
     margin: 0 auto;
 }
 
-.ca-navbar-logo {
+.ca-navbar__logo-section {
     display: flex;
     align-items: center;
 }
 
-.ca-logo {
+.ca-navbar__logo {
     height: 70px;
     margin-right: 1rem;
 }
 
-.ca-logo-text {
+.ca-navbar__logo-text {
     color: #333;
     font-size: 0.8rem;
     line-height: 1.2;
     text-align: left;
     margin-right: -5rem;
+    max-width: 290px;
 }
 
-.ca-logo-text strong {
+.ca-navbar__logo-text strong {
     display: inline-block;
     border-bottom: 2px solid #28a745;
     padding-bottom: 2px;
     margin-bottom: 2px;
 }
 
-.ca-logo-text span {
+.ca-navbar__logo-text span {
     color: #28a745;
     font-weight: 700;
+    
 }
 
-.ca-navbar-brand-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    margin-right: 1rem;
-}
-
-.ca-navbar-brand {
-    font-weight: 700;
-    color: #333;
-    text-decoration: none;
-    font-size: 1.2rem;
-    transition: color 0.3s ease;
-}
-
-.ca-navbar-brand:hover {
-    color: #007bff;
-}
-
-.ca-center-name {
-    font-weight: 500;
-    color: #28a745;
-    font-size: 1rem;
-    margin-top: 0.25rem;
-}
-
-.ca-navbar-menu {
+.ca-navbar__menu {
     display: flex;
     align-items: center;
     justify-content: center;
     flex-grow: 1;
 }
 
-.ca-navbar-item {
+.ca-navbar__item {
     color: #333;
     text-decoration: none;
     padding: 0.75rem 1rem;
@@ -87,12 +60,12 @@
     border-radius: 4px;
 }
 
-.ca-navbar-item:hover {
+.ca-navbar__item:hover {
     background-color: rgba(0, 0, 0, 0.05);
     color: #007bff;
 }
 
-.ca-navbar-link {
+.ca-navbar__link {
     background: none;
     border: none;
     color: #333;
@@ -104,12 +77,12 @@
     border-radius: 4px;
 }
 
-.ca-navbar-link:hover {
+.ca-navbar__link:hover {
     background-color: rgba(0, 0, 0, 0.05);
     color: #007bff;
 }
 
-.ca-navbar-dropdown {
+.ca-navbar__dropdown {
     display: none;
     position: absolute;
     background-color: #fff;
@@ -120,21 +93,23 @@
     overflow: hidden;
 }
 
-.ca-navbar-dropdown.is-active {
+.ca-navbar__dropdown.is-active {
     display: block;
 }
 
-.ca-navbar-dropdown .ca-navbar-item {
-    display: block;
+.ca-navbar__dropdown-item {
     padding: 0.75rem 1rem;
+    text-decoration: none;
     color: #333;
+    display: block;
 }
 
-.ca-navbar-dropdown .ca-navbar-item:hover {
-    background-color: #f8f9fa;
+.ca-navbar__dropdown-item:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: #007bff;
 }
 
-.ca-navbar-toggler {
+.ca-navbar__toggler {
     display: none;
     background: none;
     border: none;
@@ -142,7 +117,7 @@
     padding: 0.5rem;
 }
 
-.ca-navbar-toggler-icon {
+.ca-navbar__toggler-icon {
     display: block;
     width: 30px;
     height: 3px;
@@ -150,47 +125,28 @@
     position: relative;
     transition: all 0.3s ease;
 }
-
-.ca-navbar-toggler-icon::before,
-.ca-navbar-toggler-icon::after {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background-color: #333;
-    transition: all 0.3s ease;
-}
-
-.ca-navbar-toggler-icon::before {
-    top: -8px;
-}
-
-.ca-navbar-toggler-icon::after {
-    bottom: -8px;
-}
+ /* Logout button styling */
+ .ca-navbar__logout-button {
+ 
+    background-color: #dc3545;
+ }
 
 @media screen and (max-width: 768px) {
-    .ca-navbar-container {
+    .ca-navbar__container {
         flex-direction: column;
         align-items: stretch;
     }
 
-    .ca-navbar-logo {
+    .ca-navbar__logo-section {
         align-self: flex-start;
         margin-bottom: 1rem;
     }
 
-    .ca-logo-text {
+    .ca-navbar__logo-text {
         font-size: 0.7rem;
     }
 
-    .ca-navbar-brand-container {
-        order: -1;
-        margin-right: 0;
-        margin-bottom: 1rem;
-    }
-
-    .ca-navbar-menu {
+    .ca-navbar__menu {
         display: none;
         flex-direction: column;
         width: 100%;
@@ -199,46 +155,35 @@
         border-radius: 0 0 4px 4px;
     }
 
-    .ca-navbar-menu.is-active {
+    .ca-navbar__menu.is-active {
         display: flex;
     }
 
-    .ca-navbar-item,
-    .ca-navbar-link {
+    .ca-navbar__item {
         padding: 0.75rem 0;
         width: 100%;
         text-align: center;
     }
 
-    .ca-navbar-dropdown {
-        position: static;
-        box-shadow: none;
-        display: none;
-        background-color: #f8f9fa;
-        width: 100%;
-    }
-
-    .ca-navbar-dropdown.is-active {
-        display: block;
-    }
-
-    .ca-navbar-toggler {
+    .ca-navbar__toggler {
         display: block;
         align-self: flex-end;
         margin-top: -3rem;
     }
 
-    .ca-navbar-toggler.is-active .ca-navbar-toggler-icon {
-        background-color: transparent;
+    /* Logout button styling */
+    .ca-navbar__logout-button {
+        margin-left: auto;
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        padding: 0.75rem 1rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
     }
 
-    .ca-navbar-toggler.is-active .ca-navbar-toggler-icon::before {
-        transform: rotate(45deg);
-        top: 0;
-    }
-
-    .ca-navbar-toggler.is-active .ca-navbar-toggler-icon::after {
-        transform: rotate(-45deg);
-        bottom: 0;
+    .ca-navbar__logout-button:hover {
+        background-color: #c82333;
     }
 }

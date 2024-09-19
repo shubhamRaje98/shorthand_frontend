@@ -3,6 +3,8 @@ import axios from 'axios';
 import './DepartmentDashboard.css';
 import NavBar from '../navBar/navBar';
 import * as XLSX from 'xlsx';
+import moment from 'moment-timezone';
+import DepartmentNavBar from './DepartmentNavBar';
 
 const DepartmentDashboard = () => {
     const [data, setData] = useState([]);
@@ -25,8 +27,12 @@ const DepartmentDashboard = () => {
 
     const formatDateTime = (dateTimeString) => {
         if (!dateTimeString) return '';
-        const dateTime = new Date(dateTimeString);
-        return dateTime.toLocaleString();
+
+        // Parse the dateTimeString and convert it to Asia/Kolkata timezone
+        const dateTime = moment(dateTimeString).tz('Asia/Kolkata');
+    
+        // Format the date as dd-mm-yy hh:mm:ss
+        return dateTime.format('DD-MM-YY hh:mm:ss A');
     }
 
     const fetchSubjects = async () => {
@@ -217,6 +223,7 @@ const DepartmentDashboard = () => {
     return (
         <div>
             {/* <NavBar /> */}
+            <DepartmentNavBar/>
             <div className="home-container">
                 <div className="dept-container-fluid">
                     <div className="dept-row mb-3">
