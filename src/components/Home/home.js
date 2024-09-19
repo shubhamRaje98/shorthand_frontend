@@ -20,7 +20,7 @@ const Home = () => {
             try {
                 console.log(`Fetching details for center: ${center}`);
                 
-                const response = await axios.get(`https://shorthandonlineexam.in/get-center-details`);
+                const response = await axios.get(`http://localhost:3000/get-center-details`);
                 console.log("API Response:", response.data);
 
                 if (response.data && response.data.examCenterDTO && response.data.examCenterDTO.length > 0) {

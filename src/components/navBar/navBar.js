@@ -82,8 +82,8 @@ const NavBar = () => {
                             Downloads
                         </button>
                         <div className={`ca-navbar__dropdown ${showDownloads ? 'is-active' : ''}`}>
-                            <Link to="/attendance-download" className="ca-navbar__dropdown-item">PDFs</Link>
-                            <Link to="/download-apps" className="ca-navbar__dropdown-item">Download App</Link>
+                            <Link to="/attendance-download" className="ca-navbar__dropdown-item">Reports</Link>
+                            <Link to="/download-apps" className="ca-navbar__dropdown-item">Download Software</Link>
                         </div>
                     </div>
                     <div className="ca-navbar__item ca-navbar__has-dropdown">

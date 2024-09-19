@@ -17,13 +17,13 @@ const DownloadApps = () => {
       <NavBar/>
       
         <div className="da-container">
-            <h1 className="da-title">Download Applications</h1>
+            <h1 className="da-title">Download Software</h1>
             <div className="da-button-container">
                 <button className="da-button da-pc-reg" onClick={handlePcRegistrationDownload}>
-                    Download PC Registration
+                    Download PC Registration Software
                 </button>
                 <button className="da-button da-exam-app" onClick={handleExamAppDownload}>
-                    Download Exam App
+                    Download Exam Software
                 </button>
             </div>
         </div>

@@ -125,6 +125,11 @@
     position: relative;
     transition: all 0.3s ease;
 }
+ /* Logout button styling */
+ .ca-navbar__logout-button {
+ 
+    background-color: #dc3545;
+ }
 
 @media screen and (max-width: 768px) {
     .ca-navbar__container {

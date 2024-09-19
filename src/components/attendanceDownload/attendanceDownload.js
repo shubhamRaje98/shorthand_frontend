@@ -24,7 +24,7 @@ const AttendanceDownload = () => {
 
     const fetchController = async () => {
         try {
-            const response = await axios.post('https://shorthandonlineexam.in/get-batch-controller-password', {
+            const response = await axios.post('http://localhost:3000/get-batch-controller-password', {
                 batchNo
             });
             if (response.data && response.data.results.length > 0) {
@@ -41,7 +41,7 @@ const AttendanceDownload = () => {
 
     const fetchBatches = async () => {
         try {
-            const response = await axios.post('https://shorthandonlineexam.in/track-students-on-exam-center-code');
+            const response = await axios.post('http://localhost:3000/track-students-on-exam-center-code');
             const distinctBatches = [...new Set(response.data.map(item => item.batchNo))];
             setBatches(prevBatches => {
                 const newBatches = [...new Set([...prevBatches, ...distinctBatches])];
@@ -59,7 +59,7 @@ const AttendanceDownload = () => {
 
         try {
             const response = await axios({
-                url: `https://shorthandonlineexam.in/center/${reportType}-pdf-download`,
+                url: `http://localhost:3000/center/${reportType}-pdf-download`,
                 method: 'POST',
                 data: { batchNo },
                 responseType: 'blob',
@@ -97,7 +97,7 @@ const AttendanceDownload = () => {
 
         try {
             const response = await axios({
-                url: 'https://shorthandonlineexam.in/center/studentId-password',
+                url: 'http://localhost:3000/center/studentId-password',
                 method: 'POST',
                 data: { batchNo },
                 responseType: 'blob',
@@ -137,7 +137,7 @@ const AttendanceDownload = () => {
             <NavBar />
             <div className="attendance-download">
                 <div className="attendance-download__wrapper">
-                    <h2 className="attendance-download__title">Download Attendance Report</h2>
+                    <h2 className="attendance-download__title">Download Reports</h2>
                     <form className="attendance-download__form">
                         <div className="attendance-download__form-group">
                             <label htmlFor="batchNo" className="attendance-download__label">Batch Number:</label>
@@ -173,6 +173,15 @@ const AttendanceDownload = () => {
                             >
                                 {loadingButton === 'attendance' ? 'Generating...' : 'Download Attendance Report'}
                             </button>
+                           
+                            <button 
+                                type="button" 
+                                className="attendance-download__btn"
+                                disabled={loadingButton !== '' || !batchNo}
+                                onClick={() => handleDownload('answer-sheet')}
+                            >
+                                {loadingButton === 'answer-sheet' ? 'Generating...' : 'Download Student Answersheet'}
+                            </button>
                             <button 
                                 type="button" 
                                 className="attendance-download__btn"
@@ -180,14 +189,6 @@ const AttendanceDownload = () => {
                                 onClick={() => handleDownload('blank-answer-sheet')}
                             >
                                 {loadingButton === 'blank-answer-sheet' ? 'Generating...' : 'Download Blank Answersheet'}
-                            </button>
-                            <button 
-                                type="button" 
-                                className="attendance-download__btn"
-                                disabled={loadingButton !== '' || !batchNo}
-                                onClick={() => handleDownload('answer-sheet')}
-                            >
-                                {loadingButton === 'answer-sheet' ? 'Generating...' : 'Download Answersheet'}
                             </button>
                             <button 
                                 type="button" 
