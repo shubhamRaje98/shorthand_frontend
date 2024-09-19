@@ -134,7 +134,7 @@ const SuperAdminDashboard = () => {
 
     const submitChanges = async () => {
         try {
-            const response = await axios.post('https://shorthandonlineexam.in/update-table-data', {
+            const response = await axios.post('http://localhost:3000/update-table-data', {
                 tableName: selectedTable,
                 updatedRows: Object.values(changedRows)
             }, {
