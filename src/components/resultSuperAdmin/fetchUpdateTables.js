@@ -50,7 +50,7 @@ const FetchUpdateTable = () => {
       
       //console.log("fetchparams: "+fetchParams.subject_id);
 
-      const response = await axios.post('https://shorthandonlineexam.in/fetch-update-resultdb', fetchParams);
+      const response = await axios.post('http://localhost:3000/fetch-update-resultdb', fetchParams);
 
       const fetchedData = response.data;
       if (fetchedData.length > 0) {
@@ -83,7 +83,7 @@ const FetchUpdateTable = () => {
 
   const handleSave = async (index) => {
     try {
-      await axios.put(`https://shorthandonlineexam.in/update-table/${selectedTable}/${editingData.student_id}`, editingData);
+      await axios.put(`http://localhost:3000/update-table/${selectedTable}/${editingData.student_id}`, editingData);
       const updatedData = [...data];
       updatedData[index] = editingData;
       setData(updatedData);
@@ -95,7 +95,7 @@ const FetchUpdateTable = () => {
 
   const handleAddNewEntry = async () => {
     try {
-      const response = await axios.post(`https://shorthandonlineexam.in/add-entry/${selectedTable}`, newEntryData);
+      const response = await axios.post(`http://localhost:3000/add-entry/${selectedTable}`, newEntryData);
       setData([...data, response.data]);
       setNewEntryData({});
       alert(response);
