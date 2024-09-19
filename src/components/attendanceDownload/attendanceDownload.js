@@ -24,7 +24,7 @@ const AttendanceDownload = () => {
 
     const fetchController = async () => {
         try {
-            const response = await axios.post('http://localhost:3000/get-batch-controller-password', {
+            const response = await axios.post('https://shorthandonlineexam.in/get-batch-controller-password', {
                 batchNo
             });
             if (response.data && response.data.results.length > 0) {
@@ -41,7 +41,7 @@ const AttendanceDownload = () => {
 
     const fetchBatches = async () => {
         try {
-            const response = await axios.post('http://localhost:3000/track-students-on-exam-center-code');
+            const response = await axios.post('https://shorthandonlineexam.in/track-students-on-exam-center-code');
             const distinctBatches = [...new Set(response.data.map(item => item.batchNo))];
             setBatches(prevBatches => {
                 const newBatches = [...new Set([...prevBatches, ...distinctBatches])];
@@ -59,7 +59,7 @@ const AttendanceDownload = () => {
 
         try {
             const response = await axios({
-                url: `http://localhost:3000/center/${reportType}-pdf-download`,
+                url: `https://shorthandonlineexam.in/center/${reportType}-pdf-download`,
                 method: 'POST',
                 data: { batchNo },
                 responseType: 'blob',
@@ -97,7 +97,7 @@ const AttendanceDownload = () => {
 
         try {
             const response = await axios({
-                url: 'http://localhost:3000/center/studentId-password',
+                url: 'https://shorthandonlineexam.in/center/studentId-password',
                 method: 'POST',
                 data: { batchNo },
                 responseType: 'blob',

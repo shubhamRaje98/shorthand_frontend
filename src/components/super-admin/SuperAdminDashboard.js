@@ -13,15 +13,22 @@ const SuperAdminDashboard = () => {
     const [editedValues, setEditedValues] = useState({});
     const [changedRows, setChangedRows] = useState({});
     const [currentPage, setCurrentPage] = useState(1);
+    const [filters, setFilters] = useState({});
     const pageSize = 10;
 
     useEffect(() => {
         fetchTableNames();
     }, []);
 
+    useEffect(() => {
+        if (selectedTable) {
+            applyFilters();
+        }
+    }, [filters, tableData]);
+
     const fetchTableNames = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/fetch-table-names', {
+            const response = await axios.get('https://shorthandonlineexam.in/fetch-table-names', {
                 withCredentials: true
             });
             setTableNames(response.data);
@@ -32,7 +39,7 @@ const SuperAdminDashboard = () => {
 
     const fetchTableData = async (tableName) => {
         try {
-            const response = await axios.post('http://localhost:3000/fetch-table-data', {
+            const response = await axios.post('https://shorthandonlineexam.in/fetch-table-data', {
                 tableName
             }, {
                 withCredentials: true
@@ -48,10 +55,31 @@ const SuperAdminDashboard = () => {
                         key: key,
                     }));
                 setColumns(tableColumns);
+                initializeFilters(dataWithKeys, tableColumns);
             }
         } catch (error) {
             console.error('Error fetching table data:', error);
         }
+    };
+
+    const initializeFilters = (data, columns) => {
+        const newFilters = {};
+        columns.forEach(column => {
+            const uniqueValues = [...new Set(data.map(item => item[column.dataIndex]))];
+            if (uniqueValues.length <= 20) {
+                newFilters[column.dataIndex] = {
+                    type: 'dropdown',
+                    values: uniqueValues,
+                    selected: ''
+                };
+            } else {
+                newFilters[column.dataIndex] = {
+                    type: 'search',
+                    value: ''
+                };
+            }
+        });
+        setFilters(newFilters);
     };
 
     const handleTableSelect = (event) => {
@@ -106,7 +134,7 @@ const SuperAdminDashboard = () => {
 
     const submitChanges = async () => {
         try {
-            const response = await axios.post('http://localhost:3000/update-table-data', {
+            const response = await axios.post('https://shorthandonlineexam.in/update-table-data', {
                 tableName: selectedTable,
                 updatedRows: Object.values(changedRows)
             }, {
@@ -130,11 +158,71 @@ const SuperAdminDashboard = () => {
         return imageColumns.includes(columnName.toLowerCase());
     };
 
+    const handleFilterChange = (columnName, value) => {
+        setFilters(prevFilters => ({
+            ...prevFilters,
+            [columnName]: {
+                ...prevFilters[columnName],
+                selected: value
+            }
+        }));
+    };
+
+    const handleSearchChange = (columnName, value) => {
+        setFilters(prevFilters => ({
+            ...prevFilters,
+            [columnName]: {
+                ...prevFilters[columnName],
+                value: value
+            }
+        }));
+    };
+
+    const applyFilters = () => {
+        let newFilteredData = [...tableData];
+        
+        Object.keys(filters).forEach(columnName => {
+            const filter = filters[columnName];
+            if (filter.type === 'dropdown' && filter.selected) {
+                newFilteredData = newFilteredData.filter(row => 
+                    row[columnName] === filter.selected
+                );
+            } else if (filter.type === 'search' && filter.value) {
+                newFilteredData = newFilteredData.filter(row =>
+                    row[columnName] && row[columnName].toString().toLowerCase().includes(filter.value.toLowerCase())
+                );
+            }
+        });
+
+        setFilteredData(newFilteredData);
+        setCurrentPage(1);
+    };
+
     const renderTableHeader = () => {
         return (
             <tr>
                 {columns.map(column => (
-                    <th key={column.key}>{column.title}</th>
+                    <th key={column.key}>
+                        {column.title}
+                        {filters[column.dataIndex]?.type === 'dropdown' ? (
+                            <select 
+                                value={filters[column.dataIndex].selected} 
+                                onChange={(e) => handleFilterChange(column.dataIndex, e.target.value)}
+                            >
+                                <option value="">All</option>
+                                {filters[column.dataIndex].values.map(value => (
+                                    <option key={value} value={value}>{value}</option>
+                                ))}
+                            </select>
+                        ) : (
+                            <input 
+                                type="text" 
+                                placeholder="Search..." 
+                                value={filters[column.dataIndex]?.value || ''}
+                                onChange={(e) => handleSearchChange(column.dataIndex, e.target.value)}
+                            />
+                        )}
+                    </th>
                 ))}
                 <th>Action</th>
             </tr>
