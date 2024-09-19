@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import NavBar from '../navBar/navBar';
 import * as XLSX from 'xlsx';
-
+import moment from 'moment-timezone';
 // Importing the utility functions
 const isValidData = (value) => {
     return value && value !== "invalid date" && value !== "0" && !isNaN(new Date(value).getTime());
@@ -49,8 +49,12 @@ const SuperAdminTrackDashboard = () => {
 
     const formatDateTime = (dateTimeString) => {
         if (!dateTimeString) return '';
-        const dateTime = new Date(dateTimeString);
-        return dateTime.toLocaleString();
+
+        // Parse the dateTimeString and convert it to Asia/Kolkata timezone
+        const dateTime = moment(dateTimeString).tz('Asia/Kolkata');
+    
+        // Format the date as dd-mm-yy hh:mm:ss
+        return dateTime.format('DD-MM-YY hh:mm:ss A');
     }
 
     const fetchSubjects = async () => {

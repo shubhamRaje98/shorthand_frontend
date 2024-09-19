@@ -3,6 +3,7 @@ import axios from 'axios';
 import './StudentTable.css';
 import NavBar from '../navBar/navBar';
 import * as XLSX from 'xlsx';
+import moment from 'moment-timezone';
 
 const StudentTable = () => {
     const [data, setData] = useState([]);
@@ -25,8 +26,12 @@ const StudentTable = () => {
 
     const formatDateTime = (dateTimeString) => {
         if (!dateTimeString) return '';
-        const dateTime = new Date(dateTimeString);
-        return dateTime.toLocaleString();
+
+        // Parse the dateTimeString and convert it to Asia/Kolkata timezone
+        const dateTime = moment(dateTimeString).tz('Asia/Kolkata');
+    
+        // Format the date as dd-mm-yy hh:mm:ss
+        return dateTime.format('DD-MM-YY hh:mm:ss A');
     }
 
     const fetchSubjects = async () => {
@@ -124,7 +129,7 @@ const StudentTable = () => {
         const worksheet = XLSX.utils.json_to_sheet(data.map(item => ({
             "Batch Number": item.batchNo,
             "Seat No": item.student_id,
-            "Login": item.loginTime,
+            "Login": formatDateTime(item.loginTime),
             "Trial": formatDateTime(item.trial_time),
             "Audio Track A": formatDateTime(item.audio1_time),
             "Passage A": formatDateTime(item.passage1_time),
@@ -338,7 +343,7 @@ const StudentTable = () => {
                                             <tr key={index}>
                                                 <td>{item.batchNo}</td>
                                                 <td>{item.student_id}</td>
-                                                <td className={getCellClass(item, 'loginTime')}>{item.loginTime}</td>
+                                                <td className={getCellClass(item, 'loginTime')}>{formatDateTime(item.loginTime)}</td>
                                                 {exam_type !== 'typewriting' && <td className={getCellClass(item, 'trial_time')}>{formatDateTime(item.trial_time)}</td>}
                                                 {exam_type !== 'typewriting' && <td className={getCellClass(item, 'audio1_time')}>{formatDateTime(item.audio1_time)}</td>}
                                                 {exam_type !== 'typewriting' && <td className={getCellClass(item, 'passage1_time')}>{formatDateTime(item.passage1_time)}</td>}

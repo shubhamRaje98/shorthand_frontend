@@ -11,9 +11,10 @@ const AttendanceDownload = () => {
     const [batches, setBatches] = useState([]);
     const [controller, setController] = useState('');
     const [isControllerPasswordVisible, setIsControllerPasswordVisible] = useState(false);
-
+    const [center ,setCenter] = useState();
     useEffect(() => {
         fetchBatches();
+        setCenter(localStorage.getItem('center'))
     }, []);
 
     useEffect(() => {
@@ -71,7 +72,7 @@ const AttendanceDownload = () => {
                 const fileURL = URL.createObjectURL(file);
                 const link = document.createElement('a');
                 link.href = fileURL;
-                link.setAttribute('download', `${reportType}_report_batch_${batchNo}.pdf`);
+                link.setAttribute('download', `${reportType}_report_batch_${batchNo}_center_${localStorage.getItem('center')}.pdf`);
                 document.body.appendChild(link);
                 link.click();
                 link.remove();

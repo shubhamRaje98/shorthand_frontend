@@ -21,6 +21,7 @@ const NavBar = () => {
 
                 if (response.data && response.data.examCenterDTO && response.data.examCenterDTO.length > 0) {
                     setCenterDetails(response.data.examCenterDTO[0]);
+                    localStorage.setItem("center",response.data.examCenterDTO[0].center);
                     // console.log("Center details:", response.data[0]);
                 } else {
                     setCenterDetails(null);
