@@ -65,7 +65,8 @@ const DepartmentNavBar = () => {
                 <div className={`dept-navbar__menu ${isMenuOpen ? 'is-active' : ''}`}>
                     <Link to="/department-dashboard" className="dept-navbar__menu-item">Dashboard</Link>
                     <Link to="/pc-registration-count" className="dept-navbar__menu-item">PC Registration Count</Link>
-                    <button className="dept-navbar__logout-button" onClick={handleLogout}>
+                    <Link to="/department-student-count" className="dept-navbar__menu-item">Department Student Count</Link>
+                    <button className="dept-navbar__logout-button dept-navbar__menu-item" onClick={handleLogout}>
                         Logout
                     </button>
                 </div>
