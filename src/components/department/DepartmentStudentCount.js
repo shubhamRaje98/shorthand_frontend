@@ -125,6 +125,7 @@ const DepartmentStudentCount = () => {
                         <table>
                             <thead>
                                 <tr>
+                                    <th>Center</th>
                                     <th>Batch No</th>
                                     <th>Total Students</th>
                                     <th>Logged In Students</th>
@@ -136,6 +137,7 @@ const DepartmentStudentCount = () => {
                             <tbody>
                                 {allData.map((item, index) => (
                                     <tr key={index}>
+                                        <td>{item.center}</td>
                                         <td>{item.batchNo}</td>
                                         <td>{item.total_students || 0}</td>
                                         <td>{item.logged_in_students || 0}</td>

@@ -60,7 +60,7 @@ const ControllerPassword = () => {
                                                 <td>{item.controllerPass}</td>
                                                 <td>{item.startTime}</td>
                                                 <td>{item.endTime}</td>
-                                                <td>{item.batchstatus ? "Active" : "Inactive"}</td>
+                                                <td>{item.batchStatus ==1 ? "Active" : "Inactive"}</td>
                                             </tr>
                                         ))}
                                 </tbody>
