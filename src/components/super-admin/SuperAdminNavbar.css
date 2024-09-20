@@ -26,6 +26,7 @@
   margin: 0;
   padding: 0;
   align-items: center;
+  flex-direction: row;
 }
 
 .navbar-nav li {
@@ -39,6 +40,7 @@
   border-radius: 4px;
   transition: background-color 0.3s ease;
   display: block;
+  white-space: nowrap;
 }
 
 .navbar-nav li a:hover {
@@ -82,7 +84,7 @@
   transition: all 0.3s linear;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 968px) {
   .navbar-container {
     flex-wrap: wrap;
   }

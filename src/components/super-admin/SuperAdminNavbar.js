@@ -56,6 +56,9 @@ const SuperAdminNavbar = () => {
           <li className={location.pathname === "/super-admin/students-count" ? "active" : ""}>
             <Link to="/superadmin-student-count" onClick={() => setIsMenuOpen(false)}>Students Count</Link>
           </li>
+          <li className={location.pathname === "/PcRegistrationCount" ? "active" : ""}>
+            <Link to="/superadmin-pc" onClick={() => setIsMenuOpen(false)}>PC Registration Count</Link>
+          </li>
           <li>
             <button className="logout-button" onClick={handleLogout}>Logout</button>
           </li>
