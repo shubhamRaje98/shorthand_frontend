@@ -41,6 +41,7 @@ import CurrentStudentDetails from './components/CurrentStudentDetails/CurrentStu
 import PcRegistrationCount from './components/department/PcRegistrationCount';
 import ResetCenterAdmin from './components/Reset/ResetCenterAdmin';
 import DepartmentStudentCount from './components/department/DepartmentStudentCount';
+import SuperAdminCount from './components/super-admin/SuperadminStudentCount';
 
 axios.defaults.withCredentials = true;
 
@@ -81,6 +82,7 @@ const App = () => {
                     <Route path='/pc-registration-count' element={<PcRegistrationCount/>}/>
                     <Route path='/reset-center-admin' element={<ResetCenterAdmin/>}/>
                     <Route path='/department-student-count' element={<DepartmentStudentCount/>}/>
+                    <Route path='/superadmin-student-count' element={<SuperAdminCount/>}/>
 
                     
 
