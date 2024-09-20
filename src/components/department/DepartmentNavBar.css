@@ -48,6 +48,19 @@
     align-items: center;
 }
 
+.dept-navbar__menu-item {
+    color: #333;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    margin: 0 0.5rem;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.dept-navbar__menu-item:hover {
+    background-color: #e9ecef;
+}
+
 .dept-navbar__logout-button {
     background-color: #dc3545;
     color: white;
@@ -117,6 +130,12 @@
 
     .dept-navbar__menu.is-active {
         display: flex;
+    }
+
+    .dept-navbar__menu-item {
+        width: 100%;
+        padding: 0.75rem 0;
+        margin: 0;
     }
 
     .dept-navbar__logout-button {

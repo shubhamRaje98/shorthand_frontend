@@ -1,7 +1,7 @@
 // DepartmentNavBar.js
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import './DepartmentNavBar.css';
 import logo from './../../Logo.ico'; // Make sure this path is correct
@@ -63,7 +63,8 @@ const DepartmentNavBar = () => {
                     <span className="dept-navbar__toggler-icon"></span>
                 </button>
                 <div className={`dept-navbar__menu ${isMenuOpen ? 'is-active' : ''}`}>
-                    {/* Add any department-specific menu items here */}
+                    <Link to="/department-dashboard" className="dept-navbar__menu-item">Dashboard</Link>
+                    <Link to="/pc-registration-count" className="dept-navbar__menu-item">PC Registration Count</Link>
                     <button className="dept-navbar__logout-button" onClick={handleLogout}>
                         Logout
                     </button>

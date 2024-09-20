@@ -74,6 +74,7 @@ const NavBar = () => {
                     <span className="ca-navbar__toggler-icon"></span>
                 </button>
                 <div className={`ca-navbar__menu ${isMenuOpen ? 'is-active' : ''}`}>
+               
                     <Link to="/home" className="ca-navbar__item">Home</Link>
                     <div className="ca-navbar__item ca-navbar__has-dropdown">
                         <button className="ca-navbar__link" onClick={() => handleDropdownClick('downloads')}>
@@ -95,6 +96,7 @@ const NavBar = () => {
                     <Link to="/controller-password" className="ca-navbar__item">Controller-Password</Link>
                     <Link to="/fetch-pc-registration" className="ca-navbar__item">PC Registrations</Link>
                     <Link to="/current-student-details" className="ca-navbar__item">Student-Details</Link>
+                    <Link to="/reset-center-admin" className="ca-navbar__item">Reset</Link>
                     <button className="ca-navbar__logout-button ca-navbar__logout-button--mobile" onClick={handleLogout}>
                         Logout
                     </button>

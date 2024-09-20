@@ -38,6 +38,8 @@ import DataUpdateForm from './components/super-admin/DataUpdateForm';
 // New SuperAdmin Layout
 import SuperAdminLayout from './components/super-admin/SuperAdminLayout';
 import CurrentStudentDetails from './components/CurrentStudentDetails/CurrentStudentDetails';
+import PcRegistrationCount from './components/department/PcRegistrationCount';
+import ResetCenterAdmin from './components/Reset/ResetCenterAdmin';
 
 axios.defaults.withCredentials = true;
 
@@ -75,6 +77,9 @@ const App = () => {
                     <Route path='/camera-upload' element={<CameraCapture/>}/>
                     <Route path='/download-apps' element={<DownloadApps/>}/>
                     <Route path='/current-student-details' element={<CurrentStudentDetails/>}/>
+                    <Route path='/pc-registration-count' element={<PcRegistrationCount/>}/>
+                    <Route path='/reset-center-admin' element={<ResetCenterAdmin/>}/>
+
                     
 
                     {/* SuperAdmin Routes */}
