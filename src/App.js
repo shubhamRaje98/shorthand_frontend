@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { DashboardProvider } from './components/expertDashboard/DashboardContext';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
 // Import your components
 import SubjectWiseResultSummary from './components/subjectWiseSummaryDash/subjectWiseSummaryDash';
 import Login from './components/centerAdminLogin/centerAdminLogin';
@@ -20,7 +21,7 @@ import AttendanceDownload from './components/attendanceDownload/attendanceDownlo
 import CenterwiseStudentCount from './components/centerwiseStudentExamCountTracking/centerwiseCountReport';
 import AbsenteeRoll from './components/attendeeRoll/attendeeRoll';
 import ControllerPassword from './components/controllerPassword/controllerPassword';
-import FetchUpdateTable from './components/superAdmin/fetchUpdateTables';
+// import FetchUpdateTable from './components/superAdmin/fetchUpdateTables';
 import PCRegistration from './components/pcRegistration/pcRegistration';
 import FetchPassageById from './components/expertDashboard/FetchPassageById'
 import ResultFetchUpdate from './components/resultSuperAdmin/fetchUpdateTables'; 
@@ -33,7 +34,9 @@ import SuperAdminLogin from './components/super-admin/SuperAdminLogin';
 import SuperAdminDashboard from './components/super-admin/SuperAdminDashboard';
 import SuperAdminTrackDashboard from './components/SuperAdminTrackDashboard/SuperAdminTrackDashboard';
 import DownloadApps from './components/DownloadApps/DownloadApps';
-import CurrentStudentDetails from './components/CurrentStudentDetails/CurrentStudentDetails';
+import DataUpdateForm from './components/super-admin/DataUpdateForm';
+// New SuperAdmin Layout
+import SuperAdminLayout from './components/super-admin/SuperAdminLayout';
 
 axios.defaults.withCredentials = true;
 
@@ -45,9 +48,6 @@ const App = () => {
                 <Routes>
                     <Route path="/" element={<Login />} />
                     <Route path="/expert-login" element={<ExpertLogin />} />
-                    <Route path="/superAdminDashboard" element={<SuperAdminDashboard/>} />
-                    <Route path="/admin-login" element={<SuperAdminLogin />} />
-                    <Route path="/super-admin-track-dashboard" element ={<SuperAdminTrackDashboard/>} />
                     <Route path="/expertAdmin" element={<ExpertAdmin />} />
                     <Route path="/student-table" element={<StudentTable />} />
                     <Route path="/home" element={<Home />} />
@@ -57,26 +57,30 @@ const App = () => {
                         <Route index element={<SubjectSelection />} />
                         <Route path=":subjectId" element={<QSet />} />
                         <Route path=":subjectId/:qset" element={<FinalPassageTextlog />} />
-                        {/* Add the new route here as a nested route */}
                         <Route path=":subjectId/:qset/:studentId" element={<FetchPassageById />} />
                     </Route>
 
-                    <Route path='/student_info/:studentId' element = {<StudentDetails/>}/>
-
+                    <Route path='/student_info/:studentId' element={<StudentDetails/>}/>
 
                     <Route path="/attendance-download" element={<AttendanceDownload />} />
                     <Route path="/centerwise-student-count" element={<CenterwiseStudentCount />} />
                     <Route path="/absentee-roll" element={<AbsenteeRoll />} />
                     <Route path="/controller-password" element={<ControllerPassword />} />
-                    <Route path="/fetch-update-table" element={<FetchUpdateTable />} />
                     <Route path="/fetch-pc-registration" element={<PCRegistration />} />
                     <Route path="/result-subjectwise-summary" element={<SubjectWiseResultSummary />} />
-                    <Route path="/result-super-admin" element={< ResultFetchUpdate />} />
+                    <Route path="/result-super-admin" element={<ResultFetchUpdate />} />
                     <Route path='/department-login' element={<DepartmentLogin/>}/>
                     <Route path='/department-dashboard' element={<DepartmentDashboard/>}/>
                     <Route path='/camera-upload' element={<CameraCapture/>}/>
                     <Route path='/download-apps' element={<DownloadApps/>}/>
-                    <Route path='/current-student-details' element={<CurrentStudentDetails/>}/>
+
+                    {/* SuperAdmin Routes */}
+                    <Route path="/admin-login" element={<SuperAdminLogin />} />
+                    <Route path="/super-admin" element={<SuperAdminLayout />}>
+                        <Route path="dashboard" element={<SuperAdminDashboard />} />
+                        <Route path="track-dashboard" element={<SuperAdminTrackDashboard />} />
+                        <Route path="fetch-update-table" element={<DataUpdateForm />} />
+                    </Route>
                 </Routes>
             </Router>
         </DashboardProvider>

@@ -10,6 +10,7 @@ const isValidData = (value) => {
     return value && value !== "invalid date" && value !== "0" && !isNaN(new Date(value).getTime());
 };
 
+
 const getCellClass = (item, field) => {
     const stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time', 'audio2_time', 'passage2_time', 'feedback_time'];
     const currentStageIndex = stages.indexOf(field);
@@ -59,6 +60,32 @@ const SuperAdminTrackDashboard = () => {
         // Format the date as dd-mm-yy hh:mm:ss
         return dateTime.format('DD-MM-YY hh:mm:ss A');
     }
+    const formatDate = (dateString) => {
+        if (!dateString || dateString === "invalid date" || dateString === "0") {
+            return "";
+        }
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) {
+            return dateString; // Return original string if it's not a valid date
+        }
+        
+        const options = {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        };
+        
+        let formatted = date.toLocaleString('en-GB', options).replace(',', '');
+        
+        // Explicitly add AM/PM
+        const ampm = date.getHours() >= 12 ? 'pm' : 'am';
+        formatted = formatted.replace(/\s(AM|PM)$/i, '') + ' ' + ampm;
+        
+        return formatted;
+    };
 
     const fetchSubjects = async () => {
         try {
@@ -165,35 +192,22 @@ const SuperAdminTrackDashboard = () => {
     }, [data, rowsPerPage]);
 
     const exportToExcel = () => {
-        const visibleColumns = [
-            { key: 'batchNo', header: 'Batch Number' },
-            { key: 'center', header: 'Center' },
-            { key: 'student_id', header: 'Seat No' },
-            { key: 'loginTime', header: 'Login' },
-            ...(exam_type !== 'typewriting' ? [{ key: 'trial_time', header: 'Trial' }] : []),
-            ...(exam_type !== 'typewriting' ? [
-                { key: 'audio1_time', header: 'Audio Track A' },
-                { key: 'passage1_time', header: 'Passage A' },
-            ] : []),
-            ...(exam_type !== 'shorthand' ? [
-                { key: 'audio2_time', header: 'Trial Typing' },
-                { key: 'passage2_time', header: 'Typing Test' },
-            ] : []),
-            { key: 'feedback_time', header: 'Feedback' }
-        ];
-        const exportData = data.map(item => {
-            const newItem = {};
-            visibleColumns.forEach(col => {
-                newItem[col.header] = item[col.key];
-            });
-            return newItem;
-        });
-
-        const ws = XLSX.utils.json_to_sheet(exportData);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Students Data");
-        XLSX.writeFile(wb, "students_data.xlsx");
+        const worksheet = XLSX.utils.json_to_sheet(data.map(item => ({
+            "Batch Number": item.batchNo,
+            "Seat No": item.student_id,
+            "Login": formatDate(item.loginTime),
+            "Trial": formatDate(item.trial_time),
+            "Audio Track A": formatDate(item.audio1_time),
+            "Passage A": formatDate(item.passage1_time),
+            "Trial Passage": formatDate(item.typing_passage_time),
+            "Typing Passage": formatDate(item.trial_passage_time),
+            "Feedback": formatDate(item.feedback_time)
+        })));
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Student Data");
+        XLSX.writeFile(workbook, "student_data.xlsx");
     };
+
 
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
@@ -416,29 +430,29 @@ const SuperAdminTrackDashboard = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {getPaginatedData().map((item, index) => (
-                                        <tr key={index}>
-                                            <td className="batch-number-column">{item.batchNo}</td>
-                                            <td>{item.center}</td>
-                                            <td>{item.student_id}</td>
-                                            <td className={getCellClass(item, 'loginTime')}>{formatDateTime(item.loginTime)}</td>
-                                            {exam_type !== 'typewriting' && <td className={getCellClass(item, 'trial_time')}>{formatDateTime(item.trial_time)}</td>}
-                                            {exam_type !== 'typewriting' && (
-                                                <>
-                                                    <td className={getCellClass(item, 'audio1_time')}>{formatDateTime(item.audio1_time)}</td>
-                                                    <td className={getCellClass(item, 'passage1_time')}>{formatDateTime(item.passage1_time)}</td>
-                                                </>
-                                            )}
-                                            {exam_type !== 'shorthand' && (
-                                                <>
-                                                    <td className={getCellClass(item, 'audio2_time')}>{formatDateTime(item.audio2_time)}</td>
-                                                    <td className={getCellClass(item, 'passage2_time')}>{formatDateTime(item.passage2_time)}</td>
-                                                </>
-                                            )}
-                                            <td className={getCellClass(item, 'feedback_time')}>{formatDateTime(item.feedback_time)}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
+                {getPaginatedData().map((item, index) => (
+                    <tr key={index}>
+                        <td className="batch-number-column">{item.batchNo}</td>
+                        <td>{item.center}</td>
+                        <td>{item.student_id}</td>
+                        <td className={getCellClass(item, 'loginTime')}>{formatDate(item.loginTime)}</td>
+                        {exam_type !== 'typewriting' && <td className={getCellClass(item, 'trial_time')}>{formatDate(item.trial_time)}</td>}
+                        {exam_type !== 'typewriting' && (
+                            <>
+                                <td className={getCellClass(item, 'audio1_time')}>{formatDate(item.audio1_time)}</td>
+                                <td className={getCellClass(item, 'passage1_time')}>{formatDate(item.passage1_time)}</td>
+                            </>
+                        )}
+                        {exam_type !== 'shorthand' && (
+                            <>
+                                <td className={getCellClass(item, 'Trial Passage')}>{formatDate(item.trial_passage_time)}</td>
+                                <td className={getCellClass(item, 'Typing Passage')}>{formatDate(item.typing_passage_time)}</td>
+                            </>
+                        )}
+                        <td className={getCellClass(item, 'feedback_time')}>{formatDate(item.feedback_time)}</td>
+                    </tr>
+                ))}
+            </tbody>
                             </table>
                         </div>
                     ) : (

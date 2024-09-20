@@ -17,11 +17,14 @@ const SuperAdminLogin = () => {
             }, {
                 withCredentials: true
             });
-            if (response.status === 200 && userId == '1234') {
-                navigate('/super-admin-track-dashboard');
-            }
-            else if(response.status === 200){
-                navigate('/superAdminDashboard')
+            if (response.status === 200) {
+                if (userId === '1234') {
+                    localStorage.setItem('adminType', 'trackAdmin');
+                    navigate('/super-admin/track-dashboard');
+                } else {
+                    localStorage.setItem('adminType', 'regularAdmin');
+                    navigate('/super-admin/dashboard');
+                }
             }
         } catch (err) {
             setError('Invalid Admin ID or Password');
