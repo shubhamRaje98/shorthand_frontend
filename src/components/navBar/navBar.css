@@ -8,17 +8,18 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    max-width: 1200px;
+    max-width: 100%;
     margin: 0 auto;
 }
 
 .ca-navbar__logo-section {
     display: flex;
     align-items: center;
+    flex: 0 0 auto;
 }
 
 .ca-navbar__logo {
-    height: 70px;
+    height: 50px;
     margin-right: 1rem;
 }
 
@@ -27,7 +28,6 @@
     font-size: 0.8rem;
     line-height: 1.2;
     text-align: left;
-    margin-right: -5rem;
     max-width: 290px;
 }
 
@@ -41,14 +41,13 @@
 .ca-navbar__logo-text span {
     color: #28a745;
     font-weight: 700;
-    
 }
 
 .ca-navbar__menu {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-grow: 1;
+    flex: 1;
 }
 
 .ca-navbar__item {
@@ -125,11 +124,43 @@
     position: relative;
     transition: all 0.3s ease;
 }
- /* Logout button styling */
- .ca-navbar__logout-button {
- 
+
+.ca-navbar__logout-button {
     background-color: #dc3545;
- }
+    color: white;
+    border: none;
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    flex: 0 0 auto;
+}
+
+.ca-navbar__logout-button:hover {
+    background-color: #c82333;
+}
+
+.ca-navbar__logout-button--mobile {
+    display: none;
+}
+
+@media screen and (max-width: 1024px) {
+    .ca-navbar__container {
+        flex-wrap: wrap;
+    }
+
+    .ca-navbar__menu {
+        order: 2;
+        width: 100%;
+        justify-content: center;
+        margin-top: 1rem;
+    }
+
+    .ca-navbar__logout-button--desktop {
+        order: 3;
+        margin-top: 1rem;
+    }
+}
 
 @media screen and (max-width: 768px) {
     .ca-navbar__container {
@@ -153,6 +184,7 @@
         background-color: #fff;
         padding: 1rem;
         border-radius: 0 0 4px 4px;
+        order: 3;
     }
 
     .ca-navbar__menu.is-active {
@@ -169,21 +201,17 @@
         display: block;
         align-self: flex-end;
         margin-top: -3rem;
+        order: 2;
     }
 
-    /* Logout button styling */
-    .ca-navbar__logout-button {
-        margin-left: auto;
-        background-color: #dc3545;
-        color: white;
-        border: none;
-        padding: 0.75rem 1rem;
-        border-radius: 4px;
-        cursor: pointer;
-        font-weight: 500;
+    .ca-navbar__logout-button--desktop {
+        display: none;
     }
 
-    .ca-navbar__logout-button:hover {
-        background-color: #c82333;
+    .ca-navbar__logout-button--mobile {
+        display: block;
+        width: 100%;
+        margin-top: 1rem;
+        order: 4;
     }
 }

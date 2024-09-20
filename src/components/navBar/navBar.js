@@ -17,12 +17,9 @@ const NavBar = () => {
         const fetchCenterDetails = async () => {
             try {
                 const response = await axios.get(`http://localhost:3000/get-center-details`);
-                // console.log("API Response:", response.data[0].examCenterDTO[0]);
-
                 if (response.data && response.data.examCenterDTO && response.data.examCenterDTO.length > 0) {
                     setCenterDetails(response.data.examCenterDTO[0]);
                     localStorage.setItem("center",response.data.examCenterDTO[0].center);
-                    // console.log("Center details:", response.data[0]);
                 } else {
                     setCenterDetails(null);
                     console.log("No center details found");
@@ -51,9 +48,7 @@ const NavBar = () => {
     };
 
     const handleLogout = () => {
-        // Logic to handle user logout
         console.log("User logged out");
-        // Redirect to login page after logout
         navigate('/');
     };
 
@@ -99,11 +94,14 @@ const NavBar = () => {
                     </div>
                     <Link to="/controller-password" className="ca-navbar__item">Controller-Password</Link>
                     <Link to="/fetch-pc-registration" className="ca-navbar__item">PC Registrations</Link>
-                    {/* Logout Button */}
-                    <button className=" ca-navbar__logout-button" onClick={handleLogout}>
+                    <Link to="/current-student-details" className="ca-navbar__item">Student-Details</Link>
+                    <button className="ca-navbar__logout-button ca-navbar__logout-button--mobile" onClick={handleLogout}>
                         Logout
                     </button>
                 </div>
+                <button className="ca-navbar__logout-button ca-navbar__logout-button--desktop" onClick={handleLogout}>
+                    Logout
+                </button>
             </div>
         </nav>
     );

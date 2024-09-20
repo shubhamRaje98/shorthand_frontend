@@ -19,8 +19,9 @@ const DepartmentLogin = () => {
                 withCredentials: true
             });
             if (response.data) {
+                console.log(response.data)
                 navigate("/department-dashboard");
-               alert(response.data);
+               alert(response.data.message);
             }
         } catch (err) {
             setError('Invalid Department Code or Password');
