@@ -195,9 +195,25 @@ const AttendanceDownload = () => {
                                 type="button" 
                                 className="attendance-download__btn"
                                 disabled={loadingButton !== '' || !batchNo}
+                                onClick={() => handleDownload('seating-arrangement')}
+                            >
+                                {loadingButton === 'seating-arrangement' ? 'Generating...' : 'Download Seating Arrangement'}
+                            </button>
+                            <button 
+                                type="button" 
+                                className="attendance-download__btn"
+                                disabled={loadingButton !== '' || !batchNo}
+                                onClick={() => handleDownload('studnetId-password')}
+                            >
+                                {loadingButton === 'seating-arrangement' ? 'Generating...' : 'Download Student Id and Password(PDF)'}
+                            </button>
+                            <button 
+                                type="button" 
+                                className="attendance-download__btn"
+                                disabled={loadingButton !== '' || !batchNo}
                                 onClick={handleExcelDownload}
                             >
-                                {loadingButton === 'excel' ? 'Generating...' : 'Download Student Id and Password'}
+                                {loadingButton === 'excel' ? 'Generating...' : 'Download Student Id and Password(Excel)'}
                             </button>
                         </div>
                     </form>
