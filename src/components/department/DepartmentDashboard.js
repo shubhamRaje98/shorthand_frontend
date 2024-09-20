@@ -127,15 +127,33 @@ const DepartmentDashboard = () => {
     };
 
     const getCellClass = (item, field) => {
-        const stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time', 'trial_passage_time', 'typing_passage_time', 'feedback_time'];
+        const stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time', 'trial_passage_time', 'typing_passage_time',  'feedback_time'];
         const currentStageIndex = stages.indexOf(field);
         
         if (currentStageIndex === -1) return '';
         
+        if (field === 'loginTime' || field === 'feedback_time') {
+            return isValidData(item[field]) ? 'dept-cell-green dept-text-white' : 'dept-cell-red dept-text-white';
+        }
+    
         if (isValidData(item[field])) {
-            return 'dept-cell-green dept-text-white';
+            // Check if it's the last field or if the next field has valid data
+            if (currentStageIndex === stages.length - 1 || isValidData(item[stages[currentStageIndex + 1]])) {
+                return 'dept-cell-green dept-text-white';
+            } else if (currentStageIndex > 0 && currentStageIndex < stages.length - 1) {
+                // Check if the previous cell is green and the next cell is red
+                const prevCellGreen = isValidData(item[stages[currentStageIndex - 1]]);
+                const nextCellRed = !isValidData(item[stages[currentStageIndex + 1]]);
+                if (prevCellGreen && nextCellRed) {
+                    return 'dept-cell-yellow dept-text-black';
+                } else {
+                    return 'dept-cell-green dept-text-white';
+                }
+            } else {
+                return 'dept-cell-green dept-text-white';
+            }
         } else if (currentStageIndex > 0 && isValidData(item[stages[currentStageIndex - 1]])) {
-            return 'dept-cell-yellow dept-text-black';
+            return 'dept-cell-red dept-text-black';
         } else {
             return 'dept-cell-red dept-text-white';
         }
@@ -380,9 +398,11 @@ const DepartmentDashboard = () => {
                                                 )}
                                                 {exam_type !== 'shorthand' && (
                                                     <>
-                                                        <td className={getCellClass(item, 'trial_passage')}>{formatDate(item.trial_passage_time)}</td>
-                                                        <td className={getCellClass(item, 'Typing passage')}>{formatDate(item.typing_passage_time)}</td>
+                                                        <td className={getCellClass(item, 'trial_passage_time')}>{formatDate(item.trial_passage_time)}</td>
+                                                        <td className={getCellClass(item, 'typing_passage_time')}>{formatDate(item.typing_passage_time)}</td>
+                                                        
                                                     </>
+                                                    
                                                 )}
                                             </tr>
                                         ))}
