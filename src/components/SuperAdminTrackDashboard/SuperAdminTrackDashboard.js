@@ -62,7 +62,7 @@ const SuperAdminTrackDashboard = () => {
 
     const fetchSubjects = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/subjects');
+            const response = await axios.get('https://shorthandonlineexam.in/subjects');
             if (response.data.subjects) {
                 setAllSubjects(response.data.subjects);
             }
@@ -74,7 +74,7 @@ const SuperAdminTrackDashboard = () => {
 
     const fetchTotalLoginCount = async () => {
        try {
-        const response = await axios.post('http://localhost:3000/total-login-count',{
+        const response = await axios.post('https://shorthandonlineexam.in/total-login-count',{
             center,batchNo,department:departmentId
         })
         if(response.data){
@@ -91,7 +91,7 @@ const SuperAdminTrackDashboard = () => {
         setLoading(true);
         setError('');
         try {
-            let url = 'http://localhost:3000/super-admin-student-track-dashboard';
+            let url = 'https://shorthandonlineexam.in/super-admin-student-track-dashboard';
 
             const params = new URLSearchParams();
             if (subject) params.append('subject_name', subject);

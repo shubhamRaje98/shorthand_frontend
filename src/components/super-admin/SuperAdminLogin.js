@@ -11,17 +11,20 @@ const SuperAdminLogin = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:3000/admin_login', {
+            const response = await axios.post('https://shorthandonlineexam.in/admin_login', {
                 userId,
                 password
             }, {
                 withCredentials: true
             });
-            if (response.status === 200 && userId == '1234') {
-                navigate('/super-admin-track-dashboard');
-            }
-            else if(response.status === 200){
-                navigate('/superAdminDashboard')
+            if (response.status === 200) {
+                if (userId === '1234') {
+                    localStorage.setItem('adminType', 'trackAdmin');
+                    navigate('/super-admin/track-dashboard');
+                } else {
+                    localStorage.setItem('adminType', 'regularAdmin');
+                    navigate('/super-admin/dashboard');
+                }
             }
         } catch (err) {
             setError('Invalid Admin ID or Password');
