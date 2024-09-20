@@ -37,6 +37,7 @@ import DownloadApps from './components/DownloadApps/DownloadApps';
 import DataUpdateForm from './components/super-admin/DataUpdateForm';
 // New SuperAdmin Layout
 import SuperAdminLayout from './components/super-admin/SuperAdminLayout';
+import CurrentStudentDetails from './components/CurrentStudentDetails/CurrentStudentDetails';
 
 axios.defaults.withCredentials = true;
 
@@ -73,6 +74,8 @@ const App = () => {
                     <Route path='/department-dashboard' element={<DepartmentDashboard/>}/>
                     <Route path='/camera-upload' element={<CameraCapture/>}/>
                     <Route path='/download-apps' element={<DownloadApps/>}/>
+                    <Route path='/current-student-details' element={<CurrentStudentDetails/>}/>
+                    
 
                     {/* SuperAdmin Routes */}
                     <Route path="/admin-login" element={<SuperAdminLogin />} />
