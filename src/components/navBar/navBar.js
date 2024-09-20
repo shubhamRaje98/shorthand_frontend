@@ -16,7 +16,7 @@ const NavBar = () => {
     useEffect(() => {
         const fetchCenterDetails = async () => {
             try {
-                const response = await axios.get(`https://shorthandonlineexam.in/get-center-details`);
+                const response = await axios.get(`http://localhost:3000/get-center-details`);
                 // console.log("API Response:", response.data[0].examCenterDTO[0]);
 
                 if (response.data && response.data.examCenterDTO && response.data.examCenterDTO.length > 0) {

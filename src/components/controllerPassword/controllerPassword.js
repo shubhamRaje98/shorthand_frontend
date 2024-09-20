@@ -16,7 +16,7 @@ const ControllerPassword = () => {
             setLoading(true);
             setError('');
             try {
-                const response = await axios.get(`https://shorthandonlineexam.in/get-controller-pass`);
+                const response = await axios.get(`http://localhost:3000/get-controller-pass`);
                 console.log(response.data.controllerPassDto);
                 setInfo(response.data.controllerPassDto);
             } catch (error) {
