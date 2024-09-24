@@ -70,7 +70,7 @@ const DepartmentDashboard = () => {
             if (center) params.append('center', center);
             if(exam_type) params.append('exam_type', exam_type);
             if (batchDate) {
-                params.append('bathdate',batchDate);
+                params.append('batchDate',batchDate);
             }
             
             if (params.toString()) {

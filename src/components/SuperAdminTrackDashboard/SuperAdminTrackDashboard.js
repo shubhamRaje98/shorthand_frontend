@@ -146,7 +146,7 @@ const SuperAdminTrackDashboard = () => {
             if (exam_type) params.append('exam_type', exam_type);
             if (departmentId) params.append('deprtmentId', departmentId);
             if (batchDate) {
-                params.append('batchdate',batchDate);
+                params.append('batchDate',batchDate);
             }
 
             if (params.toString()) {
