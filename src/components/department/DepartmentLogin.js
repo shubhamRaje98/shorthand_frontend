@@ -7,7 +7,7 @@ const DepartmentLogin = () => {
     const [departmentId, setDepartmentId] = useState('');
     const [password, setDepartmentPassword] = useState('');
     const [error, setError] = useState('');
-    const navigate = useNavigate();
+     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -24,7 +24,7 @@ const DepartmentLogin = () => {
                alert(response.data.message);
             }
         } catch (err) {
-            setError('Invalid Department Code or Password');
+            setError('Invalid Department code or Password');
         }
     };
 
