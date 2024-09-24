@@ -1,0 +1,99 @@
+/* SuperAdminLogin.css */
+
+.sa-login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    padding: 20px;
+}
+
+.sa-login-card {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+    width: 100%;
+    max-width: 400px;
+    padding: 2rem;
+}
+
+.sa-login-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.sa-login-title {
+    color: #333;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.sa-form-group {
+    margin-bottom: 1.5rem;
+}
+
+.sa-form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #555;
+    font-weight: 600;
+}
+
+.sa-form-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.sa-form-input:focus {
+    outline: none;
+    border-color: #2575fc;
+    box-shadow: 0 0 0 2px rgba(37, 117, 252, 0.2);
+}
+
+.sa-error-message {
+    color: #e74c3c;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-weight: 600;
+}
+
+.sa-login-button {
+    background-color: #2575fc;
+    color: white;
+    border: none;
+    padding: 0.75rem;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.sa-login-button:hover {
+    background-color: #1a5fcc;
+}
+
+.sa-login-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(37, 117, 252, 0.5);
+}
+
+@media (max-width: 480px) {
+    .sa-login-card {
+        padding: 1.5rem;
+    }
+
+    .sa-login-title {
+        font-size: 1.75rem;
+    }
+
+    .sa-form-input,
+    .sa-login-button {
+        font-size: 0.9rem;
+    }
+}

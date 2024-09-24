@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-// import './SuperAdminCount.css'
+import './SuperAdminStudentCount.css'
 import SuperAdminNavbar from './SuperAdminNavbar';
 import moment from 'moment-timezone';
 
@@ -18,6 +18,7 @@ const SuperAdminCount = () => {
         fetchAllData();
     }, [batchNo, center]);
 
+   
     const fetchData = async () => {
         setLoading(true);
         setError('');
@@ -81,16 +82,17 @@ const SuperAdminCount = () => {
     };
 
     return (
-        <div>
+        <div className="sac-page">
             <SuperAdminNavbar />
             <div className="sac-container">
                 <h2 className="sac-title">Current Student Details</h2>
 
                 <div className="sac-filter-container">
                     <div className="sac-select-wrapper">
-                        <label htmlFor="batchNo">Select Batch Number:</label>
+                        <label htmlFor="batchNo" className="sac-label">Select Batch Number:</label>
                         <select 
                             id="batchNo" 
+                            className="sac-select"
                             value={batchNo} 
                             onChange={(e) => setBatchNo(e.target.value)}
                         >
@@ -102,9 +104,10 @@ const SuperAdminCount = () => {
                     </div>
 
                     <div className="sac-select-wrapper">
-                        <label htmlFor="center">Select Center Number:</label>
+                        <label htmlFor="center" className="sac-label">Select Center Number:</label>
                         <select 
                             id="center" 
+                            className="sac-select"
                             value={center} 
                             onChange={(e) => setCenter(e.target.value)}
                         >
@@ -120,9 +123,9 @@ const SuperAdminCount = () => {
                 {error && <p className="sac-error">{error}</p>}
 
                 <div className="sac-data-table">
-                    <h3>{batchNo ? `Batch ${batchNo}` : 'All Batches'} {center ? `- Center ${center}` : ''}</h3>
+                    <h3 className="sac-subtitle">{batchNo ? `Batch ${batchNo}` : 'All Batches'} {center ? `- Center ${center}` : ''}</h3>
                     <div className="sac-table-wrapper">
-                        <table>
+                        <table className="sac-table">
                             <thead>
                                 <tr>
                                     <th>Batch No</th>
@@ -151,9 +154,9 @@ const SuperAdminCount = () => {
 
                 {(batchNo || center) && allData.length > 0 && allData[0].subjects && Array.isArray(allData[0].subjects) && (
                     <div className="sac-subjects-section">
-                        <h4>Subjects:</h4>
+                        <h4 className="sac-subtitle">Subjects:</h4>
                         <div className="sac-table-wrapper">
-                            <table className="sac-subjects-table">
+                            <table className="sac-table sac-subjects-table">
                                 <thead>
                                     <tr>
                                         <th>Subject ID</th>

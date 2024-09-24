@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import './SuperAdminLogin.css';
 
 const SuperAdminLogin = () => {
     const [userId, setAdminId] = useState('');
@@ -32,34 +33,36 @@ const SuperAdminLogin = () => {
     };
 
     return (
-        <div className="login-container">
-            <form onSubmit={handleLogin} className="login-form">
-                <h2>Super Admin Login</h2>
-                <div className="form-group">
-                    <label htmlFor="adminId">Admin ID</label>
-                    <input
-                        type="text"
-                        id="adminId"
-                        className="form-control"
-                        value={userId}
-                        onChange={(e) => setAdminId(e.target.value)}
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="password">Password</label>
-                    <input
-                        type="password"
-                        id="password"
-                        className="form-control"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
-                </div>
-                {error && <p className="error-message">{error}</p>}
-                <button type="submit" className="btn btn-primary">Login</button>
-            </form>
+        <div className="sa-login-container">
+            <div className="sa-login-card">
+                <form onSubmit={handleLogin} className="sa-login-form">
+                    <h2 className="sa-login-title">Super Admin Login</h2>
+                    <div className="sa-form-group">
+                        <label htmlFor="adminId" className="sa-form-label">Admin ID</label>
+                        <input
+                            type="text"
+                            id="adminId"
+                            className="sa-form-input"
+                            value={userId}
+                            onChange={(e) => setAdminId(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="sa-form-group">
+                        <label htmlFor="password" className="sa-form-label">Password</label>
+                        <input
+                            type="password"
+                            id="password"
+                            className="sa-form-input"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                    </div>
+                    {error && <p className="sa-error-message">{error}</p>}
+                    <button type="submit" className="sa-login-button">Login</button>
+                </form>
+            </div>
         </div>
     );
 };

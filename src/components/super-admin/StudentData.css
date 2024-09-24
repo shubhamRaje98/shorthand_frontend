@@ -1,0 +1,164 @@
+.sd-container {
+    width: 85%;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+.sd-title {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.sd-form {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.sd-input {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-right: 10px;
+    flex-grow: 1;
+    max-width: 300px;
+}
+
+.sd-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.sd-button:hover {
+    background-color: #0056b3;
+}
+
+.sd-loading,
+.sd-error {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.sd-error {
+    color: #dc3545;
+}
+
+.sd-data {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.sd-subtitle {
+    color: #007bff;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 5px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.sd-section {
+    margin-bottom: 30px;
+}
+
+.student-info-section {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.sd-info-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.sd-info {
+    flex: 1;
+    margin-right: 20px;
+}
+
+.sd-info p {
+    margin: 10px 0;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.sd-image {
+    flex: 0 0 auto;
+    text-align: center;
+}
+
+.student-photo {
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.sd-passage-split {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.sd-passage-half {
+    flex: 1;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+}
+
+.sd-passage-half h3 {
+    color: #28a745;
+    margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+    .sd-container {
+        width: 95%;
+    }
+
+    .sd-form {
+        flex-direction: column;
+    }
+
+    .sd-input {
+        margin-right: 0;
+        margin-bottom: 10px;
+        max-width: 100%;
+    }
+
+    .sd-button {
+        width: 100%;
+    }
+
+    .sd-info-container {
+        flex-direction: column-reverse;
+    }
+
+    .sd-info {
+        margin-right: 0;
+        margin-top: 20px;
+    }
+
+    .sd-image {
+        margin-bottom: 20px;
+    }
+
+    .sd-passage-split {
+        flex-direction: column;
+    }
+}
