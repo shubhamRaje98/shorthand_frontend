@@ -1,0 +1,130 @@
+/* ResetStudentProgress.css */
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: #f9fafb;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  h1 {
+    color: #1f2937;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  label {
+    font-weight: 500;
+    color: #374151;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  
+  input[type="text"],
+  textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.2s ease-in-out;
+  }
+  
+  input[type="text"]:focus,
+  textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+  
+  .checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .checkbox-group h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+  }
+  
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #4b5563;
+  }
+  
+  input[type="checkbox"] {
+    margin-right: 0.5rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2px solid #d1d5db;
+    border-radius: 4px;
+    appearance: none;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  input[type="checkbox"]:checked {
+    background-color: #3b82f6;
+    border-color: #3b82f6;
+  }
+  
+  input[type="checkbox"]:checked::after {
+    content: '\2714';
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 0.875rem;
+    font-weight: bold;
+  }
+  
+  button[type="submit"] {
+    background-color: #3b82f6;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+  }
+  
+  button[type="submit"]:hover {
+    background-color: #2563eb;
+  }
+  
+  @media (max-width: 640px) {
+    .container {
+      padding: 1.5rem;
+    }
+  
+    form {
+      gap: 1rem;
+    }
+  
+    input[type="text"],
+    textarea {
+      padding: 0.5rem;
+    }
+  
+    button[type="submit"] {
+      padding: 0.5rem 1rem;
+    }
+  }
