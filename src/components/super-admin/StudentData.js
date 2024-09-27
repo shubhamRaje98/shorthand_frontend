@@ -79,8 +79,18 @@ const StudentData = () => {
                                     <p>{studentData.shorthandPassage[0].passage_a_log || 'N/A'}</p>
                                 </div>
                                 <div className="sd-passage-half">
-                                    <h3>Final Passage</h3>
-                                    <p>{studentData.shorthandPassage[0].final_passage || 'N/A'}</p>
+                                    <h3>Final Passage A</h3>
+                                    <p>{studentData.shorthandPassage[0].final_passageA || 'N/A'}</p>
+                                </div>
+                            </div>
+                            <div className="sd-passage-split">
+                                <div className="sd-passage-half">
+                                    <h3>Passage B Log</h3>
+                                    <p>{studentData.shorthandPassage[0].passage_b_log || 'N/A'}</p>
+                                </div>
+                                <div className="sd-passage-half">
+                                    <h3>Final Passage A</h3>
+                                    <p>{studentData.shorthandPassage[0].final_passageB || 'N/A'}</p>
                                 </div>
                             </div>
                         </section>

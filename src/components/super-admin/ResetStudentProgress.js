@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import './ResetStudentProgress.css';
-
+ 
 const ResetStudentProgress = ({ studentId }) => {
   const [studentLogin, setStudentLogin] = useState(false);
   const [trialAudioShortHand, setTrialAudioShortHand] = useState(false);
@@ -11,6 +11,12 @@ const ResetStudentProgress = ({ studentId }) => {
   const [textShorthandB, setTextShorthandB] = useState(false);
   const [trialText, setTrialText] = useState(false);
   const [textTyping, setTextTyping] = useState(false);
+  const [finalShorthandPassageA, setFinalShorthandPassageA] = useState(false);
+  const [finalShorthandPassageB, setFinalShorthandPassageB] = useState(false);
+  const [finalTrialPassageTyping, setFinalTrialPassageTyping] = useState(false);
+  const [finalTypingPassage, setFinalTypingPassage] = useState(false);
+
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,13 +30,17 @@ const ResetStudentProgress = ({ studentId }) => {
         audioShorthandB,
         textShorthandB,
         trialText,
-        textTyping
+        textTyping,
+        finalShorthandPassageA,
+        finalShorthandPassageB,
+        finalTrialPassageTyping,
+        finalTypingPassage,
       });
       console.log(response);
       alert('Reset successful');
     } catch (error) {
       console.error('Error:', error);
-      alert('Error: ' + (error.response?.data?.message || error.message));
+      alert((error.response?.data?.message || error.message));
     }
   };
 
@@ -71,7 +81,15 @@ const ResetStudentProgress = ({ studentId }) => {
               checked={textShorthandA}
               onChange={(e) => setTextShorthandA(e.target.checked)}
             />
-             Shorthand Passage A
+             Shorthand Passage A log
+          </label>
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              checked={finalShorthandPassageA}
+              onChange={(e) => setFinalShorthandPassageA(e.target.checked)}
+            />
+             FInal Shorthand Passage A
           </label>
           <label className="checkbox-label">
             <input
@@ -79,7 +97,7 @@ const ResetStudentProgress = ({ studentId }) => {
               checked={audioShorthandB}
               onChange={(e) => setAudioShorthandB(e.target.checked)}
             />
-             Shorthand Audio B
+             Shorthand Audio B 
           </label>
           <label className="checkbox-label">
             <input
@@ -87,7 +105,15 @@ const ResetStudentProgress = ({ studentId }) => {
               checked={textShorthandB}
               onChange={(e) => setTextShorthandB(e.target.checked)}
             />
-             Shorthand Passage B
+             Shorthand Passage B log
+          </label>
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              checked={finalShorthandPassageB}
+              onChange={(e) => setFinalShorthandPassageB(e.target.checked)}
+            />
+             FInal Shorthand Passage B
           </label>
           <label className="checkbox-label">
             <input
@@ -95,7 +121,15 @@ const ResetStudentProgress = ({ studentId }) => {
               checked={trialText}
               onChange={(e) => setTrialText(e.target.checked)}
             />
-            Typing Trial Passage 
+            Typing Trial Passage log
+          </label>
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              checked={finalTrialPassageTyping}
+              onChange={(e) => setFinalTrialPassageTyping(e.target.checked)}
+            />
+            Final Typing Trial Passage 
           </label>
           <label className="checkbox-label">
             <input
@@ -103,7 +137,15 @@ const ResetStudentProgress = ({ studentId }) => {
               checked={textTyping}
               onChange={(e) => setTextTyping(e.target.checked)}
             />
-            Typing Final Passage 
+            Typing Passage  log
+          </label>
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              checked={finalTypingPassage}
+              onChange={(e) => setFinalTypingPassage(e.target.checked)}
+            />
+            Final Typing passage
           </label>
         </div>
         <button type="submit">Reset Progress</button>
