@@ -12,6 +12,8 @@ const SuperAdminCount = () => {
     const [allData, setAllData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [departmentId, setDepartmentId] = useState('');
+    const [departments, setDepartments] = useState([]);
 
     useEffect(() => {
         fetchData();
@@ -23,7 +25,7 @@ const SuperAdminCount = () => {
         setLoading(true);
         setError('');
         try {
-            let url = 'http://localhost:3000/track-students-on-department-code';
+            let url = 'http://localhost:3000/super-admin-student-track-dashboard';
             
             console.log("Fetching data from URL:", url);
             const response = await axios.post(url, { withCredentials: true });
@@ -36,6 +38,11 @@ const SuperAdminCount = () => {
             setCenters(prevCenters => {
                 const newCenters = [...new Set([...prevCenters, ...distinctCenters])];
                 return newCenters.sort();
+            });
+            const distinctDepartments = [...new Set(response.data.map(item => item.departmentId))];
+            setDepartments(prevDepartments => {
+                const newDepartments = [...new Set([...prevDepartments, ...distinctDepartments])];
+                return newDepartments.sort();
             });
 
         } catch (error) {
@@ -114,6 +121,20 @@ const SuperAdminCount = () => {
                             <option value="">All Centers</option>
                             {centers.map((center, index) => (
                                 <option key={index} value={center}>{center}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className="sac-select-wrapper">
+                        <label htmlFor="departmentId" className="sac-label">Select Department:</label>
+                        <select 
+                            id="departmentId" 
+                            className="sac-select"
+                            value={departmentId} 
+                            onChange={(e) => setDepartmentId(e.target.value)}
+                        >
+                            <option value="">All Departments</option>
+                            {departments.map((department, index) => (
+                                <option key={index} value={department}>{department}</option>
                             ))}
                         </select>
                     </div>

@@ -119,11 +119,27 @@
     border: 1px solid #ddd;
     border-radius: 4px;
     padding: 15px;
+    width: 50%;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    min-height: 200px; /* Minimum height to ensure consistency */
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
 }
 
 .sd-passage-half h3 {
     color: #28a745;
     margin-bottom: 10px;
+}
+
+.sd-passage-half p {
+    white-space: pre-wrap;
+    flex-grow: 1; /* Allow paragraph to grow and fill the container */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 @media (max-width: 768px) {
@@ -160,5 +176,10 @@
 
     .sd-passage-split {
         flex-direction: column;
+    }
+
+    .sd-passage-half {
+        width: 100%;
+        margin-bottom: 20px;
     }
 }
