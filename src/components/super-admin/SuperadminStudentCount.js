@@ -14,13 +14,19 @@ const SuperAdminCount = () => {
     const [error, setError] = useState('');
     const [departmentId, setDepartmentId] = useState('');
     const [departments, setDepartments] = useState([]);
+    const [aggregatedSubjects, setAggregatedSubjects] = useState([]);
 
     useEffect(() => {
         fetchData();
         fetchAllData();
-    }, [batchNo, center]);
+    }, [batchNo, center, departmentId]);
 
-   
+    useEffect(() => {
+        if (allData.length > 0 && !center) {
+            aggregateSubjects();
+        }
+    }, [allData, center, departmentId]);
+
     const fetchData = async () => {
         setLoading(true);
         setError('');
@@ -57,10 +63,11 @@ const SuperAdminCount = () => {
         setError('');
         try {
             let url = `http://localhost:3000/get-super-admin-student-count`
-            if(batchNo || center){
+            if(batchNo || center || departmentId){
                 url += '?';
                 if(batchNo) url += `batchNo=${batchNo}&`;
                 if(center) url += `center=${center}&`;
+                if(departmentId) url += `departmentId=${departmentId}&`;
                 url = url.slice(0, -1);
             }
         
@@ -76,6 +83,32 @@ const SuperAdminCount = () => {
             setError(error.response?.data?.message || 'Failed to fetch all data');
         }
         setLoading(false);
+    };
+
+    const aggregateSubjects = () => {
+        const subjectMap = new Map();
+
+        allData.forEach(item => {
+            if (item.subjects && Array.isArray(item.subjects)) {
+                item.subjects.forEach(subject => {
+                    if (subjectMap.has(subject.id)) {
+                        const existingSubject = subjectMap.get(subject.id);
+                        existingSubject.count += parseInt(subject.count) || 0;
+                        existingSubject.loggedIn += parseInt(subject.loggedIn) || 0;
+                        existingSubject.completed += parseInt(subject.completed) || 0;
+                    } else {
+                        subjectMap.set(subject.id, {
+                            ...subject,
+                            count: parseInt(subject.count) || 0,
+                            loggedIn: parseInt(subject.loggedIn) || 0,
+                            completed: parseInt(subject.completed) || 0
+                        });
+                    }
+                });
+            }
+        });
+
+        setAggregatedSubjects(Array.from(subjectMap.values()));
     };
 
     const formatDateTime = (dateTimeString) => {
@@ -173,7 +206,7 @@ const SuperAdminCount = () => {
                     </div>
                 </div>
 
-                {(batchNo || center) && allData.length > 0 && allData[0].subjects && Array.isArray(allData[0].subjects) && (
+                {((batchNo || !center) && aggregatedSubjects.length > 0) && (
                     <div className="sac-subjects-section">
                         <h4 className="sac-subtitle">Subjects:</h4>
                         <div className="sac-table-wrapper">
@@ -183,14 +216,20 @@ const SuperAdminCount = () => {
                                         <th>Subject ID</th>
                                         <th>Subject Name</th>
                                         <th>Count</th>
+                                        <th>Logged In</th>
+                                        <th>Completed</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {allData[0].subjects.filter(subject => subject.count > 0).map((subject, index) => (
+                                    {(center ? allData[0]?.subjects : aggregatedSubjects)
+                                        .filter(subject => subject.count > 0)
+                                        .map((subject, index) => (
                                         <tr key={index}>
                                             <td>{subject.id}</td>
                                             <td>{subject.name}</td>
                                             <td>{subject.count}</td>
+                                            <td>{subject.loggedIn}</td>
+                                            <td>{subject.completed}</td>
                                         </tr>
                                     ))}
                                 </tbody>
