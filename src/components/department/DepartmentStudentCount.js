@@ -22,7 +22,7 @@ const DepartmentStudentCount = () => {
         setLoading(true);
         setError('');
         try {
-            let url = 'http://localhost:3000/track-students-on-department-code';
+            let url = 'https://www.shorthandonlineexam.in/track-students-on-department-code';
             
             console.log("Fetching data from URL:", url);
             const response = await axios.post(url, { withCredentials: true });
@@ -48,7 +48,7 @@ const DepartmentStudentCount = () => {
         setLoading(true);
         setError('');
         try {
-            let url = `http://localhost:3000/get-department-batch-student-count`
+            let url = `https://www.shorthandonlineexam.in/get-department-batch-student-count`
             if(batchNo || center){
                 url += '?';
                 if(batchNo) url += `batchNo=${batchNo}&`;

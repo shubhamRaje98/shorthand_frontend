@@ -78,6 +78,7 @@ const SuperAdminTrackDashboard = () => {
         // Format the date as dd-mm-yy hh:mm:ss
         return dateTime.format('DD-MM-YY hh:mm:ss A');
     }
+
     const formatDate = (dateString) => {
         if (!dateString || dateString === "invalid date" || dateString === "0") {
             return "";
@@ -87,27 +88,17 @@ const SuperAdminTrackDashboard = () => {
             return dateString; // Return original string if it's not a valid date
         }
         
-        const options = {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true
-        };
+        const day = String(date.getUTCDate()).padStart(2, '0');
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+        const year = date.getUTCFullYear();
+        const hours = String(date.getUTCHours()).padStart(2, '0');
+        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
         
-        let formatted = date.toLocaleString('en-GB', options).replace(',', '');
-        
-        // Explicitly add AM/PM
-        const ampm = date.getHours() >= 12 ? 'pm' : 'am';
-        formatted = formatted.replace(/\s(AM|PM)$/i, '') + ' ' + ampm;
-        
-        return formatted;
+        return `${day}/${month}/${year} ${hours}:${minutes}`;
     };
-
     const fetchSubjects = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/subjects');
+            const response = await axios.get('https://www.shorthandonlineexam.in/subjects');
             if (response.data.subjects) {
                 setAllSubjects(response.data.subjects);
             }
@@ -119,7 +110,7 @@ const SuperAdminTrackDashboard = () => {
 
     const fetchTotalLoginCount = async () => {
        try {
-        const response = await axios.post('http://localhost:3000/total-login-count',{
+        const response = await axios.post('https://www.shorthandonlineexam.in/total-login-count',{
             center,batchNo,department:departmentId
         })
         if(response.data){
@@ -136,7 +127,7 @@ const SuperAdminTrackDashboard = () => {
         setLoading(true);
         setError('');
         try {
-            let url = 'http://localhost:3000/super-admin-student-track-dashboard';
+            let url = 'https://www.shorthandonlineexam.in/super-admin-student-track-dashboard';
 
             const params = new URLSearchParams();
             if (subject) params.append('subject_name', subject);

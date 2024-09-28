@@ -56,7 +56,7 @@ const SuperAdminCount = () => {
         setLoading(true);
         setError('');
         try {
-            let url = `http://localhost:3000/get-super-admin-student-count`
+            let url = `https://www.shorthandonlineexam.in/get-super-admin-student-count`
             if(batchNo || center){
                 url += '?';
                 if(batchNo) url += `batchNo=${batchNo}&`;

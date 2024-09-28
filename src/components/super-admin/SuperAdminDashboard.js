@@ -28,7 +28,7 @@ const SuperAdminDashboard = () => {
 
     const fetchTableNames = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/fetch-table-names', {
+            const response = await axios.get('https://www.shorthandonlineexam.in/fetch-table-names', {
                 withCredentials: true
             });
             setTableNames(response.data);
@@ -39,7 +39,7 @@ const SuperAdminDashboard = () => {
 
     const fetchTableData = async (tableName) => {
         try {
-            const response = await axios.post('http://localhost:3000/fetch-table-data', {
+            const response = await axios.post('https://www.shorthandonlineexam.in/fetch-table-data', {
                 tableName
             }, {
                 withCredentials: true
@@ -134,7 +134,7 @@ const SuperAdminDashboard = () => {
 
     const submitChanges = async () => {
         try {
-            const response = await axios.post('http://localhost:3000/update-table-data', {
+            const response = await axios.post('https://www.shorthandonlineexam.in/update-table-data', {
                 tableName: selectedTable,
                 updatedRows: Object.values(changedRows)
             }, {
@@ -185,7 +185,7 @@ const SuperAdminDashboard = () => {
             const filter = filters[columnName];
             if (filter.type === 'dropdown' && filter.selected) {
                 newFilteredData = newFilteredData.filter(row => 
-                    row[columnName] === filter.selected
+                    row[columnName] && row[columnName].toString() === filter.selected
                 );
             } else if (filter.type === 'search' && filter.value) {
                 newFilteredData = newFilteredData.filter(row =>

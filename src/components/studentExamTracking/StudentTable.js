@@ -32,7 +32,7 @@ const StudentTable = () => {
 
     const fetchSubjects = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/subjects');
+            const response = await axios.get('https://www.shorthandonlineexam.in/subjects');
             if (response.data.subjects) {
                 setAllSubjects(response.data.subjects);
             }
@@ -46,7 +46,7 @@ const StudentTable = () => {
         setLoading(true);
         setError('');
         try {
-            let url = 'http://localhost:3000/track-students-on-exam-center-code';
+            let url = 'https://www.shorthandonlineexam.in/track-students-on-exam-center-code';
             if (batchNo) {
                 url += `/${batchNo}`;
             }
@@ -162,6 +162,7 @@ const StudentTable = () => {
     for (let i = 1; i <= Math.ceil(data.length / (rowsPerPage === 'all' ? 1 : Number(rowsPerPage))); i++) {
         pageNumbers.push(i);
     }
+
     const formatDate = (dateString) => {
         if (!dateString || dateString === "invalid date" || dateString === "0") {
             return "";
@@ -171,24 +172,14 @@ const StudentTable = () => {
             return dateString; // Return original string if it's not a valid date
         }
         
-        const options = {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true
-        };
+        const day = String(date.getUTCDate()).padStart(2, '0');
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+        const year = date.getUTCFullYear();
+        const hours = String(date.getUTCHours()).padStart(2, '0');
+        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
         
-        let formatted = date.toLocaleString('en-GB', options).replace(',', '');
-        
-        // Explicitly add AM/PM
-        const ampm = date.getHours() >= 12 ? 'pm' : 'am';
-        formatted = formatted.replace(/\s(AM|PM)$/i, '') + ' ' + ampm;
-        
-        return formatted;
+        return `${day}/${month}/${year} ${hours}:${minutes}`;
     };
-
     const renderPaginationItems = () => {
         const totalPages = pageNumbers.length;
         const currentPageNumber = Math.min(totalPages, Math.max(1, currentPage));
