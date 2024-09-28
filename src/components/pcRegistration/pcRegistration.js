@@ -22,7 +22,7 @@ const PCRegistration = () => {
         setLoading(true);
         setError('');
         try {
-            const response = await axios.get(`http://localhost:3000/get-pcregistration`);
+            const response = await axios.get(`https://www.shorthandonlineexam.in/get-pcregistration`);
             setData(response.data);
         } catch (error) {
             console.error("Error fetching data:", error);
@@ -40,7 +40,7 @@ const PCRegistration = () => {
         }
 
         try {
-            const response = await axios.post('http://localhost:3000/delete-pcregistration', {
+            const response = await axios.post('https://www.shorthandonlineexam.in/delete-pcregistration', {
                 ip_address: item.ip_address,
                 disk_id: item.disk_id,
                 mac_address: item.mac_address
@@ -90,7 +90,7 @@ const PCRegistration = () => {
                                         <th scope="col">IP Address</th>
                                         <th scope="col">Disk ID</th>
                                         <th scope="col">MAC Address</th>
-                                        <th scope="col">Action</th>
+                                     
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -100,14 +100,7 @@ const PCRegistration = () => {
                                             <td>{item.ip_address}</td>
                                             <td>{item.disk_id}</td>
                                             <td>{item.mac_address}</td>
-                                            <td>
-                                                <button 
-                                                    className="btn btn-danger btn-sm"
-                                                    onClick={() => handleDelete(item)}
-                                                >
-                                                    Delete
-                                                </button>
-                                            </td>
+
                                         </tr>
                                     ))}
                                 </tbody>

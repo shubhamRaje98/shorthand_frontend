@@ -20,7 +20,7 @@ const CurrentStudentDetails = () => {
         setLoading(true);
         setError('');
         try {
-            let url = 'http://localhost:3000/track-students-on-exam-center-code';
+            let url = 'https://www.shorthandonlineexam.in/track-students-on-exam-center-code';
             
             console.log("Fetching data from URL:", url);
             const response = await axios.post(url, { withCredentials: true });
@@ -40,9 +40,9 @@ const CurrentStudentDetails = () => {
         setLoading(true);
         setError('');
         try {
-            let url = `http://localhost:3000/get-current-student-details`
+            let url = `https://www.shorthandonlineexam.in/get-current-student-details`
             if(batchNo){
-                url = `http://localhost:3000/get-current-student-details?batchNo=${batchNo}`
+                url = `https://www.shorthandonlineexam.in/get-current-student-details?batchNo=${batchNo}`
             }
             const response = await axios.get(url, { withCredentials: true });
             if (response.data && response.data.results && Array.isArray(response.data.results)) {

@@ -172,7 +172,7 @@ const StudentAssignmentReport = () => {
     useEffect(() => {
       const fetchPassages = async () => {
           try {
-                const response = await axios.get(`http://localhost:3000/student-passages/${subjectId}/${qset}/${studentId}`, { withCredentials: true });
+                const response = await axios.get(`https://www.shorthandonlineexam.in/student-passages/${subjectId}/${qset}/${studentId}`, { withCredentials: true });
                 if (response.status === 200 && response.data && Object.keys(response.data).length > 0) {
                 console.log("Raw data:", JSON.stringify(response.data));
                 setPassages(response.data);
@@ -192,7 +192,7 @@ const StudentAssignmentReport = () => {
           try {
               console.log(subjectId, qset, activePassage, studentId);
               
-              const response = await axios.post('http://localhost:3000/student-active-passage', {
+              const response = await axios.post('https://www.shorthandonlineexam.in/student-active-passage', {
                   subjectId,
                   qset,
                   activePassage,
@@ -235,7 +235,7 @@ const StudentAssignmentReport = () => {
       if (!modelAnswer || !userAnswer) return;
   
       try {
-          const response = await axios.post('http://43.204.22.53:5000/compare', {
+          const response = await axios.post('http://3.6.86.1:5000/compare', {
               text1: modelAnswer,
               text2: userAnswer,
               ignore_list: ignoreList, // Remove tempIgnoreList from here
@@ -297,7 +297,7 @@ const StudentAssignmentReport = () => {
 
     const handleAddIgnoreWord = useCallback(async (word) => {
       try {
-        const response = await axios.post('http://localhost:3000/student-add-ignore-word', {
+        const response = await axios.post('https://www.shorthandonlineexam.in/student-add-ignore-word', {
           subjectId,
           qset,
           activePassage,
@@ -318,7 +318,7 @@ const StudentAssignmentReport = () => {
     
     const handleUndoWord = useCallback(async (wordToRemove) => {
       try {
-        const response = await axios.post('http://localhost:3000/student-undo-word', {
+        const response = await axios.post('https://www.shorthandonlineexam.in/student-undo-word', {
           subjectId,
           qset,
           activePassage,
@@ -340,7 +340,7 @@ const StudentAssignmentReport = () => {
 
     const handleClearIgnoreList = useCallback(async () => {
       try {
-        const response = await axios.post('http://localhost:3000/student-clear-ignore-list', {
+        const response = await axios.post('https://www.shorthandonlineexam.in/student-clear-ignore-list', {
           subjectId,
           qset,
           activePassage,
