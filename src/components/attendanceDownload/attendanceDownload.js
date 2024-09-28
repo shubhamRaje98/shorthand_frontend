@@ -205,7 +205,7 @@ const AttendanceDownload = () => {
                                 disabled={loadingButton !== '' || !batchNo}
                                 onClick={() => handleDownload('studnetId-password')}
                             >
-                                {loadingButton === 'seating-arrangement' ? 'Generating...' : 'Download Student Id and Password(PDF)'}
+                                {loadingButton === 'studnetId-password' ? 'Generating...' : 'Download Student Id and Password(PDF)'}
                             </button>
                             <button 
                                 type="button" 
