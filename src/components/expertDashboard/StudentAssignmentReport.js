@@ -235,7 +235,7 @@ const StudentAssignmentReport = () => {
       if (!modelAnswer || !userAnswer) return;
   
       try {
-          const response = await axios.post('http://43.204.22.53:5000/compare', {
+          const response = await axios.post('http://3.6.86.1:5000/compare', {
               text1: modelAnswer,
               text2: userAnswer,
               ignore_list: ignoreList, // Remove tempIgnoreList from here

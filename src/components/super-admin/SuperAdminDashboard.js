@@ -50,7 +50,7 @@ const SuperAdminDashboard = () => {
             if (dataWithKeys.length > 0) {
                 const tableColumns = Object.keys(dataWithKeys[0])
                     .map(key => ({
-                        title: key,
+                        title: key,  
                         dataIndex: key,
                         key: key,
                     }));
@@ -154,7 +154,7 @@ const SuperAdminDashboard = () => {
     };
 
     const isImageColumn = (columnName) => {
-        const imageColumns = ['base64', 'sign_base64', 'photo', 'image1', 'image2', 'image3', 'image4'];
+        const imageColumns = ['base64', 'sign_base64', 'photo', 'image1', 'image2', 'image3', 'image4','logo'];
         return imageColumns.includes(columnName.toLowerCase());
     };
 
