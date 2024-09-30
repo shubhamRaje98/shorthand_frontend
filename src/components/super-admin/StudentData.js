@@ -71,6 +71,28 @@ const StudentData = () => {
                             </div>
                         </section>
 
+                        <section className="sd-section audio-logs-section">
+                            <h2 className="sd-subtitle">Audio Logs</h2>
+                            <table className="sd-table">
+                                <thead>
+                                    <tr>
+                                        <th>Trial</th>
+                                        <th>Passage A</th>
+                                        <th>Passage B</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {studentData.audioLogs.map((log, index) => (
+                                        <tr key={index}>
+                                            <td>{log.trial}</td>
+                                            <td>{log.passageA}</td>
+                                            <td>{log.passageB}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </section>
+
                         <section className="sd-section passage-section">
                             <h2 className="sd-subtitle">Shorthand Passage</h2>
                             <div className="sd-passage-split">
@@ -89,7 +111,7 @@ const StudentData = () => {
                                     <p>{studentData.shorthandPassage[0].passage_b_log || 'N/A'}</p>
                                 </div>
                                 <div className="sd-passage-half">
-                                    <h3>Final Passage A</h3>
+                                    <h3>Final Passage B</h3>
                                     <p>{studentData.shorthandPassage[0].final_passageB || 'N/A'}</p>
                                 </div>
                             </div>
@@ -108,6 +130,57 @@ const StudentData = () => {
                                 </div>
                             </div>
                         </section>
+
+                       
+
+                       
+
+                        {/* Modified Student Logs section */}
+                        <section className="sd-section student-logs-section">
+                            <h2 className="sd-subtitle">Student Logs</h2>
+                            <div className="sd-horizontal-table-wrapper">
+                                <table className="sd-horizontal-table">
+                                    <thead>
+                                        <tr>
+                                            {Object.keys(studentData.studentLogs[0]).map((field) => (
+                                                <th key={field}>{field}</th>
+                                            ))}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            {Object.values(studentData.studentLogs[0]).map((value, index) => (
+                                                <td key={index}>{value}</td>
+                                            ))}
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+
+                        <section className="sd-section exam-stages-section">
+                            <h2 className="sd-subtitle">Exam Stages</h2>
+                            <div className="sd-horizontal-table-wrapper">
+                                <table className="sd-horizontal-table">
+                                    <thead>
+                                        <tr>
+                                            {Object.keys(studentData.examStages[0]).map((stage) => (
+                                                <th key={stage}>{stage}</th>
+                                            ))}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            {Object.values(studentData.examStages[0]).map((status, index) => (
+                                                <td key={index}>{status}</td>
+                                            ))}
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+
+
                     </div>
                 )}
             </div>
