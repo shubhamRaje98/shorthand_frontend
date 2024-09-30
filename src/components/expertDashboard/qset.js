@@ -16,7 +16,7 @@ const QSet = () => {
     const fetchQSets = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`https://www.shorthandonlineexam.in/qsets/${subjectId}`, { withCredentials: true });
+        const response = await axios.get(`http://localhost:3000/qsets/${subjectId}`, { withCredentials: true });
         if (response.status === 200) {
           const sortedQSets = response.data.sort((a, b) => a.qset - b.qset);
           setQsets(sortedQSets);
@@ -34,7 +34,7 @@ const QSet = () => {
 
   const handleQSetClick = async (qsetObj) => {
     try {
-      const response = await axios.post(`https://www.shorthandonlineexam.in/assignStudent/${subjectId}/${qsetObj.qset}`, {}, { withCredentials: true });
+      const response = await axios.post(`http://localhost:3000/assignStudent/${subjectId}/${qsetObj.qset}`, {}, { withCredentials: true });
       if (response.status === 200) {
         setSelectedQSet(qsetObj);
         navigate(`/expertDashboard/${subjectId}/${qsetObj.qset}`, {replace: true});

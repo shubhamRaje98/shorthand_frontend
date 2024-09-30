@@ -17,7 +17,18 @@ const DepartmentStudentCount = () => {
     useEffect(() => {
         fetchData();
         fetchAllData();
+
+          // Auto-refresh every 30 seconds
+          const intervalId = setInterval(() => {
+            fetchAllData();
+        }, 30000); // 30,000 milliseconds = 30 seconds
+
+        // Cleanup interval on unmount
+        return () => clearInterval(intervalId);
     }, [batchNo, center]);
+
+
+
 
     useEffect(() => {
         aggregateSubjects();
@@ -27,7 +38,7 @@ const DepartmentStudentCount = () => {
         setLoading(true);
         setError('');
         try {
-            let url = 'https://www.shorthandonlineexam.in/track-students-on-department-code';
+            let url = 'http://localhost:3000/track-students-on-department-code';
             
             console.log("Fetching data from URL:", url);
             const response = await axios.post(url, { withCredentials: true });
@@ -53,7 +64,7 @@ const DepartmentStudentCount = () => {
         setLoading(true);
         setError('');
         try {
-            let url = `https://www.shorthandonlineexam.in/get-department-batch-student-count`
+            let url = `http://localhost:3000/get-department-batch-student-count`
             if(batchNo || center){
                 url += '?';
                 if(batchNo) url += `batchNo=${batchNo}&`;

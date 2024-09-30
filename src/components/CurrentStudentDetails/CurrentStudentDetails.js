@@ -14,13 +14,23 @@ const CurrentStudentDetails = () => {
     useEffect(() => {
         fetchData();
         fetchAllData();
+
+       // Auto-refresh every 30 seconds
+       const intervalId = setInterval(() => {
+        fetchAllData();  // Refreshing data every 30 seconds
+    }, 30000);  // 30,000 milliseconds = 30 seconds
+
+    // Cleanup interval on unmount
+    return () => clearInterval(intervalId);
+        
+
     }, [batchNo]);
 
     const fetchData = async () => {
         setLoading(true);
         setError('');
         try {
-            let url = 'https://www.shorthandonlineexam.in/track-students-on-exam-center-code';
+            let url = 'http://localhost:3000/track-students-on-exam-center-code';
             
             console.log("Fetching data from URL:", url);
             const response = await axios.post(url, { withCredentials: true });
@@ -40,9 +50,9 @@ const CurrentStudentDetails = () => {
         setLoading(true);
         setError('');
         try {
-            let url = `https://www.shorthandonlineexam.in/get-current-student-details`
+            let url = `http://localhost:3000/get-current-student-details`
             if(batchNo){
-                url = `https://www.shorthandonlineexam.in/get-current-student-details?batchNo=${batchNo}`
+                url = `http://localhost:3000/get-current-student-details?batchNo=${batchNo}`
             }
             const response = await axios.get(url, { withCredentials: true });
             if (response.data && response.data.results && Array.isArray(response.data.results)) {

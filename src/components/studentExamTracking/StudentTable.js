@@ -32,7 +32,7 @@ const StudentTable = () => {
 
     const fetchSubjects = async () => {
         try {
-            const response = await axios.get('https://www.shorthandonlineexam.in/subjects');
+            const response = await axios.get('http://localhost:3000/subjects');
             if (response.data.subjects) {
                 setAllSubjects(response.data.subjects);
             }
@@ -46,7 +46,7 @@ const StudentTable = () => {
         setLoading(true);
         setError('');
         try {
-            let url = 'https://www.shorthandonlineexam.in/track-students-on-exam-center-code';
+            let url = 'http://localhost:3000/track-students-on-exam-center-code';
             if (batchNo) {
                 url += `/${batchNo}`;
             }

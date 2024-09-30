@@ -19,7 +19,19 @@ const SuperAdminCount = () => {
     useEffect(() => {
         fetchData();
         fetchAllData();
+
+          // Set interval for fetching data every 30 seconds
+          const intervalId = setInterval(() => {
+            fetchAllData();
+        }, 30000); // 30,000 milliseconds = 30 seconds
+
+        // Cleanup on component unmount
+        return () => clearInterval(intervalId);
+    
+
     }, [batchNo, center, departmentId]);
+
+    
 
     useEffect(() => {
         if (allData.length > 0 && !center) {
@@ -31,7 +43,7 @@ const SuperAdminCount = () => {
         setLoading(true);
         setError('');
         try {
-            let url = 'https://www.shorthandonlineexam.in/super-admin-student-track-dashboard';
+            let url = 'http://localhost:3000/super-admin-student-track-dashboard';
             
             console.log("Fetching data from URL:", url);
             const response = await axios.post(url, { withCredentials: true });
@@ -62,7 +74,7 @@ const SuperAdminCount = () => {
         setLoading(true);
         setError('');
         try {
-            let url = `https://www.shorthandonlineexam.in/get-super-admin-student-count`
+            let url = `http://localhost:3000/get-super-admin-student-count`
             if(batchNo || center || departmentId){
                 url += '?';
                 if(batchNo) url += `batchNo=${batchNo}&`;
@@ -182,6 +194,7 @@ const SuperAdminCount = () => {
                         <table className="sac-table">
                             <thead>
                                 <tr>
+                                    <th>Center</th>
                                     <th>Batch No</th>
                                     <th>Total Students</th>
                                     <th>Logged In Students</th>
@@ -193,6 +206,7 @@ const SuperAdminCount = () => {
                             <tbody>
                                 {allData.map((item, index) => (
                                     <tr key={index}>
+                                        <td>{item.center}</td>
                                         <td>{item.batchNo}</td>
                                         <td>{item.total_students || 0}</td>
                                         <td>{item.logged_in_students || 0}</td>
