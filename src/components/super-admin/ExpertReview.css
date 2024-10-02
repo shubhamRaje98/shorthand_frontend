@@ -1,0 +1,119 @@
+/* General styling for the page */
+.expert-review-content {
+    padding: 4rem 2rem 2rem;
+    background-color: #f9fbfc;
+    min-height: 100vh;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+  }
+  
+  /* Styling for the heading */
+  .expert-review-content h1 {
+    font-size: 2.5rem;
+    color: #2c3e50;
+    margin-bottom: 2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  
+  /* Flex container for buttons */
+  .er-buttons {
+    display: flex;
+    flex-direction: column; /* Arrange buttons vertically */
+    align-items: center;
+    gap: 1.5rem; /* Adds space between the buttons */
+    margin-top: 20px;
+  }
+  
+  /* Styling for the button */
+  .fetch-logs-button {
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    width: 100%;
+    max-width: 300px;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+  }
+  
+  .fetch-logs-button:disabled {
+    opacity: 0.6; /* Reduce opacity for disabled buttons */
+    cursor: not-allowed;
+  }
+  
+  /* Hover effect for the button */
+  .fetch-logs-button:hover {
+    background-color: #2980b9;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Department selector styling */
+  .department-selector {
+    margin-bottom: 20px;
+  }
+  
+  .department-selector label {
+    font-weight: bold;
+    margin-right: 10px;
+    font-size: 1rem;
+    color: #2c3e50;
+  }
+  
+  .department-selector select {
+    padding: 10px;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  /* Message styling */
+  .success-message {
+    color: green;
+    font-weight: bold;
+  }
+  
+  .error-message {
+    color: red;
+    font-weight: bold;
+  }
+  
+  /* Responsive design for tablets */
+  @media (max-width: 768px) {
+    .expert-review-content h1 {
+      font-size: 2rem;
+    }
+  
+    .fetch-logs-button {
+      font-size: 1rem;
+      padding: 0.6rem 1.2rem;
+    }
+  }
+  
+  /* Responsive design for mobile screens */
+  @media (max-width: 480px) {
+    .expert-review-content {
+      padding: 3rem 1.5rem 2rem;
+    }
+  
+    .expert-review-content h1 {
+      font-size: 1.5rem;
+    }
+  
+    .fetch-logs-button {
+      font-size: 0.9rem;
+      padding: 0.5rem 1rem;
+    }
+  }
+  

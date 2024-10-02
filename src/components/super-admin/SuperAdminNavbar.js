@@ -61,6 +61,10 @@ const SuperAdminNavbar = () => {
           <li className={location.pathname === "/PcRegistrationCount" ? "sa-navbar__item sa-navbar__item--active" : "sa-navbar__item"}>
             <Link to="/superadmin-pc" onClick={() => setIsMenuOpen(false)} className="sa-navbar__link">PC Registration Count</Link>
           </li>
+          
+           <li className={location.pathname === "/super-admin/expert-review" ? "sa-navbar__item sa-navbar__item--active" : "sa-navbar__item"}>
+            <Link to="/super-admin/expert-review" onClick={() => setIsMenuOpen(false)} className="sa-navbar__link">Expert Review</Link>
+          </li>
 
           <li className="sa-navbar__item sa-navbar__item--logout">
             <button className="sa-navbar__logout" onClick={handleLogout}>Logout</button>

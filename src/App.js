@@ -45,6 +45,7 @@ import SuperAdminCount from './components/super-admin/SuperadminStudentCount';
 import SuperAdminPc from './components/super-admin/SuperAdminPc';
 import ResetRequestsAdmin from './components/Reset/ResetRequestsAdmin';import StudentData from './components/super-admin/StudentData';
 import ResetStudentProgress from './components/super-admin/ResetStudentProgress';
+import ExpertReview from './components/super-admin/ExpertReview';
 
 axios.defaults.withCredentials = true;
 
@@ -99,6 +100,7 @@ const App = () => {
                         <Route path="track-dashboard" element={<SuperAdminTrackDashboard />} />
                         <Route path="fetch-update-table" element={<DataUpdateForm />} />
                         <Route path="student-data" element={<StudentData/>}/>
+                        <Route path="expert-review" element={<ExpertReview/>}/>
                     </Route>
                 </Routes>
             </Router>
