@@ -50,7 +50,7 @@ const SuperAdminDashboard = () => {
             if (dataWithKeys.length > 0) {
                 const tableColumns = Object.keys(dataWithKeys[0])
                     .map(key => ({
-                        title: key,
+                        title: key,  
                         dataIndex: key,
                         key: key,
                     }));
@@ -154,7 +154,7 @@ const SuperAdminDashboard = () => {
     };
 
     const isImageColumn = (columnName) => {
-        const imageColumns = ['base64', 'sign_base64', 'photo', 'image1', 'image2', 'image3', 'image4'];
+        const imageColumns = ['base64', 'sign_base64', 'photo', 'image1', 'image2', 'image3', 'image4','logo'];
         return imageColumns.includes(columnName.toLowerCase());
     };
 
@@ -185,7 +185,7 @@ const SuperAdminDashboard = () => {
             const filter = filters[columnName];
             if (filter.type === 'dropdown' && filter.selected) {
                 newFilteredData = newFilteredData.filter(row => 
-                    row[columnName] === filter.selected
+                    row[columnName] && row[columnName].toString() === filter.selected
                 );
             } else if (filter.type === 'search' && filter.value) {
                 newFilteredData = newFilteredData.filter(row =>

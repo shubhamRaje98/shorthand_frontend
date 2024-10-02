@@ -10,7 +10,7 @@ const StudentTable = () => {
     const [batchNo, setBatchNo] = useState('');
     const [subject, setSubject] = useState('');
     const [loginStatus, setLoginStatus] = useState('');
-    const [exam_type, setExam_type] = useState('');
+    const [exam_type, setExam_type] = useState("shorthand");
     const [batchDate, setBatchDate] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -101,17 +101,46 @@ const StudentTable = () => {
         return value && value !== "invalid date" && value !== "0";
     };
 
-    const getCellClass = (item, field) => {
-        const stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time',  'trial_passage_time', 'typing_passage_time', 'feedback_time'];
+    const getCellClass = (item, field, exam_type) => {
+        let stages; 
+        if (exam_type === 'shorthand') {
+            stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time', 'feedback_time'];
+        } else if (exam_type === 'typewriting') {
+            stages = ['loginTime', 'trial_passage_time', 'typing_passage_time', 'feedback_time'];
+        }else {
+           stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time', 'trial_passage_time', 'typing_passage_time', 'feedback_time'];
+        }
         const currentStageIndex = stages.indexOf(field);
         
         if (currentStageIndex === -1) return '';
         
-        if (field === 'loginTime' || field === 'feedback_time') {
+        if (field === 'loginTime') {
             return isValidData(item[field]) ? 'dept-cell-green dept-text-white' : 'dept-cell-red dept-text-white';
         }
     
+        if (field === 'feedback_time') {
+            if (isValidData(item[field])) {
+                // If feedback is green, also turn passage1_time or typing_passage_time green
+                if (exam_type === 'shorthand') {
+                    item['passage1_time'] = item[field]; // Force passage1_time to be valid
+                } else if (exam_type === 'typewriting') {
+                    item['typing_passage_time'] = item[field]; // Force typing_passage_time to be valid
+                }
+                return 'dept-cell-green dept-text-white';
+            } else {
+                return 'dept-cell-red dept-text-white';
+            }
+        }
+    
         if (isValidData(item[field])) {
+            // Special case for passage1_time in shorthand and typing_passage_time in typewriting
+            if ((exam_type === 'shorthand' && field === 'passage1_time') || 
+                (exam_type === 'typewriting' && field === 'typing_passage_time')) {
+                if (isValidData(item['feedback_time'])) {
+                    return 'dept-cell-green dept-text-white';
+                }
+            }
+    
             // Check if it's the last field or if the next field has valid data
             if (currentStageIndex === stages.length - 1 || isValidData(item[stages[currentStageIndex + 1]])) {
                 return 'dept-cell-green dept-text-white';
@@ -119,7 +148,7 @@ const StudentTable = () => {
                 // Check if the previous cell is green and the next cell is red
                 const prevCellGreen = isValidData(item[stages[currentStageIndex - 1]]);
                 const nextCellRed = !isValidData(item[stages[currentStageIndex + 1]]);
-                if (prevCellGreen && nextCellRed) {
+                if (prevCellGreen && nextCellRed ) {
                     return 'dept-cell-yellow dept-text-black';
                 } else {
                     return 'dept-cell-green dept-text-white';
@@ -162,6 +191,7 @@ const StudentTable = () => {
     for (let i = 1; i <= Math.ceil(data.length / (rowsPerPage === 'all' ? 1 : Number(rowsPerPage))); i++) {
         pageNumbers.push(i);
     }
+
     const formatDate = (dateString) => {
         if (!dateString || dateString === "invalid date" || dateString === "0") {
             return "";
@@ -171,24 +201,14 @@ const StudentTable = () => {
             return dateString; // Return original string if it's not a valid date
         }
         
-        const options = {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true
-        };
+        const day = String(date.getUTCDate()).padStart(2, '0');
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+        const year = date.getUTCFullYear();
+        const hours = String(date.getUTCHours()).padStart(2, '0');
+        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
         
-        let formatted = date.toLocaleString('en-GB', options).replace(',', '');
-        
-        // Explicitly add AM/PM
-        const ampm = date.getHours() >= 12 ? 'pm' : 'am';
-        formatted = formatted.replace(/\s(AM|PM)$/i, '') + ' ' + ampm;
-        
-        return formatted;
+        return `${day}/${month}/${year} ${hours}:${minutes}`;
     };
-
     const renderPaginationItems = () => {
         const totalPages = pageNumbers.length;
         const currentPageNumber = Math.min(totalPages, Math.max(1, currentPage));
@@ -306,6 +326,7 @@ const StudentTable = () => {
                                 id="examStatus" 
                                 value={exam_type} 
                                 onChange={(e) => setExam_type(e.target.value)}
+                                defaultValue="shorthand"
                             >
                                 <option value="">All</option>
                                 <option value="shorthand">Short Hand</option>

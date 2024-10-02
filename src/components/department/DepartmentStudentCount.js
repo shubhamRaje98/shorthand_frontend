@@ -10,13 +10,29 @@ const DepartmentStudentCount = () => {
     const [center, setCenter] = useState('');
     const [centers, setCenters] = useState([]);
     const [allData, setAllData] = useState([]);
+    const [aggregatedSubjects, setAggregatedSubjects] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
     useEffect(() => {
         fetchData();
         fetchAllData();
+
+          // Auto-refresh every 30 seconds
+          const intervalId = setInterval(() => {
+            fetchAllData();
+        }, 30000); // 30,000 milliseconds = 30 seconds
+
+        // Cleanup interval on unmount
+        return () => clearInterval(intervalId);
     }, [batchNo, center]);
+
+
+
+
+    useEffect(() => {
+        aggregateSubjects();
+    }, [allData, center]);
 
     const fetchData = async () => {
         setLoading(true);
@@ -68,6 +84,40 @@ const DepartmentStudentCount = () => {
             setError(error.response?.data?.message || 'Failed to fetch all data');
         }
         setLoading(false);
+    };
+
+    const aggregateSubjects = () => {
+        if (allData.length === 0) return;
+
+        const subjectMap = new Map();
+
+        allData.forEach(item => {
+            if (item.subjects && Array.isArray(item.subjects)) {
+                item.subjects.forEach(subject => {
+                    const subjectId = subject.id.toString();
+                    const count = parseInt(subject.count, 10) || 0;
+                    const loggedIn = parseInt(subject.loggedIn, 10) || 0;
+                    const completed = parseInt(subject.completed, 10) || 0;
+                    
+                    if (subjectMap.has(subjectId)) {
+                        const existingSubject = subjectMap.get(subjectId);
+                        existingSubject.count += count;
+                        existingSubject.loggedIn += loggedIn;
+                        existingSubject.completed += completed;
+                    } else {
+                        subjectMap.set(subjectId, { 
+                            ...subject, 
+                            count, 
+                            loggedIn, 
+                            completed 
+                        });
+                    }
+                });
+            }
+        });
+
+        const aggregatedSubjectsArray = Array.from(subjectMap.values());
+        setAggregatedSubjects(aggregatedSubjectsArray);
     };
 
     const formatDateTime = (dateTimeString) => {
@@ -151,7 +201,7 @@ const DepartmentStudentCount = () => {
                     </div>
                 </div>
 
-                {(batchNo || center) && allData.length > 0 && allData[0].subjects && Array.isArray(allData[0].subjects) && (
+                {allData.length > 0 && (
                     <div className="dsc-subjects-section">
                         <h4>Subjects:</h4>
                         <div className="dsc-table-wrapper">
@@ -161,14 +211,20 @@ const DepartmentStudentCount = () => {
                                         <th>Subject ID</th>
                                         <th>Subject Name</th>
                                         <th>Count</th>
+                                        <th>Logged In</th>
+                                        <th>Completed</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {allData[0].subjects.filter(subject => subject.count > 0).map((subject, index) => (
+                                    {(center ? allData[0].subjects : aggregatedSubjects)
+                                        .filter(subject => subject.count > 0)
+                                        .map((subject, index) => (
                                         <tr key={index}>
                                             <td>{subject.id}</td>
                                             <td>{subject.name}</td>
                                             <td>{subject.count}</td>
+                                            <td>{subject.loggedIn}</td>
+                                            <td>{subject.completed}</td>
                                         </tr>
                                     ))}
                                 </tbody>

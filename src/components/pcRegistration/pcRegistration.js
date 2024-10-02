@@ -90,7 +90,7 @@ const PCRegistration = () => {
                                         <th scope="col">IP Address</th>
                                         <th scope="col">Disk ID</th>
                                         <th scope="col">MAC Address</th>
-                                        <th scope="col">Action</th>
+                                     
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -100,14 +100,7 @@ const PCRegistration = () => {
                                             <td>{item.ip_address}</td>
                                             <td>{item.disk_id}</td>
                                             <td>{item.mac_address}</td>
-                                            <td>
-                                                <button 
-                                                    className="btn btn-danger btn-sm"
-                                                    onClick={() => handleDelete(item)}
-                                                >
-                                                    Delete
-                                                </button>
-                                            </td>
+
                                         </tr>
                                     ))}
                                 </tbody>

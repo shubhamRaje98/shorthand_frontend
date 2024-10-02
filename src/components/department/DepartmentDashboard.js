@@ -34,17 +34,15 @@ const DepartmentDashboard = () => {
             return dateString; // Return original string if it's not a valid date
         }
         
-        const options = {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true
-        };
-        return date.toLocaleString('en-GB', options);
-    }
-
+        const day = String(date.getUTCDate()).padStart(2, '0');
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+        const year = date.getUTCFullYear();
+        const hours = String(date.getUTCHours()).padStart(2, '0');
+        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+        
+        return `${day}/${month}/${year} ${hours}:${minutes}`;
+    };
+    
     const fetchSubjects = async () => {
         try {
             const response = await axios.get('http://localhost:3000/subjects');

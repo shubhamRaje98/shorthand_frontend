@@ -43,12 +43,15 @@ import ResetCenterAdmin from './components/Reset/ResetCenterAdmin';
 import DepartmentStudentCount from './components/department/DepartmentStudentCount';
 import SuperAdminCount from './components/super-admin/SuperadminStudentCount';
 import SuperAdminPc from './components/super-admin/SuperAdminPc';
-import StudentData from './components/super-admin/StudentData';
+import ResetRequestsAdmin from './components/Reset/ResetRequestsAdmin';import StudentData from './components/super-admin/StudentData';
+import ResetStudentProgress from './components/super-admin/ResetStudentProgress';
 
 axios.defaults.withCredentials = true;
 
 const App = () => {
     return (
+
+        
         <DashboardProvider>
             <Router>
                 <ToastContainer />
@@ -95,7 +98,7 @@ const App = () => {
                         <Route path="dashboard" element={<SuperAdminDashboard />} />
                         <Route path="track-dashboard" element={<SuperAdminTrackDashboard />} />
                         <Route path="fetch-update-table" element={<DataUpdateForm />} />
-                        <Route path="student-data" element={<StudentData />} />
+                        <Route path="student-data" element={<StudentData/>}/>
                     </Route>
                 </Routes>
             </Router>

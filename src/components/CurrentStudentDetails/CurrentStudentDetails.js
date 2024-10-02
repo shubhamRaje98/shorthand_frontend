@@ -14,6 +14,16 @@ const CurrentStudentDetails = () => {
     useEffect(() => {
         fetchData();
         fetchAllData();
+
+       // Auto-refresh every 30 seconds
+       const intervalId = setInterval(() => {
+        fetchAllData();  // Refreshing data every 30 seconds
+    }, 30000);  // 30,000 milliseconds = 30 seconds
+
+    // Cleanup interval on unmount
+    return () => clearInterval(intervalId);
+        
+
     }, [batchNo]);
 
     const fetchData = async () => {
@@ -127,6 +137,8 @@ const CurrentStudentDetails = () => {
                                     <th>Subject ID</th>
                                     <th>Subject Name</th>
                                     <th>Count</th>
+                                    <th>Logged In</th>
+                                    <th>Completed</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -135,6 +147,8 @@ const CurrentStudentDetails = () => {
                                         <td>{subject.id}</td>
                                         <td>{subject.name}</td>
                                         <td>{subject.count}</td>
+                                        <td>{subject.loggedIn}</td>
+                                        <td>{subject.completed}</td>
                                     </tr>
                                 ))}
                             </tbody>
