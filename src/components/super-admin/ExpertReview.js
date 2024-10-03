@@ -232,7 +232,7 @@ const ExpertReview = () => {
       number === '...' ? (
         <span key={`ellipsis-${index}`}>...</span>
       ) : (
-        <button key={number} onClick={() => paginate(number)} className={currentPage === number ? 'active' : ''}>
+        <button key={number} onClick={() => paginate(number)} className={currentPage === number ? 'er-active' : ''}>
           {number}
         </button>
       )
@@ -240,9 +240,9 @@ const ExpertReview = () => {
   };
 
   return (
-    <div className="expert-review-content">
+    <div className="er-expert-review-content">
       <h1>Populate Tables</h1>
-      <div className="department-selector">
+      <div className="er-department-selector">
         <label htmlFor="department-select">Select Department:</label>
         <select
           id="department-select"
@@ -260,7 +260,7 @@ const ExpertReview = () => {
       <div className="er-buttons">
         <button
           onClick={handleExpertLogs}
-          className="fetch-logs-button"
+          className="er-fetch-logs-button"
           disabled={!selectedDepartment}
         >
           {loadingExpertLogs ? 'Fetching...' : 'Populate Expert Logs'}
@@ -270,33 +270,33 @@ const ExpertReview = () => {
       <div className="er-buttons">
         <button
           onClick={handleModLogs}
-          className="fetch-logs-button"
+          className="er-fetch-logs-button"
           disabled={loadingModLogs || !selectedDepartment}
         >
           {loadingModLogs ? 'Fetching...' : 'Populate Mod Logs'}
         </button>
       </div>
 
-      {message && <p className="success-message">{message}</p>}
-      {error && <p className="error-message">{error}</p>}
+      {message && <p className="er-success-message">{message}</p>}
+      {error && <p className="er-error-message">{error}</p>}
 
-      <div className="review-logs">
-        <div className="tab-buttons">
+      <div className="er-review-logs">
+        <div className="er-tab-buttons">
           <button
-            className={activeTab === 'expert' ? 'active' : ''}
+            className={activeTab === 'expert' ? 'er-active' : ''}
             onClick={() => setActiveTab('expert')}
           >
             Expert Review Logs
           </button>
           <button
-            className={activeTab === 'mod' ? 'active' : ''}
+            className={activeTab === 'mod' ? 'er-active' : ''}
             onClick={() => setActiveTab('mod')}
           >
             Mod Review Logs
           </button>
         </div>
         <h2>{activeTab === 'expert' ? 'Expert' : 'Mod'} Review Logs for Department {selectedDepartment}</h2>
-        <div className="search-bar">
+        <div className="er-search-bar">
           <input
             type="text"
             placeholder="Search logs..."
@@ -304,7 +304,7 @@ const ExpertReview = () => {
             onChange={handleSearch}
           />
         </div>
-        <div className="column-selector">
+        <div className="er-column-selector">
           <label>Select columns to display:</label>
           {allColumns.map((column) => (
             <label key={column}>
@@ -317,17 +317,17 @@ const ExpertReview = () => {
             </label>
           ))}
         </div>
-        <div className="table-container">
+        <div className="er-table-container">
           {activeTab === 'expert' && loadingExpertTable && <p>Loading Expert Review Logs...</p>}
           {activeTab === 'mod' && loadingModTable && <p>Loading Mod Review Logs...</p>}
           {!loadingExpertTable && !loadingModTable && (
             <>
               {currentLogs.length > 0 ? (
-                <table>
+                <table className="er-table">
                   <thead>
                     <tr>
                       {selectedColumns.map((column) => (
-                        <th key={column} className={['passageA', 'passageB', 'ansPassageA', 'ansPassageB'].includes(column) ? 'wide-column' : 'narrow-column'}>
+                        <th key={column} className={['passageA', 'passageB', 'ansPassageA', 'ansPassageB'].includes(column) ? 'er-wide-column' : 'er-narrow-column'}>
                           {column}
                         </th>
                       ))}
@@ -337,7 +337,7 @@ const ExpertReview = () => {
                     {currentLogs.map((log) => (
                       <tr key={log.id}>
                         {selectedColumns.map((column) => (
-                          <td key={column} className={['passageA', 'passageB', 'ansPassageA', 'ansPassageB'].includes(column) ? 'wide-column wrap-text' : 'narrow-column'}>
+                          <td key={column} className={['passageA', 'passageB', 'ansPassageA', 'ansPassageB'].includes(column) ? 'er-wide-column er-wrap-text' : 'er-narrow-column'}>
                             {log[column]}
                           </td>
                         ))}
@@ -352,7 +352,7 @@ const ExpertReview = () => {
           )}
         </div>
         {currentLogs.length > 0 && (
-          <div className="pagination">
+          <div className="er-pagination">
             {renderPaginationButtons()}
           </div>
         )}

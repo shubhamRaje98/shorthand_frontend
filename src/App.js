@@ -46,6 +46,7 @@ import SuperAdminPc from './components/super-admin/SuperAdminPc';
 import ResetRequestsAdmin from './components/Reset/ResetRequestsAdmin';import StudentData from './components/super-admin/StudentData';
 import ResetStudentProgress from './components/super-admin/ResetStudentProgress';
 import ExpertReview from './components/super-admin/ExpertReview';
+import ExpertManagement from './components/super-admin/ExpertManagement';
 
 axios.defaults.withCredentials = true;
 
@@ -101,6 +102,7 @@ const App = () => {
                         <Route path="fetch-update-table" element={<DataUpdateForm />} />
                         <Route path="student-data" element={<StudentData/>}/>
                         <Route path="expert-review" element={<ExpertReview/>}/>
+                        <Route path="expert-management" element={<ExpertManagement/>}/>
                     </Route>
                 </Routes>
             </Router>

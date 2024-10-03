@@ -1,28 +1,27 @@
-
 /* ExpertReview.css */
 
-.expert-review-content {
+.er-expert-review-content {
     max-width: 100%;
     margin: 0 auto;
     padding: 20px;
     font-family: Arial, sans-serif;
 }
 
-h1, h2 {
+.er-expert-review-content h1, .er-expert-review-content h2 {
     color: #333;
     text-align: center;
 }
 
-.department-selector {
+.er-department-selector {
     margin-bottom: 20px;
 }
 
-.department-selector label {
+.er-department-selector label {
     display: block;
     margin-bottom: 5px;
 }
 
-.department-selector select {
+.er-department-selector select {
     width: 100%;
     padding: 10px;
     font-size: 16px;
@@ -34,7 +33,7 @@ h1, h2 {
     margin-bottom: 20px;
 }
 
-.fetch-logs-button {
+.er-fetch-logs-button {
     width: 100%;
     padding: 10px;
     font-size: 16px;
@@ -46,53 +45,53 @@ h1, h2 {
     transition: background-color 0.3s ease;
 }
 
-.fetch-logs-button:hover {
+.er-fetch-logs-button:hover {
     background-color: #0056b3;
 }
 
-.fetch-logs-button:disabled {
+.er-fetch-logs-button:disabled {
     background-color: #ccc;
     cursor: not-allowed;
 }
 
-.success-message {
+.er-success-message {
     color: #28a745;
     text-align: center;
 }
 
-.error-message {
+.er-error-message {
     color: #dc3545;
     text-align: center;
 }
 
-.review-logs {
+.er-review-logs {
     margin-top: 30px;
 }
 
-.tab-buttons {
+.er-tab-buttons {
     display: flex;
     justify-content: center;
     margin-bottom: 20px;
 }
 
-.tab-buttons button {
+.er-tab-buttons button {
     padding: 10px 20px;
     font-size: 16px;
-    background-color: #f8f9fa;
+    background-color: #0280ff;;
     border: 1px solid #dee2e6;
     cursor: pointer;
 }
 
-.tab-buttons button.active {
+.er-tab-buttons button.er-active {
     background-color: #007bff;
     color: #fff;
 }
 
-.search-bar {
+.er-search-bar {
     margin-bottom: 20px;
 }
 
-.search-bar input {
+.er-search-bar input {
     width: 100%;
     padding: 10px;
     font-size: 16px;
@@ -100,27 +99,27 @@ h1, h2 {
     border-radius: 4px;
 }
 
-.column-selector {
+.er-column-selector {
     margin-bottom: 20px;
 }
 
-.column-selector label {
+.er-column-selector label {
     display: inline-block;
     margin-right: 10px;
 }
 
-.table-container {
+.er-table-container {
     width: 100%;
     overflow-x: auto;
 }
 
-table {
+.er-table {
     width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
 }
 
-th, td {
+.er-table th, .er-table td {
     padding: 10px;
     border: 1px solid #dee2e6;
     text-align: left;
@@ -129,116 +128,116 @@ th, td {
     white-space: nowrap;
 }
 
-th {
+.er-table th {
     background-color: #f8f9fa;
     font-weight: bold;
 }
 
-.wide-column {
+.er-wide-column {
     width: 20%;
 }
 
-.narrow-column {
+.er-narrow-column {
     width: 10%;
 }
 
-.wrap-text {
+.er-wrap-text {
     white-space: normal;
     word-break: break-word;
 }
 
-.pagination {
+.er-pagination {
     display: flex;
     justify-content: center;
     margin-top: 20px;
 }
 
-.pagination button {
+.er-pagination button {
     margin: 0 5px;
     padding: 5px 10px;
     font-size: 14px;
-    background-color: #f8f9fa;
+    background-color: #0280ff;;
     border: 1px solid #dee2e6;
     cursor: pointer;
 }
 
-.pagination button.active {
+.er-pagination button.er-active {
     background-color: #007bff;
     color: #fff;
 }
 
 @media (max-width: 1200px) {
-    .expert-review-content {
+    .er-expert-review-content {
         padding: 15px;
     }
 
-    table {
+    .er-table {
         font-size: 14px;
     }
 
-    th, td {
+    .er-table th, .er-table td {
         padding: 8px;
     }
 }
 
 @media (max-width: 768px) {
-    .expert-review-content {
+    .er-expert-review-content {
         padding: 10px;
     }
 
-    h1, h2 {
+    .er-expert-review-content h1, .er-expert-review-content h2 {
         font-size: 24px;
     }
 
-    .fetch-logs-button {
+    .er-fetch-logs-button {
         font-size: 14px;
     }
 
-    .tab-buttons button {
+    .er-tab-buttons button {
         padding: 8px 16px;
         font-size: 14px;
     }
 
-    .search-bar input {
+    .er-search-bar input {
         font-size: 14px;
     }
 
-    table {
+    .er-table {
         font-size: 12px;
     }
 
-    th, td {
+    .er-table th, .er-table td {
         padding: 6px;
     }
 }
 
 @media (max-width: 480px) {
-    h1, h2 {
+    .er-expert-review-content h1, .er-expert-review-content h2 {
         font-size: 20px;
     }
 
-    .fetch-logs-button {
+    .er-fetch-logs-button {
         font-size: 12px;
     }
 
-    .tab-buttons button {
+    .er-tab-buttons button {
         padding: 6px 12px;
         font-size: 12px;
     }
 
-    .search-bar input {
+    .er-search-bar input {
         font-size: 12px;
     }
 
-    table {
+    .er-table {
         font-size: 10px;
     }
 
-    th, td {
+    .er-table th, .er-table td {
         padding: 4px;
     }
 
-    .pagination button {
+    .er-pagination button {
         padding: 4px 8px;
         font-size: 12px;
     }
