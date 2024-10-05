@@ -256,6 +256,14 @@
 .ea-stage-button:hover:not(.active) {
     background-color: #e2e8f0;
 }
+.ea-department-filter {
+    margin-left: 10px;
+    padding: 5px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+  }
+
 
 @media (max-width: 1024px) {
     .ea-card {

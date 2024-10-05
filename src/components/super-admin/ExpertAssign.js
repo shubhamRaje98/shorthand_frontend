@@ -15,6 +15,9 @@ const ExpertAssign = () => {
   const [experts, setExperts] = useState([]);
   const [modalStep, setModalStep] = useState('expertList');
   const [stage, setStage] = useState('stage1');
+  const [summaryData, setSummaryData] = useState([]);
+  const [unassignCount, setUnassignCount] = useState('');
+  const [selectedSummaryDepartment, setSelectedSummaryDepartment] = useState('all');
   
   const departmentRefs = useRef({});
   const subjectRefs = useRef({});
@@ -22,6 +25,7 @@ const ExpertAssign = () => {
   useEffect(() => {
     fetchData();
     fetchExperts();
+    fetchSummaryData();
   }, [selectedDepartment, selectedSubject, stage]);
 
   const fetchData = async () => {
@@ -36,7 +40,6 @@ const ExpertAssign = () => {
   
       const response = await axios.get(url);
       
-  
       setData(prevData => ({
         departments: selectedDepartment ? prevData.departments : response.data.results,
         subjects: selectedDepartment && !selectedSubject ? response.data.results : prevData.subjects,
@@ -54,11 +57,21 @@ const ExpertAssign = () => {
   const fetchExperts = async () => {
     try {
       const response = await axios.get('http://localhost:3000/get-experts');
-     
       setExperts(response.data.results || []);
     } catch (error) {
       console.error("Error fetching experts:", error);
       setError('Error fetching experts. Please try again later.');
+    }
+  };
+
+  const fetchSummaryData = async () => {
+    try {
+      const response = await axios.get(`http://localhost:3000/get-student-summary-expert?${stage === 'stage1' ? 'stage_1' : 'stage_3'}=true`);
+      setSummaryData(response.data.departments);
+      console.log(response.data);
+    } catch (error) {
+      console.error('Error fetching summary data:', error);
+      setError('Error fetching summary data. Please try again later.');
     }
   };
 
@@ -101,16 +114,46 @@ const ExpertAssign = () => {
         stage_3: stage === 'stage3'
       });
       
-      
       setShowModal(false);
       setSelectedExpert(null);
       setStudentCount('');
       setModalStep('expertList');
-      fetchData(); // Refresh the data after assignment
+      fetchData();
+      fetchSummaryData();
       toast.success('Expert assigned successfully!');
     } catch (error) {
       console.error('Error assigning expert:', error);
       setError('Error assigning expert. Please try again later.');
+    }
+  };
+
+  const handleUnassign = async () => {
+    if (!selectedExpert || !unassignCount || !selectedQset) {
+      setError('Please select an expert, enter a student count to unassign, and select a question set.');
+      return;
+    }
+
+    try {
+      const response = await axios.post('http://localhost:3000/unassign-expert', {
+        department: selectedDepartment,
+        subject: selectedSubject,
+        qset: selectedQset.qset,
+        expertId: selectedExpert.expertId,
+        count: parseInt(unassignCount),
+        stage_1: stage === 'stage1',
+        stage_3: stage === 'stage3'
+      });
+      
+      setShowModal(false);
+      setSelectedExpert(null);
+      setUnassignCount('');
+      setModalStep('expertList');
+      fetchData();
+      fetchSummaryData();
+      toast.success('Expert unassigned successfully!');
+    } catch (error) {
+      console.error('Error unassigning expert:', error);
+      setError('Error unassigning expert. Please try again later.');
     }
   };
 
@@ -204,7 +247,7 @@ const ExpertAssign = () => {
     return (
       <div className="ea-modal">
         <div className="ea-modal-content">
-          <h2>Assign Expert</h2>
+          <h2>Assign/Unassign Expert</h2>
           {modalStep === 'expertList' && (
             <>
               {experts.length > 0 ? (
@@ -216,7 +259,6 @@ const ExpertAssign = () => {
                       onClick={() => handleExpertSelect(expert)}
                     >
                       ID_{expert.expertId} - {expert.expert_name}
-                      
                     </div>
                   ))}
                 </div>
@@ -242,8 +284,20 @@ const ExpertAssign = () => {
                   max={selectedQset.student_count}
                 />
               </div>
+              <div className="ea-student-count">
+                <label htmlFor="unassignCount">Number of students to unassign:</label>
+                <input 
+                  type="number" 
+                  id="unassignCount" 
+                  value={unassignCount} 
+                  onChange={(e) => setUnassignCount(e.target.value)}
+                  min="1"
+                  max={selectedQset.student_count}
+                />
+              </div>
               <div className="ea-modal-actions">
                 <button onClick={handleSubmit} disabled={!selectedExpert || !studentCount}>Assign</button>
+                <button onClick={handleUnassign} disabled={!selectedExpert || !unassignCount}>Unassign</button>
                 <button onClick={() => setModalStep('expertList')}>Back</button>
               </div>
             </>
@@ -253,11 +307,97 @@ const ExpertAssign = () => {
     );
   };
 
+  const renderSummaryTable = () => {
+    const filteredSummaryData = selectedSummaryDepartment === 'all' 
+      ? summaryData 
+      : summaryData.filter(dept => dept.departmentId === parseInt(selectedSummaryDepartment));
+
+    const expertSummary = {};
+
+    filteredSummaryData.forEach(department => {
+      department.experts.forEach(expert => {
+        if (!expertSummary[expert.expertId]) {
+          expertSummary[expert.expertId] = {
+            expertId: expert.expertId,
+            expert_name: expert.expert_name,
+            assignments: []
+          };
+        }
+
+        expert.subjects.forEach(subject => {
+          subject.qsets.forEach(qset => {
+            expertSummary[expert.expertId].assignments.push({
+              subject: subject.subject_name,
+              qset: qset.qset,
+              total: qset.total_students_in_qset,
+              assigned: qset.expert_assigned_count,
+              unassigned: qset.total_students_in_qset - qset.total_assigned_in_qset
+            });
+          });
+        });
+      });
+    });
+
+    return (
+      <div className="ea-summary-table">
+        <h2>Assigned Students Summary</h2>
+        <div className="ea-summary-filter">
+          <label htmlFor="summaryDepartmentFilter">Filter by Department:</label>
+          <select 
+            id="summaryDepartmentFilter" 
+            value={selectedSummaryDepartment} 
+            onChange={(e) => setSelectedSummaryDepartment(e.target.value)}
+          >
+            <option value="all">All Departments</option>
+            {summaryData.map(dept => (
+              <option key={dept.departmentId} value={dept.departmentId}>
+                {dept.departmentName}
+              </option>
+            ))}
+          </select>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Expert ID</th>
+              <th>Name</th>
+              <th>Subject</th>
+              <th>Q Set</th>
+              <th>Total</th>
+              <th>Assigned</th>
+              <th>Unassigned</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Object.values(expertSummary).flatMap(expert => 
+              expert.assignments.map((assignment, index) => (
+                <tr key={`${expert.expertId}-${index}`}>
+                  {index === 0 ? (
+                    <>
+                      <td rowSpan={expert.assignments.length}>{expert.expertId}</td>
+                      <td rowSpan={expert.assignments.length}>{expert.expert_name}</td>
+                    </>
+                  ) : null}
+                  <td>{assignment.subject}</td>
+                  <td>{assignment.qset}</td>
+                  <td>{assignment.total}</td>
+                  <td>{assignment.assigned}</td>
+                  <td>{assignment.unassigned}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
+
   return (
     <div className="ea-expert-assign">
       <h1 className="ea-title">Expert Assign</h1>
       {renderStageSwitch()}
       {error && <p className="ea-error">{error}</p>}
+      {renderSummaryTable()}
       {renderDepartments()}
       {selectedDepartment && renderSubjects()}
       {selectedDepartment && selectedSubject && renderQsets()}
