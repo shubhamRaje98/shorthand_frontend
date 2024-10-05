@@ -66,7 +66,9 @@ const QSet = () => {
           onClick={() => handleQSetClick(qsetObj)}
         >
           <div className="item-title">QSet: {qsetObj.qset}</div>
-          <div className="item-count">Students: {qsetObj.incomplete_count}/{qsetObj.total_count}</div>
+          {qsetObj.incomplete_count !== undefined && qsetObj.total_count !== undefined && (
+            <div className="item-count">Students: {qsetObj.incomplete_count}/{qsetObj.total_count}</div>
+          )}
         </button>
       ))}
     </div>

@@ -9,8 +9,6 @@ import { faUndo, faEyeSlash, faExchangeAlt, faSearchPlus, faSearchMinus } from '
 import { faToggleOn, faToggleOff } from '@fortawesome/free-solid-svg-icons';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
-
-
 const ColoredText = ({ coloredWords, highlightedWord }) => {
   return (
     <>
@@ -180,7 +178,7 @@ const FetchPassageById = () => {
                   console.error('No matching record found for this Student ID');
               }
           } catch (err) {
-              console.error('Error fetching passages:', err);
+            console.error('Error fetching passages:', err.response ? err.response.data : err.message);
           }
       };
 
