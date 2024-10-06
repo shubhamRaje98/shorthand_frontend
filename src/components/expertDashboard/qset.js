@@ -37,7 +37,15 @@ const QSet = () => {
       const response = await axios.post(`http://localhost:3000/assignStudent/${subjectId}/${qsetObj.qset}`, {}, { withCredentials: true });
       if (response.status === 200) {
         setSelectedQSet(qsetObj);
-        navigate(`/expertDashboard/${subjectId}/${qsetObj.qset}`, {replace: true});
+        
+        // Check if paper_mod is 1
+        if (response.data.paper_mod === 1) {
+          // Navigate to stage2 route
+          navigate(`/expertDashboard/${subjectId}/${qsetObj.qset}/stage2`, { replace: true });
+        } else {
+          // Navigate to the original route
+          navigate(`/expertDashboard/${subjectId}/${qsetObj.qset}`, { replace: true });
+        }
       }
     } catch (err) {
       console.error('Error assigning student for QSet:', err);

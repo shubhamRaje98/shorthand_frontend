@@ -15,7 +15,10 @@ import SubjectSelection from './components/expertDashboard/SubjectSelection';
 import StudentTable from './components/studentExamTracking/StudentTable';
 import Home from './components/Home/home';
 import ExpertDashboard from './components/expertDashboard/expertDashboard';
+import Stage2 from './components/expertDashboard/stage2';
 import FinalPassageTextlog from './components/expertDashboard/finalPassageTextlog';
+
+
 import QSet from './components/expertDashboard/qset';
 import AttendanceDownload from './components/attendanceDownload/attendanceDownload';
 import CenterwiseStudentCount from './components/centerwiseStudentExamCountTracking/centerwiseCountReport';
@@ -71,6 +74,7 @@ const App = () => {
                         <Route index element={<SubjectSelection />} />
                         <Route path=":subjectId" element={<QSet />} />
                         <Route path=":subjectId/:qset" element={<FinalPassageTextlog />} />
+                        <Route path=":subjectId/:qset/stage2" element={<Stage2 />} />
                         <Route path=":subjectId/:qset/:studentId" element={<FetchPassageById />} />
                     </Route>
 
