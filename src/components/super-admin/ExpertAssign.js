@@ -31,7 +31,7 @@ const ExpertAssign = () => {
 
   const fetchData = async () => {
     try {
-      let url = `http://localhost:3000/get-student-count-expert?${stage === 'stage1' ? 'stage_1' : 'stage_3'}=true`;
+      let url = `https://www.shorthandonlineexam.in/get-student-count-expert?${stage === 'stage1' ? 'stage_1' : 'stage_3'}=true`;
       if (selectedDepartment) {
         url += `&department=${selectedDepartment}`;
         if (selectedSubject) {
@@ -57,7 +57,7 @@ const ExpertAssign = () => {
 
   const fetchExperts = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/get-experts');
+      const response = await axios.get('https://www.shorthandonlineexam.in/get-experts');
       setExperts(response.data.results || []);
     } catch (error) {
       console.error("Error fetching experts:", error);
@@ -67,7 +67,7 @@ const ExpertAssign = () => {
 
   const fetchSummaryData = async () => {
     try {
-      const response = await axios.get(`http://localhost:3000/get-student-summary-expert?${stage === 'stage1' ? 'stage_1' : 'stage_3'}=true`);
+      const response = await axios.get(`https://www.shorthandonlineexam.in/get-student-summary-expert?${stage === 'stage1' ? 'stage_1' : 'stage_3'}=true`);
       setSummaryData(response.data.departments);
       console.log(response.data);
     } catch (error) {
@@ -124,7 +124,7 @@ const ExpertAssign = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:3000/assign-expert', {
+      const response = await axios.post('https://www.shorthandonlineexam.in/assign-expert', {
         department: selectedDepartment,
         subject: selectedSubject,
         qset: selectedQset.qset,
@@ -154,7 +154,7 @@ const ExpertAssign = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:3000/unassign-expert', {
+      const response = await axios.post('https://www.shorthandonlineexam.in/unassign-expert', {
         department: selectedDepartment,
         subject: selectedSubject,
         qset: selectedQset.qset,
