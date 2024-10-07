@@ -129,6 +129,15 @@ const SuperAdminCount = () => {
         return moment(dateString, 'DD MM YYYY').format('DD-MM-YYYY');
     };
 
+    const calculateTotals = (subjects) => {
+        return subjects.reduce((totals, subject) => {
+            totals.count += subject.count;
+            totals.loggedIn += subject.loggedIn;
+            totals.completed += subject.completed;
+            return totals;
+        }, { count: 0, loggedIn: 0, completed: 0 });
+    };
+
     return (
         <div className="sac-page">
             <SuperAdminNavbar />
@@ -242,6 +251,18 @@ const SuperAdminCount = () => {
                                             <td>{subject.completed}</td>
                                         </tr>
                                     ))}
+                                    {(() => {
+                                        const subjects = center && allData[0]?.subjects ? allData[0].subjects : aggregatedSubjects;
+                                        const totals = calculateTotals(subjects.filter(subject => subject.count > 0));
+                                        return (
+                                            <tr className="sac-totals-row">
+                                                <td colSpan="2"><strong>Total</strong></td>
+                                                <td><strong>{totals.count}</strong></td>
+                                                <td><strong>{totals.loggedIn}</strong></td>
+                                                <td><strong>{totals.completed}</strong></td>
+                                            </tr>
+                                        );
+                                    })()}
                                 </tbody>
                             </table>
                         </div>

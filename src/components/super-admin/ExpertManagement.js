@@ -22,7 +22,7 @@ const ExpertManagement = () => {
     try {
       const response = await axios.get('https://www.shorthandonlineexam.in/get-experts');
       setExperts(response.data.results || []);
-      
+      console.log(response.data);
     } catch (err) {
       setError('Error fetching experts.');
     } finally {
@@ -77,6 +77,7 @@ const ExpertManagement = () => {
             <tr>
               <th>Expert ID</th>
               <th>Expert Name</th>
+              <th>Password</th>
               <th>Paper Check</th>
               <th>Paper Mod</th>
               <th>Super Mod</th>
@@ -87,6 +88,7 @@ const ExpertManagement = () => {
               <tr key={expert.expertId}>
                 <td>{expert.expertId}</td>
                 <td>{expert.expert_name}</td>
+                <td>{expert.password}</td>
                 <td>{expert.paper_check ? 'Yes' : 'No'}</td>
                 <td>{expert.paper_mod ? 'Yes' : 'No'}</td>
                 <td>{expert.super_mod ? 'Yes' : 'No'}</td>

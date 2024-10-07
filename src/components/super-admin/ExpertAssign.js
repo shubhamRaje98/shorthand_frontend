@@ -59,6 +59,7 @@ const ExpertAssign = () => {
     try {
       const response = await axios.get('https://www.shorthandonlineexam.in/get-experts');
       setExperts(response.data.results || []);
+      
     } catch (error) {
       console.error("Error fetching experts:", error);
       setError('Error fetching experts. Please try again later.');
@@ -69,7 +70,7 @@ const ExpertAssign = () => {
     try {
       const response = await axios.get(`https://www.shorthandonlineexam.in/get-student-summary-expert?${stage === 'stage1' ? 'stage_1' : 'stage_3'}=true`);
       setSummaryData(response.data.departments);
-      console.log(response.data);
+      
     } catch (error) {
       console.error('Error fetching summary data:', error);
       setError('Error fetching summary data. Please try again later.');
@@ -91,10 +92,10 @@ const ExpertAssign = () => {
     setSelectedQset(qset);
     setShowModal(true);
     setModalStep('expertList');
-    fetchExpertsWithAssignedCounts();
+    fetchExpertsWithAssignedCounts(qset);
   };
 
-  const fetchExpertsWithAssignedCounts = () => {
+  const fetchExpertsWithAssignedCounts = (qset) => {
     const expertsWithCounts = experts.map(expert => {
       const expertSummary = summaryData
         .flatMap(dept => dept.experts)
@@ -102,8 +103,9 @@ const ExpertAssign = () => {
       
       const assignedCount = expertSummary
         ? expertSummary.subjects
-            .flatMap(subject => subject.qsets)
-            .reduce((sum, qset) => sum + qset.expert_assigned_count, 0)
+            .find(subject => subject.subjectId === selectedSubject)
+            ?.qsets.find(q => q.qset === qset.qset)
+            ?.expert_assigned_count || 0
         : 0;
 
       return { ...expert, assignedCount };
@@ -312,7 +314,7 @@ const ExpertAssign = () => {
                   value={unassignCount} 
                   onChange={(e) => setUnassignCount(e.target.value)}
                   min="1"
-                  max={selectedQset.student_count}
+                  max={selectedExpert.assignedCount}
                 />
               </div>
               <div className="ea-modal-actions">
