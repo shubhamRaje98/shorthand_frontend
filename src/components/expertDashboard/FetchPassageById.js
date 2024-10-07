@@ -170,7 +170,7 @@ const FetchPassageById = () => {
     useEffect(() => {
       const fetchPassages = async () => {
           try {
-                const response = await axios.get(`http://localhost:3000/student-passages/${subjectId}/${qset}/${studentId}`, { withCredentials: true });
+                const response = await axios.get(`https://www.shorthandonlineexam.in/student-passages/${subjectId}/${qset}/${studentId}`, { withCredentials: true });
                 if (response.status === 200 && response.data && Object.keys(response.data).length > 0) {
                 console.log("Raw data:", JSON.stringify(response.data));
                 setPassages(response.data);
@@ -190,7 +190,7 @@ const FetchPassageById = () => {
           try {
               console.log(subjectId, qset, activePassage, studentId);
               
-              const response = await axios.post('http://localhost:3000/student-active-passage', {
+              const response = await axios.post('https://www.shorthandonlineexam.in/student-active-passage', {
                   subjectId,
                   qset,
                   activePassage,
@@ -262,7 +262,7 @@ const FetchPassageById = () => {
 
     const handleAddIgnoreWord = useCallback(async (word) => {
       try {
-        const response = await axios.post('http://localhost:3000/student-add-ignore-word', {
+        const response = await axios.post('https://www.shorthandonlineexam.in/student-add-ignore-word', {
           subjectId,
           qset,
           activePassage,
@@ -283,7 +283,7 @@ const FetchPassageById = () => {
     
     const handleUndoWord = useCallback(async (wordToRemove) => {
       try {
-        const response = await axios.post('http://localhost:3000/student-undo-word', {
+        const response = await axios.post('https://www.shorthandonlineexam.in/student-undo-word', {
           subjectId,
           qset,
           activePassage,
@@ -304,7 +304,7 @@ const FetchPassageById = () => {
 
     const handleClearIgnoreList = useCallback(async () => {
       try {
-        const response = await axios.post('http://localhost:3000/student-clear-ignore-list', {
+        const response = await axios.post('https://www.shorthandonlineexam.in/student-clear-ignore-list', {
           subjectId,
           qset,
           activePassage,
