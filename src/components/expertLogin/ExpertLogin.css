@@ -1,0 +1,100 @@
+.expert-login-container { 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #e3f2fd; /* Soft light blue background */
+    font-family: 'Roboto', sans-serif;
+}
+
+.expert-login-form {
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15); /* Softer shadow */
+    width: 100%;
+    max-width: 420px;
+    transition: transform 0.3s ease;
+}
+
+.expert-login-form:hover {
+    transform: translateY(-5px); /* Subtle hover effect */
+}
+
+.expert-login-title {
+    text-align: center;
+    color: #2c3e50; /* Deep grey-blue for titles */
+    margin-bottom: 1.8rem;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.expert-form-group {
+    margin-bottom: 1.5rem;
+}
+
+.expert-form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #34495e; /* Dark grey-blue for labels */
+    font-size: 0.95rem;
+}
+
+.expert-form-input {
+    width: 100%;
+    padding: 0.85rem;
+    border: 1px solid #ced6e0; /* Light grey border */
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    background-color: #f9fafc; /* Light off-white background for inputs */
+}
+
+.expert-form-input:focus {
+    outline: none;
+    border-color: #42a5f5; /* Soft blue for focus state */
+    box-shadow: 0 0 8px rgba(66, 165, 245, 0.2); /* Subtle blue glow */
+}
+
+.expert-error-message {
+    color: #e57373; /* Soft red for errors */
+    font-size: 0.9rem;
+    margin-top: -0.5rem;
+    margin-bottom: 1rem;
+}
+
+.expert-submit-btn {
+    width: 100%;
+    padding: 0.85rem;
+    background-color: #42a5f5; /* Soft blue for button */
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.expert-submit-btn:hover {
+    background-color: #1e88e5; /* Slightly darker blue on hover */
+    box-shadow: 0 4px 8px rgba(30, 136, 229, 0.4); /* Button shadow on hover */
+}
+
+@media (max-width: 480px) {
+    .expert-login-form {
+        padding: 1.5rem;
+    }
+
+    .expert-login-title {
+        font-size: 1.6rem;
+    }
+
+    .expert-form-input {
+        font-size: 0.9rem;
+    }
+
+    .expert-submit-btn {
+        font-size: 0.9rem;
+    }
+}

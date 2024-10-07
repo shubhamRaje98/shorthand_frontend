@@ -1,7 +1,7 @@
-//expertLogin.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import './ExpertLogin.css';
 
 const ExpertLogin = () => {
     const [expertId, setExpertCode] = useState('');
@@ -32,33 +32,33 @@ const ExpertLogin = () => {
     };
 
     return (
-        <div className="login-container">
-            <form onSubmit={handleLogin} className="login-form">
-                <h2>Expert Login</h2>
-                <div className="form-group">
-                    <label htmlFor="expertId">Expert Code</label>
+        <div className="expert-login-container">
+            <form onSubmit={handleLogin} className="expert-login-form">
+                <h2 className="expert-login-title">Expert Login</h2>
+                <div className="expert-form-group">
+                    <label htmlFor="expertId" className="expert-form-label">Expert Code</label>
                     <input
                         type="text"
                         id="expertId"
-                        className="form-control"
+                        className="expert-form-input"
                         value={expertId}
                         onChange={(e) => setExpertCode(e.target.value)}
                         required
                     />
                 </div>
-                <div className="form-group">
-                    <label htmlFor="password">Expert Password</label>
+                <div className="expert-form-group">
+                    <label htmlFor="password" className="expert-form-label">Expert Password</label>
                     <input
                         type="password"
                         id="password"
-                        className="form-control"
+                        className="expert-form-input"
                         value={password}
                         onChange={(e) => setExpertPassword(e.target.value)}
                         required
                     />
                 </div>
-                {error && <p className="error-message">{error}</p>}
-                <button type="submit" className="btn btn-primary">Login</button>
+                {error && <p className="expert-error-message">{error}</p>}
+                <button type="submit" className="expert-submit-btn">Login</button>
             </form>
         </div>
     );
