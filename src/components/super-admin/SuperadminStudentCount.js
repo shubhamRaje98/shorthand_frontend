@@ -20,18 +20,14 @@ const SuperAdminCount = () => {
         fetchData();
         fetchAllData();
 
-          // Set interval for fetching data every 30 seconds
-          const intervalId = setInterval(() => {
+        // Set interval for fetching data every 30 seconds
+        const intervalId = setInterval(() => {
             fetchAllData();
         }, 30000); // 30,000 milliseconds = 30 seconds
 
         // Cleanup on component unmount
         return () => clearInterval(intervalId);
-    
-
     }, [batchNo, center, departmentId]);
-
-    
 
     useEffect(() => {
         if (allData.length > 0 && !center) {
@@ -235,7 +231,7 @@ const SuperAdminCount = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {(center ? allData[0]?.subjects : aggregatedSubjects)
+                                    {(center && allData[0]?.subjects ? allData[0].subjects : aggregatedSubjects)
                                         .filter(subject => subject.count > 0)
                                         .map((subject, index) => (
                                         <tr key={index}>
