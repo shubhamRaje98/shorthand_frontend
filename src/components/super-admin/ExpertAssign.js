@@ -18,6 +18,7 @@ const ExpertAssign = () => {
   const [summaryData, setSummaryData] = useState([]);
   const [unassignCount, setUnassignCount] = useState('');
   const [selectedSummaryDepartment, setSelectedSummaryDepartment] = useState('all');
+  const [expertsWithAssignedCounts, setExpertsWithAssignedCounts] = useState([]);
   
   const departmentRefs = useRef({});
   const subjectRefs = useRef({});
@@ -90,6 +91,25 @@ const ExpertAssign = () => {
     setSelectedQset(qset);
     setShowModal(true);
     setModalStep('expertList');
+    fetchExpertsWithAssignedCounts();
+  };
+
+  const fetchExpertsWithAssignedCounts = () => {
+    const expertsWithCounts = experts.map(expert => {
+      const expertSummary = summaryData
+        .flatMap(dept => dept.experts)
+        .find(e => e.expertId === expert.expertId);
+      
+      const assignedCount = expertSummary
+        ? expertSummary.subjects
+            .flatMap(subject => subject.qsets)
+            .reduce((sum, qset) => sum + qset.expert_assigned_count, 0)
+        : 0;
+
+      return { ...expert, assignedCount };
+    });
+
+    setExpertsWithAssignedCounts(expertsWithCounts);
   };
 
   const handleExpertSelect = (expert) => {
@@ -250,15 +270,15 @@ const ExpertAssign = () => {
           <h2>Assign/Unassign Expert</h2>
           {modalStep === 'expertList' && (
             <>
-              {experts.length > 0 ? (
+              {expertsWithAssignedCounts.length > 0 ? (
                 <div className="ea-expert-list">
-                  {experts.map(expert => (
+                  {expertsWithAssignedCounts.map(expert => (
                     <div 
                       key={expert.id} 
                       className="ea-expert-item"
                       onClick={() => handleExpertSelect(expert)}
                     >
-                      ID_{expert.expertId} - {expert.expert_name}
+                      ID_{expert.expertId} - {expert.expert_name} (Assigned: {expert.assignedCount})
                     </div>
                   ))}
                 </div>
@@ -272,7 +292,7 @@ const ExpertAssign = () => {
           )}
           {modalStep === 'studentCount' && (
             <>
-              <p>Selected Expert: {selectedExpert.expert_name}</p>
+              <p>Selected Expert: {selectedExpert.expert_name} (Assigned: {selectedExpert.assignedCount})</p>
               <div className="ea-student-count">
                 <label htmlFor="studentCount">Number of students to assign:</label>
                 <input 
@@ -351,7 +371,7 @@ const ExpertAssign = () => {
             <option value="all">All Departments</option>
             {summaryData.map(dept => (
               <option key={dept.departmentId} value={dept.departmentId}>
-                {dept.departmentName}
+                {dept.departmentId}
               </option>
             ))}
           </select>
