@@ -52,6 +52,7 @@ import ResetStudentProgress from './components/super-admin/ResetStudentProgress'
 import ExpertReview from './components/super-admin/ExpertReview';
 import ExpertManagement from './components/super-admin/ExpertManagement';
 import ExpertAssign from './components/super-admin/ExpertAssign';
+import ExpertSummary from './components/super-admin/ExpertSummary';
 
 axios.defaults.withCredentials = true;
 
@@ -110,6 +111,7 @@ const App = () => {
                         <Route path="expert-review" element={<ExpertReview/>}/>
                         <Route path="expert-management" element={<ExpertManagement/>}/>
                         <Route path="expert-assign" element={<ExpertAssign/>}/>
+                        <Route path="expert-summary" element={<ExpertSummary/>}/>
                     </Route>
                 </Routes>
             </Router>

@@ -15,6 +15,7 @@ const SuperAdminCount = () => {
     const [departmentId, setDepartmentId] = useState('');
     const [departments, setDepartments] = useState([]);
     const [aggregatedSubjects, setAggregatedSubjects] = useState([]);
+    const [batchTotals, setBatchTotals] = useState({});
 
     useEffect(() => {
         fetchData();
@@ -32,6 +33,7 @@ const SuperAdminCount = () => {
     useEffect(() => {
         if (allData.length > 0 && !center) {
             aggregateSubjects();
+            calculateBatchTotals();
         }
     }, [allData, center, departmentId]);
 
@@ -117,6 +119,23 @@ const SuperAdminCount = () => {
         });
 
         setAggregatedSubjects(Array.from(subjectMap.values()));
+    };
+
+    const calculateBatchTotals = () => {
+        const totals = {};
+        allData.forEach(item => {
+            if (!totals[item.batchNo]) {
+                totals[item.batchNo] = {
+                    totalStudents: 0,
+                    loggedInStudents: 0,
+                    completedStudents: 0
+                };
+            }
+            totals[item.batchNo].totalStudents += parseInt(item.total_students) || 0;
+            totals[item.batchNo].loggedInStudents += parseInt(item.logged_in_students) || 0;
+            totals[item.batchNo].completedStudents += parseInt(item.completed_student) || 0;
+        });
+        setBatchTotals(totals);
     };
 
     const formatDateTime = (dateTimeString) => {
@@ -263,6 +282,34 @@ const SuperAdminCount = () => {
                                             </tr>
                                         );
                                     })()}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
+
+                {!batchNo && !center && (
+                    <div className="sac-batch-totals-section">
+                        <h4 className="sac-subtitle">Batch-wise Totals:</h4>
+                        <div className="sac-table-wrapper">
+                            <table className="sac-table sac-batch-totals-table">
+                                <thead>
+                                    <tr>
+                                        <th>Batch No</th>
+                                        <th>Total Students</th>
+                                        <th>Logged In Students</th>
+                                        <th>Completed Students</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {Object.entries(batchTotals).map(([batch, totals]) => (
+                                        <tr key={batch}>
+                                            <td>{batch}</td>
+                                            <td>{totals.totalStudents}</td>
+                                            <td>{totals.loggedInStudents}</td>
+                                            <td>{totals.completedStudents}</td>
+                                        </tr>
+                                    ))}
                                 </tbody>
                             </table>
                         </div>
