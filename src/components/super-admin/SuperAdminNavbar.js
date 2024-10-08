@@ -60,7 +60,9 @@ const SuperAdminNavbar = () => {
           <li className={location.pathname === "/super-admin/expert-assign" ? "sa-navbar__item sa-navbar__item--active" : "sa-navbar__item"}>
             <Link to="/super-admin/expert-assign" onClick={() => setIsMenuOpen(false)} className="sa-navbar__link">Expert Assign</Link>
           </li>
-
+          <li className={location.pathname === "/super-admin/expert-summary" ? "sa-navbar__item sa-navbar__item--active" : "sa-navbar__item"}>
+            <Link to="/super-admin/expert-summary" onClick={() => setIsMenuOpen(false)} className="sa-navbar__link">Expert Summary</Link>
+          </li>
 
             </>
 

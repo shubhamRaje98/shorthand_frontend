@@ -347,8 +347,10 @@ const ExpertAssign = () => {
         }
 
         expert.subjects.forEach(subject => {
+          const subjectAssignments = [];
+
           subject.qsets.forEach(qset => {
-            expertSummary[expert.expertId].assignments.push({
+            subjectAssignments.push({
               subject: subject.subject_name,
               qset: qset.qset,
               total: qset.total_students_in_qset,
@@ -356,6 +358,8 @@ const ExpertAssign = () => {
               unassigned: qset.total_students_in_qset - qset.total_assigned_in_qset
             });
           });
+
+          expertSummary[expert.expertId].assignments.push(...subjectAssignments);
         });
       });
     });
@@ -392,21 +396,33 @@ const ExpertAssign = () => {
           </thead>
           <tbody>
             {Object.values(expertSummary).flatMap(expert => 
-              expert.assignments.map((assignment, index) => (
-                <tr key={`${expert.expertId}-${index}`}>
-                  {index === 0 ? (
-                    <>
-                      <td rowSpan={expert.assignments.length}>{expert.expertId}</td>
-                      <td rowSpan={expert.assignments.length}>{expert.expert_name}</td>
-                    </>
-                  ) : null}
-                  <td>{assignment.subject}</td>
-                  <td>{assignment.qset}</td>
-                  <td>{assignment.total}</td>
-                  <td>{assignment.assigned}</td>
-                  <td>{assignment.unassigned}</td>
-                </tr>
-              ))
+              expert.assignments.map((assignment, index) => {
+                const isFirstForSubject = 
+                  index === 0 || 
+                  assignment.subject !== expert.assignments[index - 1].subject;
+
+                const rowspan = expert.assignments.filter(
+                  a => a.subject === assignment.subject
+                ).length;
+
+                return (
+                  <tr key={`${expert.expertId}-${index}`}>
+                    {index === 0 && (
+                      <>
+                        <td rowSpan={expert.assignments.length}>{expert.expertId}</td>
+                        <td rowSpan={expert.assignments.length}>{expert.expert_name}</td>
+                      </>
+                    )}
+                    {isFirstForSubject && (
+                      <td rowSpan={rowspan}>{assignment.subject}</td>
+                    )}
+                    <td>{assignment.qset}</td>
+                    <td>{assignment.total}</td>
+                    <td>{assignment.assigned}</td>
+                    <td>{assignment.unassigned}</td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
