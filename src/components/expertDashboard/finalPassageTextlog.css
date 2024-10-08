@@ -32,6 +32,15 @@
     font-weight: 600;
 }
 
+.FP-AUDIO {
+    position: absolute;
+    width: 300px;
+    top:-5px;
+    height:1rem;
+    
+    
+}
+
 .passage-button:hover {
     background-color: #dee2e6;
 }
