@@ -12,7 +12,7 @@ const ResetRequestsAdmin = () => {
 
   const fetchRequests = async () => {
     try {
-      const response = await axios.get('https://www.shorthandonlineexam.in/admin/center-request-datas');
+      const response = await axios.get('http://localhost:3000/admin/center-request-datas');
       if (Array.isArray(response.data)) {
         setRequests(response.data);
       } else {
@@ -29,7 +29,7 @@ const ResetRequestsAdmin = () => {
 
   const handleApproveReject = async (requestId, action) => {
     try {
-      await axios.post('https://www.shorthandonlineexam.in/admin/approve-reset-request', {
+      await axios.post('http://localhost:3000/admin/approve-reset-request', {
         requestId,
         action
       });
@@ -43,7 +43,7 @@ const ResetRequestsAdmin = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`https://www.shorthandonlineexam.in/centerrequest/${id}`);
+      await axios.delete(`http://localhost:3000/centerrequest/${id}`);
       fetchRequests(); // Refresh the list after deletion
       setError('');
     } catch (err) {
