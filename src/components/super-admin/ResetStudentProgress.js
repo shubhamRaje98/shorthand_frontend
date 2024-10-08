@@ -24,7 +24,7 @@ const ResetStudentProgress = ({ studentId }) => {
 
   const handleConfirmReset = async () => {
     try {
-      const response = await axios.post('https://www.shorthandonlineexam.in/super-admin-reset-student-logs', {
+      const response = await axios.post('http://localhost:3000/super-admin-reset-student-logs', {
         student_id: studentId,
         studentLogin,
         trialAudioShortHand,

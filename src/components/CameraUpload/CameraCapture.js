@@ -173,7 +173,7 @@ const CameraCapture = ({ studentId }) => {
         console.log(`${pair[0]}: ${pair[1]}`);
       }
   
-      const response = await axios.post('https://www.shorthandonlineexam.in/upload-answersheet', formData, {
+      const response = await axios.post('http://localhost:3000/upload-answersheet', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

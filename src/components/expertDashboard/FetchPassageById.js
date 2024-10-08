@@ -9,6 +9,8 @@ import { faUndo, faEyeSlash, faExchangeAlt, faSearchPlus, faSearchMinus } from '
 import { faToggleOn, faToggleOff } from '@fortawesome/free-solid-svg-icons';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
+
+
 const ColoredText = ({ coloredWords, highlightedWord }) => {
   return (
     <>
@@ -170,7 +172,7 @@ const FetchPassageById = () => {
     useEffect(() => {
       const fetchPassages = async () => {
           try {
-                const response = await axios.get(`https://www.shorthandonlineexam.in/student-passages/${subjectId}/${qset}/${studentId}`, { withCredentials: true });
+                const response = await axios.get(`http://localhost:3000/student-passages/${subjectId}/${qset}/${studentId}`, { withCredentials: true });
                 if (response.status === 200 && response.data && Object.keys(response.data).length > 0) {
                 console.log("Raw data:", JSON.stringify(response.data));
                 setPassages(response.data);
@@ -178,7 +180,7 @@ const FetchPassageById = () => {
                   console.error('No matching record found for this Student ID');
               }
           } catch (err) {
-            console.error('Error fetching passages:', err.response ? err.response.data : err.message);
+              console.error('Error fetching passages:', err);
           }
       };
 
@@ -190,7 +192,7 @@ const FetchPassageById = () => {
           try {
               console.log(subjectId, qset, activePassage, studentId);
               
-              const response = await axios.post('https://www.shorthandonlineexam.in/student-active-passage', {
+              const response = await axios.post('http://localhost:3000/student-active-passage', {
                   subjectId,
                   qset,
                   activePassage,
@@ -225,6 +227,39 @@ const FetchPassageById = () => {
           setPassageBViewed(true);
       }
     };
+
+    const comparePassages = useCallback(async () => {
+      const modelAnswer = passages[`ansPassage${activePassage}`];
+      const userAnswer = passages[`passage${activePassage}`];
+      
+      if (!modelAnswer || !userAnswer) return;
+  
+      try {
+          const response = await axios.post('http://3.6.86.1:5000/compare', {
+              text1: modelAnswer,
+              text2: userAnswer,
+              ignore_list: ignoreList, // Remove tempIgnoreList from here
+              ignore_case: true
+          });
+  
+          if (response.status === 200) {
+              const { colored_words, added, missed, spelling, grammar } = response.data;
+              setColoredWords(colored_words);
+              setMistakes({
+                  added,
+                  missed,
+                  spelling,
+                  grammar
+              });
+          }
+      } catch (err) {
+          console.error('Error comparing passages:', err);
+      }
+  }, [activePassage, passages, ignoreList]); // Remove tempIgnoreList from dependencies
+
+    useEffect(() => {
+        comparePassages();
+    }, [comparePassages]);
 
     // Add the new useEffect hook here
     useEffect(() => {
@@ -262,7 +297,7 @@ const FetchPassageById = () => {
 
     const handleAddIgnoreWord = useCallback(async (word) => {
       try {
-        const response = await axios.post('https://www.shorthandonlineexam.in/student-add-ignore-word', {
+        const response = await axios.post('http://localhost:3000/student-add-ignore-word', {
           subjectId,
           qset,
           activePassage,
@@ -283,7 +318,7 @@ const FetchPassageById = () => {
     
     const handleUndoWord = useCallback(async (wordToRemove) => {
       try {
-        const response = await axios.post('https://www.shorthandonlineexam.in/student-undo-word', {
+        const response = await axios.post('http://localhost:3000/student-undo-word', {
           subjectId,
           qset,
           activePassage,
@@ -294,17 +329,18 @@ const FetchPassageById = () => {
         if (response.status === 200) {
           setIgnoreList(response.data.ignoreList);
           toast.success(`Word "${wordToRemove}" removed from ignore list`);
+          comparePassages();
           console.log("Debug info:", response.data.debug);
         }
       } catch (err) {
         console.error('Error removing word from ignore list:', err);
         toast.error('Failed to remove word from ignore list');
       }
-    }, [subjectId, qset, activePassage, studentId]);
+    }, [subjectId, qset, activePassage, comparePassages, studentId]);
 
     const handleClearIgnoreList = useCallback(async () => {
       try {
-        const response = await axios.post('https://www.shorthandonlineexam.in/student-clear-ignore-list', {
+        const response = await axios.post('http://localhost:3000/student-clear-ignore-list', {
           subjectId,
           qset,
           activePassage,
@@ -314,13 +350,14 @@ const FetchPassageById = () => {
         if (response.status === 200) {
           setIgnoreList([]);
           toast.success('Ignore list cleared successfully');
+          comparePassages();
           console.log("Debug info:", response.data.debug);
         }
       } catch (err) {
         console.error('Error clearing ignore list:', err);
         toast.error('Failed to clear ignore list');
       }
-    }, [subjectId, qset, activePassage]);
+    }, [subjectId, qset, activePassage, comparePassages]);
 
     const IgnoredList = ({ ignoreList, fontSize, onUndoIgnore, isVisible }) => {
       if (!isVisible) return null;

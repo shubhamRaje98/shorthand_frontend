@@ -12,7 +12,7 @@ const SubjectSelection = () => {
     useEffect(() => {
         const fetchSubjects = async () => {
             try {
-                const response = await axios.get('https://www.shorthandonlineexam.in/all-subjects', { withCredentials: true });
+                const response = await axios.get('http://localhost:3000/all-subjects', { withCredentials: true });
                 if (response.status === 200 && Array.isArray(response.data)) {
                     const groupedSubjects = response.data.reduce((acc, subject) => {
                         if (typeof subject.subject_name === 'string') {
