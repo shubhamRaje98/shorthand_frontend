@@ -216,7 +216,7 @@ const ExpertAssign = () => {
             tabIndex={0}
           >
             <h3>{dept.departmentName}</h3>
-            <p>Students: {dept.student_count}</p>
+            <p>Students: {dept.unassigned_count}/{dept.total_count}</p>
           </div>
         ))}
       </div>
@@ -237,7 +237,7 @@ const ExpertAssign = () => {
               tabIndex={0}
             >
               <h3>{subject.subject_name}</h3>
-              <p>Students: {subject.student_count}</p>
+              <p>Students: {subject.unassigned_count}/{subject.total_count}</p>
             </div>
           ))}
         </div>
@@ -255,7 +255,7 @@ const ExpertAssign = () => {
           {data.qsets.map((qset) => (
             <div key={qset.qset} className="ea-card" onClick={() => handleQsetClick(qset)}>
               <h3>qset {qset.qset}</h3>
-              <p>Students: {qset.student_count}</p>
+              <p>Students: {qset.unassigned_count}/{qset.total_count}</p>
             </div>
           ))}
         </div>

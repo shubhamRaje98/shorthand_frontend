@@ -106,9 +106,9 @@ const ExpertSummary = () => {
                 <th>Name</th>
                 <th>Subject</th>
                 <th>Q Set</th>
+                <th>Assigned</th>
                 <th>Submitted</th>
                 <th>Pending</th>
-                <th>Assigned</th>
               </tr>
             </thead>
             <tbody>
@@ -134,9 +134,9 @@ const ExpertSummary = () => {
                         <td rowSpan={rowspan}>{assignment.subject}</td>
                       )}
                       <td>{assignment.qset}</td>
+                      <td>{assignment.expert_assigned_count}</td>
                       <td>{assignment.submitted_students}</td>
                       <td>{assignment.pending_students}</td>
-                      <td>{assignment.expert_assigned_count}</td>
                     </tr>
                   );
                 })
@@ -182,9 +182,9 @@ const ExpertSummary = () => {
               <tr>
                 <th>Subject ID</th>
                 <th>Subject Name</th>
+                <th>Total Assigned</th>
                 <th>Total Submitted</th>
                 <th>Total Pending</th>
-                <th>Total Assigned</th>
               </tr>
             </thead>
             <tbody>
@@ -192,9 +192,9 @@ const ExpertSummary = () => {
                 <tr key={subject.subjectId}>
                   <td>{subject.subjectId}</td>
                   <td>{subject.subject_name}</td>
+                  <td>{subject.assigned}</td>
                   <td>{subject.submitted}</td>
                   <td>{subject.pending}</td>
-                  <td>{subject.assigned}</td>
                 </tr>
               ))}
             </tbody>
@@ -236,9 +236,9 @@ const ExpertSummary = () => {
               <tr>
                 <th>Department ID</th>
                 <th>Department Name</th>
+                <th>Total Assigned</th>
                 <th>Total Submitted</th>
                 <th>Total Pending</th>
-                <th>Total Assigned</th>
               </tr>
             </thead>
             <tbody>
@@ -246,9 +246,9 @@ const ExpertSummary = () => {
                 <tr key={department.departmentId}>
                   <td>{department.departmentId}</td>
                   <td>{department.name}</td>
+                  <td>{department.assigned}</td>
                   <td>{department.submitted}</td>
                   <td>{department.pending}</td>
-                  <td>{department.assigned}</td>
                 </tr>
               ))}
             </tbody>
@@ -302,9 +302,9 @@ const ExpertSummary = () => {
                     <tr>
                       <th>Subject</th>
                       <th>Question Set</th>
+                      <th>Assigned</th>
                       <th>Submitted</th>
                       <th>Pending</th>
-                      <th>Assigned</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -317,9 +317,9 @@ const ExpertSummary = () => {
                             </td>
                           )}
                           <td>{qset.qset}</td>
+                          <td>{qset.expert_assigned_count}</td>
                           <td>{qset.submitted_students}</td>
                           <td>{qset.pending_students}</td>
-                          <td>{qset.expert_assigned_count}</td>
                         </tr>
                       ))
                     )}
