@@ -480,7 +480,6 @@ const FinalPassageTextlog = () => {
           <button onClick={() => handleZoom('modelAnswer', 'in')}><FontAwesomeIcon icon={faSearchPlus} /></button>
           <button onClick={() => handleZoom('modelAnswer', 'out')}><FontAwesomeIcon icon={faSearchMinus} /></button>
         </div>
-        <AudioPlayer audioUrl={audioUrl} />
       </div>
       <div className="grid-item">
         <h2 className="column-header">Difference Passage</h2>

@@ -9,88 +9,6 @@ import { faUndo, faEyeSlash, faExchangeAlt, faSearchPlus, faSearchMinus } from '
 import { faToggleOn, faToggleOff } from '@fortawesome/free-solid-svg-icons';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
-const MistakesList = ({ mistakes, onAddIgnoreWord, onWordHover, fontSize, ignoreList }) => {
-  const orderedCategories = ['spelling', 'missed', 'added', 'grammar'];
-
-  return (
-    <div>
-      {orderedCategories.map((category) => {
-        if (!mistakes[category] || mistakes[category].length === 0) return null;
-        
-        const headingStyle = {
-          fontSize: `${fontSize * 1.2}px`,
-          padding: '5px 10px',
-          borderRadius: '4px',
-          display: 'inline-block'
-        };
-  
-        let categoryTitle;
-        let categoryStyle;
-  
-        switch(category) {
-          case 'missed':
-            categoryTitle = 'Omitted Words';
-            categoryStyle = {
-              backgroundColor: '#fee2e2',
-              color: '#b91c1c'
-            };
-            break;
-          case 'added':
-            categoryTitle = 'Extra Added Words';
-            categoryStyle = {
-              backgroundColor: '#e6fffa',
-              color: '#047857'
-            };
-            break;
-          case 'spelling':
-            categoryTitle = 'Spelling Mistakes';
-            break;
-          case 'grammar':
-            categoryTitle = 'Grammar Mistakes';
-            break;
-          default:
-            categoryTitle = category;
-        }
-  
-        return (
-          <div key={category}>
-            <h3 style={{ ...headingStyle, ...categoryStyle }}>
-              {categoryTitle}
-            </h3>
-            <div style={{ fontSize: `${fontSize}px`, marginLeft: '1rem' }}>
-              {mistakes[category].map((word, index) => {
-                const wordText = Array.isArray(word) ? word[0] : word;
-                const isIgnored = ignoreList.includes(wordText.toLowerCase());
-                return (
-                  <div 
-                    key={index}
-                    className="mistake-item"
-                    style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}
-                    onMouseEnter={() => onWordHover(wordText)}
-                    onMouseLeave={() => onWordHover(null)}
-                  >
-                    <button 
-                      className="action-button ignore-button" 
-                      title={isIgnored ? "Undo Ignore" : "Ignore"}
-                      onClick={() => onAddIgnoreWord(wordText)}
-                      style={{ fontSize: `${fontSize * 0.8}px`, marginRight: '5px' }}
-                    >
-                      <FontAwesomeIcon icon={isIgnored ? faUndo : faEyeSlash} />
-                    </button>
-                    <span className={`mistake-word ${isIgnored ? 'ignored' : ''}`}>
-                      {Array.isArray(word) ? `${word[0]} (${word[1]})` : word}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-};
-
 const Stage2 = () => {
     const navigate = useNavigate();
     const { subjectId, qset } = useParams();
@@ -111,16 +29,15 @@ const Stage2 = () => {
     const [isIgnoreListVisible, setisIgnoreListVisible] = useState(true)
     const [tempIgnoreList, settempIgnoreList] = useState([])
 
+    const MistakesList = ({ mistakes, onAddIgnoreWord, onWordHover, fontSize, ignoreList }) => {
+  
+    };
 
     const handleZoom = (column, action) => {
         setFontSizes(prev => ({
             ...prev,
             [column]: action === 'in' ? prev[column] + 2 : Math.max(prev[column] - 2, 8)
         }));
-    };
-
-    const handleIsSwapped = () => {
-      setIsSwapped(!isSwapped);
     };
 
     const handleSubmit = async () => {
@@ -174,15 +91,11 @@ const Stage2 = () => {
         fetchPassages();
       }, [subjectId, qset]);
       
-      // Add this useEffect to log passages whenever it changes
-      useEffect(() => {
-        console.log("Passages updated:", passages);
-      }, [passages]);
+    // Add this useEffect to log passages whenever it changes
+    useEffect(() => {
+      console.log("Passages updated:", passages);
+    }, [passages]);
       
-      // In your render method, add:
-      console.log("Rendering with passages:", passages);
-      console.log("Active passage:", activePassage);
-      console.log("Text to display:", passages[`passage${activePassage}`]);
 
     useEffect(() => {
       const sendActivePassageData = async () => {
@@ -224,7 +137,6 @@ const Stage2 = () => {
       }
     };
 
-
     const handleAddIgnoreWord = useCallback(async (word) => {
       try {
         const response = await axios.post('http://localhost:3000/add-ignore-word', {
@@ -262,25 +174,6 @@ const Stage2 = () => {
       } catch (err) {
         console.error('Error removing word from ignore list:', err);
         toast.error('Failed to remove word from ignore list');
-      }
-    }, [subjectId, qset, activePassage]);
-
-    const handleClearIgnoreList = useCallback(async () => {
-      try {
-        const response = await axios.post('http://localhost:3000/clear-ignore-list', {
-          subjectId,
-          qset,
-          activePassage
-        }, { withCredentials: true });
-    
-        if (response.status === 200) {
-          setIgnoreList([]);
-          toast.success('Ignore list cleared successfully');
-          console.log("Debug info:", response.data.debug);
-        }
-      } catch (err) {
-        console.error('Error clearing ignore list:', err);
-        toast.error('Failed to clear ignore list');
       }
     }, [subjectId, qset, activePassage]);
 
@@ -360,13 +253,6 @@ const Stage2 = () => {
                 <div className="ignored-container">
                 <h5 style={{color: 'red', display: 'flex', alignItems: 'center'}}>
                     Ignored List
-                <button 
-                    className="dustbin-button" 
-                    onClick={handleClearIgnoreList}
-                    style={{marginLeft: '0.5rem', background: 'none', border: 'none', cursor: 'pointer'}}
-                >
-                    <FontAwesomeIcon icon={faTrash} />
-                </button>
                 </h5>
                 <IgnoredList 
                     ignoreList={ignoreList}
