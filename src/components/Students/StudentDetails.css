@@ -21,7 +21,7 @@
   }
   
   td:first-child {
-    font-weight: bold;
+    /* font-weight: bold; */
     width: 20%;
   }
   

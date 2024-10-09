@@ -76,7 +76,7 @@ const ExpertReview = () => {
       }
     } catch (error) {
       console.error('Error fetching expert review logs:', error);
-      setError('An error occurred while fetching expert review logs. Please try again.');
+      // setError('An error occurred while fetching expert review logs. Please try again.');
     } finally {
       setLoadingExpertTable(false);
     }
@@ -257,29 +257,28 @@ const ExpertReview = () => {
           ))}
         </select>
       </div>
-      <div className="er-buttons">
-        <button
-          onClick={handleExpertLogs}
-          className="er-fetch-logs-button"
-          disabled={!selectedDepartment}
-        >
-          {loadingExpertLogs ? 'Fetching...' : 'Populate Expert Logs'}
-        </button>
-      </div>
-
-      <div className="er-buttons">
-        <button
-          onClick={handleModLogs}
-          className="er-fetch-logs-button"
-          disabled={loadingModLogs || !selectedDepartment}
-        >
-          {loadingModLogs ? 'Fetching...' : 'Populate Mod Logs'}
-        </button>
+      <div className="er-buttons-container">
+        <div className="er-buttons">
+          <button
+            onClick={handleExpertLogs}
+            className="er-fetch-logs-button"
+            disabled={!selectedDepartment}
+          >
+            {loadingExpertLogs ? 'Fetching...' : 'Populate Expert Logs'}
+          </button>
+          <button
+            onClick={handleModLogs}
+            className="er-fetch-logs-button"
+            disabled={loadingModLogs || !selectedDepartment}
+          >
+            {loadingModLogs ? 'Fetching...' : 'Populate Mod Logs'}
+          </button>
+        </div>
       </div>
 
       {message && <p className="er-success-message">{message}</p>}
       {error && <p className="er-error-message">{error}</p>}
-
+      
       <div className="er-review-logs">
         <div className="er-tab-buttons">
           <button

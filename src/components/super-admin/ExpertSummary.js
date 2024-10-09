@@ -235,7 +235,7 @@ const ExpertSummary = () => {
             <thead>
               <tr>
                 <th>Department ID</th>
-                <th>Department Name</th>
+                {/* <th>Department Name</th> */}
                 <th>Total Assigned</th>
                 <th>Total Submitted</th>
                 <th>Total Pending</th>
@@ -245,7 +245,7 @@ const ExpertSummary = () => {
               {Object.values(departmentSummary).map((department) => (
                 <tr key={department.departmentId}>
                   <td>{department.departmentId}</td>
-                  <td>{department.name}</td>
+                  {/* <td>{department.name}</td> */}
                   <td>{department.assigned}</td>
                   <td>{department.submitted}</td>
                   <td>{department.pending}</td>

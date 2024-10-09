@@ -8,6 +8,7 @@ const ExpertAssign = () => {
   const [selectedDepartment, setSelectedDepartment] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('');
   const [error, setError] = useState('');
+  const [modalError, setModalError] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [selectedExpert, setSelectedExpert] = useState(null);
   const [studentCount, setStudentCount] = useState('');
@@ -121,7 +122,7 @@ const ExpertAssign = () => {
 
   const handleSubmit = async () => {
     if (!selectedExpert || !studentCount || !selectedQset) {
-      setError('Please select an expert, enter a student count, and select a question set.');
+      setModalError('Please select an expert, enter a student count, and select a question set.');
       return;
     }
 
@@ -140,18 +141,19 @@ const ExpertAssign = () => {
       setSelectedExpert(null);
       setStudentCount('');
       setModalStep('expertList');
+      setModalError('');
       fetchData();
       fetchSummaryData();
       toast.success('Expert assigned successfully!');
     } catch (error) {
       console.error('Error assigning expert:', error);
-      setError('Error assigning expert. Please try again later.');
+      setModalError('Error assigning expert. Please try again later.');
     }
   };
 
   const handleUnassign = async () => {
     if (!selectedExpert || !unassignCount || !selectedQset) {
-      setError('Please select an expert, enter a student count to unassign, and select a question set.');
+      setModalError('Please select an expert, enter a student count to unassign, and select a question set.');
       return;
     }
 
@@ -170,12 +172,13 @@ const ExpertAssign = () => {
       setSelectedExpert(null);
       setUnassignCount('');
       setModalStep('expertList');
+      setModalError('');
       fetchData();
       fetchSummaryData();
       toast.success('Expert unassigned successfully!');
     } catch (error) {
       console.error('Error unassigning expert:', error);
-      setError('Error unassigning expert. Please try again later.');
+      setModalError('Error unassigning expert. Please try again later.');
     }
   };
 
@@ -270,6 +273,7 @@ const ExpertAssign = () => {
       <div className="ea-modal">
         <div className="ea-modal-content">
           <h2>Assign/Unassign Expert</h2>
+          {modalError && <p className="ea-error">{modalError}</p>}
           {modalStep === 'expertList' && (
             <>
               {expertsWithAssignedCounts.length > 0 ? (

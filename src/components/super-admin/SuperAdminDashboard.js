@@ -143,7 +143,7 @@ const SuperAdminDashboard = () => {
             if (response.data.success) {
                 alert('Changes submitted successfully to the backend');
                 setChangedRows({});
-                fetchTableData(selectedTable); // Refresh the data after successful update
+                fetchTableData(selectedTable);
             } else {
                 alert('Failed to submit changes to the backend');
             }
@@ -202,10 +202,11 @@ const SuperAdminDashboard = () => {
         return (
             <tr>
                 {columns.map(column => (
-                    <th key={column.key}>
+                    <th key={column.key} className="sa-table-header-cell">
                         {column.title}
                         {filters[column.dataIndex]?.type === 'dropdown' ? (
                             <select 
+                                className="sa-filter-dropdown"
                                 value={filters[column.dataIndex].selected} 
                                 onChange={(e) => handleFilterChange(column.dataIndex, e.target.value)}
                             >
@@ -216,6 +217,7 @@ const SuperAdminDashboard = () => {
                             </select>
                         ) : (
                             <input 
+                                className="sa-filter-search"
                                 type="text" 
                                 placeholder="Search..." 
                                 value={filters[column.dataIndex]?.value || ''}
@@ -224,7 +226,7 @@ const SuperAdminDashboard = () => {
                         )}
                     </th>
                 ))}
-                <th>Action</th>
+                <th className="sa-table-header-cell">Action</th>
             </tr>
         );
     };
@@ -233,20 +235,22 @@ const SuperAdminDashboard = () => {
         const startIndex = (currentPage - 1) * pageSize;
         const endIndex = startIndex + pageSize;
         return filteredData.slice(startIndex, endIndex).map(row => (
-            <tr key={row.key}>
+            <tr key={row.key} className="sa-table-row">
                 {columns.map(column => (
-                    <td key={column.key}>
+                    <td key={column.key} className="sa-table-cell">
                         {editingKey === row.key ? (
                             isImageColumn(column.dataIndex) ? (
                                 <input
                                     type="file"
                                     accept="image/*"
                                     onChange={(e) => handleImageChange(column.dataIndex, e)}
+                                    className="sa-file-input"
                                 />
                             ) : (
                                 <input
                                     value={editedValues[column.dataIndex] || ''}
                                     onChange={(e) => handleChange(column.dataIndex, e.target.value)}
+                                    className="sa-text-input"
                                 />
                             )
                         ) : (
@@ -254,22 +258,26 @@ const SuperAdminDashboard = () => {
                                 <img 
                                     src={`data:image/jpeg;base64,${row[column.dataIndex]}`} 
                                     alt={`${column.dataIndex}`}
-                                    style={{ maxWidth: '100px', maxHeight: '100px' }}
+                                    className="sa-table-image"
                                 />
                             ) : (
-                                row[column.dataIndex]
+                                <div className="sa-cell-content">
+                                    {typeof row[column.dataIndex] === 'string' && row[column.dataIndex].length > 100
+                                        ? `${row[column.dataIndex].substring(0, 100)}...`
+                                        : row[column.dataIndex]}
+                                </div>
                             )
                         )}
                     </td>
                 ))}
-                <td>
+                <td className="sa-table-cell">
                     {editingKey === row.key ? (
-                        <div className="action-buttons">
-                            <button className="save-button" onClick={() => handleSave(row.key)}>Save</button>
-                            <button className="cancel-button" onClick={handleCancel}>Cancel</button>
+                        <div className="sa-action-buttons">
+                            <button className="sa-save-button" onClick={() => handleSave(row.key)}>Save</button>
+                            <button className="sa-cancel-button" onClick={handleCancel}>Cancel</button>
                         </div>
                     ) : (
-                        <button className="edit-button" onClick={() => handleEdit(row.key)}>Edit</button>
+                        <button className="sa-edit-button" onClick={() => handleEdit(row.key)}>Edit</button>
                     )}
                 </td>
             </tr>
@@ -279,12 +287,20 @@ const SuperAdminDashboard = () => {
     const renderPagination = () => {
         const totalPages = Math.ceil(filteredData.length / pageSize);
         return (
-            <div className="pagination">
-                <button onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1}>
+            <div className="sa-pagination">
+                <button 
+                    className="sa-pagination-button"
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} 
+                    disabled={currentPage === 1}
+                >
                     Previous
                 </button>
-                <span>{currentPage} / {totalPages}</span>
-                <button onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages}>
+                <span className="sa-pagination-info">{currentPage} / {totalPages}</span>
+                <button 
+                    className="sa-pagination-button"
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} 
+                    disabled={currentPage === totalPages}
+                >
                     Next
                 </button>
             </div>
@@ -292,10 +308,10 @@ const SuperAdminDashboard = () => {
     };
 
     return (
-        <div className="super-admin-dashboard">
-            <h1>Super Admin Dashboard</h1>
-            <div className="controls">
-                <select onChange={handleTableSelect} value={selectedTable || ""}>
+        <div className="sa-dashboard">
+            <h1 className="sa-dashboard-title">Super Admin Dashboard</h1>
+            <div className="sa-controls">
+                <select className="sa-table-select" onChange={handleTableSelect} value={selectedTable || ""}>
                     <option value="">Select a table</option>
                     {tableNames.map(name => (
                         <option key={name} value={name}>{name}</option>
@@ -303,21 +319,25 @@ const SuperAdminDashboard = () => {
                 </select>
                 {selectedTable && (
                     <>
-                        <button onClick={handleDownloadExcel}>Download Excel</button>
-                        <button onClick={submitChanges} disabled={Object.keys(changedRows).length === 0}>
+                        <button className="sa-download-button" onClick={handleDownloadExcel}>Download Excel</button>
+                        <button 
+                            className="sa-submit-button" 
+                            onClick={submitChanges} 
+                            disabled={Object.keys(changedRows).length === 0}
+                        >
                             Submit Changes
                         </button>
                     </>
                 )}
             </div>
             {selectedTable && (
-                <>
-                    <table>
+                <div className="sa-table-container">
+                    <table className="sa-table">
                         <thead>{renderTableHeader()}</thead>
                         <tbody>{renderTableBody()}</tbody>
                     </table>
                     {renderPagination()}
-                </>
+                </div>
             )}
         </div>
     );
