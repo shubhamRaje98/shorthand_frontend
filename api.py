@@ -81,7 +81,7 @@ def compare_texts(text1, text2, ignore_list, ignore_case=False):
         'grammar': grammar
     }
 
-@app.route('http://3.6.86.1:5000/compare', methods=['POST'])
+@app.route('/api/compare', methods=['POST'])
 def compare():
     data = request.json
     text1 = data.get('text1')
