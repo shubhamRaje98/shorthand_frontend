@@ -6,6 +6,7 @@ import './ExpertSummary.css';
 const ExpertSummary = () => {
   const [summaryData, setSummaryData] = useState([]);
   const [selectedSummaryDepartment, setSelectedSummaryDepartment] = useState('all');
+  const [selectedSubjectDepartment, setSelectedSubjectDepartment] = useState('all');
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -14,6 +15,14 @@ const ExpertSummary = () => {
   useEffect(() => {
     fetchData();
     fetchSummaryData();
+
+    // Set up interval for refreshing data every minute
+    const intervalId = setInterval(() => {
+      fetchData();
+      fetchSummaryData();
+    }, 60000); 
+
+    return () => clearInterval(intervalId);
   }, [stage]);
 
   const fetchSummaryData = async () => {
@@ -30,7 +39,6 @@ const ExpertSummary = () => {
     try {
       setLoading(true);
       const response = await axios.get(`http://localhost:3000/checked-students?${stage}=true`);
-      console.log(response.data);
       setData(response.data);
       setError(null);
     } catch (err) {
@@ -151,7 +159,11 @@ const ExpertSummary = () => {
   const renderSubjectWiseSummary = () => {
     const subjectSummary = {};
 
-    data.departments.forEach(department => {
+    const filteredDepartments = selectedSubjectDepartment === 'all'
+      ? data.departments
+      : data.departments.filter(dept => dept.departmentId === parseInt(selectedSubjectDepartment));
+
+    filteredDepartments.forEach(department => {
       department.experts.forEach(expert => {
         expert.subjects.forEach(subject => {
           if (!subjectSummary[subject.subjectId]) {
@@ -176,6 +188,21 @@ const ExpertSummary = () => {
     return (
       <div className="expert-summary__subject-summary">
         <h2 className="expert-summary__summary-title">Subject-wise Summary</h2>
+        <div className="expert-summary__summary-filter">
+          <label htmlFor="subjectDepartmentFilter">Filter by Department:</label>
+          <select 
+            id="subjectDepartmentFilter" 
+            value={selectedSubjectDepartment} 
+            onChange={(e) => setSelectedSubjectDepartment(e.target.value)}
+          >
+            <option value="all">All Departments</option>
+            {data.departments.map(dept => (
+              <option key={dept.departmentId} value={dept.departmentId}>
+                {dept.departmentId}
+              </option>
+            ))}
+          </select>
+        </div>
         <div className="expert-summary__table-wrapper">
           <table className="expert-summary__table">
             <thead>
@@ -266,26 +293,18 @@ const ExpertSummary = () => {
     <div className="expert-summary">
       <h1 className="expert-summary__title">Expert Summary</h1>
       <div className="expert-summary__stage-selector">
-        <label className="expert-summary__stage-label">
-          <input
-            type="radio"
-            value="stage_1"
-            checked={stage === 'stage_1'}
-            onChange={handleStageChange}
-            className="expert-summary__stage-input"
-          />
+        <button
+          className={`expert-summary__stage-button ${stage === 'stage_1' ? 'active' : ''}`}
+          onClick={() => setStage('stage_1')}
+        >
           Stage 1
-        </label>
-        <label className="expert-summary__stage-label">
-          <input
-            type="radio"
-            value="stage_3"
-            checked={stage === 'stage_3'}
-            onChange={handleStageChange}
-            className="expert-summary__stage-input"
-          />
+        </button>
+        <button
+          className={`expert-summary__stage-button ${stage === 'stage_3' ? 'active' : ''}`}
+          onClick={() => setStage('stage_3')}
+        >
           Stage 3
-        </label>
+        </button>
       </div>
       {renderSummaryTable()}
       {renderSubjectWiseSummary()}

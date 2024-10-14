@@ -15,18 +15,38 @@
   }
   
   .expert-summary__stage-selector {
+    display: flex;
+    justify-content: center;
     margin-bottom: 30px;
-    text-align: center;
   }
   
-  .expert-summary__stage-label {
-    margin-right: 20px;
-    font-weight: bold;
-    font-size: 1.1rem;
+  .expert-summary__stage-button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    background-color: #ffffff;
+    color: #000000;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
   }
   
-  .expert-summary__stage-input {
-    margin-right: 5px;
+  .expert-summary__stage-button:first-child {
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+  }
+  
+  .expert-summary__stage-button:last-child {
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+  }
+  
+  .expert-summary__stage-button.active {
+    background-color: #3498db;
+    color: white;
+  }
+  
+  .expert-summary__stage-button:hover:not(.active) {
+    background-color: #e0e0e0;
   }
   
   .expert-summary__department {

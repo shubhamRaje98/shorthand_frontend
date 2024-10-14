@@ -439,11 +439,12 @@ const ExpertAssign = () => {
       <h1 className="ea-title">Expert Assign</h1>
       {renderStageSwitch()}
       {error && <p className="ea-error">{error}</p>}
-      {renderSummaryTable()}
+      
       {renderDepartments()}
       {selectedDepartment && renderSubjects()}
       {selectedDepartment && selectedSubject && renderQsets()}
       {showModal && renderModal()}
+      {renderSummaryTable()}
     </div>
   );
 };
