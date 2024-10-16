@@ -12,6 +12,9 @@ const ExpertSummary = () => {
   const [error, setError] = useState(null);
   const [stage, setStage] = useState('stage_1');
   const [showAssignedSummary, setShowAssignedSummary] = useState(false);
+  const [showSubjectWiseSummary, setShowSubjectWiseSummary] = useState(false);
+  const [showDepartmentWiseSummary, setShowDepartmentWiseSummary] = useState(false);
+  const [showDepartmentDetails, setShowDepartmentDetails] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -58,6 +61,18 @@ const ExpertSummary = () => {
     setShowAssignedSummary(!showAssignedSummary);
   };
 
+  const toggleSubjectWiseSummary = () => {
+    setShowSubjectWiseSummary(!showSubjectWiseSummary);
+  };
+
+  const toggleDepartmentWiseSummary = () => {
+    setShowDepartmentWiseSummary(!showDepartmentWiseSummary);
+  };
+
+  const toggleDepartmentDetails = () => {
+    setShowDepartmentDetails(!showDepartmentDetails);
+  };
+
   const renderExpertsTotalAssigned = () => {
     const filteredSummaryData = selectedSummaryDepartment === 'all' 
       ? summaryData 
@@ -86,8 +101,6 @@ const ExpertSummary = () => {
         });
       });
     });
-
-  
 
     return (
       <div className="expert-summary__total-assigned">
@@ -240,21 +253,6 @@ const ExpertSummary = () => {
     return (
       <div className="expert-summary__subject-summary">
         <h2 className="expert-summary__summary-title">Subject-wise Summary</h2>
-        <div className="expert-summary__summary-filter">
-          <label htmlFor="subjectDepartmentFilter">Filter by Department:</label>
-          <select 
-            id="subjectDepartmentFilter" 
-            value={selectedSubjectDepartment} 
-            onChange={(e) => setSelectedSubjectDepartment(e.target.value)}
-          >
-            <option value="all">All Departments</option>
-            {data.departments.map(dept => (
-              <option key={dept.departmentId} value={dept.departmentId}>
-                {dept.departmentId}
-              </option>
-            ))}
-          </select>
-        </div>
         <div className="expert-summary__table-wrapper">
           <table className="expert-summary__table">
             <thead>
@@ -357,70 +355,117 @@ const ExpertSummary = () => {
         </button>
       </div>
       <div className="expert-summary__summary-filter">
-        <label htmlFor="summaryDepartmentFilter">Filter by Department:</label>
-        <select 
-          id="summaryDepartmentFilter" 
-          value={selectedSummaryDepartment} 
-          onChange={(e) => setSelectedSummaryDepartment(e.target.value)}
+        <button
+          className={`expert-summary__department-button ${selectedSummaryDepartment === 'all' ? 'active' : ''}`}
+          onClick={() => setSelectedSummaryDepartment('all')}
         >
-          <option value="all">All Departments</option>
-          {summaryData.map(dept => (
-            <option key={dept.departmentId} value={dept.departmentId}>
-              {dept.departmentId}
-            </option>
-          ))}
-        </select>
+          All Departments
+        </button>
+        {summaryData.map(dept => (
+          <button
+            key={dept.departmentId}
+            className={`expert-summary__department-button ${selectedSummaryDepartment === dept.departmentId.toString() ? 'active' : ''}`}
+            onClick={() => setSelectedSummaryDepartment(dept.departmentId.toString())}
+          >
+            Department {dept.departmentId}
+          </button>
+        ))}
       </div>
       {renderExpertsTotalAssigned()}
-      <button 
-        className="expert-summary__toggle-button" 
-        onClick={toggleAssignedSummary}
-      >
-        {showAssignedSummary ? 'Hide' : 'Show'} Assigned Students Summary
-      </button>
-      {showAssignedSummary && renderSummaryTable()}
-      {renderSubjectWiseSummary()}
-      {renderDepartmentWiseSummary()}
-      {data.departments.map((department) => (
-        <div key={department.departmentId} className="expert-summary__department">
-          <h2 className="expert-summary__department-title">Department ID: {department.departmentId}</h2>
-          {department.experts.map((expert) => (
-            <div key={expert.expertId} className="expert-summary__expert">
-              <h3 className="expert-summary__expert-title">Expert: {expert.expert_name} (ID: {expert.expertId})</h3>
-              <div className="expert-summary__table-wrapper">
-                <table className="expert-summary__table">
-                  <thead>
-                    <tr>
-                      <th>Subject</th>
-                      <th>Question Set</th>
-                      <th>Assigned</th>
-                      <th>Submitted</th>
-                      <th>Pending</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {expert.subjects.flatMap((subject) =>
-                      subject.qsets.map((qset, index) => (
-                        <tr key={`${subject.subjectId}-${qset.qset}`}>
-                          {index === 0 && (
-                            <td rowSpan={subject.qsets.length} className="expert-summary__subject-name">
-                              {subject.subject_name}
-                            </td>
-                          )}
-                          <td>{qset.qset}</td>
-                          <td>{qset.expert_assigned_count}</td>
-                          <td>{qset.submitted_students}</td>
-                          <td>{qset.pending_students}</td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
+
+      <div className="expert-summary__toggle-buttons">
+        <button 
+          className="expert-summary__toggle-button" 
+          onClick={toggleAssignedSummary}
+        >
+          {showAssignedSummary ? 'Hide' : 'Show'} Assigned Students Summary
+        </button>
+        <button 
+          className="expert-summary__toggle-button" 
+          onClick={toggleSubjectWiseSummary}
+        >
+          {showSubjectWiseSummary ? 'Hide' : 'Show'} Subject-wise Summary
+        </button>
+        <button 
+          className="expert-summary__toggle-button" 
+          onClick={toggleDepartmentWiseSummary}
+        >
+          {showDepartmentWiseSummary ? 'Hide' : 'Show'} Department-wise Summary
+        </button>
+        <button 
+          className="expert-summary__toggle-button" 
+          onClick={toggleDepartmentDetails}
+        >
+          {showDepartmentDetails ? 'Hide' : 'Show'} Department Details
+        </button>
+      </div>
+
+      <div className="expert-summary__content">
+        {showAssignedSummary && renderSummaryTable()}
+        {showSubjectWiseSummary && (
+          <>
+            <div className="expert-summary__summary-filter">
+              <button
+                className={`expert-summary__department-button ${selectedSubjectDepartment === 'all' ? 'active' : ''}`}
+                onClick={() => setSelectedSubjectDepartment('all')}
+              >
+                All Departments
+              </button>
+              {data.departments.map(dept => (
+                <button
+                  key={dept.departmentId}
+                  className={`expert-summary__department-button ${selectedSubjectDepartment === dept.departmentId.toString() ? 'active' : ''}`}
+                  onClick={() => setSelectedSubjectDepartment(dept.departmentId.toString())}
+                >
+                  Department {dept.departmentId}
+                </button>
+              ))}
             </div>
-          ))}
-        </div>
-      ))}
+            {renderSubjectWiseSummary()}
+          </>
+        )}
+        {showDepartmentWiseSummary && renderDepartmentWiseSummary()}
+        {showDepartmentDetails && data.departments.map((department) => (
+          <div key={department.departmentId} className="expert-summary__department">
+            <h2 className="expert-summary__department-title">Department ID: {department.departmentId}</h2>
+            {department.experts.map((expert) => (
+              <div key={expert.expertId} className="expert-summary__expert">
+                <h3 className="expert-summary__expert-title">Expert: {expert.expert_name} (ID: {expert.expertId})</h3>
+                <div className="expert-summary__table-wrapper">
+                  <table className="expert-summary__table">
+                    <thead>
+                      <tr>
+                        <th>Subject</th>
+                        <th>Question Set</th>
+                        <th>Assigned</th>
+                        <th>Submitted</th>
+                        <th>Pending</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {expert.subjects.flatMap((subject) =>
+                        subject.qsets.map((qset, index) => (
+                          <tr key={`${subject.subjectId}-${qset.qset}`}>
+                            {index === 0 && (
+                              <td rowSpan={subject.qsets.length} className="expert-summary__subject-name">
+                                {subject.subject_name}
+                              </td>
+                            )}
+                            <td>{qset.qset}</td>
+                            <td>{qset.expert_assigned_count}</td>
+                            <td>{qset.submitted_students}</td>
+                            <td>{qset.pending_students}</td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
