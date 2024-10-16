@@ -22,7 +22,7 @@ const ExpertManagement = () => {
     try {
       const response = await axios.get('http://localhost:3000/get-experts');
       setExperts(response.data.results || []);
-      console.log(response.data);
+      // console.log(response.data);
     } catch (err) {
       setError('Error fetching experts.');
     } finally {

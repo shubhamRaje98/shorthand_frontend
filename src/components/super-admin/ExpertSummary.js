@@ -11,6 +11,7 @@ const ExpertSummary = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [stage, setStage] = useState('stage_1');
+  const [showAssignedSummary, setShowAssignedSummary] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -53,6 +54,72 @@ const ExpertSummary = () => {
     setStage(e.target.value);
   };
 
+  const toggleAssignedSummary = () => {
+    setShowAssignedSummary(!showAssignedSummary);
+  };
+
+  const renderExpertsTotalAssigned = () => {
+    const filteredSummaryData = selectedSummaryDepartment === 'all' 
+      ? summaryData 
+      : summaryData.filter(dept => dept.departmentId === parseInt(selectedSummaryDepartment));
+
+    const expertTotals = {};
+
+    filteredSummaryData.forEach(department => {
+      department.experts.forEach(expert => {
+        if (!expertTotals[expert.expertId]) {
+          expertTotals[expert.expertId] = {
+            expertId: expert.expertId,
+            expert_name: expert.expert_name,
+            total_assigned: 0,
+            total_submitted: 0,
+            total_pending: 0
+          };
+        }
+
+        expert.subjects.forEach(subject => {
+          subject.qsets.forEach(qset => {
+            expertTotals[expert.expertId].total_assigned += qset.expert_assigned_count;
+            expertTotals[expert.expertId].total_submitted += qset.submitted_students;
+            expertTotals[expert.expertId].total_pending += qset.pending_students;
+          });
+        });
+      });
+    });
+
+  
+
+    return (
+      <div className="expert-summary__total-assigned">
+        <h2 className="expert-summary__summary-title">Experts Total Assigned</h2>
+        <div className="expert-summary__table-wrapper">
+          <table className="expert-summary__table">
+            <thead>
+              <tr>
+                <th>Expert ID</th>
+                <th>Name</th>
+                <th>Total Assigned</th>
+                <th>Total Submitted</th>
+                <th>Total Pending</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.values(expertTotals).map(expert => (
+                <tr key={expert.expertId}>
+                  <td>{expert.expertId}</td>
+                  <td>{expert.expert_name}</td>
+                  <td>{expert.total_assigned}</td>
+                  <td>{expert.total_submitted}</td>
+                  <td>{expert.total_pending}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  };
+
   const renderSummaryTable = () => {
     const filteredSummaryData = selectedSummaryDepartment === 'all' 
       ? summaryData 
@@ -91,21 +158,6 @@ const ExpertSummary = () => {
     return (
       <div className="expert-summary__summary-table">
         <h2 className="expert-summary__summary-title">Assigned Students Summary</h2>
-        <div className="expert-summary__summary-filter">
-          <label htmlFor="summaryDepartmentFilter">Filter by Department:</label>
-          <select 
-            id="summaryDepartmentFilter" 
-            value={selectedSummaryDepartment} 
-            onChange={(e) => setSelectedSummaryDepartment(e.target.value)}
-          >
-            <option value="all">All Departments</option>
-            {summaryData.map(dept => (
-              <option key={dept.departmentId} value={dept.departmentId}>
-                {dept.departmentId}
-              </option>
-            ))}
-          </select>
-        </div>
         <div className="expert-summary__table-wrapper">
           <table className="expert-summary__table">
             <thead>
@@ -262,7 +314,6 @@ const ExpertSummary = () => {
             <thead>
               <tr>
                 <th>Department ID</th>
-                {/* <th>Department Name</th> */}
                 <th>Total Assigned</th>
                 <th>Total Submitted</th>
                 <th>Total Pending</th>
@@ -272,7 +323,6 @@ const ExpertSummary = () => {
               {Object.values(departmentSummary).map((department) => (
                 <tr key={department.departmentId}>
                   <td>{department.departmentId}</td>
-                  {/* <td>{department.name}</td> */}
                   <td>{department.assigned}</td>
                   <td>{department.submitted}</td>
                   <td>{department.pending}</td>
@@ -306,7 +356,29 @@ const ExpertSummary = () => {
           Stage 3
         </button>
       </div>
-      {renderSummaryTable()}
+      <div className="expert-summary__summary-filter">
+        <label htmlFor="summaryDepartmentFilter">Filter by Department:</label>
+        <select 
+          id="summaryDepartmentFilter" 
+          value={selectedSummaryDepartment} 
+          onChange={(e) => setSelectedSummaryDepartment(e.target.value)}
+        >
+          <option value="all">All Departments</option>
+          {summaryData.map(dept => (
+            <option key={dept.departmentId} value={dept.departmentId}>
+              {dept.departmentId}
+            </option>
+          ))}
+        </select>
+      </div>
+      {renderExpertsTotalAssigned()}
+      <button 
+        className="expert-summary__toggle-button" 
+        onClick={toggleAssignedSummary}
+      >
+        {showAssignedSummary ? 'Hide' : 'Show'} Assigned Students Summary
+      </button>
+      {showAssignedSummary && renderSummaryTable()}
       {renderSubjectWiseSummary()}
       {renderDepartmentWiseSummary()}
       {data.departments.map((department) => (
