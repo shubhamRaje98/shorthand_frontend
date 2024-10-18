@@ -9,8 +9,6 @@ import { faUndo, faEyeSlash, faExchangeAlt, faSearchPlus, faSearchMinus } from '
 import { faToggleOn, faToggleOff } from '@fortawesome/free-solid-svg-icons';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
-
-
 const ColoredText = ({ coloredWords, highlightedWord }) => {
   return (
     <>

@@ -27,20 +27,6 @@ const ExpertDashboard = () => {
     }, []);
 
     useEffect(() => {
-        const heartbeatInterval = setInterval(() => {
-            axios.post('http://localhost:3000/expert-heartbeat', {}, { withCredentials: true })
-                .catch((error) => {
-                    if (error.response && error.response.status === 401) {
-                        // Unauthorized, session might have expired
-                        navigate('/expert-login', {replace: true});
-                    }
-                });
-        }, 30000); // Send heartbeat every 30 seconds
-
-        return () => clearInterval(heartbeatInterval);
-    }, [navigate]);
-
-    useEffect(() => {
         // Reset selected subject and QSet based on the current URL
         const path = location.pathname.split('/');
         if (path.length === 2) { // At /expertDashboard/

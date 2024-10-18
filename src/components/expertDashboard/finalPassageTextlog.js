@@ -326,9 +326,9 @@ const FinalPassageTextlog = () => {
     }, {});
 
     const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
-    let average = 50 - (total / 3) ;
-    if (average<0) {
-      average = 0
+    let average = 80 - (total / 2);
+    if (average < 0) {
+      average = 0;
     }
 
     setCategoryCounts({
@@ -340,7 +340,26 @@ const FinalPassageTextlog = () => {
     console.log('Mistake category counts:', counts);
     console.log('Total mistakes:', total);
     console.log('Average mistakes:', average.toFixed(2));
-  }, [mistakes]);
+
+    // Send total mistakes, marks, and individual mistake counts to server
+    const sendMarksToServer = async() => {
+      try {
+        const response = await axios.post(`http://localhost:3000/update-student-marks/${subjectId}/${qset}`, {
+          total_mistakes: total,
+          total_marks: parseFloat(average.toFixed(2)),
+          spelling: counts.spelling,
+          missed: counts.missed,
+          added: counts.added,
+          grammar: counts.grammar
+        });
+        console.log('Server response: ', response.data);
+      } catch (error) {
+        console.error('Error sending data to server: ', error);
+      }
+    }
+    sendMarksToServer();
+
+  }, [mistakes, subjectId, qset]);
 
   const handleWordHover = useCallback((word) => {
     if (word) {
@@ -442,17 +461,17 @@ const FinalPassageTextlog = () => {
           >
             Passage A
           </button>
-          <button 
+          {/* <button 
             className={`passage-button ${activePassage === 'B' ? 'active' : ''}`}
             onClick={() => handlePassageChange('B')}
           >
             Passage B
-          </button>
+          </button> */}
         </div>
         <button 
           className="submit-button" 
           onClick={handleSubmit} 
-          disabled={!passageBViewed}
+          // disabled={!passageBViewed}
         >
           Submit
         </button>
