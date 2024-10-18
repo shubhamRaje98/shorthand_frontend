@@ -16,7 +16,7 @@ const DepartmentNavBar = () => {
     useEffect(() => {
         const fetchDepartmentDetails = async () => {
             try {
-                const response = await axios.get(`http://localhost:3000/get-department-details`);
+                const response = await axios.get(`https://www.shorthandonlineexam.in/get-department-details`);
                 if (response.data && response.data.departmentDTO && response.data.departmentDTO.length > 0) {
                     setDepartmentDetails(response.data.departmentDTO[0]);
                 } else {
