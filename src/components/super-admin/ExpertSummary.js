@@ -6,14 +6,27 @@ import './ExpertSummary.css';
 const ExpertSummary = () => {
   const [summaryData, setSummaryData] = useState([]);
   const [selectedSummaryDepartment, setSelectedSummaryDepartment] = useState('all');
+  const [selectedSubjectDepartment, setSelectedSubjectDepartment] = useState('all');
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [stage, setStage] = useState('stage_1');
+  const [showAssignedSummary, setShowAssignedSummary] = useState(false);
+  const [showSubjectWiseSummary, setShowSubjectWiseSummary] = useState(false);
+  const [showDepartmentWiseSummary, setShowDepartmentWiseSummary] = useState(false);
+  const [showDepartmentDetails, setShowDepartmentDetails] = useState(false);
 
   useEffect(() => {
     fetchData();
     fetchSummaryData();
+
+    // Set up interval for refreshing data every minute
+    const intervalId = setInterval(() => {
+      fetchData();
+      fetchSummaryData();
+    }, 60000); 
+
+    return () => clearInterval(intervalId);
   }, [stage]);
 
   const fetchSummaryData = async () => {
@@ -30,7 +43,6 @@ const ExpertSummary = () => {
     try {
       setLoading(true);
       const response = await axios.get(`http://localhost:3000/checked-students?${stage}=true`);
-      console.log(response.data);
       setData(response.data);
       setError(null);
     } catch (err) {
@@ -43,6 +55,82 @@ const ExpertSummary = () => {
 
   const handleStageChange = (e) => {
     setStage(e.target.value);
+  };
+
+  const toggleAssignedSummary = () => {
+    setShowAssignedSummary(!showAssignedSummary);
+  };
+
+  const toggleSubjectWiseSummary = () => {
+    setShowSubjectWiseSummary(!showSubjectWiseSummary);
+  };
+
+  const toggleDepartmentWiseSummary = () => {
+    setShowDepartmentWiseSummary(!showDepartmentWiseSummary);
+  };
+
+  const toggleDepartmentDetails = () => {
+    setShowDepartmentDetails(!showDepartmentDetails);
+  };
+
+  const renderExpertsTotalAssigned = () => {
+    const filteredSummaryData = selectedSummaryDepartment === 'all' 
+      ? summaryData 
+      : summaryData.filter(dept => dept.departmentId === parseInt(selectedSummaryDepartment));
+
+    const expertTotals = {};
+
+    filteredSummaryData.forEach(department => {
+      department.experts.forEach(expert => {
+        if (!expertTotals[expert.expertId]) {
+          expertTotals[expert.expertId] = {
+            expertId: expert.expertId,
+            expert_name: expert.expert_name,
+            total_assigned: 0,
+            total_submitted: 0,
+            total_pending: 0
+          };
+        }
+
+        expert.subjects.forEach(subject => {
+          subject.qsets.forEach(qset => {
+            expertTotals[expert.expertId].total_assigned += qset.expert_assigned_count;
+            expertTotals[expert.expertId].total_submitted += qset.submitted_students;
+            expertTotals[expert.expertId].total_pending += qset.pending_students;
+          });
+        });
+      });
+    });
+
+    return (
+      <div className="expert-summary__total-assigned">
+        <h2 className="expert-summary__summary-title">Experts Total Assigned</h2>
+        <div className="expert-summary__table-wrapper">
+          <table className="expert-summary__table">
+            <thead>
+              <tr>
+                <th>Expert ID</th>
+                <th>Name</th>
+                <th>Total Assigned</th>
+                <th>Total Submitted</th>
+                <th>Total Pending</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.values(expertTotals).map(expert => (
+                <tr key={expert.expertId}>
+                  <td>{expert.expertId}</td>
+                  <td>{expert.expert_name}</td>
+                  <td>{expert.total_assigned}</td>
+                  <td>{expert.total_submitted}</td>
+                  <td>{expert.total_pending}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
   };
 
   const renderSummaryTable = () => {
@@ -83,21 +171,6 @@ const ExpertSummary = () => {
     return (
       <div className="expert-summary__summary-table">
         <h2 className="expert-summary__summary-title">Assigned Students Summary</h2>
-        <div className="expert-summary__summary-filter">
-          <label htmlFor="summaryDepartmentFilter">Filter by Department:</label>
-          <select 
-            id="summaryDepartmentFilter" 
-            value={selectedSummaryDepartment} 
-            onChange={(e) => setSelectedSummaryDepartment(e.target.value)}
-          >
-            <option value="all">All Departments</option>
-            {summaryData.map(dept => (
-              <option key={dept.departmentId} value={dept.departmentId}>
-                {dept.departmentId}
-              </option>
-            ))}
-          </select>
-        </div>
         <div className="expert-summary__table-wrapper">
           <table className="expert-summary__table">
             <thead>
@@ -151,7 +224,11 @@ const ExpertSummary = () => {
   const renderSubjectWiseSummary = () => {
     const subjectSummary = {};
 
-    data.departments.forEach(department => {
+    const filteredDepartments = selectedSubjectDepartment === 'all'
+      ? data.departments
+      : data.departments.filter(dept => dept.departmentId === parseInt(selectedSubjectDepartment));
+
+    filteredDepartments.forEach(department => {
       department.experts.forEach(expert => {
         expert.subjects.forEach(subject => {
           if (!subjectSummary[subject.subjectId]) {
@@ -235,7 +312,6 @@ const ExpertSummary = () => {
             <thead>
               <tr>
                 <th>Department ID</th>
-                {/* <th>Department Name</th> */}
                 <th>Total Assigned</th>
                 <th>Total Submitted</th>
                 <th>Total Pending</th>
@@ -245,7 +321,6 @@ const ExpertSummary = () => {
               {Object.values(departmentSummary).map((department) => (
                 <tr key={department.departmentId}>
                   <td>{department.departmentId}</td>
-                  {/* <td>{department.name}</td> */}
                   <td>{department.assigned}</td>
                   <td>{department.submitted}</td>
                   <td>{department.pending}</td>
@@ -266,70 +341,131 @@ const ExpertSummary = () => {
     <div className="expert-summary">
       <h1 className="expert-summary__title">Expert Summary</h1>
       <div className="expert-summary__stage-selector">
-        <label className="expert-summary__stage-label">
-          <input
-            type="radio"
-            value="stage_1"
-            checked={stage === 'stage_1'}
-            onChange={handleStageChange}
-            className="expert-summary__stage-input"
-          />
+        <button
+          className={`expert-summary__stage-button ${stage === 'stage_1' ? 'active' : ''}`}
+          onClick={() => setStage('stage_1')}
+        >
           Stage 1
-        </label>
-        <label className="expert-summary__stage-label">
-          <input
-            type="radio"
-            value="stage_3"
-            checked={stage === 'stage_3'}
-            onChange={handleStageChange}
-            className="expert-summary__stage-input"
-          />
+        </button>
+        <button
+          className={`expert-summary__stage-button ${stage === 'stage_3' ? 'active' : ''}`}
+          onClick={() => setStage('stage_3')}
+        >
           Stage 3
-        </label>
+        </button>
       </div>
-      {renderSummaryTable()}
-      {renderSubjectWiseSummary()}
-      {renderDepartmentWiseSummary()}
-      {data.departments.map((department) => (
-        <div key={department.departmentId} className="expert-summary__department">
-          <h2 className="expert-summary__department-title">Department ID: {department.departmentId}</h2>
-          {department.experts.map((expert) => (
-            <div key={expert.expertId} className="expert-summary__expert">
-              <h3 className="expert-summary__expert-title">Expert: {expert.expert_name} (ID: {expert.expertId})</h3>
-              <div className="expert-summary__table-wrapper">
-                <table className="expert-summary__table">
-                  <thead>
-                    <tr>
-                      <th>Subject</th>
-                      <th>Question Set</th>
-                      <th>Assigned</th>
-                      <th>Submitted</th>
-                      <th>Pending</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {expert.subjects.flatMap((subject) =>
-                      subject.qsets.map((qset, index) => (
-                        <tr key={`${subject.subjectId}-${qset.qset}`}>
-                          {index === 0 && (
-                            <td rowSpan={subject.qsets.length} className="expert-summary__subject-name">
-                              {subject.subject_name}
-                            </td>
-                          )}
-                          <td>{qset.qset}</td>
-                          <td>{qset.expert_assigned_count}</td>
-                          <td>{qset.submitted_students}</td>
-                          <td>{qset.pending_students}</td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
+      <div className="expert-summary__summary-filter">
+        <button
+          className={`expert-summary__department-button ${selectedSummaryDepartment === 'all' ? 'active' : ''}`}
+          onClick={() => setSelectedSummaryDepartment('all')}
+        >
+          All Departments
+        </button>
+        {summaryData.map(dept => (
+          <button
+            key={dept.departmentId}
+            className={`expert-summary__department-button ${selectedSummaryDepartment === dept.departmentId.toString() ? 'active' : ''}`}
+            onClick={() => setSelectedSummaryDepartment(dept.departmentId.toString())}
+          >
+            Department {dept.departmentId}
+          </button>
+        ))}
+      </div>
+      {renderExpertsTotalAssigned()}
+
+      <div className="expert-summary__toggle-buttons">
+        <button 
+          className="expert-summary__toggle-button" 
+          onClick={toggleAssignedSummary}
+        >
+          {showAssignedSummary ? 'Hide' : 'Show'} Assigned Students Summary
+        </button>
+        <button 
+          className="expert-summary__toggle-button" 
+          onClick={toggleSubjectWiseSummary}
+        >
+          {showSubjectWiseSummary ? 'Hide' : 'Show'} Subject-wise Summary
+        </button>
+        <button 
+          className="expert-summary__toggle-button" 
+          onClick={toggleDepartmentWiseSummary}
+        >
+          {showDepartmentWiseSummary ? 'Hide' : 'Show'} Department-wise Summary
+        </button>
+        <button 
+          className="expert-summary__toggle-button" 
+          onClick={toggleDepartmentDetails}
+        >
+          {showDepartmentDetails ? 'Hide' : 'Show'} Department Details
+        </button>
+      </div>
+
+      <div className="expert-summary__content">
+        {showAssignedSummary && renderSummaryTable()}
+        {showSubjectWiseSummary && (
+          <>
+            <div className="expert-summary__summary-filter">
+              <button
+                className={`expert-summary__department-button ${selectedSubjectDepartment === 'all' ? 'active' : ''}`}
+                onClick={() => setSelectedSubjectDepartment('all')}
+              >
+                All Departments
+              </button>
+              {data.departments.map(dept => (
+                <button
+                  key={dept.departmentId}
+                  className={`expert-summary__department-button ${selectedSubjectDepartment === dept.departmentId.toString() ? 'active' : ''}`}
+                  onClick={() => setSelectedSubjectDepartment(dept.departmentId.toString())}
+                >
+                  Department {dept.departmentId}
+                </button>
+              ))}
             </div>
-          ))}
-        </div>
-      ))}
+            {renderSubjectWiseSummary()}
+          </>
+        )}
+        {showDepartmentWiseSummary && renderDepartmentWiseSummary()}
+        {showDepartmentDetails && data.departments.map((department) => (
+          <div key={department.departmentId} className="expert-summary__department">
+            <h2 className="expert-summary__department-title">Department ID: {department.departmentId}</h2>
+            {department.experts.map((expert) => (
+              <div key={expert.expertId} className="expert-summary__expert">
+                <h3 className="expert-summary__expert-title">Expert: {expert.expert_name} (ID: {expert.expertId})</h3>
+                <div className="expert-summary__table-wrapper">
+                  <table className="expert-summary__table">
+                    <thead>
+                      <tr>
+                        <th>Subject</th>
+                        <th>Question Set</th>
+                        <th>Assigned</th>
+                        <th>Submitted</th>
+                        <th>Pending</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {expert.subjects.flatMap((subject) =>
+                        subject.qsets.map((qset, index) => (
+                          <tr key={`${subject.subjectId}-${qset.qset}`}>
+                            {index === 0 && (
+                              <td rowSpan={subject.qsets.length} className="expert-summary__subject-name">
+                                {subject.subject_name}
+                              </td>
+                            )}
+                            <td>{qset.qset}</td>
+                            <td>{qset.expert_assigned_count}</td>
+                            <td>{qset.submitted_students}</td>
+                            <td>{qset.pending_students}</td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

@@ -20,6 +20,7 @@ const ExpertAssign = () => {
   const [unassignCount, setUnassignCount] = useState('');
   const [selectedSummaryDepartment, setSelectedSummaryDepartment] = useState('all');
   const [expertsWithAssignedCounts, setExpertsWithAssignedCounts] = useState([]);
+  const [showSummaryTable, setShowSummaryTable] = useState(false);
   
   const departmentRefs = useRef({});
   const subjectRefs = useRef({});
@@ -97,21 +98,36 @@ const ExpertAssign = () => {
   };
 
   const fetchExpertsWithAssignedCounts = (qset) => {
+  
     const expertsWithCounts = experts.map(expert => {
-      const expertSummary = summaryData
-        .flatMap(dept => dept.experts)
-        .find(e => e.expertId === expert.expertId);
+  
+      const departmentSummary = summaryData
+        .find(dept => dept.departmentId === parseInt(selectedDepartment));
       
-      const assignedCount = expertSummary
-        ? expertSummary.subjects
-            .find(subject => subject.subjectId === selectedSubject)
-            ?.qsets.find(q => q.qset === qset.qset)
-            ?.expert_assigned_count || 0
-        : 0;
-
+      let assignedCount = 0;
+  
+      if (departmentSummary) {
+        const expertSummary = departmentSummary.experts
+          .find(e => e.expertId === expert.expertId);
+  
+        if (expertSummary) {
+          const subjectData = expertSummary.subjects
+            .find(subject => subject.subjectId === selectedSubject);
+  
+          if (subjectData) {
+            const qsetData = subjectData.qsets
+              .find(q => q.qset === qset.qset);
+            
+            console.log("Qset Data:", qsetData);
+  
+            assignedCount = qsetData ? qsetData.expert_assigned_count : 0;
+          }
+        }
+      }
+  
       return { ...expert, assignedCount };
     });
-
+  
     setExpertsWithAssignedCounts(expertsWithCounts);
   };
 
@@ -372,19 +388,21 @@ const ExpertAssign = () => {
       <div className="ea-summary-table">
         <h2>Assigned Students Summary</h2>
         <div className="ea-summary-filter">
-          <label htmlFor="summaryDepartmentFilter">Filter by Department:</label>
-          <select 
-            id="summaryDepartmentFilter" 
-            value={selectedSummaryDepartment} 
-            onChange={(e) => setSelectedSummaryDepartment(e.target.value)}
+          <button 
+            className={`ea-department-button ${selectedSummaryDepartment === 'all' ? 'active' : ''}`}
+            onClick={() => setSelectedSummaryDepartment('all')}
           >
-            <option value="all">All Departments</option>
-            {summaryData.map(dept => (
-              <option key={dept.departmentId} value={dept.departmentId}>
-                {dept.departmentId}
-              </option>
-            ))}
-          </select>
+            All Departments
+          </button>
+          {summaryData.map(dept => (
+            <button 
+              key={dept.departmentId}
+              className={`ea-department-button ${selectedSummaryDepartment === dept.departmentId.toString() ? 'active' : ''}`}
+              onClick={() => setSelectedSummaryDepartment(dept.departmentId.toString())}
+            >
+              {dept.departmentId}
+            </button>
+          ))}
         </div>
         <table>
           <thead>
@@ -439,11 +457,20 @@ const ExpertAssign = () => {
       <h1 className="ea-title">Expert Assign</h1>
       {renderStageSwitch()}
       {error && <p className="ea-error">{error}</p>}
-      {renderSummaryTable()}
+      
       {renderDepartments()}
       {selectedDepartment && renderSubjects()}
       {selectedDepartment && selectedSubject && renderQsets()}
       {showModal && renderModal()}
+      
+      <button 
+        className="ea-toggle-summary-button"
+        onClick={() => setShowSummaryTable(!showSummaryTable)}
+      >
+        {showSummaryTable ? 'Hide' : 'Show'} Assigned Students Summary
+      </button>
+      
+      {showSummaryTable && renderSummaryTable()}
     </div>
   );
 };

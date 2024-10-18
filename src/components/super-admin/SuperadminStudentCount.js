@@ -43,7 +43,7 @@ const SuperAdminCount = () => {
         try {
             let url = 'http://localhost:3000/super-admin-student-track-dashboard';
             
-            console.log("Fetching data from URL:", url);
+            // console.log("Fetching data from URL:", url);
             const response = await axios.post(url, { withCredentials: true });
             const distinctBatches = [...new Set(response.data.map(item => item.batchNo))];
             setBatches(prevBatches => {
@@ -83,7 +83,7 @@ const SuperAdminCount = () => {
         
             const response = await axios.get(url, { withCredentials: true });
             if (response.data && response.data.results && Array.isArray(response.data.results)) {
-                console.log(response.data)
+                // console.log(response.data)
                 setAllData(response.data.results);
             } else {
                 setError('Received unexpected data format from server');

@@ -265,6 +265,51 @@
   }
 
 
+  .ea-toggle-summary-button {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #3182ce;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .ea-toggle-summary-button:hover {
+    background-color: #45a049;
+  }
+  
+  .ea-summary-filter {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  
+  .ea-department-button {
+    margin: 5px;
+    padding: 8px 15px;
+    font-size: 14px;
+    background-color: #3182ce;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  .ea-department-button:hover {
+    background-color: #ddd;
+  }
+  
+  .ea-department-button.active {
+    background-color: #4CAF50;
+    color: white;
+    border-color: #4CAF50;
+  }
+
 @media (max-width: 1024px) {
     .ea-card {
         width: calc(50% - 25px);
