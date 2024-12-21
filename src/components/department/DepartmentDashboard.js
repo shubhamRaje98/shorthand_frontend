@@ -125,7 +125,7 @@ const DepartmentDashboard = () => {
     };
 
     const getCellClass = (item, field) => {
-        const stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time', 'trial_passage_time', 'typing_passage_time',  'feedback_time'];
+        const stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time','audio2_time', 'passage2_time', 'trial_passage_time', 'typing_passage_time',  'feedback_time'];
         const currentStageIndex = stages.indexOf(field);
         
         if (currentStageIndex === -1) return '';
@@ -165,6 +165,8 @@ const DepartmentDashboard = () => {
             "Trial": formatDate(item.trial_time),
             "Audio Track A": formatDate(item.audio1_time),
             "Passage A": formatDate(item.passage1_time),
+            "Audio Track B": formatDate(item.audio1_time),
+            "Passage B": formatDate(item.passage1_time),
             "Trial Passage": formatDate(item.trial_passage_time),
             "Typing Passage": formatDate(item.typing_passage_time),
             "Feedback": formatDate(item.feedback_time)
@@ -370,6 +372,8 @@ const DepartmentDashboard = () => {
                                                 <>
                                                     <th>Audio Track A</th>
                                                     <th>Passage A</th>
+                                                    <th>Audio Track B</th>
+                                                    <th>Passage B</th>
                                                 </>
                                             )}
                                             {exam_type !== 'shorthand' && (
@@ -392,6 +396,8 @@ const DepartmentDashboard = () => {
                                                     <>
                                                         <td className={getCellClass(item, 'audio1_time')}>{formatDate(item.audio1_time)}</td>
                                                         <td className={getCellClass(item, 'passage1_time')}>{formatDate(item.passage1_time)}</td>
+                                                        <td className={getCellClass(item, 'audio2_time')}>{formatDate(item.audio2_time)}</td>
+                                                        <td className={getCellClass(item, 'passage2_time')}>{formatDate(item.passage2_time)}</td>
                                                     </>
                                                 )}
                                                 {exam_type !== 'shorthand' && (

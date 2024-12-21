@@ -45,6 +45,15 @@
     color: white;
 }
 
+.da-rusk-app {
+    background-color:cadetblue;
+    color: white;
+}
+
+.da-ism-app {
+    background-color: crimson;
+    color: white;
+}
 .da-button:hover {
     opacity: 0.9;
 }

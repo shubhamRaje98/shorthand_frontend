@@ -104,11 +104,11 @@ const StudentTable = () => {
     const getCellClass = (item, field, exam_type) => {
         let stages; 
         if (exam_type === 'shorthand') {
-            stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time', 'feedback_time'];
+            stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time', 'audio2_time', 'passage2_time', 'feedback_time'];
         } else if (exam_type === 'typewriting') {
             stages = ['loginTime', 'trial_passage_time', 'typing_passage_time', 'feedback_time'];
         }else {
-           stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time', 'trial_passage_time', 'typing_passage_time', 'feedback_time'];
+           stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time', 'audio2_time', 'passage2_time', 'feedback_time'];
         }
         const currentStageIndex = stages.indexOf(field);
         
@@ -122,7 +122,7 @@ const StudentTable = () => {
             if (isValidData(item[field])) {
                 // If feedback is green, also turn passage1_time or typing_passage_time green
                 if (exam_type === 'shorthand') {
-                    item['passage1_time'] = item[field]; // Force passage1_time to be valid
+                    item['passage2_time'] = item[field]; // Force passage1_time to be valid
                 } else if (exam_type === 'typewriting') {
                     item['typing_passage_time'] = item[field]; // Force typing_passage_time to be valid
                 }
@@ -134,7 +134,7 @@ const StudentTable = () => {
     
         if (isValidData(item[field])) {
             // Special case for passage1_time in shorthand and typing_passage_time in typewriting
-            if ((exam_type === 'shorthand' && field === 'passage1_time') || 
+            if ((exam_type === 'shorthand' && field === 'passage2_time') || 
                 (exam_type === 'typewriting' && field === 'typing_passage_time')) {
                 if (isValidData(item['feedback_time'])) {
                     return 'dept-cell-green dept-text-white';
@@ -171,6 +171,8 @@ const StudentTable = () => {
             "Trial": formatDate(item.trial_time),
             "Audio Track A": formatDate(item.audio1_time),
             "Passage A": formatDate(item.passage1_time),
+            "Audio Track B": formatDate(item.audio1_time),
+            "Passage B": formatDate(item.passage1_time),
             "typing trial": formatDate(item.trial_passage_time),
             "Typing passage": formatDate(item.typing_passage_time),
             "Feedback": formatDate(item.feedback_time)
@@ -330,8 +332,8 @@ const StudentTable = () => {
                             >
                                 <option value="">All</option>
                                 <option value="shorthand">Short Hand</option>
-                                <option value="typewriting">Type Writing</option>
-                                <option value="both">Both</option>
+                                {/* <option value="typewriting">Type Writing</option>
+                                <option value="both">Both</option> */}
                             </select>
                         </div>
                     </div>
@@ -389,6 +391,8 @@ const StudentTable = () => {
                                             {exam_type !== 'typewriting' && <th>Trial</th>}
                                             {exam_type !== 'typewriting' && <th>Audio Track A</th>}
                                             {exam_type !== 'typewriting' && <th>Passage A</th>}
+                                            {exam_type !== 'typewriting' && <th>Audio Track B</th>}
+                                            {exam_type !== 'typewriting' && <th>Passage B</th>}
                                             {exam_type !== 'shorthand' && <th>Trial Typing</th>}
                                             {exam_type !== 'shorthand' && <th>Typing Test</th>}
                                             <th>Feedback</th>
@@ -403,6 +407,8 @@ const StudentTable = () => {
                                                 {exam_type !== 'typewriting' && <td className={getCellClass(item, 'trial_time')}>{formatDate(item.trial_time)}</td>}
                                                 {exam_type !== 'typewriting' && <td className={getCellClass(item, 'audio1_time')}>{formatDate(item.audio1_time)}</td>}
                                                 {exam_type !== 'typewriting' && <td className={getCellClass(item, 'passage1_time')}>{formatDate(item.passage1_time)}</td>}
+                                                {exam_type !== 'typewriting' && <td className={getCellClass(item, 'audio2_time')}>{formatDate(item.audio2_time)}</td>}
+                                                {exam_type !== 'typewriting' && <td className={getCellClass(item, 'passage2_time')}>{formatDate(item.passage2_time)}</td>}
                                                 {exam_type !== 'shorthand' && <td className={getCellClass(item, 'trial_passage_time')}>{formatDate(item.trial_passage_time)}</td>}
                                                 {exam_type !== 'shorthand' && <td className={getCellClass(item, 'typing_passage_time')}>{formatDate(item.typing_passage_time)}</td>}
                                                 <td className={getCellClass(item, 'feedback_time')}>{formatDate(item.feedback_time)}</td>

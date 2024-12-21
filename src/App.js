@@ -53,6 +53,7 @@ import ExpertReview from './components/super-admin/ExpertReview';
 import ExpertManagement from './components/super-admin/ExpertManagement';
 import ExpertAssign from './components/super-admin/ExpertAssign';
 import ExpertSummary from './components/super-admin/ExpertSummary';
+import BatchManagement from './components/super-admin/BatchManagement';
 
 axios.defaults.withCredentials = true;
 
@@ -112,6 +113,8 @@ const App = () => {
                         <Route path="expert-management" element={<ExpertManagement/>}/>
                         <Route path="expert-assign" element={<ExpertAssign/>}/>
                         <Route path="expert-summary" element={<ExpertSummary/>}/>
+                        <Route path="batch-management" element={<BatchManagement/>}/>
+
                     </Route>
                 </Routes>
             </Router>
