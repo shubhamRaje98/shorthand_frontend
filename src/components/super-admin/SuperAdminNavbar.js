@@ -73,6 +73,9 @@ const SuperAdminNavbar = () => {
                     <Link to="/super-admin/student-data" onClick={closeDropdowns}>Student Reset</Link>
                   </li>
                   <li>
+                    <Link to="/super-admin/student-info" onClick={closeDropdowns}>Student Data</Link>
+                  </li>
+                  <li>
                     <Link to="/super-admin/batch-management" onClick={closeDropdowns}>Batch Management</Link>
                   </li>
 

@@ -12,10 +12,10 @@ const ResetCenterAdmin = () => {
   const [error, setError] = useState('');
 
   const resetTypes = [
-    'Shorthand Passage Reset',
-    'Audio Reset',
-    'Trial Typing Passage Reset',
-    'Typing Passage Reset',
+    'Shorthand Passage A Reset',
+    'Audio A Reset',
+    'Shorthand Passage B Reset',
+    'Audio B Reset',
     'Trial Audio Reset'
   ];
 

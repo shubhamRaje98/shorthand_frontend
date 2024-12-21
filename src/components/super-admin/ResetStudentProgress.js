@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './ResetStudentProgress.css';
 
-const ResetStudentProgress = ({ studentId }) => {
+const ResetStudentProgress = ({ studentId ,resetId }) => {
   const [studentLogin, setStudentLogin] = useState(false);
   const [trialAudioShortHand, setTrialAudioShortHand] = useState(false);
   const [audioShorthandA, setAudioShorthandA] = useState(false);
@@ -24,7 +24,7 @@ const ResetStudentProgress = ({ studentId }) => {
 
   const handleConfirmReset = async () => {
     try {
-      const response = await axios.post('http://localhost:3000/super-admin-reset-student-logs', {
+      const response = await axios.post(`http://localhost:3000/super-admin-reset-student-logs?reset_id=${resetId}`, {
         student_id: studentId,
         studentLogin,
         trialAudioShortHand,
