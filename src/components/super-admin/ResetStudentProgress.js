@@ -24,7 +24,11 @@ const ResetStudentProgress = ({ studentId ,resetId }) => {
 
   const handleConfirmReset = async () => {
     try {
-      const response = await axios.post(`http://localhost:3000/super-admin-reset-student-logs?reset_id=${resetId}`, {
+      let url = `http://localhost:3000/super-admin-reset-student-logs`
+      if(resetId) {
+          url += `?reset_id=${resetId}`
+      }
+      const response = await axios.post(url, {
         student_id: studentId,
         studentLogin,
         trialAudioShortHand,

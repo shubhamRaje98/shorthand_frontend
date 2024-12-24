@@ -12,7 +12,7 @@ const isValidData = (value) => {
 
 
 const getCellClass = (item, field) => {
-    const stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time', 'trial_passage_time', 'typing_passage_time', 'feedback_time'];
+    const stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time','audio2_time', 'passage2_time', 'trial_passage_time', 'typing_passage_time', 'feedback_time'];
     const currentStageIndex = stages.indexOf(field);
     
     if (currentStageIndex === -1) return '';
@@ -49,7 +49,7 @@ const SuperAdminTrackDashboard = () => {
     const [batchNo, setBatchNo] = useState('');
     const [subject, setSubject] = useState('');
     const [loginStatus, setLoginStatus] = useState('');
-    const [exam_type, setExam_type] = useState('');
+    const [exam_type, setExam_type] = useState('shorthand');
     const [batchDate, setBatchDate] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -96,6 +96,10 @@ const SuperAdminTrackDashboard = () => {
         
         return `${day}/${month}/${year} ${hours}:${minutes}`;
     };
+    // function formatDate(dateString) {
+    //         if(!dateString) return null;
+    //         return moment(dateString).tz('Asia/Kolkata').format('DD-MM-YYYY hh:mm:ss A')
+    //     }
     const fetchSubjects = async () => {
         try {
             const response = await axios.get('http://localhost:3000/subjects');
@@ -208,6 +212,8 @@ const SuperAdminTrackDashboard = () => {
             "Trial": formatDate(item.trial_time),
             "Audio Track A": formatDate(item.audio1_time),
             "Passage A": formatDate(item.passage1_time),
+            "Audio Track B": formatDate(item.audio2_time),
+            "Passage B": formatDate(item.passage2_time),
             "Trial Passage": formatDate(item.typing_passage_time),
             "Typing Passage": formatDate(item.trial_passage_time),
             "Feedback": formatDate(item.feedback_time)
@@ -324,12 +330,13 @@ const SuperAdminTrackDashboard = () => {
                             </select>
                         </div>
                         <div className="dept-col-md-3 dept-col-sm-6 mb-2">
-                            <label htmlFor="loginStatus" className="dept-form-label">Exam Status:</label>
+                            <label htmlFor="e" className="dept-form-label">Exam Status:</label>
                             <select
                                 className="dept-form-select"
                                 id="loginStatus"
                                 value={exam_type}
                                 onChange={(e) => setExam_type(e.target.value)}
+                                defaultValue="shorthand"
                             >
                                 <option value="">All</option>
                                 <option value="shorthand">Short Hand</option>
@@ -429,6 +436,9 @@ const SuperAdminTrackDashboard = () => {
                                             <>
                                                 <th>Audio Track A</th>
                                                 <th>Passage A</th>
+                                                <th>Audio Track B</th>
+                                                <th>Passage B</th>
+                                                
                                             </>
                                         )}
                                         {exam_type !== 'shorthand' && (
@@ -452,6 +462,8 @@ const SuperAdminTrackDashboard = () => {
                             <>
                                 <td className={getCellClass(item, 'audio1_time')}>{formatDate(item.audio1_time)}</td>
                                 <td className={getCellClass(item, 'passage1_time')}>{formatDate(item.passage1_time)}</td>
+                                <td className={getCellClass(item, 'audio2_time')}>{formatDate(item.audio2_time)}</td>
+                                <td className={getCellClass(item, 'passage2_time')}>{formatDate(item.passage2_time)}</td>
                             </>
                         )}
                         {exam_type !== 'shorthand' && (

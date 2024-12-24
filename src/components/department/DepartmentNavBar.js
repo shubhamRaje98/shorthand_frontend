@@ -17,11 +17,10 @@ const DepartmentNavBar = () => {
         const fetchDepartmentDetails = async () => {
             try {
                 const response = await axios.get(`http://localhost:3000/get-department-details`);
-                if (response.data && response.data.departmentDTO && response.data.departmentDTO.length > 0) {
-                    setDepartmentDetails(response.data.departmentDTO[0]);
-                } else {
-                    setDepartmentDetails(null);
-                    console.log("No department details found");
+                if (response.data) {
+                    console.log(response.data.departmentDetails)
+                    setDepartmentDetails(response.data.departmentDetails);
+                    console.log(departmentDetails);
                 }
                 setLoading(false);
             } catch (error) {
@@ -53,10 +52,14 @@ const DepartmentNavBar = () => {
         <nav className="dept-navbar">
             <div className="dept-navbar__container">
                 <div className="dept-navbar__logo-section">
-                    <img src={logo} alt="Logo" className="dept-navbar__logo" />
+                    <img
+                        src={`data:image/png;base64,${departmentDetails?.logo}`||logo}
+                        alt="Logo"
+                        className="dept-navbar__logo"
+                    />
                     <div className="dept-navbar__logo-text">
-                        <strong>MSCE PUNE COMPUTER SKILLTEST</strong><br />
-                        <span>{departmentDetails?.department_name || 'Department'}</span>
+                        <strong>MSCE PUNE COMPUTER EXAMINATION</strong><br />
+                        <span>{departmentDetails?.departmentName || 'Department'}</span>
                     </div>
                 </div>
                 <button className={`dept-navbar__toggler ${isMenuOpen ? 'is-active' : ''}`} onClick={toggleMenu}>

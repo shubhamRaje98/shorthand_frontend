@@ -58,11 +58,11 @@ const SuperAdminNavbar = () => {
 
               {/* Data Management Dropdown */}
               <li className="sa-navbar__item sa-navbar__item--dropdown">
-                <button 
+                <button
                   className="sa-navbar__dropdown-toggle"
                   onClick={() => toggleDropdown('data')}
                 >
-                   Management
+                  Management
                   <span className="sa-navbar__dropdown-arrow"></span>
                 </button>
                 <ul className={`sa-navbar__dropdown ${activeDropdown === 'data' ? 'sa-navbar__dropdown--active' : ''}`}>
@@ -84,7 +84,7 @@ const SuperAdminNavbar = () => {
 
               {/* Expert Management Dropdown */}
               <li className="sa-navbar__item sa-navbar__item--dropdown">
-                <button 
+                <button
                   className="sa-navbar__dropdown-toggle"
                   onClick={() => toggleDropdown('expert')}
                 >
@@ -109,7 +109,7 @@ const SuperAdminNavbar = () => {
 
               {/* Reports Dropdown */}
               <li className="sa-navbar__item sa-navbar__item--dropdown">
-                <button 
+                <button
                   className="sa-navbar__dropdown-toggle"
                   onClick={() => toggleDropdown('reports')}
                 >
@@ -122,6 +122,9 @@ const SuperAdminNavbar = () => {
                   </li>
                   <li>
                     <Link to="/superadmin-pc" onClick={closeDropdowns}>PC Registration Count</Link>
+                  </li>
+                  <li>
+                    <Link to="/super-admin/track-dashboard" onClick={closeDropdowns} className="sa-navbar__link">Track Dashboard</Link>
                   </li>
                 </ul>
               </li>

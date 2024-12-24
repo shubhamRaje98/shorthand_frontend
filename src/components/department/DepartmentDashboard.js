@@ -11,7 +11,7 @@ const DepartmentDashboard = () => {
     const [batchNo, setBatchNo] = useState('');
     const [subject, setSubject] = useState('');
     const [loginStatus, setLoginStatus] = useState('');
-    const [exam_type, setExam_type] = useState('');
+    const [exam_type, setExam_type] = useState('shorthand');
     const [batchDate, setBatchDate] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -42,6 +42,10 @@ const DepartmentDashboard = () => {
         
         return `${day}/${month}/${year} ${hours}:${minutes}`;
     };
+    // function formatDate(dateString) {
+    //     if(!dateString) return null;
+    //     return moment(dateString).tz('Asia/Kolkata').format('DD-MM-YYYY hh:mm:ss A')
+    // }
     
     const fetchSubjects = async () => {
         try {
@@ -291,6 +295,7 @@ const DepartmentDashboard = () => {
                                 id="examStatus" 
                                 value={exam_type} 
                                 onChange={(e) => setExam_type(e.target.value)}
+                                defaultValue="shorthand"
                             >
                                 <option value="">All</option>
                                 <option value="shorthand">Short Hand</option>
@@ -382,6 +387,7 @@ const DepartmentDashboard = () => {
                                                     <th>Typing Test</th>
                                                 </>
                                             )}
+                                            <th>Feedback</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -408,6 +414,7 @@ const DepartmentDashboard = () => {
                                                     </>
                                                     
                                                 )}
+                                                <td className={getCellClass(item, 'feedback_time')}>{formatDate(item.feedback_time)}</td>
                                             </tr>
                                         ))}
                                     </tbody>

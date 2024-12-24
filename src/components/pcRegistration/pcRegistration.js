@@ -100,7 +100,13 @@ const PCRegistration = () => {
                                             <td>{item.ip_address}</td>
                                             <td>{item.disk_id}</td>
                                             <td>{item.mac_address}</td>
-
+                                            {/* <td>
+                                                <button className = "red" onClick={()=>{
+                                                    handleDelete(item);
+                                                }}>
+                                                    Delete
+                                                </button>
+                                            </td> */}
                                         </tr>
                                     ))}
                                 </tbody>

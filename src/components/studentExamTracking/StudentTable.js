@@ -211,6 +211,10 @@ const StudentTable = () => {
         
         return `${day}/${month}/${year} ${hours}:${minutes}`;
     };
+    // function formatDate(dateString) {
+    //     if(!dateString) return null;
+    //     return moment(dateString).tz('Asia/Kolkata').format('DD-MM-YYYY hh:mm:ss A')
+    // }
     const renderPaginationItems = () => {
         const totalPages = pageNumbers.length;
         const currentPageNumber = Math.min(totalPages, Math.max(1, currentPage));

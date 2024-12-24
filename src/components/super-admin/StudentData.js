@@ -29,7 +29,7 @@ const StudentData = () => {
         };
 
         fetchCenters();
-    }, []);
+    }, [selectedCenter]);
 
     useEffect(() => {
         const fetchResetRequests = async () => {
@@ -43,7 +43,7 @@ const StudentData = () => {
         };
 
         fetchResetRequests();
-    }, []);
+    }, [selectedCenter]);
 
     const handleSubmit = async (id) => {
         setStudentId(id);

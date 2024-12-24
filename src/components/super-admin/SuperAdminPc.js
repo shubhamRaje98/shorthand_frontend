@@ -38,6 +38,7 @@ const SuperAdminPc = () => {
                     <thead>
                         <tr>
                             <th className="pcrc-th">Center</th>
+                            <th className="pcrc-th">Center Name</th>
                             <th className="pcrc-th">Max PCs</th>
                             <th className="pcrc-th">PC Count</th>
                             <th className="pcrc-th">Registered PC Count</th>
@@ -47,6 +48,7 @@ const SuperAdminPc = () => {
                         {pcData.map((row, index) => (
                             <tr key={index} className="pcrc-tr">
                                 <td className="pcrc-td">{row.center}</td>
+                                <td className="pcrc-td">{row.center_name}</td>
                                 <td className="pcrc-td">{row.max_pc}</td>
                                 <td className="pcrc-td">{row.pc_count}</td>
                                 <td className="pcrc-td">{row.registered_pc_count}</td>
