@@ -56,7 +56,7 @@ const DownloadApps = () => {
                     Download Exam Software
                 </button>
                 <button className="da-button da-rusk-app" onClick={handleRuskDeskDownload}>
-                    Download Rusk Desk
+                    Download Rust Desk
                 </button>
                 <button className="da-button da-ism-app" onClick={handleIsmDownload}>
                     Download ISM v6.2

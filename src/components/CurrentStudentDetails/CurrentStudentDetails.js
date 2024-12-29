@@ -120,8 +120,8 @@ const CurrentStudentDetails = () => {
                                     <td>{item.total_students || 0}</td>
                                     <td>{item.logged_in_students || 0}</td>
                                     <td>{item.completed_student || 0}</td>
-                                    <td>{formatDateTime(item.start_time)}</td>
-                                    <td>{formatDate(item.batchdate)}</td>
+                                    <td>{(item.start_time)}</td>
+                                    <td>{(item.batchdate)}</td>
                                 </tr>
                             ))}
                         </tbody>

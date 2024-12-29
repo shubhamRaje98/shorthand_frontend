@@ -128,17 +128,46 @@ const DepartmentDashboard = () => {
         return value && value !== "invalid date" && value !== "0" && !isNaN(new Date(value).getTime());
     };
 
-    const getCellClass = (item, field) => {
-        const stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time','audio2_time', 'passage2_time', 'trial_passage_time', 'typing_passage_time',  'feedback_time'];
+    const getCellClass = (item, field, exam_type) => {
+        let stages; 
+        if (exam_type === 'shorthand') {
+            stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time', 'audio2_time', 'passage2_time', 'feedback_time'];
+        } else if (exam_type === 'typewriting') {
+            stages = ['loginTime', 'trial_passage_time', 'typing_passage_time', 'feedback_time'];
+        }else {
+           stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time', 'audio2_time', 'passage2_time', 'feedback_time'];
+        }
         const currentStageIndex = stages.indexOf(field);
         
         if (currentStageIndex === -1) return '';
         
-        if (field === 'loginTime' || field === 'feedback_time') {
+        if (field === 'loginTime') {
             return isValidData(item[field]) ? 'dept-cell-green dept-text-white' : 'dept-cell-red dept-text-white';
         }
     
+        if (field === 'feedback_time') {
+            if (isValidData(item[field])) {
+                // If feedback is green, also turn passage1_time or typing_passage_time green
+                if (exam_type === 'shorthand') {
+                    item['passage2_time'] = item[field]; // Force passage1_time to be valid
+                } else if (exam_type === 'typewriting') {
+                    item['typing_passage_time'] = item[field]; // Force typing_passage_time to be valid
+                }
+                return 'dept-cell-green dept-text-white';
+            } else {
+                return 'dept-cell-red dept-text-white';
+            }
+        }
+    
         if (isValidData(item[field])) {
+            // Special case for passage1_time in shorthand and typing_passage_time in typewriting
+            if ((exam_type === 'shorthand' && field === 'passage2_time') || 
+                (exam_type === 'typewriting' && field === 'typing_passage_time')) {
+                if (isValidData(item['feedback_time'])) {
+                    return 'dept-cell-green dept-text-white';
+                }
+            }
+    
             // Check if it's the last field or if the next field has valid data
             if (currentStageIndex === stages.length - 1 || isValidData(item[stages[currentStageIndex + 1]])) {
                 return 'dept-cell-green dept-text-white';
@@ -146,7 +175,7 @@ const DepartmentDashboard = () => {
                 // Check if the previous cell is green and the next cell is red
                 const prevCellGreen = isValidData(item[stages[currentStageIndex - 1]]);
                 const nextCellRed = !isValidData(item[stages[currentStageIndex + 1]]);
-                if (prevCellGreen && nextCellRed) {
+                if (prevCellGreen && nextCellRed ) {
                     return 'dept-cell-yellow dept-text-black';
                 } else {
                     return 'dept-cell-green dept-text-white';
@@ -160,6 +189,7 @@ const DepartmentDashboard = () => {
             return 'dept-cell-red dept-text-white';
         }
     };
+    
 
     const exportToExcel = () => {
         const worksheet = XLSX.utils.json_to_sheet(data.map(item => ({

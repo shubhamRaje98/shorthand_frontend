@@ -125,7 +125,7 @@ const ResetCenterAdmin = () => {
                   <th>Reseted By</th>
                   <th>Approval Status</th>
                   <th>Time</th>
-                  <th>Action</th>
+                  {/* <th>Action</th> */}
                 </tr>
               </thead>
               <tbody>
@@ -138,14 +138,14 @@ const ResetCenterAdmin = () => {
                     <td>{request.reseted_by}</td>
                     <td>{request.approved}</td>
                     <td>{request.time}</td>
-                    <td>
+                    {/* <td>
                       <button 
                         className="btn btn-danger btn-sm"
                         onClick={() => handleDelete(request.id)}
                       >
                         Delete
                       </button>
-                    </td>
+                    </td> */}
                   </tr>
                 ))}
               </tbody>

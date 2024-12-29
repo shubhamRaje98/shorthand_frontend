@@ -72,7 +72,7 @@ const ResetRequestsAdmin = () => {
                   <th>Reseted By</th>
                   <th>Approval Status</th>
                   <th>Time</th>
-                  <th>Actions</th>
+                  {/* <th>Actions</th> */}
                 </tr>
               </thead>
               <tbody>
@@ -85,7 +85,7 @@ const ResetRequestsAdmin = () => {
                     <td>{request.reseted_by}</td>
                     <td>{request.approved}</td>
                     <td>{request.time}</td>
-                    <td>
+                    {/* <td>
                       {request.approved === 'Not Approved' && (
                         <>
                           <button 
@@ -108,7 +108,7 @@ const ResetRequestsAdmin = () => {
                       >
                         Delete
                       </button>
-                    </td>
+                    </td> */}
                   </tr>
                 ))}
               </tbody>

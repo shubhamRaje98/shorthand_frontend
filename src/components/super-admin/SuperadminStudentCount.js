@@ -138,14 +138,22 @@ const SuperAdminCount = () => {
         setBatchTotals(totals);
     };
 
-    const formatDateTime = (dateTimeString) => {
-        if (!dateTimeString) return '';
-        return moment(dateTimeString, 'hh:mm:ss A').format('hh:mm:ss A');
-    };
-
     const formatDate = (dateString) => {
-        if (!dateString) return '';
-        return moment(dateString, 'DD MM YYYY').format('DD-MM-YYYY');
+        if (!dateString || dateString === "invalid date" || dateString === "0") {
+            return "";
+        }
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) {
+            return dateString; // Return original string if it's not a valid date
+        }
+        
+        const day = String(date.getUTCDate()).padStart(2, '0');
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+        const year = date.getUTCFullYear();
+        const hours = String(date.getUTCHours()).padStart(2, '0');
+        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+        
+        return `${day}/${month}/${year} ${hours}:${minutes}`;
     };
 
     const calculateTotals = (subjects) => {
@@ -211,39 +219,6 @@ const SuperAdminCount = () => {
 
                 {loading && <p className="sac-loading">Loading...</p>}
                 {error && <p className="sac-error">{error}</p>}
-
-                <div className="sac-data-table">
-                    <h3 className="sac-subtitle">{batchNo ? `Batch ${batchNo}` : 'All Batches'} {center ? `- Center ${center}` : ''}</h3>
-                    <div className="sac-table-wrapper">
-                        <table className="sac-table">
-                            <thead>
-                                <tr>
-                                    <th>Center</th>
-                                    <th>Batch No</th>
-                                    <th>Total Students</th>
-                                    <th>Logged In Students</th>
-                                    <th>Completed Students</th>
-                                    <th>Start Time</th>
-                                    <th>Batch Date</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {allData.map((item, index) => (
-                                    <tr key={index}>
-                                        <td>{item.center}</td>
-                                        <td>{item.batchNo}</td>
-                                        <td>{item.total_students || 0}</td>
-                                        <td>{item.logged_in_students || 0}</td>
-                                        <td>{item.completed_student || 0}</td>
-                                        <td>{formatDateTime(item.start_time)}</td>
-                                        <td>{formatDate(item.batchdate)}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
                 {((batchNo || !center) && aggregatedSubjects.length > 0) && (
                     <div className="sac-subjects-section">
                         <h4 className="sac-subtitle">Subjects:</h4>
@@ -256,6 +231,8 @@ const SuperAdminCount = () => {
                                         <th>Count</th>
                                         <th>Logged In</th>
                                         <th>Completed</th>
+                                        <th>Pending</th>
+                                        <th>Absent</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -268,6 +245,8 @@ const SuperAdminCount = () => {
                                             <td>{subject.count}</td>
                                             <td>{subject.loggedIn}</td>
                                             <td>{subject.completed}</td>
+                                            <td>{(subject.loggedIn - subject.completed)}</td>
+                                            <td>{(subject.count - subject.loggedIn)}</td>
                                         </tr>
                                     ))}
                                     {(() => {
@@ -279,6 +258,8 @@ const SuperAdminCount = () => {
                                                 <td><strong>{totals.count}</strong></td>
                                                 <td><strong>{totals.loggedIn}</strong></td>
                                                 <td><strong>{totals.completed}</strong></td>
+                                                <td><strong>{(totals.loggedIn - totals.completed)}</strong></td>
+                                                <td><strong>{(totals.count - totals.loggedIn )}</strong></td>
                                             </tr>
                                         );
                                     })()}
@@ -299,6 +280,8 @@ const SuperAdminCount = () => {
                                         <th>Total Students</th>
                                         <th>Logged In Students</th>
                                         <th>Completed Students</th>
+                                        <th>Pending Students</th>
+                                        <th>Absent Students</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -308,6 +291,8 @@ const SuperAdminCount = () => {
                                             <td>{totals.totalStudents}</td>
                                             <td>{totals.loggedInStudents}</td>
                                             <td>{totals.completedStudents}</td>
+                                            <td>{(totals.loggedInStudents - totals.completedStudents)}</td>
+                                            <td>{(totals.totalStudents - totals.loggedInStudents)}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -315,6 +300,44 @@ const SuperAdminCount = () => {
                         </div>
                     </div>
                 )}
+
+                <div className="sac-data-table">
+                    <h3 className="sac-subtitle">{batchNo ? `Batch ${batchNo}` : 'All Batches'} {center ? `- Center ${center}` : ''}</h3>
+                    <div className="sac-table-wrapper">
+                        <table className="sac-table">
+                            <thead>
+                                <tr>
+                                    <th>Center</th>
+                                    <th>Batch No</th>
+                                    <th>Total Students</th>
+                                    <th>Logged In Students</th>
+                                    <th>Completed Students</th>
+                                    <th>Pending Students</th>
+                                    <th>Absent Students</th>
+                                    <th>Start Time</th>
+                                    <th>Batch Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {allData.map((item, index) => (
+                                    <tr key={index}>
+                                        <td>{item.center}</td>
+                                        <td>{item.batchNo}</td>
+                                        <td>{item.total_students || 0}</td>
+                                        <td>{item.logged_in_students || 0}</td>
+                                        <td>{item.completed_student || 0}</td>
+                                        <td>{(item.logged_in_students - item.completed_student)|| 0}</td>
+                                        <td>{(item.total_students - item.logged_in_students) || 0}</td>
+                                        <td>{(item.start_time)}</td>
+                                        <td>{(item.batchdate)}</td>
+
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
         </div>
     );

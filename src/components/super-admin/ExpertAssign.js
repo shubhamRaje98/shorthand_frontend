@@ -35,7 +35,8 @@ const ExpertAssign = () => {
     try {
       let url = `http://localhost:3000/get-student-count-expert?${stage === 'stage1' ? 'stage_1' : 'stage_3'}=true`;
       if (selectedDepartment) {
-        url += `&department=${selectedDepartment}`;
+        // console.log(selectedDepartment);
+        url += `&department=${selectedDepartment.toString()}`;
         if (selectedSubject) {
           url += `&subject=${selectedSubject}`;
         }
@@ -80,6 +81,7 @@ const ExpertAssign = () => {
   };
 
   const handleDepartmentClick = (departmentId) => {
+    // console.log(departmentId)
     setSelectedDepartment(departmentId);
     setSelectedSubject('');
     setTimeout(() => departmentRefs.current[departmentId]?.focus(), 0);
@@ -229,8 +231,8 @@ const ExpertAssign = () => {
         {data.departments.map((dept) => (
           <div
             key={dept.departmentId}
-            className={`ea-card ${selectedDepartment === dept.departmentId ? 'selected' : ''}`}
-            onClick={() => handleDepartmentClick(dept.departmentId)}
+            className={`ea-card ${selectedDepartment === dept.departmentId.toString() ? 'selected' : ''}`}
+            onClick={() => handleDepartmentClick(dept.departmentId.toString())}
             ref={el => departmentRefs.current[dept.departmentId] = el}
             tabIndex={0}
           >
