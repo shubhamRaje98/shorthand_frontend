@@ -33,20 +33,20 @@ const DepartmentDashboard = () => {
         if (isNaN(date.getTime())) {
             return dateString; // Return original string if it's not a valid date
         }
-        
+
         const day = String(date.getUTCDate()).padStart(2, '0');
         const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Months are 0-indexed
         const year = date.getUTCFullYear();
         const hours = String(date.getUTCHours()).padStart(2, '0');
         const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-        
+
         return `${day}/${month}/${year} ${hours}:${minutes}`;
     };
     // function formatDate(dateString) {
     //     if(!dateString) return null;
     //     return moment(dateString).tz('Asia/Kolkata').format('DD-MM-YYYY hh:mm:ss A')
     // }
-    
+
     const fetchSubjects = async () => {
         try {
             const response = await axios.get('http://localhost:3000/subjects');
@@ -70,20 +70,20 @@ const DepartmentDashboard = () => {
             if (loginStatus) params.append('loginStatus', loginStatus);
             if (batchNo) params.append('batchNo', batchNo);
             if (center) params.append('center', center);
-            if(exam_type) params.append('exam_type', exam_type);
+            if (exam_type) params.append('exam_type', exam_type);
             if (batchDate) {
-                params.append('batchDate',batchDate);
+                params.append('batchDate', batchDate);
             }
-            
+
             if (params.toString()) {
                 url += `?${params.toString()}`;
             }
-    
+
             console.log("Fetching data from URL:", url);
             const response = await axios.post(url, { withCredentials: true });
             console.log("Response:", response.data);
             setData(response.data);
-    
+
             const distinctBatches = [...new Set(response.data.map(item => item.batchNo))];
             setBatches(prevBatches => {
                 const newBatches = [...new Set([...prevBatches, ...distinctBatches])];
@@ -95,14 +95,14 @@ const DepartmentDashboard = () => {
                 const newCenters = [...new Set([...prevCenters, ...distinctCenters])];
                 return newCenters.sort();
             });
-            
+
             const distinctSubjects = [...new Set(response.data.map(item => item.subject_name))];
             setSubjects(distinctSubjects);
-    
+
             const distinctBatchDates = [...new Set(response.data
                 .filter(item => item.batchdate && typeof item.batchdate === 'string')
                 .map(item => {
-                   
+
                     return item.batchdate
                 })
             )];
@@ -129,22 +129,22 @@ const DepartmentDashboard = () => {
     };
 
     const getCellClass = (item, field, exam_type) => {
-        let stages; 
+        let stages;
         if (exam_type === 'shorthand') {
             stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time', 'audio2_time', 'passage2_time', 'feedback_time'];
         } else if (exam_type === 'typewriting') {
             stages = ['loginTime', 'trial_passage_time', 'typing_passage_time', 'feedback_time'];
-        }else {
-           stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time', 'audio2_time', 'passage2_time', 'feedback_time'];
+        } else {
+            stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time', 'audio2_time', 'passage2_time', 'feedback_time'];
         }
         const currentStageIndex = stages.indexOf(field);
-        
+
         if (currentStageIndex === -1) return '';
-        
+
         if (field === 'loginTime') {
             return isValidData(item[field]) ? 'dept-cell-green dept-text-white' : 'dept-cell-red dept-text-white';
         }
-    
+
         if (field === 'feedback_time') {
             if (isValidData(item[field])) {
                 // If feedback is green, also turn passage1_time or typing_passage_time green
@@ -158,16 +158,16 @@ const DepartmentDashboard = () => {
                 return 'dept-cell-red dept-text-white';
             }
         }
-    
+
         if (isValidData(item[field])) {
             // Special case for passage1_time in shorthand and typing_passage_time in typewriting
-            if ((exam_type === 'shorthand' && field === 'passage2_time') || 
+            if ((exam_type === 'shorthand' && field === 'passage2_time') ||
                 (exam_type === 'typewriting' && field === 'typing_passage_time')) {
                 if (isValidData(item['feedback_time'])) {
                     return 'dept-cell-green dept-text-white';
                 }
             }
-    
+
             // Check if it's the last field or if the next field has valid data
             if (currentStageIndex === stages.length - 1 || isValidData(item[stages[currentStageIndex + 1]])) {
                 return 'dept-cell-green dept-text-white';
@@ -175,7 +175,7 @@ const DepartmentDashboard = () => {
                 // Check if the previous cell is green and the next cell is red
                 const prevCellGreen = isValidData(item[stages[currentStageIndex - 1]]);
                 const nextCellRed = !isValidData(item[stages[currentStageIndex + 1]]);
-                if (prevCellGreen && nextCellRed ) {
+                if (prevCellGreen && nextCellRed) {
                     return 'dept-cell-yellow dept-text-black';
                 } else {
                     return 'dept-cell-green dept-text-white';
@@ -189,7 +189,7 @@ const DepartmentDashboard = () => {
             return 'dept-cell-red dept-text-white';
         }
     };
-    
+
 
     const exportToExcel = () => {
         const worksheet = XLSX.utils.json_to_sheet(data.map(item => ({
@@ -225,7 +225,7 @@ const DepartmentDashboard = () => {
     const renderPaginationButtons = () => {
         const totalPages = pageNumbers.length;
         const maxButtonsToShow = 5;
-    
+
         if (totalPages <= maxButtonsToShow) {
             return pageNumbers.map(number => (
                 <button key={number} onClick={() => paginate(number)} className={currentPage === number ? 'active' : ''}>
@@ -233,24 +233,24 @@ const DepartmentDashboard = () => {
                 </button>
             ));
         }
-    
+
         let startPage = Math.max(1, currentPage - Math.floor(maxButtonsToShow / 2));
         let endPage = startPage + maxButtonsToShow - 1;
-    
+
         if (endPage > totalPages) {
             endPage = totalPages;
             startPage = Math.max(1, endPage - maxButtonsToShow + 1);
         }
-    
+
         const buttons = [];
-    
+
         if (startPage > 1) {
             buttons.push(
                 <button key={1} onClick={() => paginate(1)}>1</button>,
                 <span key="ellipsis1">...</span>
             );
         }
-    
+
         for (let i = startPage; i <= endPage; i++) {
             buttons.push(
                 <button key={i} onClick={() => paginate(i)} className={currentPage === i ? 'active' : ''}>
@@ -258,29 +258,29 @@ const DepartmentDashboard = () => {
                 </button>
             );
         }
-    
+
         if (endPage < totalPages) {
             buttons.push(
                 <span key="ellipsis2">...</span>,
                 <button key={totalPages} onClick={() => paginate(totalPages)}>{totalPages}</button>
             );
         }
-    
+
         return buttons;
     };
 
     return (
         <div>
-            <DepartmentNavBar/>
+            <DepartmentNavBar />
             <div className="home-container">
                 <div className="dept-container-fluid">
                     <div className="dept-row mb-3">
                         <div className="dept-col-md-3 dept-col-sm-6 mb-2">
                             <label htmlFor="batchNo" className="dept-form-label">Batch Number:</label>
-                            <select 
-                                className="dept-form-select dept-scrollable-dropdown" 
-                                id="batchNo" 
-                                value={batchNo} 
+                            <select
+                                className="dept-form-select dept-scrollable-dropdown"
+                                id="batchNo"
+                                value={batchNo}
                                 onChange={(e) => setBatchNo(e.target.value)}
                             >
                                 <option value="">All Batches</option>
@@ -291,10 +291,10 @@ const DepartmentDashboard = () => {
                         </div>
                         <div className="dept-col-md-3 dept-col-sm-6 mb-2">
                             <label htmlFor="subject" className="dept-form-label">Subject:</label>
-                            <select 
-                                className="dept-form-select dept-scrollable-dropdown" 
-                                id="subject" 
-                                value={subject} 
+                            <select
+                                className="dept-form-select dept-scrollable-dropdown"
+                                id="subject"
+                                value={subject}
                                 onChange={(e) => setSubject(e.target.value)}
                             >
                                 <option value="">All Subjects</option>
@@ -307,10 +307,10 @@ const DepartmentDashboard = () => {
                         </div>
                         <div className="dept-col-md-3 dept-col-sm-6 mb-2">
                             <label htmlFor="loginStatus" className="dept-form-label">Login Status:</label>
-                            <select 
-                                className="dept-form-select" 
-                                id="loginStatus" 
-                                value={loginStatus} 
+                            <select
+                                className="dept-form-select"
+                                id="loginStatus"
+                                value={loginStatus}
                                 onChange={(e) => setLoginStatus(e.target.value)}
                             >
                                 <option value="">All</option>
@@ -320,10 +320,10 @@ const DepartmentDashboard = () => {
                         </div>
                         <div className="dept-col-md-3 dept-col-sm-6 mb-2">
                             <label htmlFor="examStatus" className="dept-form-label">Exam Status:</label>
-                            <select 
-                                className="dept-form-select" 
-                                id="examStatus" 
-                                value={exam_type} 
+                            <select
+                                className="dept-form-select"
+                                id="examStatus"
+                                value={exam_type}
                                 onChange={(e) => setExam_type(e.target.value)}
                                 defaultValue="shorthand"
                             >
@@ -337,10 +337,10 @@ const DepartmentDashboard = () => {
                     <div className="dept-row mb-3">
                         <div className="dept-col-md-3 dept-col-sm-6 mb-2">
                             <label htmlFor="batchDate" className="dept-form-label">Batch Date:</label>
-                            <select 
-                                className="dept-form-select" 
-                                id="batchDate" 
-                                value={batchDate} 
+                            <select
+                                className="dept-form-select"
+                                id="batchDate"
+                                value={batchDate}
                                 onChange={(e) => setBatchDate(e.target.value)}
                             >
                                 <option value="">All Dates</option>
@@ -351,10 +351,10 @@ const DepartmentDashboard = () => {
                         </div>
                         <div className="dept-col-md-3 dept-col-sm-6 mb-2">
                             <label htmlFor="center" className="dept-form-label">Center:</label>
-                            <select 
-                                className="dept-form-select dept-scrollable-dropdown" 
-                                id="center" 
-                                value={center} 
+                            <select
+                                className="dept-form-select dept-scrollable-dropdown"
+                                id="center"
+                                value={center}
                                 onChange={(e) => setCenter(e.target.value)}
                             >
                                 <option value="">All Centers</option>
@@ -365,10 +365,10 @@ const DepartmentDashboard = () => {
                         </div>
                         <div className="dept-col-md-3 dept-col-sm-6 mb-2">
                             <label htmlFor="itemsPerPage" className="dept-form-label">Rows per page:</label>
-                            <select 
-                                className="dept-form-select" 
-                                id="itemsPerPage" 
-                                value={itemsPerPage} 
+                            <select
+                                className="dept-form-select"
+                                id="itemsPerPage"
+                                value={itemsPerPage}
                                 onChange={(e) => {
                                     setItemsPerPage(e.target.value);
                                     setCurrentPage(1);
@@ -398,9 +398,9 @@ const DepartmentDashboard = () => {
                                 <table className="dept-table dept-table-bordered dept-table-striped dept-table-hover">
                                     <thead>
                                         <tr>
-                                            <th>Batch Number</th>
-                                            <th>Center</th>
-                                            <th>Seat No</th>
+                                            <th style={{ width: '8%' }}>Batch No</th>
+                                            <th style={{ width: '8%' }}>Center</th>
+                                            <th style={{ width: '12%' }}>Seat No</th>
                                             <th>Login</th>
                                             {exam_type !== 'typewriting' && <th>Trial</th>}
                                             {exam_type !== 'typewriting' && (
@@ -440,9 +440,9 @@ const DepartmentDashboard = () => {
                                                     <>
                                                         <td className={getCellClass(item, 'trial_passage_time')}>{formatDate(item.trial_passage_time)}</td>
                                                         <td className={getCellClass(item, 'typing_passage_time')}>{formatDate(item.typing_passage_time)}</td>
-                                                        
+
                                                     </>
-                                                    
+
                                                 )}
                                                 <td className={getCellClass(item, 'feedback_time')}>{formatDate(item.feedback_time)}</td>
                                             </tr>

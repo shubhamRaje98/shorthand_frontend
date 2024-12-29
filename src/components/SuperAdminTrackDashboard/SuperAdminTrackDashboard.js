@@ -456,9 +456,9 @@ const SuperAdminTrackDashboard = () => {
                             <table className="dept-table dept-table-bordered dept-table-striped dept-table-hover">
                                 <thead>
                                     <tr>
-                                        <th>Batch Number</th>
-                                        <th>Center</th>
-                                        <th>Seat No</th>
+                                        <th style={{ width: '8%' }}>Batch No</th>
+                                        <th style={{ width: '8%' }}>Center</th>
+                                        <th style={{ width: '12%' }}>Seat No</th>
                                         <th>Login</th>
                                         {exam_type !== 'typewriting' && <th>Trial</th>}
                                         {exam_type !== 'typewriting' && (
