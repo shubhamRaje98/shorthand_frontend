@@ -292,7 +292,7 @@ const FinalPassageTextlog = () => {
     if (!modelAnswer || !userAnswer) return;
 
     try {
-      const response = await axios.post('http://3.6.86.1:5000/compare', {
+      const response = await axios.post('http://103.226.207.244:5001/compare', {
         text1: modelAnswer,
         text2: userAnswer,
         ignore_list: ignoreList,
@@ -451,6 +451,103 @@ const FinalPassageTextlog = () => {
     );
   };
 
+  const AudioPlayer = ({ audioUrl }) => {
+    const audioRef = React.useRef(null);
+    const progressBarRef = React.useRef(null);
+    const [isPlaying, setIsPlaying] = React.useState(false);
+    const [progress, setProgress] = React.useState(0);
+    const [hoverPosition, setHoverPosition] = React.useState(null);
+  
+    const togglePlayPause = () => {
+      if (audioRef.current) {
+        if (audioRef.current.paused) {
+          audioRef.current.play();
+          setIsPlaying(true);
+        } else {
+          audioRef.current.pause();
+          setIsPlaying(false);
+        }
+      }
+    };
+  
+    const handleTimeUpdate = () => {
+      if (audioRef.current) {
+        const duration = audioRef.current.duration;
+        const currentTime = audioRef.current.currentTime;
+        const progressPercent = (currentTime / duration) * 100;
+        setProgress(progressPercent);
+      }
+    };
+  
+    const handleProgressBarClick = (event) => {
+      if (audioRef.current && progressBarRef.current) {
+        const progressBar = progressBarRef.current;
+        const clickPosition = event.clientX - progressBar.getBoundingClientRect().left;
+        const progressBarWidth = progressBar.offsetWidth;
+        const clickPercentage = (clickPosition / progressBarWidth) * 100;
+        const newTime = (clickPercentage / 100) * audioRef.current.duration;
+        
+        audioRef.current.currentTime = newTime;
+        setProgress(clickPercentage);
+  
+        if (!isPlaying) {
+          audioRef.current.play();
+          setIsPlaying(true);
+        }
+      }
+    };
+  
+    const handleMouseMove = (event) => {
+      if (progressBarRef.current) {
+        const progressBar = progressBarRef.current;
+        const mousePosition = event.clientX - progressBar.getBoundingClientRect().left;
+        const progressBarWidth = progressBar.offsetWidth;
+        const hoverPercentage = (mousePosition / progressBarWidth) * 100;
+        setHoverPosition(hoverPercentage);
+      }
+    };
+  
+    const handleMouseLeave = () => {
+      setHoverPosition(null);
+    };
+  
+    React.useEffect(() => {
+      const audioElement = audioRef.current;
+      if (audioElement) {
+        audioElement.addEventListener('timeupdate', handleTimeUpdate);
+      }
+      return () => {
+        if (audioElement) {
+          audioElement.removeEventListener('timeupdate', handleTimeUpdate);
+        }
+      };
+    }, []);
+  
+    return (
+      <div className="audio-player">
+        <audio ref={audioRef} src={audioUrl} />
+        <button onClick={togglePlayPause}>
+          {isPlaying ? '❚❚' : '▶'}
+        </button>
+        <div 
+          className="progress-bar-container" 
+          ref={progressBarRef}
+          onClick={handleProgressBarClick}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+        >
+          <div className="progress-bar">
+            <div className="progress" style={{ width: `${progress}%` }}></div>
+            {hoverPosition !== null && (
+              <div className="playhead" style={{ left: `${hoverPosition}%` }}></div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+  
+
   return (
     <div className="final-passage-container">
       <div className="passage-buttons-container">
@@ -488,6 +585,7 @@ const FinalPassageTextlog = () => {
         </div>                  
       </div>
       <div className="grid-item">
+        {/* <AudioPlayer audioUrl={audioUrl} /> */}
         <h2 className="column-header">
           {isSwapped ? 'User Answer' : 'Model Answer'}
         </h2>
@@ -499,6 +597,7 @@ const FinalPassageTextlog = () => {
           <button onClick={() => handleZoom('modelAnswer', 'in')}><FontAwesomeIcon icon={faSearchPlus} /></button>
           <button onClick={() => handleZoom('modelAnswer', 'out')}><FontAwesomeIcon icon={faSearchMinus} /></button>
         </div>
+        <AudioPlayer audioUrl={audioUrl} />
       </div>
       <div className="grid-item">
         <h2 className="column-header">Difference Passage</h2>
