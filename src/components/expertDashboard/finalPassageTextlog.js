@@ -106,47 +106,6 @@ const MistakesList = ({ mistakes, onAddIgnoreWord, onWordHover, fontSize, ignore
   );
 };
 
-const AudioPlayer = ({ audioUrl }) => {
-  const audioRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-
-  const togglePlayPause = () => {
-    if (audioRef.current.paused) {
-      audioRef.current.play();
-      setIsPlaying(true);
-    } else {
-      audioRef.current.pause();
-      setIsPlaying(false);
-    }
-  };
-
-  const handleTimeUpdate = (e) => {
-    const progress = (audioRef.current.currentTime / audioRef.current.duration) * 100;
-    const progressBar = document.querySelector('.progress');
-    if (progressBar) {
-      progressBar.style.width = `${progress}%`;
-    }
-  };
-
-  const handleSeek = (e) => {
-    const seekBar = document.querySelector('.seek-bar');
-    const seekPosition = (e.nativeEvent.offsetX / seekBar.offsetWidth);
-    audioRef.current.currentTime = seekPosition * audioRef.current.duration;
-  };
-
-  return (
-    <div className="audio-player">
-      <audio ref={audioRef} src={audioUrl} onTimeUpdate={handleTimeUpdate} />
-      <button onClick={togglePlayPause}>
-        <FontAwesomeIcon icon={isPlaying ? faPause : faPlay} />
-      </button>
-      <div className="seek-bar" onClick={handleSeek}>
-        <div className="progress"></div>
-      </div>
-    </div>
-  );
-};
-
 const FinalPassageTextlog = () => {
   const navigate = useNavigate();
   const { subjectId, qset } = useParams();
@@ -172,6 +131,8 @@ const FinalPassageTextlog = () => {
   const [isIgnoreListVisible, setisIgnoreListVisible] = useState(true);
   const [tempIgnoreList, settempIgnoreList] = useState([]);
   const [audioUrl, setAudioUrl] = useState('');
+  const [audioBUrl, setAudioBUrl] = useState('');
+
 
   const handleZoom = (column, action) => {
     setFontSizes(prev => ({
@@ -187,7 +148,7 @@ const FinalPassageTextlog = () => {
   const handleSubmit = async () => {
     try {
       const response = await axios.post(
-        `http://localhost:3000/submit-passage-review/${subjectId}/${qset}`, 
+        `https://www.shorthandonlineexam.in/submit-passage-review/${subjectId}/${qset}`, 
         {}, 
         { withCredentials: true }
       );
@@ -217,7 +178,7 @@ const FinalPassageTextlog = () => {
   useEffect(() => {
     const fetchPassages = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/expert-assigned-passages/${subjectId}/${qset}`, { withCredentials: true });
+        const response = await axios.get(`https://www.shorthandonlineexam.in/expert-assigned-passages/${subjectId}/${qset}`, { withCredentials: true });
         if (response.status === 200) {
           console.log("Raw data:", JSON.stringify(response.data));
           setPassages(response.data);
@@ -235,7 +196,7 @@ const FinalPassageTextlog = () => {
       try {
         console.log(subjectId, qset, activePassage);
         
-        const response = await axios.post('http://localhost:3000/active-passage', {
+        const response = await axios.post('https://www.shorthandonlineexam.in/active-passage', {
           subjectId,
           qset,
           activePassage,
@@ -266,15 +227,16 @@ const FinalPassageTextlog = () => {
   useEffect(() => {
     const fetchAudio = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/get-subject-qset-audio/${subjectId}/${qset}`, { withCredentials: true });
+        const response = await axios.get(`https://www.shorthandonlineexam.in/get-subject-qset-audio/${subjectId}/${qset}`, { withCredentials: true });
         if (response.status === 200) {
-          setAudioUrl(response.data.passage1); // Assuming 'passage1' is the audio URL
+          setAudioUrl(response.data.passage1);
+          setAudioBUrl(response.data.passage2); // Assuming 'passage2' is the audio URL for passageB
         }
       } catch (err) {
         console.error('Error fetching audio:', err);
       }
     };
-
+  
     fetchAudio();
   }, [subjectId, qset]);
 
@@ -282,6 +244,9 @@ const FinalPassageTextlog = () => {
     setActivePassage(passage);
     if (passage === 'B') {
       setPassageBViewed(true);
+      setAudioUrl(audioBUrl); // Set the audio URL to passageB audio
+    } else {
+      setAudioUrl(audioUrl); // Set the audio URL back to passageA audio
     }
   };
 
@@ -326,7 +291,8 @@ const FinalPassageTextlog = () => {
     }, {});
 
     const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
-    let average = 80 - (total / 2);
+    // let average = 80 - (total / 2); // for skilltest
+    let average = 50 - (total / 3); // for shorthand 
     if (average < 0) {
       average = 0;
     }
@@ -344,7 +310,7 @@ const FinalPassageTextlog = () => {
     // Send total mistakes, marks, and individual mistake counts to server
     const sendMarksToServer = async() => {
       try {
-        const response = await axios.post(`http://localhost:3000/update-student-marks/${subjectId}/${qset}`, {
+        const response = await axios.post(`https://www.shorthandonlineexam.in/update-student-marks/${subjectId}/${qset}`, {
           total_mistakes: total,
           total_marks: parseFloat(average.toFixed(2)),
           spelling: counts.spelling,
@@ -372,7 +338,7 @@ const FinalPassageTextlog = () => {
 
   const handleAddIgnoreWord = useCallback(async (word) => {
     try {
-      const response = await axios.post('http://localhost:3000/add-ignore-word', {
+      const response = await axios.post('https://www.shorthandonlineexam.in/add-ignore-word', {
         subjectId,
         qset,
         activePassage,
@@ -392,7 +358,7 @@ const FinalPassageTextlog = () => {
 
   const handleUndoWord = useCallback(async (wordToRemove) => {
     try {
-      const response = await axios.post('http://localhost:3000/undo-word', {
+      const response = await axios.post('https://www.shorthandonlineexam.in/undo-word', {
         subjectId,
         qset,
         activePassage,
@@ -413,7 +379,7 @@ const FinalPassageTextlog = () => {
 
   const handleClearIgnoreList = useCallback(async () => {
     try {
-      const response = await axios.post('http://localhost:3000/clear-ignore-list', {
+      const response = await axios.post('https://www.shorthandonlineexam.in/clear-ignore-list', {
         subjectId,
         qset,
         activePassage
@@ -558,17 +524,17 @@ const FinalPassageTextlog = () => {
           >
             Passage A
           </button>
-          {/* <button 
+          <button 
             className={`passage-button ${activePassage === 'B' ? 'active' : ''}`}
             onClick={() => handlePassageChange('B')}
           >
             Passage B
-          </button> */}
+          </button>
         </div>
         <button 
           className="submit-button" 
           onClick={handleSubmit} 
-          // disabled={!passageBViewed}
+          disabled={!passageBViewed}
         >
           Submit
         </button>
@@ -597,7 +563,7 @@ const FinalPassageTextlog = () => {
           <button onClick={() => handleZoom('modelAnswer', 'in')}><FontAwesomeIcon icon={faSearchPlus} /></button>
           <button onClick={() => handleZoom('modelAnswer', 'out')}><FontAwesomeIcon icon={faSearchMinus} /></button>
         </div>
-        <AudioPlayer audioUrl={audioUrl} />
+        <AudioPlayer audioUrl={activePassage === 'A' ? audioUrl : audioBUrl} />
       </div>
       <div className="grid-item">
         <h2 className="column-header">Difference Passage</h2>

@@ -132,6 +132,8 @@ const FetchPassageById = () => {
     const [categoryCounts, setCategoryCounts] = useState({});
     const [isIgnoreListVisible, setisIgnoreListVisible] = useState(true)
     const [tempIgnoreList, settempIgnoreList] = useState([])
+    const [audioUrl, setAudioUrl] = useState('');
+    const [audioBUrl, setAudioBUrl] = useState('');
 
 
     const handleZoom = (column, action) => {
@@ -170,7 +172,7 @@ const FetchPassageById = () => {
     useEffect(() => {
       const fetchPassages = async () => {
           try {
-                const response = await axios.get(`http://localhost:3000/student-passages/${subjectId}/${qset}/${studentId}`, { withCredentials: true });
+                const response = await axios.get(`https://www.shorthandonlineexam.in/student-passages/${subjectId}/${qset}/${studentId}`, { withCredentials: true });
                 if (response.status === 200 && response.data && Object.keys(response.data).length > 0) {
                 console.log("Raw data:", JSON.stringify(response.data));
                 setPassages(response.data);
@@ -186,11 +188,28 @@ const FetchPassageById = () => {
     }, [subjectId, qset, studentId]);
 
     useEffect(() => {
+      const fetchAudio = async () => {
+        try {
+          const response = await axios.get(`https://www.shorthandonlineexam.in/get-student-audio-id/${subjectId}/${qset}/${studentId}`, { withCredentials: true });
+          if (response.status === 200) {
+            setAudioUrl(response.data.passage1);
+            setAudioBUrl(response.data.passage2); // Assuming 'passage2' is the audio URL for passageB
+          }
+        } catch (err) {
+          console.error('Error fetching audio:', err);
+        }
+      };
+    
+      fetchAudio();
+    }, [subjectId, qset]);
+  
+
+    useEffect(() => {
       const sendActivePassageData = async () => {
           try {
               console.log(subjectId, qset, activePassage, studentId);
               
-              const response = await axios.post('http://localhost:3000/student-active-passage', {
+              const response = await axios.post('https://www.shorthandonlineexam.in/student-active-passage', {
                   subjectId,
                   qset,
                   activePassage,
@@ -268,7 +287,8 @@ const FetchPassageById = () => {
       }, {});
     
       const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
-      let average = 50 - (total / 3) ;
+      // let average = 80 - (total / 2); // for skilltest
+      let average = 50 - (total / 3); // for shorthand 
       if (average<0) {
         average = 0
       }
@@ -282,6 +302,24 @@ const FetchPassageById = () => {
       console.log('Mistake category counts:', counts);
       console.log('Total mistakes:', total);
       console.log('Average mistakes:', average.toFixed(2));
+
+      // Send total mistakes, marks, and individual mistake counts to server
+      const sendMarksToServer = async() => {
+        try {
+          const response = await axios.post(`https://www.shorthandonlineexam.in/update-student-marks/${subjectId}/${qset}`, {
+            total_mistakes: total,
+            total_marks: parseFloat(average.toFixed(2)),
+            spelling: counts.spelling,
+            missed: counts.missed,
+            added: counts.added,
+            grammar: counts.grammar
+          });
+          console.log('Server response: ', response.data);
+        } catch (error) {
+          console.error('Error sending data to server: ', error);
+        }
+      }
+      sendMarksToServer();
     }, [mistakes]);
 
     const handleWordHover = useCallback((word) => {
@@ -295,7 +333,7 @@ const FetchPassageById = () => {
 
     const handleAddIgnoreWord = useCallback(async (word) => {
       try {
-        const response = await axios.post('http://localhost:3000/student-add-ignore-word', {
+        const response = await axios.post('https://www.shorthandonlineexam.in/student-add-ignore-word', {
           subjectId,
           qset,
           activePassage,
@@ -316,7 +354,7 @@ const FetchPassageById = () => {
     
     const handleUndoWord = useCallback(async (wordToRemove) => {
       try {
-        const response = await axios.post('http://localhost:3000/student-undo-word', {
+        const response = await axios.post('https://www.shorthandonlineexam.in/student-undo-word', {
           subjectId,
           qset,
           activePassage,
@@ -338,7 +376,7 @@ const FetchPassageById = () => {
 
     const handleClearIgnoreList = useCallback(async () => {
       try {
-        const response = await axios.post('http://localhost:3000/student-clear-ignore-list', {
+        const response = await axios.post('https://www.shorthandonlineexam.in/student-clear-ignore-list', {
           subjectId,
           qset,
           activePassage,
@@ -378,6 +416,102 @@ const FetchPassageById = () => {
       );
     };
 
+    const AudioPlayer = ({ audioUrl }) => {
+      const audioRef = React.useRef(null);
+      const progressBarRef = React.useRef(null);
+      const [isPlaying, setIsPlaying] = React.useState(false);
+      const [progress, setProgress] = React.useState(0);
+      const [hoverPosition, setHoverPosition] = React.useState(null);
+    
+      const togglePlayPause = () => {
+        if (audioRef.current) {
+          if (audioRef.current.paused) {
+            audioRef.current.play();
+            setIsPlaying(true);
+          } else {
+            audioRef.current.pause();
+            setIsPlaying(false);
+          }
+        }
+      };
+    
+      const handleTimeUpdate = () => {
+        if (audioRef.current) {
+          const duration = audioRef.current.duration;
+          const currentTime = audioRef.current.currentTime;
+          const progressPercent = (currentTime / duration) * 100;
+          setProgress(progressPercent);
+        }
+      };
+    
+      const handleProgressBarClick = (event) => {
+        if (audioRef.current && progressBarRef.current) {
+          const progressBar = progressBarRef.current;
+          const clickPosition = event.clientX - progressBar.getBoundingClientRect().left;
+          const progressBarWidth = progressBar.offsetWidth;
+          const clickPercentage = (clickPosition / progressBarWidth) * 100;
+          const newTime = (clickPercentage / 100) * audioRef.current.duration;
+          
+          audioRef.current.currentTime = newTime;
+          setProgress(clickPercentage);
+    
+          if (!isPlaying) {
+            audioRef.current.play();
+            setIsPlaying(true);
+          }
+        }
+      };
+    
+      const handleMouseMove = (event) => {
+        if (progressBarRef.current) {
+          const progressBar = progressBarRef.current;
+          const mousePosition = event.clientX - progressBar.getBoundingClientRect().left;
+          const progressBarWidth = progressBar.offsetWidth;
+          const hoverPercentage = (mousePosition / progressBarWidth) * 100;
+          setHoverPosition(hoverPercentage);
+        }
+      };
+    
+      const handleMouseLeave = () => {
+        setHoverPosition(null);
+      };
+    
+      React.useEffect(() => {
+        const audioElement = audioRef.current;
+        if (audioElement) {
+          audioElement.addEventListener('timeupdate', handleTimeUpdate);
+        }
+        return () => {
+          if (audioElement) {
+            audioElement.removeEventListener('timeupdate', handleTimeUpdate);
+          }
+        };
+      }, []);
+    
+      return (
+        <div className="audio-player">
+          <audio ref={audioRef} src={audioUrl} />
+          <button onClick={togglePlayPause}>
+            {isPlaying ? '❚❚' : '▶'}
+          </button>
+          <div 
+            className="progress-bar-container" 
+            ref={progressBarRef}
+            onClick={handleProgressBarClick}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+          >
+            <div className="progress-bar">
+              <div className="progress" style={{ width: `${progress}%` }}></div>
+              {hoverPosition !== null && (
+                <div className="playhead" style={{ left: `${hoverPosition}%` }}></div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    };
+
     return (
       <div className="final-passage-container">
         <div className="passage-buttons-container">
@@ -388,12 +522,12 @@ const FetchPassageById = () => {
             >
               Passage A
             </button>
-            {/* <button 
+            <button 
               className={`passage-button ${activePassage === 'B' ? 'active' : ''}`}
               onClick={() => handlePassageChange('B')}
             >
               Passage B
-            </button> */}
+            </button>
           </div>
           <button 
             className="submit-button" 
@@ -426,6 +560,7 @@ const FetchPassageById = () => {
                 <button onClick={() => handleZoom('modelAnswer', 'in')}><FontAwesomeIcon icon={faSearchPlus} /></button>
                 <button onClick={() => handleZoom('modelAnswer', 'out')}><FontAwesomeIcon icon={faSearchMinus} /></button>
               </div>
+              <AudioPlayer audioUrl={activePassage === 'A' ? audioUrl : audioBUrl} />
           </div>
           <div className="grid-item">
               <h2 className="column-header">Difference Passage</h2>
