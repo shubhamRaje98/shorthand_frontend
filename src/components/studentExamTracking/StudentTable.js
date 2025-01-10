@@ -389,8 +389,8 @@ const StudentTable = () => {
                                 <table className="table table-bordered table-striped">
                                     <thead>
                                         <tr>
-                                            <th>Batch Number</th>
-                                            <th>Seat No</th>
+                                            <th style={{width:"0%"}}>Batch No.</th>
+                                            <th style={{width:"15%"}}>Seat No.</th>
                                             <th>Login</th>
                                             {exam_type !== 'typewriting' && <th>Trial</th>}
                                             {exam_type !== 'typewriting' && <th>Audio Track A</th>}

@@ -14,6 +14,7 @@ const StudentData = () => {
     const [resetError, setResetError] = useState('');
     const [centers, setCenters] = useState([]);
     const [selectedCenter, setSelectedCenter] = useState('');
+    const [refresh,setRefresh] = useState(false);
 
 
     useEffect(() => {
@@ -61,6 +62,35 @@ const StudentData = () => {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        const fetchResetRequests = async () => {
+            try {
+                const response = await axios.get(`http://localhost:3000/get-pending-requests?center=${selectedCenter}`);
+                setResetRequests(response.data);
+            } catch (err) {
+                setResetError('Failed to fetch reset requests. Please try again.');
+                console.error('Error fetching reset requests:', err);
+            }
+        };
+
+        fetchResetRequests();
+    }, [selectedCenter,refresh]);
+
+    const handleDelete = async (student_id , reset_id) => {
+        setLoading(true);
+        setError('');
+        try {
+            const response = await axios.post('http://localhost:3000/reject-reset-request', { student_id: student_id.toString() ,reset_id:reset_id.toString() });
+            setRefresh((prev) => !prev);
+            alert(response.data.message);   
+        } catch (err) {
+            setError('Error Rejecting Request!!!');
+            console.error('Error fetching student data:', err);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     return (
         <>
@@ -118,6 +148,15 @@ const StudentData = () => {
                                             className="sd-button reset-button"
                                         >
                                             Reset
+                                        </button>
+                                    
+                                        <button
+                                            onClick={() => {
+                                                handleDelete(request.student_id , request.id)
+                                            }}
+                                            className="sd-button reject-button"
+                                        >
+                                            Reject
                                         </button>
                                     </td>
                                 </tr>
