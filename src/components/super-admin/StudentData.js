@@ -66,7 +66,7 @@ const StudentData = () => {
     useEffect(() => {
         const fetchResetRequests = async () => {
             try {
-                const response = await axios.get(`http://localhost:3000/get-pending-requests?center=${selectedCenter}`);
+                const response = await axios.get(`https://www.shorthandonlineexam.in/get-pending-requests?center=${selectedCenter}`);
                 setResetRequests(response.data);
             } catch (err) {
                 setResetError('Failed to fetch reset requests. Please try again.');
@@ -81,7 +81,7 @@ const StudentData = () => {
         setLoading(true);
         setError('');
         try {
-            const response = await axios.post('http://localhost:3000/reject-reset-request', { student_id: student_id.toString() ,reset_id:reset_id.toString() });
+            const response = await axios.post('https://www.shorthandonlineexam.in/reject-reset-request', { student_id: student_id.toString() ,reset_id:reset_id.toString() });
             setRefresh((prev) => !prev);
             alert(response.data.message);   
         } catch (err) {

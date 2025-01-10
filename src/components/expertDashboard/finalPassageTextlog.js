@@ -257,7 +257,7 @@ const FinalPassageTextlog = () => {
     if (!modelAnswer || !userAnswer) return;
 
     try {
-      const response = await axios.post('http://65.0.124.197:5000/compare', {
+      const response = await axios.post('http://3.110.217.240:5000/compare', {
         text1: modelAnswer,
         text2: userAnswer,
         ignore_list: ignoreList,
