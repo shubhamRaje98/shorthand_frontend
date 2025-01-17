@@ -60,8 +60,12 @@ const SubjectSelection = () => {
 
     const handleSubjectClick = (subject) => {
         setSelectedSubject(subject);
-        setSelectedQSet(null);  // Reset QSet when a new subject is selected
-        navigate(`/expertDashboard/${subject.subjectId}`);
+        setSelectedQSet(null);
+        if (subject.isHeld) {
+            navigate(`/expertDashboard/${subject.subjectId}?held=true`);
+        } else {
+            navigate(`/expertDashboard/${subject.subjectId}`);
+        }
     };
 
     if (error) {

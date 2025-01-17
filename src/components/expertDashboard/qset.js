@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import './expertDash.css';
 import { useDashboard } from './DashboardContext';
 import { toast } from 'react-toastify';
@@ -11,12 +11,14 @@ const QSet = () => {
   const navigate = useNavigate();
   const { subjectId } = useParams();
   const { setSelectedQSet } = useDashboard();
+  const location = useLocation();
+  const isHeld = new URLSearchParams(location.search).get('held') === 'true';
 
   useEffect(() => {
     const fetchQSets = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:3000/qsets/${subjectId}`, { withCredentials: true });
+        const response = await axios.get(`http://localhost:3000/qsets/${subjectId}${isHeld ? '?held=true' : ''}`, { withCredentials: true });
         if (response.status === 200) {
           const sortedQSets = response.data.sort((a, b) => a.qset - b.qset);
           setQsets(sortedQSets);
@@ -30,7 +32,7 @@ const QSet = () => {
     };
 
     fetchQSets();
-  }, [subjectId]);
+  }, [subjectId, isHeld]);
 
   const handleQSetClick = async (qsetObj) => {
     try {
