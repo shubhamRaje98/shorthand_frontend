@@ -1,11 +1,11 @@
 // finalPassageTextlog.js
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import './finalPassageTextlog.css';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUndo, faEyeSlash, faExchangeAlt, faSearchPlus, faSearchMinus, faPlay, faPause } from '@fortawesome/free-solid-svg-icons';
+import { faUndo, faEyeSlash, faExchangeAlt, faSearchPlus, faSearchMinus} from '@fortawesome/free-solid-svg-icons';
 import { faToggleOn, faToggleOff } from '@fortawesome/free-solid-svg-icons';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
@@ -133,7 +133,6 @@ const FinalPassageTextlog = () => {
   const [audioUrl, setAudioUrl] = useState('');
   const [audioBUrl, setAudioBUrl] = useState('');
 
-
   const handleZoom = (column, action) => {
     setFontSizes(prev => ({
       ...prev,
@@ -148,7 +147,7 @@ const FinalPassageTextlog = () => {
   const handleSubmit = async () => {
     try {
       const response = await axios.post(
-        `https://www.shorthandonlineexam.in/submit-passage-review/${subjectId}/${qset}`, 
+        `http://localhost:3000/submit-passage-review/${subjectId}/${qset}`, 
         {}, 
         { withCredentials: true }
       );
@@ -162,6 +161,24 @@ const FinalPassageTextlog = () => {
       toast.error('Error submitting passage review. Please try again.');
     }
   };
+
+  const handleHold = async () => {
+    try {
+      const response = await axios.post(
+        `http://localhost:3000/hold-passage-review/${subjectId}/${qset}`, 
+        {}, 
+        { withCredentials: true }
+      );
+
+      if (response.status === 200) {
+        toast.success('Passage held successfully');
+        navigate(`/expertDashboard/${subjectId}`, {replace: true});
+      }
+    } catch (err) {
+      console.error('Error holding passage review:', err);
+      toast.error('Error holding passage review. Please try again.');
+    }
+  }
 
   const handleToggleIgnoreList = () => {
     if (isIgnoreListVisible) {
@@ -178,7 +195,7 @@ const FinalPassageTextlog = () => {
   useEffect(() => {
     const fetchPassages = async () => {
       try {
-        const response = await axios.get(`https://www.shorthandonlineexam.in/expert-assigned-passages/${subjectId}/${qset}`, { withCredentials: true });
+        const response = await axios.get(`http://localhost:3000/expert-assigned-passages/${subjectId}/${qset}`, { withCredentials: true });
         if (response.status === 200) {
           console.log("Raw data:", JSON.stringify(response.data));
           setPassages(response.data);
@@ -196,7 +213,7 @@ const FinalPassageTextlog = () => {
       try {
         console.log(subjectId, qset, activePassage);
         
-        const response = await axios.post('https://www.shorthandonlineexam.in/active-passage', {
+        const response = await axios.post('http://localhost:3000/active-passage', {
           subjectId,
           qset,
           activePassage,
@@ -227,7 +244,7 @@ const FinalPassageTextlog = () => {
   useEffect(() => {
     const fetchAudio = async () => {
       try {
-        const response = await axios.get(`https://www.shorthandonlineexam.in/get-subject-qset-audio/${subjectId}/${qset}`, { withCredentials: true });
+        const response = await axios.get(`http://localhost:3000/get-subject-qset-audio/${subjectId}/${qset}`, { withCredentials: true });
         if (response.status === 200) {
           setAudioUrl(response.data.passage1);
           setAudioBUrl(response.data.passage2); // Assuming 'passage2' is the audio URL for passageB
@@ -250,6 +267,8 @@ const FinalPassageTextlog = () => {
     }
   };
 
+
+
   const comparePassages = useCallback(async () => {
     const modelAnswer = passages[`ansPassage${activePassage}`];
     const userAnswer = passages[`passage${activePassage}`];
@@ -257,7 +276,7 @@ const FinalPassageTextlog = () => {
     if (!modelAnswer || !userAnswer) return;
 
     try {
-      const response = await axios.post('/api/compare', {
+      const response = await axios.post('http://3.110.217.240:5000/compare', {
         text1: modelAnswer,
         text2: userAnswer,
         ignore_list: ignoreList,
@@ -310,7 +329,7 @@ const FinalPassageTextlog = () => {
     // Send total mistakes, marks, and individual mistake counts to server
     const sendMarksToServer = async() => {
       try {
-        const response = await axios.post(`https://www.shorthandonlineexam.in/update-student-marks/${subjectId}/${qset}`, {
+        const response = await axios.post(`http://localhost:3000/update-student-marks/${subjectId}/${qset}`, {
           total_mistakes: total,
           total_marks: parseFloat(average.toFixed(2)),
           spelling: counts.spelling,
@@ -338,7 +357,7 @@ const FinalPassageTextlog = () => {
 
   const handleAddIgnoreWord = useCallback(async (word) => {
     try {
-      const response = await axios.post('https://www.shorthandonlineexam.in/add-ignore-word', {
+      const response = await axios.post('http://localhost:3000/add-ignore-word', {
         subjectId,
         qset,
         activePassage,
@@ -358,7 +377,7 @@ const FinalPassageTextlog = () => {
 
   const handleUndoWord = useCallback(async (wordToRemove) => {
     try {
-      const response = await axios.post('https://www.shorthandonlineexam.in/undo-word', {
+      const response = await axios.post('http://localhost:3000/undo-word', {
         subjectId,
         qset,
         activePassage,
@@ -379,7 +398,7 @@ const FinalPassageTextlog = () => {
 
   const handleClearIgnoreList = useCallback(async () => {
     try {
-      const response = await axios.post('https://www.shorthandonlineexam.in/clear-ignore-list', {
+      const response = await axios.post('http://localhost:3000/clear-ignore-list', {
         subjectId,
         qset,
         activePassage
@@ -513,7 +532,6 @@ const FinalPassageTextlog = () => {
     );
   };
   
-
   return (
     <div className="final-passage-container">
       <div className="passage-buttons-container">
@@ -529,6 +547,9 @@ const FinalPassageTextlog = () => {
             onClick={() => handlePassageChange('B')}
           >
             Passage B
+          </button>
+          <button className='hold-button active' onClick={handleHold}>
+            Hold
           </button>
         </div>
         <button 

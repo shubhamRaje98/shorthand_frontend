@@ -21,7 +21,7 @@ const SubjectSelection = () => {
                                 acc[language] = [];
                             }
                             acc[language].push(subject);
-                            
+
                             // Add held students as a separate "subject"
                             if (subject.held_incomplete_count > 0 || subject.total_held_count > 0) {
                                 const heldSubject = {
@@ -39,6 +39,7 @@ const SubjectSelection = () => {
 
                     Object.keys(groupedSubjects).forEach(language => {
                         groupedSubjects[language].sort((a, b) => {
+                            if (a.isHeld !== b.isHeld) return a.isHeld ? 1 : -1;
                             const speedA = parseInt(a.subject_name.match(/\d+/)?.[0] || '0');
                             const speedB = parseInt(b.subject_name.match(/\d+/)?.[0] || '0');
                             return speedA - speedB;
@@ -60,7 +61,7 @@ const SubjectSelection = () => {
 
     const handleSubjectClick = (subject) => {
         setSelectedSubject(subject);
-        setSelectedQSet(null);  // Reset QSet when a new subject is selected
+        setSelectedQSet(null);
         navigate(`/expertDashboard/${subject.subjectId}`);
     };
 
@@ -79,18 +80,23 @@ const SubjectSelection = () => {
                     <h3 className="language-title">{language} Shorthand</h3>
                     <div className="subjects-grid">
                         {languageSubjects.map((subject) => (
-                            <button
-                                key={subject.subjectId}
-                                className="item-button"
-                                onClick={() => handleSubjectClick(subject)}
-                            >
-                                <div className="item-title">{subject.subject_name}</div>
-                                {subject.incomplete_count !== undefined && subject.total_count !== undefined && (
-                                    <div className="item-count">
-                                        Students: {subject.incomplete_count}/{subject.total_count}
+                            <div key={`${subject.subjectId}${subject.isHeld ? '-held' : ''}`} 
+                                 className="subject-container">
+                                <button
+                                    className={`item-button ${subject.isHeld ? 'bg-amber-100 hover:bg-amber-200' : 'bg-white hover:bg-gray-50'}`}
+                                    onClick={() => handleSubjectClick(subject)}
+                                >
+                                    <div className="item-title">
+                                        {subject.subject_name}
                                     </div>
-                                )}
-                            </button>
+                                    {subject.incomplete_count !== undefined && 
+                                     subject.total_count !== undefined && (
+                                        <div className="item-count">
+                                            Students: {subject.incomplete_count}/{subject.total_count}
+                                        </div>
+                                    )}
+                                </button>
+                            </div>
                         ))}
                     </div>
                 </div>

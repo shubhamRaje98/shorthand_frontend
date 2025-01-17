@@ -32,8 +32,6 @@
     font-weight: 600;
 }
 
-
-
 .passage-button:hover {
     background-color: #dee2e6;
 }
@@ -43,6 +41,30 @@
     color: white;
     box-shadow: 0 0.1rem 0.25rem rgba(0, 123, 255, 0.3);
 }
+
+/* hold button styles */
+.hold-button{
+    padding: 0.5em 1em;
+    font-size: 0.9em;
+    background-color: #e0e0e0;
+    border: none;
+    border-radius: 0.25em;
+    cursor: pointer;
+    color: #495057;
+    transition: background-color 0.3s;
+    font-weight: 600;
+}
+
+.hold-button:hover {
+    background-color: #dee2e6;
+}
+
+.hold-button.active {
+    background-color: #c1be23;
+    color: white;
+    box-shadow: 0 0.1rem 0.25rem rgba(144, 159, 47, 0.3);
+}
+/* end hold button styles */
 
 .grid-item {
     background-color: #ffffff;
