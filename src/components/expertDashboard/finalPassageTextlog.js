@@ -151,10 +151,20 @@ const FinalPassageTextlog = () => {
         {}, 
         { withCredentials: true }
       );
-
+  
       if (response.status === 200) {
         toast.success('Passage review submitted successfully');
-        navigate(`/expertDashboard/${subjectId}`, {replace: true});
+        
+        // Get the current URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const isHeld = urlParams.get('held') === 'true';
+  
+        // Navigate back to the dashboard, including the held parameter if it was true
+        if (isHeld) {
+          navigate(`/expertDashboard/${subjectId}?held=true`, {replace: true});
+        } else {
+          navigate(`/expertDashboard/${subjectId}`, {replace: true});
+        }
       }
     } catch (err) {
       console.error('Error submitting passage review:', err);

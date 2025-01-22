@@ -36,17 +36,24 @@ const QSet = () => {
 
   const handleQSetClick = async (qsetObj) => {
     try {
-      const response = await axios.post(`http://localhost:3000/assignStudent/${subjectId}/${qsetObj.qset}`, {}, { withCredentials: true });
+      // Include the held parameter in the URL
+      const response = await axios.post(
+        `http://localhost:3000/assignStudent/${subjectId}/${qsetObj.qset}?held=${isHeld}`, 
+        {}, 
+        { withCredentials: true }
+      );
+  
       if (response.status === 200) {
         setSelectedQSet(qsetObj);
         
-        // Check if paper_mod is 1
         if (response.data.paper_mod === 1) {
-          // Navigate to stage2 route
           navigate(`/expertDashboard/${subjectId}/${qsetObj.qset}/stage2`, { replace: true });
         } else {
-          // Navigate to the original route
-          navigate(`/expertDashboard/${subjectId}/${qsetObj.qset}`, { replace: true });
+          if (isHeld){
+            navigate(`/expertDashboard/${subjectId}/${qsetObj.qset}?held=${isHeld}`, { replace: true });
+          }else{
+            navigate(`/expertDashboard/${subjectId}/${qsetObj.qset}`, { replace: true });
+          }
         }
       }
     } catch (err) {

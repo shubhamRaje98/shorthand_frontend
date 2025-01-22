@@ -83,18 +83,20 @@ const SubjectSelection = () => {
                     <h3 className="language-title">{language} Shorthand</h3>
                     <div className="subjects-grid">
                         {languageSubjects.map((subject) => (
-                            <button
-                                key={subject.subjectId}
-                                className="item-button"
-                                onClick={() => handleSubjectClick(subject)}
-                            >
-                                <div className="item-title">{subject.subject_name}</div>
-                                {subject.incomplete_count !== undefined && subject.total_count !== undefined && (
-                                    <div className="item-count">
-                                        Students: {subject.incomplete_count}/{subject.total_count}
-                                    </div>
-                                )}
-                            </button>
+                            subject.incomplete_count > 0 && (
+                                <button
+                                    key={subject.subjectId}
+                                    className="item-button"
+                                    onClick={() => handleSubjectClick(subject)}
+                                >
+                                    <div className="item-title">{subject.subject_name}</div>
+                                    {subject.incomplete_count !== undefined && subject.total_count !== undefined && (
+                                        <div className="item-count">
+                                            Students: {subject.incomplete_count}/{subject.total_count}
+                                        </div>
+                                    )}
+                                </button>
+                            )
                         ))}
                     </div>
                 </div>
