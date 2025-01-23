@@ -30,7 +30,7 @@ const CurrentStudentDetails = () => {
         setLoading(true);
         setError('');
         try {
-            let url = 'http://localhost:3000/track-students-on-exam-center-code';
+            let url = 'http://43.205.192.129:3000/track-students-on-exam-center-code';
             
             console.log("Fetching data from URL:", url);
             const response = await axios.post(url, { withCredentials: true });
@@ -50,9 +50,9 @@ const CurrentStudentDetails = () => {
         setLoading(true);
         setError('');
         try {
-            let url = `http://localhost:3000/get-current-student-details`
+            let url = `http://43.205.192.129:3000/get-current-student-details`
             if(batchNo){
-                url = `http://localhost:3000/get-current-student-details?batchNo=${batchNo}`
+                url = `http://43.205.192.129:3000/get-current-student-details?batchNo=${batchNo}`
             }
             const response = await axios.get(url, { withCredentials: true });
             if (response.data && response.data.results && Array.isArray(response.data.results)) {

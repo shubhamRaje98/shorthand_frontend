@@ -12,7 +12,7 @@ const ExpertLogin = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:3000/expert-login', {
+            const response = await axios.post('http://43.205.192.129:3000/expert-login', {
                 expertId,
                 password
             }, {

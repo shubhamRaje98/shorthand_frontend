@@ -31,7 +31,7 @@ const DataUpdateForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`http://localhost:3000/${updateType}`, {
+      const response = await axios.post(`http://43.205.192.129:3000/${updateType}`, {
         studentId,
         ...formData,
       });
@@ -43,7 +43,7 @@ const DataUpdateForm = () => {
 
   const handleReset = async () => {
     try {
-      const response = await axios.post(`http://localhost:3000/${updateType}`, {
+      const response = await axios.post(`http://43.205.192.129:3000/${updateType}`, {
         studentId,
         reset: true,
       });

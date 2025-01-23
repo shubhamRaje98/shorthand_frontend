@@ -14,7 +14,7 @@ const Login = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:3000/center_admin_login', {
+            const response = await axios.post('http://43.205.192.129:3000/center_admin_login', {
                 centerId,
                 password
             }, {

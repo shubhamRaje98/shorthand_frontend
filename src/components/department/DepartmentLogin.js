@@ -12,7 +12,7 @@ const DepartmentLogin = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:3000/department-login', {
+            const response = await axios.post('http://43.205.192.129:3000/department-login', {
                 departmentId,
                 password
             }, {
