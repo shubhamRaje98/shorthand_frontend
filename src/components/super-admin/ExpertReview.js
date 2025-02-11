@@ -45,7 +45,7 @@ const ExpertReview = () => {
 
   const fetchDepartments = async () => {
     try {
-      const response = await axios.get('http://43.205.192.129:3000/get-departments');
+      const response = await axios.get('http://3.111.171.201:3000/get-departments');
       
       if (response.status === 201) {
         setDepartments(response.data);
@@ -65,7 +65,7 @@ const ExpertReview = () => {
     setMessage('');
 
     try {
-      const response = await axios.get(`http://43.205.192.129:3000/get-expert-review-logs?department=${selectedDepartment}&page=${currentPage}&limit=${logsPerPage}`);
+      const response = await axios.get(`http://3.111.171.201:3000/get-expert-review-logs?department=${selectedDepartment}&page=${currentPage}&limit=${logsPerPage}`);
       
       if (response.status === 201) {
         setExpertReviewLogs(response.data);
@@ -88,7 +88,7 @@ const ExpertReview = () => {
     setMessage('');
 
     try {
-      const response = await axios.get(`http://43.205.192.129:3000/get-mod-review-logs?department=${selectedDepartment}&page=${currentPage}&limit=${logsPerPage}`);
+      const response = await axios.get(`http://3.111.171.201:3000/get-mod-review-logs?department=${selectedDepartment}&page=${currentPage}&limit=${logsPerPage}`);
      
       if (response.status === 201) {
         setModReviewLogs(response.data);
@@ -116,7 +116,7 @@ const ExpertReview = () => {
     setMessage('');
 
     try {
-      const response = await axios.post('http://43.205.192.129:3000/populate-expert-review-log', {
+      const response = await axios.post('http://3.111.171.201:3000/populate-expert-review-log', {
         department: selectedDepartment
       });
       
@@ -145,7 +145,7 @@ const ExpertReview = () => {
     setMessage('');
 
     try {
-      const response = await axios.post('http://43.205.192.129:3000/populate-mod-review-log', {
+      const response = await axios.post('http://3.111.171.201:3000/populate-mod-review-log', {
         department: selectedDepartment
       });
      

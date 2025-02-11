@@ -12,7 +12,7 @@ const SuperAdminPc = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get('http://43.205.192.129:3000/get-center-pcregistration-details');
+                const response = await axios.get('http://3.111.171.201:3000/get-center-pcregistration-details');
                 setPcData(response.data.results);
                 setLoading(false);
             } catch (err) {

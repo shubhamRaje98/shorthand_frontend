@@ -147,7 +147,7 @@ const FinalPassageTextlog = () => {
   const handleSubmit = async () => {
     try {
       const response = await axios.post(
-        `http://43.205.192.129:3000/submit-passage-review/${subjectId}/${qset}`, 
+        `http://3.111.171.201:3000/submit-passage-review/${subjectId}/${qset}`, 
         {}, 
         { withCredentials: true }
       );
@@ -175,7 +175,7 @@ const FinalPassageTextlog = () => {
   const handleHold = async () => {
     try {
       const response = await axios.post(
-        `http://43.205.192.129:3000/hold-passage-review/${subjectId}/${qset}`, 
+        `http://3.111.171.201:3000/hold-passage-review/${subjectId}/${qset}`, 
         {}, 
         { withCredentials: true }
       );
@@ -205,7 +205,7 @@ const FinalPassageTextlog = () => {
   useEffect(() => {
     const fetchPassages = async () => {
       try {
-        const response = await axios.get(`http://43.205.192.129:3000/expert-assigned-passages/${subjectId}/${qset}`, { withCredentials: true });
+        const response = await axios.get(`http://3.111.171.201:3000/expert-assigned-passages/${subjectId}/${qset}`, { withCredentials: true });
         if (response.status === 200) {
           console.log("Raw data:", JSON.stringify(response.data));
           setPassages(response.data);
@@ -223,7 +223,7 @@ const FinalPassageTextlog = () => {
       try {
         console.log(subjectId, qset, activePassage);
         
-        const response = await axios.post('http://43.205.192.129:3000/active-passage', {
+        const response = await axios.post('http://3.111.171.201:3000/active-passage', {
           subjectId,
           qset,
           activePassage,
@@ -254,7 +254,7 @@ const FinalPassageTextlog = () => {
   useEffect(() => {
     const fetchAudio = async () => {
       try {
-        const response = await axios.get(`http://43.205.192.129:3000/get-subject-qset-audio/${subjectId}/${qset}`, { withCredentials: true });
+        const response = await axios.get(`http://3.111.171.201:3000/get-subject-qset-audio/${subjectId}/${qset}`, { withCredentials: true });
         if (response.status === 200) {
           setAudioUrl(response.data.passage1);
           setAudioBUrl(response.data.passage2); // Assuming 'passage2' is the audio URL for passageB
@@ -271,9 +271,6 @@ const FinalPassageTextlog = () => {
     setActivePassage(passage);
     if (passage === 'B') {
       setPassageBViewed(true);
-      setAudioUrl(audioBUrl); // Set the audio URL to passageB audio
-    } else {
-      setAudioUrl(audioUrl); // Set the audio URL back to passageA audio
     }
   };
 
@@ -286,7 +283,7 @@ const FinalPassageTextlog = () => {
     if (!modelAnswer || !userAnswer) return;
 
     try {
-      const response = await axios.post('http://3.110.217.240:5000/compare', {
+      const response = await axios.post('http://3.111.171.201:5000/compare', {
         text1: modelAnswer,
         text2: userAnswer,
         ignore_list: ignoreList,
@@ -310,51 +307,50 @@ const FinalPassageTextlog = () => {
 
   useEffect(() => {
     comparePassages();
-  }, [comparePassages]);
+  }, [comparePassages, activePassage, passages]); // Add activePassage and passages as dependencies
 
   useEffect(() => {
-    const orderedCategories = ['spelling', 'missed', 'added', 'grammar'];
-    const counts = orderedCategories.reduce((counts, category) => {
-      counts[category] = mistakes[category] ? mistakes[category].length : 0;
-      return counts;
-    }, {});
-
-    const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
-    // let average = 80 - (total / 2); // for skilltest
-    let average = 50 - (total / 3); // for shorthand 
-    if (average < 0) {
-      average = 0;
-    }
-
-    setCategoryCounts({
-      ...counts,
-      total,
-      average: average.toFixed(2) // Rounds to 2 decimal places
-    });
-
-    console.log('Mistake category counts:', counts);
-    console.log('Total mistakes:', total);
-    console.log('Average mistakes:', average.toFixed(2));
-
-    // Send total mistakes, marks, and individual mistake counts to server
-    const sendMarksToServer = async() => {
-      try {
-        const response = await axios.post(`http://43.205.192.129:3000/update-student-marks/${subjectId}/${qset}`, {
-          total_mistakes: total,
-          total_marks: parseFloat(average.toFixed(2)),
-          spelling: counts.spelling,
-          missed: counts.missed,
-          added: counts.added,
-          grammar: counts.grammar
-        });
-        console.log('Server response: ', response.data);
-      } catch (error) {
-        console.error('Error sending data to server: ', error);
+    if (Object.keys(mistakes).length > 0) {
+      const orderedCategories = ['spelling', 'missed', 'added', 'grammar'];
+      const counts = orderedCategories.reduce((counts, category) => {
+        counts[category] = mistakes[category] ? mistakes[category].length : 0;
+        return counts;
+      }, {});
+  
+      const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
+      let average = 50 - (total / 3); // for shorthand
+      if (average < 0) {
+        average = 0;
       }
+  
+      setCategoryCounts({
+        ...counts,
+        total,
+        average: average.toFixed(2)
+      });
+  
+      console.log('Mistake category counts:', counts);
+      console.log('Total mistakes:', total);
+      console.log('Average mistakes:', average.toFixed(2));
+  
+      const sendMarksToServer = async () => {
+        try {
+          const response = await axios.post(`http://3.111.171.201:3000/update-student-marks/${subjectId}/${qset}`, {
+            total_mistakes: total,
+            total_marks: parseFloat(average.toFixed(2)),
+            spelling: counts.spelling,
+            missed: counts.missed,
+            added: counts.added,
+            grammar: counts.grammar
+          });
+          console.log('Server response: ', response.data);
+        } catch (error) {
+          console.error('Error sending data to server: ', error);
+        }
+      };
+      sendMarksToServer();
     }
-    sendMarksToServer();
-
-  }, [mistakes, subjectId, qset]);
+  }, [mistakes]);
 
   const handleWordHover = useCallback((word) => {
     if (word) {
@@ -367,7 +363,7 @@ const FinalPassageTextlog = () => {
 
   const handleAddIgnoreWord = useCallback(async (word) => {
     try {
-      const response = await axios.post('http://43.205.192.129:3000/add-ignore-word', {
+      const response = await axios.post('http://3.111.171.201:3000/add-ignore-word', {
         subjectId,
         qset,
         activePassage,
@@ -387,7 +383,7 @@ const FinalPassageTextlog = () => {
 
   const handleUndoWord = useCallback(async (wordToRemove) => {
     try {
-      const response = await axios.post('http://43.205.192.129:3000/undo-word', {
+      const response = await axios.post('http://3.111.171.201:3000/undo-word', {
         subjectId,
         qset,
         activePassage,
@@ -408,7 +404,7 @@ const FinalPassageTextlog = () => {
 
   const handleClearIgnoreList = useCallback(async () => {
     try {
-      const response = await axios.post('http://43.205.192.129:3000/clear-ignore-list', {
+      const response = await axios.post('http://3.111.171.201:3000/clear-ignore-list', {
         subjectId,
         qset,
         activePassage

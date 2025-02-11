@@ -32,7 +32,7 @@ const StudentTable = () => {
 
     const fetchSubjects = async () => {
         try {
-            const response = await axios.get('http://43.205.192.129:3000/subjects');
+            const response = await axios.get('http://3.111.171.201:3000/subjects');
             if (response.data.subjects) {
                 setAllSubjects(response.data.subjects);
             }
@@ -46,7 +46,7 @@ const StudentTable = () => {
         setLoading(true);
         setError('');
         try {
-            let url = 'http://43.205.192.129:3000/track-students-on-exam-center-code';
+            let url = 'http://3.111.171.201:3000/track-students-on-exam-center-code';
             if (batchNo) {
                 url += `/${batchNo}`;
             }

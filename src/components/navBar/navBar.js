@@ -16,7 +16,7 @@ const NavBar = () => {
     useEffect(() => {
         const fetchCenterDetails = async () => {
             try {
-                const response = await axios.get(`http://43.205.192.129:3000/get-center-details`);
+                const response = await axios.get(`http://3.111.171.201:3000/get-center-details`);
                 if (response.data && response.data.examCenterDTO && response.data.examCenterDTO.length > 0) {
                     setCenterDetails(response.data.examCenterDTO[0]);
                     localStorage.setItem("center",response.data.examCenterDTO[0].center);

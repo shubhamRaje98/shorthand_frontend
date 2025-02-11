@@ -25,7 +25,7 @@ const AttendanceDownload = () => {
 
     const fetchController = async () => {
         try {
-            const response = await axios.post('http://43.205.192.129:3000/get-batch-controller-password', {
+            const response = await axios.post('http://3.111.171.201:3000/get-batch-controller-password', {
                 batchNo
             });
             if (response.data && response.data.results.length > 0) {
@@ -42,7 +42,7 @@ const AttendanceDownload = () => {
 
     const fetchBatches = async () => {
         try {
-            const response = await axios.post('http://43.205.192.129:3000/track-students-on-exam-center-code');
+            const response = await axios.post('http://3.111.171.201:3000/track-students-on-exam-center-code');
             const distinctBatches = [...new Set(response.data.map(item => item.batchNo))];
             setBatches(prevBatches => {
                 const newBatches = [...new Set([...prevBatches, ...distinctBatches])];
@@ -60,7 +60,7 @@ const AttendanceDownload = () => {
 
         try {
             const response = await axios({
-                url: `http://43.205.192.129:3000/center/${reportType}-pdf-download`,
+                url: `http://3.111.171.201:3000/center/${reportType}-pdf-download`,
                 method: 'POST',
                 data: { batchNo },
                 responseType: 'blob',
@@ -98,7 +98,7 @@ const AttendanceDownload = () => {
 
         try {
             const response = await axios({
-                url: 'http://43.205.192.129:3000/center/studentId-password',
+                url: 'http://3.111.171.201:3000/center/studentId-password',
                 method: 'POST',
                 data: { batchNo },
                 responseType: 'blob',

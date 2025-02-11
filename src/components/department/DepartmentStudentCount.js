@@ -38,7 +38,7 @@ const DepartmentStudentCount = () => {
         setLoading(true);
         setError('');
         try {
-            let url = 'http://43.205.192.129:3000/track-students-on-department-code';
+            let url = 'http://3.111.171.201:3000/track-students-on-department-code';
             
             console.log("Fetching data from URL:", url);
             const response = await axios.post(url, { withCredentials: true });
@@ -64,7 +64,7 @@ const DepartmentStudentCount = () => {
         setLoading(true);
         setError('');
         try {
-            let url = `http://43.205.192.129:3000/get-department-batch-student-count`
+            let url = `http://3.111.171.201:3000/get-department-batch-student-count`
             if(batchNo || center){
                 url += '?';
                 if(batchNo) url += `batchNo=${batchNo}&`;
