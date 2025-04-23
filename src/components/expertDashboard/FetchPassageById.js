@@ -172,7 +172,7 @@ const FetchPassageById = () => {
     useEffect(() => {
       const fetchPassages = async () => {
           try {
-                const response = await axios.get(`http://localhost:3000/student-passages/${subjectId}/${qset}/${studentId}`, { withCredentials: true });
+                const response = await axios.get(`http://3.111.171.201:3000/student-passages/${subjectId}/${qset}/${studentId}`, { withCredentials: true });
                 if (response.status === 200 && response.data && Object.keys(response.data).length > 0) {
                 console.log("Raw data:", JSON.stringify(response.data));
                 setPassages(response.data);
@@ -190,7 +190,7 @@ const FetchPassageById = () => {
     useEffect(() => {
       const fetchAudio = async () => {
         try {
-          const response = await axios.get(`http://localhost:3000/get-student-audio-id/${subjectId}/${qset}/${studentId}`, { withCredentials: true });
+          const response = await axios.get(`http://3.111.171.201:3000/get-student-audio-id/${subjectId}/${qset}/${studentId}`, { withCredentials: true });
           if (response.status === 200) {
             setAudioUrl(response.data.passage1);
             setAudioBUrl(response.data.passage2); // Assuming 'passage2' is the audio URL for passageB
@@ -209,7 +209,7 @@ const FetchPassageById = () => {
           try {
               console.log(subjectId, qset, activePassage, studentId);
               
-              const response = await axios.post('http://localhost:3000/student-active-passage', {
+              const response = await axios.post('http://3.111.171.201:3000/student-active-passage', {
                   subjectId,
                   qset,
                   activePassage,
@@ -248,43 +248,49 @@ const FetchPassageById = () => {
     const comparePassages = useCallback(async () => {
       const modelAnswer = passages[`ansPassage${activePassage}`];
       const userAnswer = passages[`passage${activePassage}`];
-      
+    
       if (!modelAnswer || !userAnswer) return;
-  
+    
       try {
-          const response = await axios.post('http://3.110.217.240:5000/compare', {
-              text1: modelAnswer,
-              text2: userAnswer,
-              ignore_list: ignoreList, // Remove tempIgnoreList from here
-              ignore_case: true
-          });
-  
-          if (response.status === 200) {
-              const { colored_words, added, missed, spelling, grammar } = response.data;
-              setColoredWords(colored_words);
-              setMistakes({
-                  added,
-                  missed,
-                  spelling,
-                  grammar
-              });
+        const response = await axios.post('http://3.111.171.201:5000/compare', {
+          text1: modelAnswer,
+          text2: userAnswer,
+          ignore_list: ignoreList,
+          ignore_case: true
+        }, {
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
           }
+        });
+    
+        if (response.status === 200) {
+          const { colored_words, added, missed, spelling, grammar } = response.data;
+          setColoredWords(colored_words);
+          setMistakes({
+            added,
+            missed,
+            spelling,
+            grammar
+          });
+        }
       } catch (err) {
-          console.error('Error comparing passages:', err);
+        console.error('Error comparing passages:', err);
       }
-  }, [activePassage, passages, ignoreList]); // Remove tempIgnoreList from dependencies
+    }, [activePassage, passages, ignoreList]);
 
     useEffect(() => {
         comparePassages();
-    }, [comparePassages]);
+    }, [comparePassages, activePassage, passages]);
 
     // Add the new useEffect hook here
     useEffect(() => {
-      const orderedCategories = ['spelling', 'missed', 'added', 'grammar'];
-      const counts = orderedCategories.reduce((counts, category) => {
-        counts[category] = mistakes[category] ? mistakes[category].length : 0;
-        return counts;
-      }, {});
+      if (Object.keys(mistakes).length > 0) { // Ensure mistakes is not empty
+        const orderedCategories = ['spelling', 'missed', 'added', 'grammar'];
+        const counts = orderedCategories.reduce((counts, category) => {
+          counts[category] = mistakes[category] ? mistakes[category].length : 0;
+          return counts;
+        }, {});
     
       const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
       // let average = 80 - (total / 2); // for skilltest
@@ -306,7 +312,7 @@ const FetchPassageById = () => {
       // Send total mistakes, marks, and individual mistake counts to server
       const sendMarksToServer = async() => {
         try {
-          const response = await axios.post(`http://localhost:3000/update-student-marks/${subjectId}/${qset}`, {
+          const response = await axios.post(`http://3.111.171.201:3000/update-student-marks/${subjectId}/${qset}`, {
             total_mistakes: total,
             total_marks: parseFloat(average.toFixed(2)),
             spelling: counts.spelling,
@@ -318,9 +324,36 @@ const FetchPassageById = () => {
         } catch (error) {
           console.error('Error sending data to server: ', error);
         }
+    
+        setCategoryCounts({
+          ...counts,
+          total,
+          average: average.toFixed(2)
+        });
+    
+        console.log('Mistake category counts:', counts);
+        console.log('Total mistakes:', total);
+        console.log('Average mistakes:', average.toFixed(2));
+    
+        // Send total mistakes, marks, and individual mistake counts to server
+        const sendMarksToServer = async () => {
+          try {
+            const response = await axios.post(`http://3.111.171.201:3000/update-student-marks/${subjectId}/${qset}`, {
+              total_mistakes: total,
+              total_marks: parseFloat(average.toFixed(2)),
+              spelling: counts.spelling,
+              missed: counts.missed,
+              added: counts.added,
+              grammar: counts.grammar
+            });
+            console.log('Server response: ', response.data);
+          } catch (error) {
+            console.error('Error sending data to server: ', error);
+          }
+        };
+        sendMarksToServer();
       }
-      sendMarksToServer();
-    }, [mistakes]);
+    }, [mistakes]); // Ensure this runs only when mistakes changes
 
     const handleWordHover = useCallback((word) => {
       if (word) {
@@ -333,7 +366,7 @@ const FetchPassageById = () => {
 
     const handleAddIgnoreWord = useCallback(async (word) => {
       try {
-        const response = await axios.post('http://localhost:3000/student-add-ignore-word', {
+        const response = await axios.post('http://3.111.171.201:3000/student-add-ignore-word', {
           subjectId,
           qset,
           activePassage,
@@ -354,7 +387,7 @@ const FetchPassageById = () => {
     
     const handleUndoWord = useCallback(async (wordToRemove) => {
       try {
-        const response = await axios.post('http://localhost:3000/student-undo-word', {
+        const response = await axios.post('http://3.111.171.201:3000/student-undo-word', {
           subjectId,
           qset,
           activePassage,
@@ -376,7 +409,7 @@ const FetchPassageById = () => {
 
     const handleClearIgnoreList = useCallback(async () => {
       try {
-        const response = await axios.post('http://localhost:3000/student-clear-ignore-list', {
+        const response = await axios.post('http://3.111.171.201:3000/student-clear-ignore-list', {
           subjectId,
           qset,
           activePassage,
