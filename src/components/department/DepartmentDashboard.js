@@ -63,7 +63,7 @@ const DepartmentDashboard = () => {
         setLoading(true);
         setError('');
         try {
-            let url = 'http://3.111.171.201:3000/track-students-on-department-code';
+            let url = 'http://localhost:3000/track-students-on-department-code';
 
             const params = new URLSearchParams();
             if (subject) params.append('subject_name', subject);

@@ -16,7 +16,7 @@ const AttendancePage = () => {
 
     const fetchBatches = async () => {
         try {
-            const response = await axios.post('http://3.111.171.201:3000/track-students-on-exam-center-code');
+            const response = await axios.post('http://localhost:3000/track-students-on-exam-center-code');
             const distinctBatches = [...new Set(response.data.map(item => item.batchNo))];
             setBatches(prevBatches => {
                 const newBatches = [...new Set([...prevBatches, ...distinctBatches])];
@@ -29,7 +29,7 @@ const AttendancePage = () => {
 
     const fetchReports = async () => {
         try {
-            const response = await axios.get('http://3.111.171.201:3000/get-attendance-report');
+            const response = await axios.get('http://localhost:3000/get-attendance-report');
             setReports(response.data.Reports || []);
         } catch (error) {
             setError("Attendance Reports Not added yet!!");
@@ -44,7 +44,7 @@ const AttendancePage = () => {
 
     const handleDeleteReport = async (batchNo) => {
         try {
-            const response = await axios.post('http://3.111.171.201:3000/delete-atttendance', { batchNo });
+            const response = await axios.post('http://localhost:3000/delete-atttendance', { batchNo });
             if (response.status === 201) {
                 alert(response.data.message);
                 setReports(reports.filter(report => report.batchNo !== batchNo));
@@ -101,7 +101,7 @@ const AttendanceUploadForm = ({ batches, onUploadSuccess }) => {
         data.append('attendance', formData.file);
 
         try {
-            const response = await axios.post('http://3.111.171.201:3000/upload-attendance', data, {
+            const response = await axios.post('http://localhost:3000/upload-attendance', data, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             alert(response.data.message);
@@ -206,7 +206,7 @@ const AttendanceReportList = ({ reports, onDeleteReport }) => (
                             <td className="ap-table-cell">{report.absent_count}</td>
                             <td className="ap-table-cell pdf-link">
                                 <a
-                                    href={`http://3.111.171.201:3000${report.attendance_pdf}`}
+                                    href={`http://localhost:3000${report.attendance_pdf}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="ap-pdf-link"
