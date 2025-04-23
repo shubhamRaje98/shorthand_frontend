@@ -292,10 +292,37 @@ const FetchPassageById = () => {
           return counts;
         }, {});
     
-        const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
-        let average = 50 - (total / 3); // for shorthand
-        if (average < 0) {
-          average = 0;
+      const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
+      // let average = 80 - (total / 2); // for skilltest
+      let average = 50 - (total / 3); // for shorthand 
+      if (average<0) {
+        average = 0
+      }
+    
+      setCategoryCounts({
+        ...counts,
+        total,
+        average: average.toFixed(2) // Rounds to 2 decimal places
+      });
+    
+      console.log('Mistake category counts:', counts);
+      console.log('Total mistakes:', total);
+      console.log('Average mistakes:', average.toFixed(2));
+
+      // Send total mistakes, marks, and individual mistake counts to server
+      const sendMarksToServer = async() => {
+        try {
+          const response = await axios.post(`http://localhost:3000/update-student-marks/${subjectId}/${qset}`, {
+            total_mistakes: total,
+            total_marks: parseFloat(average.toFixed(2)),
+            spelling: counts.spelling,
+            missed: counts.missed,
+            added: counts.added,
+            grammar: counts.grammar
+          });
+          console.log('Server response: ', response.data);
+        } catch (error) {
+          console.error('Error sending data to server: ', error);
         }
     
         setCategoryCounts({

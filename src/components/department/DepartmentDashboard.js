@@ -64,6 +64,7 @@ const DepartmentDashboard = () => {
         setError('');
         try {
             let url = 'http://localhost:3000/track-students-on-department-code';
+            let url = 'http://localhost:3000/track-students-on-department-code';
 
             const params = new URLSearchParams();
             if (subject) params.append('subject_name', subject);

@@ -42,6 +42,7 @@ const SuperAdminCount = () => {
         setError('');
         try {
             let url = 'http://localhost:3000/super-admin-student-track-dashboard';
+            let url = 'http://localhost:3000/super-admin-student-track-dashboard';
             
             // console.log("Fetching data from URL:", url);
             const response = await axios.post(url, { withCredentials: true });

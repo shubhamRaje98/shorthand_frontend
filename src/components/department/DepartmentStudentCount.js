@@ -65,6 +65,7 @@ const DepartmentStudentCount = () => {
         setError('');
         try {
             let url = `http://localhost:3000/get-department-batch-student-count`
+            let url = `http://localhost:3000/get-department-batch-student-count`
             if(batchNo || center){
                 url += '?';
                 if(batchNo) url += `batchNo=${batchNo}&`;

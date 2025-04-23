@@ -96,6 +96,7 @@ const NavBar = () => {
                     <Link to="/controller-password" className="ca-navbar__item">Controller-Password</Link>
                     <Link to="/fetch-pc-registration" className="ca-navbar__item">PC Registrations</Link>
                     <Link to="/current-student-details" className="ca-navbar__item">Student-Details</Link>
+                    <Link to="/attendance-upload" className="ca-navbar__item">Attendance</Link>
                     <Link to="/reset-center-admin" className="ca-navbar__item">Reset</Link>
                     <button className="ca-navbar__logout-button ca-navbar__logout-button--mobile" onClick={handleLogout}>
                         Logout

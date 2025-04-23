@@ -55,6 +55,8 @@ import ExpertAssign from './components/super-admin/ExpertAssign';
 import ExpertSummary from './components/super-admin/ExpertSummary';
 import BatchManagement from './components/super-admin/BatchManagement';
 import Student_info from './components/super-admin/Student_info';
+import AttendancePage from './components/AttendanceReport/AttendancePage';
+import AttendanceReports from './components/super-admin/AttendanceReports';
 
 axios.defaults.withCredentials = true;
 
@@ -72,7 +74,7 @@ const App = () => {
                     <Route path="/student-table" element={<StudentTable />} />
                     <Route path="/home" element={<Home />} />
                     <Route path="/student-assignment-report/:subjectId/:qset/:studentId" element={<StudentAssignmentReport />} />
-
+                    <Route path="/attendance-upload" element={<AttendancePage/>}/>
                     <Route path="/expertDashboard" element={<ExpertDashboard />}>
                         <Route index element={<SubjectSelection />} />
                         <Route path=":subjectId" element={<QSet />} />
@@ -116,6 +118,8 @@ const App = () => {
                         <Route path="expert-summary" element={<ExpertSummary/>}/>
                         <Route path="batch-management" element={<BatchManagement/>}/>
                         <Route path='student-info' element={<Student_info/>}/>
+                        <Route path='attendance-reports' element={<AttendanceReports/>}/>
+
                     </Route>
                 </Routes>
             </Router>
