@@ -18,7 +18,7 @@ const StudentDetails = () => {
           throw new Error('Student ID is required');
         }
 
-        const response = await axios.post('http://43.205.192.129:3000/student_info', { studentId: studentId });
+        const response = await axios.post('http://localhost:3000/student_info', { studentId: studentId });
         setStudentInfo(response.data.responseData);
         console.log(response.data.responseData)
         setLoading(false);
