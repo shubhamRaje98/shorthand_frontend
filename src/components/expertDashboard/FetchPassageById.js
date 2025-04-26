@@ -310,30 +310,30 @@ const FetchPassageById = () => {
       console.log('Average mistakes:', average.toFixed(2));
 
       // Send total mistakes, marks, and individual mistake counts to server
-      const sendMarksToServer = async() => {
-        try {
-          const response = await axios.post(`http://localhost:3000/update-student-marks/${subjectId}/${qset}`, {
-            total_mistakes: total,
-            total_marks: parseFloat(average.toFixed(2)),
-            spelling: counts.spelling,
-            missed: counts.missed,
-            added: counts.added,
-            grammar: counts.grammar
-          });
-          console.log('Server response: ', response.data);
-        } catch (error) {
-          console.error('Error sending data to server: ', error);
-        }
+      // const sendMarksToServer = async() => {
+      //   try {
+      //     const response = await axios.post(`http://localhost:3000/update-student-marks/${subjectId}/${qset}`, {
+      //       total_mistakes: total,
+      //       total_marks: parseFloat(average.toFixed(2)),
+      //       spelling: counts.spelling,
+      //       missed: counts.missed,
+      //       added: counts.added,
+      //       grammar: counts.grammar
+      //     });
+      //     console.log('Server response: ', response.data);
+      //   } catch (error) {
+      //     console.error('Error sending data to server: ', error);
+      //   }
     
-        setCategoryCounts({
-          ...counts,
-          total,
-          average: average.toFixed(2)
-        });
+      //   setCategoryCounts({
+      //     ...counts,
+      //     total,
+      //     average: average.toFixed(2)
+      //   });
     
-        console.log('Mistake category counts:', counts);
-        console.log('Total mistakes:', total);
-        console.log('Average mistakes:', average.toFixed(2));
+      //   console.log('Mistake category counts:', counts);
+      //   console.log('Total mistakes:', total);
+      //   console.log('Average mistakes:', average.toFixed(2));
     
         // Send total mistakes, marks, and individual mistake counts to server
         const sendMarksToServer = async () => {
