@@ -49,7 +49,7 @@ const DepartmentDashboard = () => {
 
     const fetchSubjects = async () => {
         try {
-            const response = await axios.get('http://43.205.192.129:3000/subjects');
+            const response = await axios.get('http://localhost:3000/subjects');
             if (response.data.subjects) {
                 setAllSubjects(response.data.subjects);
             }
