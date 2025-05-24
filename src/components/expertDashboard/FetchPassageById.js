@@ -297,15 +297,15 @@ const FetchPassageById = () => {
         let average = 80 - (total / 2); // for skilltest
         if (average < 0) average = 0;
     
-        setCategoryCounts({
-          ...counts,
-          total,
-          average: average.toFixed(2)
-        });
+      //   setCategoryCounts({
+      //     ...counts,
+      //     total,
+      //     average: average.toFixed(2)
+      //   });
     
-        console.log('Mistake category counts:', counts);
-        console.log('Total mistakes:', total);
-        console.log('Average mistakes:', average.toFixed(2));
+      //   console.log('Mistake category counts:', counts);
+      //   console.log('Total mistakes:', total);
+      //   console.log('Average mistakes:', average.toFixed(2));
     
         // Send data to server
         const sendMarksToServer = async () => {
