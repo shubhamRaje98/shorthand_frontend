@@ -106,33 +106,54 @@ const ExpertReview = () => {
   };
 
   const handleExpertLogs = async () => {
+    console.log(`[${new Date().toISOString()}] handleExpertLogs initiated`);
+    
     if (!selectedDepartment) {
-      setError('Please select a department');
-      return;
+        const errorMsg = 'Please select a department';
+        console.error(`[${new Date().toISOString()}] Validation error: ${errorMsg}`);
+        setError(errorMsg);
+        return;
     }
 
+    console.log(`[${new Date().toISOString()}] Selected department: ${selectedDepartment}`);
     setLoadingExpertLogs(true);
     setError('');
     setMessage('');
 
     try {
-      const response = await axios.post('http://localhost:3000/populate-expert-review-log', {
-        department: selectedDepartment
-      });
-      
-      if (response.status === 200) {
-        setMessage(response.data.message);
-        fetchExpertReviewLogs();
-      } else if (response.status === 201) {
-        setMessage("No data found for the specified department.");
-      }
+        console.log(`[${new Date().toISOString()}] Making API request to populate expert review log`);
+        const response = await axios.post('http://localhost:3000/populate-expert-review-log', {
+            department: selectedDepartment
+        });
+        
+        console.log(`[${new Date().toISOString()}] API response received`, {
+            status: response.status,
+            data: response.data
+        });
+        
+        if (response.status === 200) {
+            const successMsg = response.data.message;
+            console.log(`[${new Date().toISOString()}] Success: ${successMsg}`);
+            setMessage(successMsg);
+            console.log(`[${new Date().toISOString()}] Triggering fetchExpertReviewLogs`);
+            fetchExpertReviewLogs();
+        } else if (response.status === 201) {
+            const infoMsg = "No data found for the specified department.";
+            console.log(`[${new Date().toISOString()}] Info: ${infoMsg}`);
+            setMessage(infoMsg);
+        }
     } catch (error) {
-      console.error('Error populating expert logs:', error);
-      setError('An error occurred while populating expert logs. Please try again.');
+        const errorMsg = 'An error occurred while populating expert logs. Please try again.';
+        console.error(`[${new Date().toISOString()}] Error in handleExpertLogs:`, {
+            error: error.response ? error.response.data : error.message,
+            stack: error.stack
+        });
+        setError(errorMsg);
     } finally {
-      setLoadingExpertLogs(false);
+        console.log(`[${new Date().toISOString()}] handleExpertLogs completed`);
+        setLoadingExpertLogs(false);
     }
-  };
+};
 
   const handleModLogs = async () => {
     if (!selectedDepartment) {

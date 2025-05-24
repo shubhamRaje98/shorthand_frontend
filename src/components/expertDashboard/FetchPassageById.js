@@ -246,13 +246,14 @@ const FetchPassageById = () => {
     };
 
     const comparePassages = useCallback(async () => {
-      const modelAnswer = passages[`ansPassage${activePassage}`];
-      const userAnswer = passages[`passage${activePassage}`];
-    
+      const modelAnswer = passages[`passage${activePassage}`];
+      const userAnswer = passages[`ansPassage${activePassage}`];
+          
       if (!modelAnswer || !userAnswer) return;
     
       try {
-        const response = await axios.post('http://3.111.171.201:5000/compare', {
+        const response = await axios.post('http://45.119.47.81:5002/compare', {
+        // const response = await axios.post('/api/compare', {
           text1: modelAnswer,
           text2: userAnswer,
           ignore_list: ignoreList,
@@ -293,7 +294,7 @@ const FetchPassageById = () => {
         }, {});
     
         const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
-        let average = 50 - (total / 3); // for shorthand
+        let average = 80 - (total / 2); // for skilltest
         if (average < 0) average = 0;
     
         setCategoryCounts({

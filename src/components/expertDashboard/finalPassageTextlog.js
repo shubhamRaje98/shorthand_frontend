@@ -132,6 +132,7 @@ const FinalPassageTextlog = () => {
   const [tempIgnoreList, settempIgnoreList] = useState([]);
   const [audioUrl, setAudioUrl] = useState('');
   const [audioBUrl, setAudioBUrl] = useState('');
+  const [wordCorrections, setWordCorrections] = useState({});
 
   const handleZoom = (column, action) => {
     setFontSizes(prev => ({
@@ -194,12 +195,11 @@ const FinalPassageTextlog = () => {
     if (isIgnoreListVisible) {
       settempIgnoreList(ignoreList);
       setIgnoreList([]);
-    }
-    else{
+    } else {
       setIgnoreList(tempIgnoreList);
-      settempIgnoreList([]);
+      // Don't clear wordCorrections when toggling
     }
-    setisIgnoreListVisible(!isIgnoreListVisible)
+    setisIgnoreListVisible(!isIgnoreListVisible);
   };
 
   useEffect(() => {
@@ -274,16 +274,15 @@ const FinalPassageTextlog = () => {
     }
   };
 
-
-
   const comparePassages = useCallback(async () => {
-    const modelAnswer = passages[`ansPassage${activePassage}`];
-    const userAnswer = passages[`passage${activePassage}`];
+    const modelAnswer = passages[`passage${activePassage}`];
+    const userAnswer = passages[`ansPassage${activePassage}`];
     
     if (!modelAnswer || !userAnswer) return;
 
     try {
-      const response = await axios.post('http://3.111.171.201:5000/compare', {
+      const response = await axios.post('http://45.119.47.81:5002/compare', {
+      // const response = await axios.post('/api/compare', {
         text1: modelAnswer,
         text2: userAnswer,
         ignore_list: ignoreList,
@@ -307,7 +306,7 @@ const FinalPassageTextlog = () => {
 
   useEffect(() => {
     comparePassages();
-  }, [comparePassages, activePassage, passages]); // Add activePassage and passages as dependencies
+  }, [comparePassages, activePassage, passages]);
 
   useEffect(() => {
     const orderedCategories = ['spelling', 'missed', 'added', 'grammar'];
@@ -317,8 +316,7 @@ const FinalPassageTextlog = () => {
     }, {});
 
     const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
-    // let average = 80 - (total / 2); // for skilltest
-    let average = 50 - (total / 3); // for shorthand 
+    let average = 80 - (total / 2); // for skilltest
     if (average < 0) {
       average = 0;
     }
@@ -334,7 +332,7 @@ const FinalPassageTextlog = () => {
     console.log('Average mistakes:', average.toFixed(2));
 
     // Send total mistakes, marks, and individual mistake counts to server
-    const sendMarksToServer = async() => {
+    const sendMarksToServer = async () => {
       try {
         const response = await axios.post(`http://localhost:3000/update-student-marks/${subjectId}/${qset}`, {
           total_mistakes: total,
@@ -348,35 +346,88 @@ const FinalPassageTextlog = () => {
       } catch (error) {
         console.error('Error sending data to server: ', error);
       }
-  
-      setCategoryCounts({
-        ...counts,
-        total,
-        average: average.toFixed(2)
-      });
-  
-      console.log('Mistake category counts:', counts);
-      console.log('Total mistakes:', total);
-      console.log('Average mistakes:', average.toFixed(2));
-  
-      const sendMarksToServer = async () => {
-        try {
-          const response = await axios.post(`http://localhost:3000/update-student-marks/${subjectId}/${qset}`, {
-            total_mistakes: total,
-            total_marks: parseFloat(average.toFixed(2)),
-            spelling: counts.spelling,
-            missed: counts.missed,
-            added: counts.added,
-            grammar: counts.grammar
-          });
-          console.log('Server response: ', response.data);
-        } catch (error) {
-          console.error('Error sending data to server: ', error);
+    };
+    
+    sendMarksToServer();
+  }, [mistakes, subjectId, qset]);
+
+  // Improved useEffect to populate wordCorrections when mistakes data changes
+  useEffect(() => {
+    // When spelling mistakes are loaded, update wordCorrections for any words
+    // that are already in the ignoreList
+    if (mistakes.spelling && ignoreList.length > 0) {
+      console.log("Checking for corrections to map to ignored words...");
+      console.log("Current ignore list:", ignoreList);
+      console.log("Current spelling mistakes:", mistakes.spelling);
+      
+      const newCorrections = {};
+      
+      // Check each spelling mistake
+      mistakes.spelling.forEach(word => {
+        if (Array.isArray(word)) {
+          const incorrectWord = word[0].toLowerCase();
+          const correctWord = word[1];
+          
+          // Check if this incorrect word is in our ignore list
+          if (ignoreList.some(ignoredWord => 
+            ignoredWord.toLowerCase() === incorrectWord
+          )) {
+            console.log(`Found correction for ignored word: ${incorrectWord} -> ${correctWord}`);
+            newCorrections[incorrectWord] = correctWord;
+          }
         }
-      };
-      sendMarksToServer();
+      });
+      
+      // Update wordCorrections with any new corrections found
+      if (Object.keys(newCorrections).length > 0) {
+        console.log("Adding new corrections:", newCorrections);
+        setWordCorrections(prev => ({
+          ...prev,
+          ...newCorrections
+        }));
+      } else {
+        console.log("No corrections found for ignored words");
+      }
     }
-  }, [mistakes]);
+  }, [mistakes.spelling, ignoreList]);
+
+  // Additional useEffect to populate corrections when comparing passages
+  useEffect(() => {
+    // This useEffect will run after comparePassages completes and mistakes are updated
+    const populateCorrectionsForIgnoreList = () => {
+      if (!mistakes.spelling || !ignoreList.length) return;
+      
+      console.log("Populating corrections after passage comparison");
+      
+      // Create a map of incorrect->correct words from spelling mistakes
+      const correctionMap = {};
+      mistakes.spelling.forEach(word => {
+        if (Array.isArray(word)) {
+          correctionMap[word[0].toLowerCase()] = word[1];
+        }
+      });
+      
+      // Check each ignored word to see if it has a correction
+      const newCorrections = {};
+      ignoreList.forEach(word => {
+        const lowerWord = word.toLowerCase();
+        if (correctionMap[lowerWord]) {
+          newCorrections[lowerWord] = correctionMap[lowerWord];
+        }
+      });
+      
+      // Update the corrections state
+      if (Object.keys(newCorrections).length > 0) {
+        console.log("Adding corrections after comparison:", newCorrections);
+        setWordCorrections(prev => ({
+          ...prev,
+          ...newCorrections
+        }));
+      }
+    };
+    
+    populateCorrectionsForIgnoreList();
+  }, [mistakes, ignoreList]);
 
   const handleWordHover = useCallback((word) => {
     if (word) {
@@ -387,8 +438,30 @@ const FinalPassageTextlog = () => {
     }
   }, []);
 
+  // Update the handleAddIgnoreWord function
   const handleAddIgnoreWord = useCallback(async (word) => {
     try {
+      // Check if this word is from a spelling mistake (might have a correction)
+      let correctionWord = null;
+      
+      // Check if this word is in the spelling mistakes and has a correction
+      if (mistakes.spelling) {
+        const spellingMistake = mistakes.spelling.find(mistakeWord => 
+          Array.isArray(mistakeWord) && mistakeWord[0].toLowerCase() === word.toLowerCase()
+        );
+        
+        if (spellingMistake && Array.isArray(spellingMistake)) {
+          // Store the correction in our local mapping
+          setWordCorrections(prev => ({
+            ...prev,
+            [word.toLowerCase()]: spellingMistake[1]
+          }));
+          correctionWord = spellingMistake[1];
+          console.log(`Stored correction for ${word}: ${correctionWord}`);
+        }
+      }
+
+      // Still send only the incorrect word to the backend
       const response = await axios.post('http://localhost:3000/add-ignore-word', {
         subjectId,
         qset,
@@ -405,7 +478,7 @@ const FinalPassageTextlog = () => {
       console.error('Error adding word to ignore list:', err);
       toast.error(`Failed to add "${word}" to ignore list`);
     }
-  }, [subjectId, qset, activePassage]);
+  }, [subjectId, qset, activePassage, mistakes]);
 
   const handleUndoWord = useCallback(async (wordToRemove) => {
     try {
@@ -438,6 +511,7 @@ const FinalPassageTextlog = () => {
 
       if (response.status === 200) {
         setIgnoreList([]);
+        setWordCorrections({}); // Clear corrections when clearing ignore list
         toast.success('Ignore list cleared successfully');
         comparePassages();
         console.log("Debug info:", response.data.debug);
@@ -448,22 +522,40 @@ const FinalPassageTextlog = () => {
     }
   }, [subjectId, qset, activePassage, comparePassages]);
 
+  // Updated IgnoredList component with better debugging
   const IgnoredList = ({ ignoreList, fontSize, onUndoIgnore }) => {
+    console.log("Rendering IgnoredList with:", { 
+      ignoreList, 
+      wordCorrections: Object.keys(wordCorrections).map(key => `${key}:${wordCorrections[key]}`)
+    });
+    
     return (
       <div className="ignored-list" style={{ fontSize: `${fontSize}px`, marginLeft: '1rem' }}>
-        {ignoreList.map((word, index) => (
-          <div key={index} className="ignored-item" style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
-            <button
-              className="action-button undo-button"
-              title="Remove from Ignore List"
-              onClick={() => onUndoIgnore(word)}
-              style={{ fontSize: `${fontSize * 0.8}px`, marginRight: '5px' }}
-            >
-              <FontAwesomeIcon icon={faUndo} />
-            </button>
-            <span className="ignored-word">{word}</span>
-          </div>
-        ))}
+        {ignoreList.map((word, index) => {
+          // Check if we have a correction for this word (try both original case and lowercase)
+          const correction = wordCorrections[word] || wordCorrections[word.toLowerCase()];
+          
+          // For debugging
+          if (correction) {
+            console.log(`Found correction for ${word}: ${correction}`);
+          }
+          
+          const displayWord = correction ? `${word} (${correction})` : word;
+          
+          return (
+            <div key={index} className="ignored-item" style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
+              <button
+                className="action-button undo-button"
+                title="Remove from Ignore List"
+                onClick={() => onUndoIgnore(word)}
+                style={{ fontSize: `${fontSize * 0.8}px`, marginRight: '5px' }}
+              >
+                <FontAwesomeIcon icon={faUndo} />
+              </button>
+              <span className="ignored-word">{displayWord}</span>
+            </div>
+          );
+        })}
       </div>
     );
   };
@@ -604,7 +696,6 @@ const FinalPassageTextlog = () => {
         </div>                  
       </div>
       <div className="grid-item">
-        {/* <AudioPlayer audioUrl={audioUrl} /> */}
         <h2 className="column-header">
           {isSwapped ? 'User Answer' : 'Model Answer'}
         </h2>
