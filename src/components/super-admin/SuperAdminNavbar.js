@@ -56,6 +56,10 @@ const SuperAdminNavbar = () => {
                 <Link to="/super-admin/dashboard" onClick={closeDropdowns} className="sa-navbar__link">Dashboard</Link>
               </li>
 
+              <li className={location.pathname === "/super-admin/halltickets-generation" ? "sa-navbar__item sa-navbar__item--active" : "sa-navbar__item"}>
+                <Link to="/super-admin/halltickets-generation" onClick={closeDropdowns} className="sa-navbar__link">Halltickets Generation</Link>
+              </li>
+
               {/* Data Management Dropdown */}
               <li className="sa-navbar__item sa-navbar__item--dropdown">
                 <button

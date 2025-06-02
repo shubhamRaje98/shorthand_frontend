@@ -57,6 +57,8 @@ import BatchManagement from './components/super-admin/BatchManagement';
 import Student_info from './components/super-admin/Student_info';
 import AttendancePage from './components/AttendanceReport/AttendancePage';
 import AttendanceReports from './components/super-admin/AttendanceReports';
+import HallticketsGeneration from './components/super-admin/HallticketsGeneration';
+
 
 axios.defaults.withCredentials = true;
 
@@ -103,8 +105,6 @@ const App = () => {
                     <Route path='/superadmin-student-count' element={<SuperAdminCount/>}/>
                     <Route path='/superadmin-pc' element={<SuperAdminPc/>}/>
 
-                    
-
                     {/* SuperAdmin Routes */}
                     <Route path="/admin-login" element={<SuperAdminLogin />} />
                     <Route path="/super-admin" element={<SuperAdminLayout />}>
@@ -119,7 +119,7 @@ const App = () => {
                         <Route path="batch-management" element={<BatchManagement/>}/>
                         <Route path='student-info' element={<Student_info/>}/>
                         <Route path='attendance-reports' element={<AttendanceReports/>}/>
-
+                        <Route path='halltickets-generation' element={<HallticketsGeneration/>}/>
                     </Route>
                 </Routes>
             </Router>
