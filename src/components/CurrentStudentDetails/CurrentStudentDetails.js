@@ -26,25 +26,29 @@ const CurrentStudentDetails = () => {
 
     }, [batchNo]);
 
-    const fetchData = async () => {
-        setLoading(true);
-        setError('');
-        try {
-            let url = 'http://localhost:3000/track-students-on-exam-center-code';
-            
-            console.log("Fetching data from URL:", url);
-            const response = await axios.post(url, { withCredentials: true });
-            const distinctBatches = [...new Set(response.data.map(item => item.batchNo))];
+const fetchData = async () => {
+    setLoading(true);
+    setError('');
+    try {
+        let url = 'http://localhost:3000/center-batches'; // Updated URL to match backend route
+        
+        console.log("Fetching data from URL:", url);
+        const response = await axios.get(url, { withCredentials: true }); // Changed to GET request
+        
+        // Update this part to match the response format from our backend
+        if (response.data && Array.isArray(response.data)) {
+            const distinctBatches = response.data.map(item => item.batchNo);
             setBatches(prevBatches => {
                 const newBatches = [...new Set([...prevBatches, ...distinctBatches])];
-                return newBatches.sort();
+                return newBatches.sort((a, b) => a - b);
             });
-        } catch (error) {
-            console.error("Error fetching data:", error);
-            setError("No students found for provided filter parameters. Please check the parameters!");
         }
-        setLoading(false);
-    };
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        setError("Failed to fetch batch numbers. Please try again!");
+    }
+    setLoading(false);
+};
 
     const fetchAllData = async () => {
         setLoading(true);
