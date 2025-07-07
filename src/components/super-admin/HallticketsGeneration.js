@@ -191,20 +191,30 @@ function HallticketsGeneration() {
   // Download single hall ticket
   const downloadSingleHallTicket = async (student) => {
     try {
+      console.log('Starting hall ticket download...');
+      console.log('Student object received:', student);
+
       setLoading(true);
       setError(null);
       
-      // Make direct request to localhost:3000
-      window.open(`http://localhost:3000/download-student-hall-ticket/${student.seatNo}`, '_blank');
+      const url = `http://localhost:3000/download-student-hall-ticket/${student.seatNo}`;
+      console.log('Generated download URL:', url);
+
+      // Open the download URL in a new tab
+      window.open(url, '_blank');
       
-      setSuccess(`Hall ticket download initiated for institute ID: ${student.studentId}`);
+      const successMessage = `Hall ticket download initiated for student ID: ${student.seatNo}`;
+      console.log(successMessage);
+      setSuccess(successMessage);
     } catch (error) {
       console.error('Error downloading hall ticket:', error);
       setError(`Failed to download hall ticket: ${error.message}`);
     } finally {
       setLoading(false);
+      console.log('Download function finished (loading false).');
     }
   };
+
 
   // Download all hall tickets
   const downloadAllHallTickets = async () => {
