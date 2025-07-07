@@ -72,7 +72,7 @@ const SuperAdminCount = () => {
         setLoading(true);
         setError('');
         try {
-            let url = `http://43.205.192.129:3000/get-super-admin-student-count`
+            let url = `http://localhost:3000/get-super-admin-student-count`
             if(batchNo || center || departmentId){
                 url += '?';
                 if(batchNo) url += `batchNo=${batchNo}&`;
