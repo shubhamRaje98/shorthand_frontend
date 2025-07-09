@@ -1,8 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import './DepartmentStudentCount.css'
-import DepartmentNavBar from './DepartmentNavBar';
-import moment from 'moment-timezone';
 
 const DepartmentStudentCount = () => {
     const [batchNo, setBatchNo] = useState('');
@@ -18,17 +14,14 @@ const DepartmentStudentCount = () => {
         fetchData();
         fetchAllData();
 
-          // Auto-refresh every 30 seconds
-          const intervalId = setInterval(() => {
+        // Auto-refresh every 30 seconds
+        const intervalId = setInterval(() => {
             fetchAllData();
         }, 30000); // 30,000 milliseconds = 30 seconds
 
         // Cleanup interval on unmount
         return () => clearInterval(intervalId);
     }, [batchNo, center]);
-
-
-
 
     useEffect(() => {
         aggregateSubjects();
@@ -41,13 +34,18 @@ const DepartmentStudentCount = () => {
             let url = 'http://localhost:3000/track-students-on-department-code';
             
             console.log("Fetching data from URL:", url);
-            const response = await axios.post(url, { withCredentials: true });
-            const distinctBatches = [...new Set(response.data.map(item => item.batchNo))];
+            const response = await fetch(url, { 
+                method: 'POST',
+                credentials: 'include'
+            });
+            const data = await response.json();
+            
+            const distinctBatches = [...new Set(data.map(item => item.batchNo))];
             setBatches(prevBatches => {
                 const newBatches = [...new Set([...prevBatches, ...distinctBatches])];
                 return newBatches.sort();
             });
-            const distinctCenters = [...new Set(response.data.map(item => item.center))];
+            const distinctCenters = [...new Set(data.map(item => item.center))];
             setCenters(prevCenters => {
                 const newCenters = [...new Set([...prevCenters, ...distinctCenters])];
                 return newCenters.sort();
@@ -72,10 +70,15 @@ const DepartmentStudentCount = () => {
                 url = url.slice(0, -1);
             }
         
-            const response = await axios.get(url, { withCredentials: true });
-            if (response.data && response.data.results && Array.isArray(response.data.results)) {
-                console.log(response.data)
-                setAllData(response.data.results);
+            const response = await fetch(url, { 
+                method: 'GET',
+                credentials: 'include'
+            });
+            const responseData = await response.json();
+            
+            if (responseData && responseData.results && Array.isArray(responseData.results)) {
+                console.log(responseData)
+                setAllData(responseData.results);
             } else {
                 setError('Received unexpected data format from server');
             }
@@ -120,80 +123,105 @@ const DepartmentStudentCount = () => {
         setAggregatedSubjects(aggregatedSubjectsArray);
     };
 
-    const formatDateTime = (dateTimeString) => {
-        if (!dateTimeString) return '';
-        return moment(dateTimeString, 'hh:mm:ss A').format('hh:mm:ss A');
+    // FIXED: Updated formatting functions to handle backend format correctly
+    const formatDateTime = (timeString) => {
+        if (!timeString) return '';
+        // Backend sends time in HH:mm:ss format, convert to 12-hour format with AM/PM
+        const [hours, minutes, seconds] = timeString.split(':');
+        const date = new Date();
+        date.setHours(parseInt(hours), parseInt(minutes), parseInt(seconds));
+        return date.toLocaleTimeString('en-US', { 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            second: '2-digit',
+            hour12: true 
+        });
     };
 
     const formatDate = (dateString) => {
         if (!dateString) return '';
-        return moment(dateString, 'DD MM YYYY').format('DD-MM-YYYY');
+        // Backend sends date in DD-MM-YYYY format, keep it as is
+        return dateString;
     };
 
     return (
-        <div>
-            <DepartmentNavBar />
-            <div className="dsc-container">
-                <h2 className="dsc-title">Current Student Details</h2>
+        <div className="min-h-screen bg-gray-50">
+            {/* Navigation Bar */}
+            <div className="bg-blue-600 text-white p-4 shadow-md">
+                <h1 className="text-xl font-bold">Department Navigation</h1>
+            </div>
 
-                <div className="dsc-filter-container">
-                    <div className="dsc-select-wrapper">
-                        <label htmlFor="batchNo">Select Batch Number:</label>
-                        <select 
-                            id="batchNo" 
-                            value={batchNo} 
-                            onChange={(e) => setBatchNo(e.target.value)}
-                        >
-                            <option value="">All Batches</option>
-                            {batches.map((batch, index) => (
-                                <option key={index} value={batch}>{batch}</option>
-                            ))}
-                        </select>
-                    </div>
+            <div className="container mx-auto p-6">
+                <h2 className="text-3xl font-bold text-gray-800 mb-6">Current Student Details</h2>
 
-                    <div className="dsc-select-wrapper">
-                        <label htmlFor="center">Select Center Number:</label>
-                        <select 
-                            id="center" 
-                            value={center} 
-                            onChange={(e) => setCenter(e.target.value)}
-                        >
-                            <option value="">All Centers</option>
-                            {centers.map((center, index) => (
-                                <option key={index} value={center}>{center}</option>
-                            ))}
-                        </select>
+                <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label htmlFor="batchNo" className="block text-sm font-medium text-gray-700 mb-2">
+                                Select Batch Number:
+                            </label>
+                            <select 
+                                id="batchNo" 
+                                value={batchNo} 
+                                onChange={(e) => setBatchNo(e.target.value)}
+                                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                                <option value="">All Batches</option>
+                                {batches.map((batch, index) => (
+                                    <option key={index} value={batch}>{batch}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div>
+                            <label htmlFor="center" className="block text-sm font-medium text-gray-700 mb-2">
+                                Select Center Number:
+                            </label>
+                            <select 
+                                id="center" 
+                                value={center} 
+                                onChange={(e) => setCenter(e.target.value)}
+                                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                                <option value="">All Centers</option>
+                                {centers.map((centerOption, index) => (
+                                    <option key={index} value={centerOption}>{centerOption}</option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
                 </div>
 
-                {loading && <p className="dsc-loading">Loading...</p>}
-                {error && <p className="dsc-error">{error}</p>}
+                {loading && <p className="text-center text-blue-600 text-lg py-4">Loading...</p>}
+                {error && <p className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</p>}
 
-                <div className="dsc-data-table">
-                    <h3>{batchNo ? `Batch ${batchNo}` : 'All Batches'} {center ? `- Center ${center}` : ''}</h3>
-                    <div className="dsc-table-wrapper">
-                        <table>
-                            <thead>
+                <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+                    <div className="bg-gray-50 px-6 py-4 border-b">
+                        <h3 className="text-xl font-semibold text-gray-800">
+                            {batchNo ? `Batch ${batchNo}` : 'All Batches'} {center ? `- Center ${center}` : ''}
+                        </h3>
+                    </div>
+                    <div className="overflow-x-auto">
+                        <table className="w-full">
+                            <thead className="bg-gray-100">
                                 <tr>
-                                    <th>Center</th>
-                                    <th>Batch No</th>
-                                    <th>Total Students</th>
-                                    <th>Logged In Students</th>
-                                    <th>Completed Students</th>
-                                    <th>Start Time</th>
-                                    <th>Batch Date</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Center</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Batch No</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Students</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Logged In Students</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Completed Students</th>
+             
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody className="bg-white divide-y divide-gray-200">
                                 {allData.map((item, index) => (
-                                    <tr key={index}>
-                                        <td>{item.center}</td>
-                                        <td>{item.batchNo}</td>
-                                        <td>{item.total_students || 0}</td>
-                                        <td>{item.logged_in_students || 0}</td>
-                                        <td>{item.completed_student || 0}</td>
-                                        <td>{formatDateTime(item.start_time)}</td>
-                                        <td>{formatDate(item.batchdate)}</td>
+                                    <tr key={index} className="hover:bg-gray-50">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.center}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.batchNo}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.total_students || 0}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.logged_in_students || 0}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.completed_student || 0}</td>
+                                
                                     </tr>
                                 ))}
                             </tbody>
@@ -202,29 +230,31 @@ const DepartmentStudentCount = () => {
                 </div>
 
                 {allData.length > 0 && (
-                    <div className="dsc-subjects-section">
-                        <h4>Subjects:</h4>
-                        <div className="dsc-table-wrapper">
-                            <table className="dsc-subjects-table">
-                                <thead>
+                    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div className="bg-gray-50 px-6 py-4 border-b">
+                            <h4 className="text-lg font-semibold text-gray-800">Subjects:</h4>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead className="bg-gray-100">
                                     <tr>
-                                        <th>Subject ID</th>
-                                        <th>Subject Name</th>
-                                        <th>Count</th>
-                                        <th>Logged In</th>
-                                        <th>Completed</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject ID</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject Name</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Count</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Logged In</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Completed</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    {(center ? allData[0].subjects : aggregatedSubjects)
+                                <tbody className="bg-white divide-y divide-gray-200">
+                                    {(center ? allData[0]?.subjects || [] : aggregatedSubjects)
                                         .filter(subject => subject.count > 0)
                                         .map((subject, index) => (
-                                        <tr key={index}>
-                                            <td>{subject.id}</td>
-                                            <td>{subject.name}</td>
-                                            <td>{subject.count}</td>
-                                            <td>{subject.loggedIn}</td>
-                                            <td>{subject.completed}</td>
+                                        <tr key={index} className="hover:bg-gray-50">
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{subject.id}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{subject.name}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{subject.count}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{subject.loggedIn}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{subject.completed}</td>
                                         </tr>
                                     ))}
                                 </tbody>

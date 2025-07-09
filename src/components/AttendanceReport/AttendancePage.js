@@ -5,12 +5,14 @@ import './AttendancePage.css';
 
 const AttendancePage = () => {
     const [batches, setBatches] = useState([]);
+    const [departments, setDepartments] = useState([]);
     const [reports, setReports] = useState([]);
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         fetchBatches();
+        fetchDepartments();
         fetchReports();
     }, []);
 
@@ -24,6 +26,15 @@ const AttendancePage = () => {
             });
         } catch (error) {
             setError("Failed to fetch batches. Please try again later.");
+        }
+    };
+
+    const fetchDepartments = async () => {
+        try {
+            const response = await axios.get('http://localhost:3000/get-active-departments');
+            setDepartments(response.data || []);
+        } catch (error) {
+            setError("Failed to fetch departments. Please try again later.");
         }
     };
 
@@ -42,12 +53,17 @@ const AttendancePage = () => {
         fetchReports();
     };
 
-    const handleDeleteReport = async (batchNo) => {
+    const handleDeleteReport = async (batchNo, departmentId) => {
         try {
-            const response = await axios.post('http://localhost:3000/delete-atttendance', { batchNo });
+            const response = await axios.post('http://localhost:3000/delete-atttendance', { 
+                batchNo, 
+                departmentId 
+            });
             if (response.status === 201) {
                 alert(response.data.message);
-                setReports(reports.filter(report => report.batchNo !== batchNo));
+                setReports(reports.filter(report => 
+                    !(report.batchNo === batchNo && report.departmentId === departmentId)
+                ));
             }
         } catch (error) {
             alert("Failed to delete the report. Please try again.");
@@ -64,16 +80,21 @@ const AttendancePage = () => {
             <div className="ap-attendance-page">
                 <h1 className="ap-main-title">Attendance Management</h1>
                 {error && <div className="ap-error-message">{error}</div>}
-                <AttendanceUploadForm batches={batches} onUploadSuccess={handleUploadSuccess} />
+                <AttendanceUploadForm 
+                    batches={batches} 
+                    departments={departments}
+                    onUploadSuccess={handleUploadSuccess} 
+                />
                 <AttendanceReportList reports={reports} onDeleteReport={handleDeleteReport} />
             </div>
         </>
     );
 };
 
-const AttendanceUploadForm = ({ batches, onUploadSuccess }) => {
+const AttendanceUploadForm = ({ batches, departments, onUploadSuccess }) => {
     const [formData, setFormData] = useState({
         batchNo: '',
+        departmentId: '',
         present_count: '',
         absent_count: '',
         file: null
@@ -96,6 +117,7 @@ const AttendanceUploadForm = ({ batches, onUploadSuccess }) => {
 
         const data = new FormData();
         data.append('batchNo', formData.batchNo);
+        data.append('departmentId', formData.departmentId);
         data.append('present_count', formData.present_count);
         data.append('absent_count', formData.absent_count);
         data.append('attendance', formData.file);
@@ -106,7 +128,7 @@ const AttendanceUploadForm = ({ batches, onUploadSuccess }) => {
             });
             alert(response.data.message);
             onUploadSuccess();
-            setFormData({ batchNo: '', present_count: '', absent_count: '', file: null });
+            setFormData({ batchNo: '', departmentId: '', present_count: '', absent_count: '', file: null });
         } catch (error) {
             console.log(error);
             setUploadError("An error occurred while uploading. Please try again.");
@@ -119,6 +141,26 @@ const AttendanceUploadForm = ({ batches, onUploadSuccess }) => {
         <form onSubmit={handleSubmit} className="ap-attendance-upload-form">
             <h2 className="ap-form-title">Upload Attendance Report</h2>
             {uploadError && <div className="ap-error-message">{uploadError}</div>}
+            
+            <div className="ap-form-group">
+                <label htmlFor="departmentId" className="ap-form-label">Department:</label>
+                <select
+                    id="departmentId"
+                    name="departmentId"
+                    value={formData.departmentId}
+                    onChange={handleChange}
+                    required
+                    className="ap-form-select"
+                >
+                    <option value="">Select a department</option>
+                    {departments.map(dept => (
+                        <option key={dept.departmentId} value={dept.departmentId}>
+                            {dept.departmentName}
+                        </option>
+                    ))}
+                </select>
+            </div>
+
             <div className="ap-form-group">
                 <label htmlFor="batchNo" className="ap-form-label">Batch:</label>
                 <select
@@ -137,6 +179,7 @@ const AttendanceUploadForm = ({ batches, onUploadSuccess }) => {
                     ))}
                 </select>
             </div>
+
             <div className="ap-form-group">
                 <label htmlFor="present_count" className="ap-form-label">Present Count:</label>
                 <input
@@ -190,6 +233,7 @@ const AttendanceReportList = ({ reports, onDeleteReport }) => (
             <table className="ap-report-table">
                 <thead>
                     <tr>
+                        <th className="ap-table-header">Department</th>
                         <th className="ap-table-header">Batch No</th>
                         <th className="ap-table-header">Date</th>
                         <th className="ap-table-header">Present</th>
@@ -199,7 +243,8 @@ const AttendanceReportList = ({ reports, onDeleteReport }) => (
                 </thead>
                 <tbody>
                     {reports.map(report => (
-                        <tr key={report.id} className="ap-table-row">
+                        <tr key={`${report.id}-${report.departmentId}`} className="ap-table-row">
+                            <td className="ap-table-cell">{report.departmentName}</td>
                             <td className="ap-table-cell">{report.batchNo}</td>
                             <td className="ap-table-cell">{new Date(report.report_date).toLocaleDateString()}</td>
                             <td className="ap-table-cell">{report.present_count}</td>
@@ -215,7 +260,7 @@ const AttendanceReportList = ({ reports, onDeleteReport }) => (
                                 </a>
                                 <button
                                     className="ap-delete-button"
-                                    onClick={() => onDeleteReport(report.batchNo)}
+                                    onClick={() => onDeleteReport(report.batchNo, report.departmentId)}
                                 >
                                     Delete
                                 </button>
