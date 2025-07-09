@@ -43,7 +43,7 @@ const AttendanceDownload = () => {
 
     const fetchDepartments = async () => {
         try {
-            const response = await axios.post('http://localhost:3000/get-active-departments');
+            const response = await axios.get('http://localhost:3000/get-active-departments');
             setDepartments(response.data);
         } catch (error) {
             console.error("Error fetching departments:", error);
