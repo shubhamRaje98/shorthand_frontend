@@ -1,3 +1,4 @@
+// src\components\attendanceDownload\attendanceDownload.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -5,28 +6,56 @@ import NavBar from '../navBar/navBar';
 import './AttendanceDownload.css';
 
 const AttendanceDownload = () => {
+    const [departmentId, setDepartmentId] = useState('');
     const [batchNo, setBatchNo] = useState('');
     const [loadingButton, setLoadingButton] = useState('');
     const [error, setError] = useState('');
+    const [departments, setDepartments] = useState([]);
     const [batches, setBatches] = useState([]);
     const [controller, setController] = useState('');
     const [isControllerPasswordVisible, setIsControllerPasswordVisible] = useState(false);
-    const [center ,setCenter] = useState();
+    const [center, setCenter] = useState();
+
     useEffect(() => {
-        fetchBatches();
-        setCenter(localStorage.getItem('center'))
+        fetchDepartments();
+        setCenter(localStorage.getItem('center'));
     }, []);
 
     useEffect(() => {
-        if (batchNo) {
-            fetchController();
+        if (departmentId) {
+            fetchBatches();
+            setBatchNo(''); // Reset batch selection when department changes
+            setIsControllerPasswordVisible(false);
+        } else {
+            setBatches([]);
+            setBatchNo('');
+            setIsControllerPasswordVisible(false);
         }
-    }, [batchNo]);
+    }, [departmentId]);
+
+    useEffect(() => {
+        if (batchNo && departmentId) {
+            fetchController();
+        } else {
+            setIsControllerPasswordVisible(false);
+        }
+    }, [batchNo, departmentId]);
+
+    const fetchDepartments = async () => {
+        try {
+            const response = await axios.post('http://localhost:3000/get-active-departments');
+            setDepartments(response.data);
+        } catch (error) {
+            console.error("Error fetching departments:", error);
+            setError("Failed to fetch departments. Please try again later.");
+        }
+    };
 
     const fetchController = async () => {
         try {
             const response = await axios.post('http://localhost:3000/get-batch-controller-password', {
-                batchNo
+                batchNo,
+                departmentId
             });
             if (response.data && response.data.results.length > 0) {
                 setController(response.data.results[0].controller_pass);
@@ -42,15 +71,15 @@ const AttendanceDownload = () => {
 
     const fetchBatches = async () => {
         try {
-            const response = await axios.post('http://localhost:3000/track-students-on-exam-center-code');
-            const distinctBatches = [...new Set(response.data.map(item => item.batchNo))];
-            setBatches(prevBatches => {
-                const newBatches = [...new Set([...prevBatches, ...distinctBatches])];
-                return newBatches.sort((a, b) => a - b);
+            const response = await axios.post('http://localhost:3000/track-students-on-exam-center-code', {
+                departmentId
             });
+            const distinctBatches = [...new Set(response.data.map(item => item.batchNo))];
+            setBatches(distinctBatches.sort((a, b) => a - b));
         } catch (error) {
             console.error("Error fetching batches:", error);
-            setError("Failed to fetch batch numbers. Please try again later.");
+            setError("No batches available.");
+            setBatches([]);
         }
     };
 
@@ -62,7 +91,7 @@ const AttendanceDownload = () => {
             const response = await axios({
                 url: `http://localhost:3000/center/${reportType}-pdf-download`,
                 method: 'POST',
-                data: { batchNo },
+                data: { batchNo, departmentId },
                 responseType: 'blob',
             });
 
@@ -100,7 +129,7 @@ const AttendanceDownload = () => {
             const response = await axios({
                 url: 'http://localhost:3000/center/studentId-password',
                 method: 'POST',
-                data: { batchNo },
+                data: { batchNo, departmentId },
                 responseType: 'blob',
                 headers: {
                     'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -141,6 +170,24 @@ const AttendanceDownload = () => {
                     <h2 className="attendance-download__title">Download Reports</h2>
                     <form className="attendance-download__form">
                         <div className="attendance-download__form-group">
+                            <label htmlFor="departmentId" className="attendance-download__label">Department:</label>
+                            <select
+                                className="attendance-download__select"
+                                id="departmentId"
+                                value={departmentId}
+                                onChange={(e) => setDepartmentId(e.target.value)}
+                                required
+                            >
+                                <option value="">Select a department</option>
+                                {departments.map((department) => (
+                                    <option key={department.departmentId} value={department.departmentId}>
+                                        {department.departmentName}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        
+                        <div className="attendance-download__form-group">
                             <label htmlFor="batchNo" className="attendance-download__label">Batch Number:</label>
                             <select
                                 className="attendance-download__select"
@@ -148,8 +195,11 @@ const AttendanceDownload = () => {
                                 value={batchNo}
                                 onChange={(e) => setBatchNo(e.target.value)}
                                 required
+                                disabled={!departmentId}
                             >
-                                <option value="">Select a batch number</option>
+                                <option value="">
+                                    {!departmentId ? "Please select a department first" : "Select a batch number"}
+                                </option>
                                 {batches.map((batch) => (
                                     <option key={batch} value={batch}>
                                         {batch}
@@ -157,11 +207,12 @@ const AttendanceDownload = () => {
                                 ))}
                             </select>
                         </div>
+                        
                         <div className="attendance-download__button-group">
                             <button 
                                 type="button" 
                                 className="attendance-download__btn"
-                                disabled={loadingButton !== '' || !batchNo}
+                                disabled={loadingButton !== '' || !batchNo || !departmentId}
                                 onClick={() => handleDownload('absentee')}
                             >
                                 {loadingButton === 'absentee' ? 'Generating...' : 'Download Absentee Report'}
@@ -169,7 +220,7 @@ const AttendanceDownload = () => {
                             <button 
                                 type="button" 
                                 className="attendance-download__btn"
-                                disabled={loadingButton !== '' || !batchNo}
+                                disabled={loadingButton !== '' || !batchNo || !departmentId}
                                 onClick={() => handleDownload('attendance')}
                             >
                                 {loadingButton === 'attendance' ? 'Generating...' : 'Download Attendance Report'}
@@ -178,7 +229,7 @@ const AttendanceDownload = () => {
                             <button 
                                 type="button" 
                                 className="attendance-download__btn"
-                                disabled={loadingButton !== '' || !batchNo}
+                                disabled={loadingButton !== '' || !batchNo || !departmentId}
                                 onClick={() => handleDownload('answer-sheet')}
                             >
                                 {loadingButton === 'answer-sheet' ? 'Generating...' : 'Download Student Answersheet'}
@@ -186,7 +237,7 @@ const AttendanceDownload = () => {
                             <button 
                                 type="button" 
                                 className="attendance-download__btn"
-                                disabled={loadingButton !== '' || !batchNo}
+                                disabled={loadingButton !== '' || !batchNo || !departmentId}
                                 onClick={() => handleDownload('blank-answer-sheet')}
                             >
                                 {loadingButton === 'blank-answer-sheet' ? 'Generating...' : 'Download Blank Answersheet'}
@@ -194,7 +245,7 @@ const AttendanceDownload = () => {
                             <button 
                                 type="button" 
                                 className="attendance-download__btn"
-                                disabled={loadingButton !== '' || !batchNo}
+                                disabled={loadingButton !== '' || !batchNo || !departmentId}
                                 onClick={() => handleDownload('seating-arrangement')}
                             >
                                 {loadingButton === 'seating-arrangement' ? 'Generating...' : 'Download Seating Arrangement'}
@@ -202,7 +253,7 @@ const AttendanceDownload = () => {
                             <button 
                                 type="button" 
                                 className="attendance-download__btn"
-                                disabled={loadingButton !== '' || !batchNo}
+                                disabled={loadingButton !== '' || !batchNo || !departmentId}
                                 onClick={() => handleDownload('studnetId-password')}
                             >
                                 {loadingButton === 'studnetId-password' ? 'Generating...' : 'Download Student Id and Password(PDF)'}
@@ -210,7 +261,7 @@ const AttendanceDownload = () => {
                             <button 
                                 type="button" 
                                 className="attendance-download__btn"
-                                disabled={loadingButton !== '' || !batchNo}
+                                disabled={loadingButton !== '' || !batchNo || !departmentId}
                                 onClick={handleExcelDownload}
                             >
                                 {loadingButton === 'excel' ? 'Generating...' : 'Download Student Id and Password(Excel)'}

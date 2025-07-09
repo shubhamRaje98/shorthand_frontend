@@ -46,6 +46,7 @@ const ControllerPassword = () => {
                                         <th scope="col">Center</th>
                                         <th scope="col">Batch No</th>
                                         <th scope="col">Controller Password</th>
+                                        <th scope="col">Batch Date</th>  {/* Add this column */}
                                         <th scope="col">Start Time</th>
                                         <th scope="col">End Time</th>
                                         <th scope="col">Batch Status</th>
@@ -58,6 +59,7 @@ const ControllerPassword = () => {
                                                 <td>{item.center}</td>
                                                 <td>{item.batchNo}</td>
                                                 <td>{item.controllerPass}</td>
+                                                <td>{item.batchDate}</td>  {/* Add this cell */}
                                                 <td>{item.startTime}</td>
                                                 <td>{item.endTime}</td>
                                                 <td>{item.batchStatus ==1 ? "Active" : "Inactive"}</td>

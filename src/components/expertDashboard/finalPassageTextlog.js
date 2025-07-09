@@ -281,7 +281,7 @@ const FinalPassageTextlog = () => {
     if (!modelAnswer || !userAnswer) return;
 
     try {
-      const response = await axios.post('http://45.119.47.81:5002/compare', {
+      const response = await axios.post('http://localhost:5002/compare', {
       // const response = await axios.post('/api/compare', {
         text1: modelAnswer,
         text2: userAnswer,
