@@ -31,7 +31,7 @@ const DepartmentStudentCount = () => {
         setLoading(true);
         setError('');
         try {
-            let url = 'http://localhost:3000/track-students-on-department-code';
+            let url = 'https://www.shorthandonlineexam.in/track-students-on-department-code';
             
             console.log("Fetching data from URL:", url);
             const response = await fetch(url, { 
@@ -62,7 +62,7 @@ const DepartmentStudentCount = () => {
         setLoading(true);
         setError('');
         try {
-            let url = `http://localhost:3000/get-department-batch-student-count`
+            let url = `https://www.shorthandonlineexam.in/get-department-batch-student-count`
             if(batchNo || center){
                 url += '?';
                 if(batchNo) url += `batchNo=${batchNo}&`;
@@ -123,6 +123,29 @@ const DepartmentStudentCount = () => {
         setAggregatedSubjects(aggregatedSubjectsArray);
     };
 
+    // Calculate totals for the main table
+    const calculateMainTableTotals = () => {
+        return allData.reduce((totals, item) => {
+            totals.totalStudents += parseInt(item.total_students, 10) || 0;
+            totals.loggedInStudents += parseInt(item.logged_in_students, 10) || 0;
+            totals.completedStudents += parseInt(item.completed_student, 10) || 0;
+            return totals;
+        }, { totalStudents: 0, loggedInStudents: 0, completedStudents: 0 });
+    };
+
+    // Calculate totals for the subjects table
+    const calculateSubjectTotals = () => {
+        const subjects = center ? (allData[0]?.subjects || []) : aggregatedSubjects;
+        return subjects
+            .filter(subject => subject.count > 0)
+            .reduce((totals, subject) => {
+                totals.count += parseInt(subject.count, 10) || 0;
+                totals.loggedIn += parseInt(subject.loggedIn, 10) || 0;
+                totals.completed += parseInt(subject.completed, 10) || 0;
+                return totals;
+            }, { count: 0, loggedIn: 0, completed: 0 });
+    };
+
     // FIXED: Updated formatting functions to handle backend format correctly
     const formatDateTime = (timeString) => {
         if (!timeString) return '';
@@ -143,6 +166,9 @@ const DepartmentStudentCount = () => {
         // Backend sends date in DD-MM-YYYY format, keep it as is
         return dateString;
     };
+
+    const mainTableTotals = calculateMainTableTotals();
+    const subjectTotals = calculateSubjectTotals();
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -210,7 +236,6 @@ const DepartmentStudentCount = () => {
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Students</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Logged In Students</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Completed Students</th>
-             
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
@@ -221,9 +246,17 @@ const DepartmentStudentCount = () => {
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.total_students || 0}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.logged_in_students || 0}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.completed_student || 0}</td>
-                                
                                     </tr>
                                 ))}
+                                {/* Total row for main table */}
+                                {allData.length > 0 && (
+                                    <tr className="bg-blue-50 border-t-2 border-blue-200 font-semibold">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-900" colSpan="2">TOTAL</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-900">{mainTableTotals.totalStudents}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-900">{mainTableTotals.loggedInStudents}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-900">{mainTableTotals.completedStudents}</td>
+                                    </tr>
+                                )}
                             </tbody>
                         </table>
                     </div>
@@ -257,6 +290,15 @@ const DepartmentStudentCount = () => {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{subject.completed}</td>
                                         </tr>
                                     ))}
+                                    {/* Total row for subjects table */}
+                                    {((center ? allData[0]?.subjects || [] : aggregatedSubjects).filter(subject => subject.count > 0).length > 0) && (
+                                        <tr className="bg-green-50 border-t-2 border-green-200 font-semibold">
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-green-900" colSpan="2">TOTAL</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-green-900">{subjectTotals.count}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-green-900">{subjectTotals.loggedIn}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-green-900">{subjectTotals.completed}</td>
+                                        </tr>
+                                    )}
                                 </tbody>
                             </table>
                         </div>

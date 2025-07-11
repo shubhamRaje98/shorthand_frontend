@@ -43,7 +43,7 @@ const AttendanceDownload = () => {
 
     const fetchDepartments = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/get-active-departments');
+            const response = await axios.get('https://www.shorthandonlineexam.in/get-active-departments');
             setDepartments(response.data);
         } catch (error) {
             console.error("Error fetching departments:", error);
@@ -53,7 +53,7 @@ const AttendanceDownload = () => {
 
     const fetchController = async () => {
         try {
-            const response = await axios.post('http://localhost:3000/get-batch-controller-password', {
+            const response = await axios.post('https://www.shorthandonlineexam.in/get-batch-controller-password', {
                 batchNo,
                 departmentId
             });
@@ -71,7 +71,7 @@ const AttendanceDownload = () => {
 
     const fetchBatches = async () => {
         try {
-            const response = await axios.post('http://localhost:3000/track-students-on-exam-center-code', {
+            const response = await axios.post('https://www.shorthandonlineexam.in/track-students-on-exam-center-code', {
                 departmentId
             });
             const distinctBatches = [...new Set(response.data.map(item => item.batchNo))];
@@ -89,7 +89,7 @@ const AttendanceDownload = () => {
 
         try {
             const response = await axios({
-                url: `http://localhost:3000/center/${reportType}-pdf-download`,
+                url: `https://www.shorthandonlineexam.in/center/${reportType}-pdf-download`,
                 method: 'POST',
                 data: { batchNo, departmentId },
                 responseType: 'blob',
@@ -127,7 +127,7 @@ const AttendanceDownload = () => {
 
         try {
             const response = await axios({
-                url: 'http://localhost:3000/center/studentId-password',
+                url: 'https://www.shorthandonlineexam.in/center/studentId-password',
                 method: 'POST',
                 data: { batchNo, departmentId },
                 responseType: 'blob',
