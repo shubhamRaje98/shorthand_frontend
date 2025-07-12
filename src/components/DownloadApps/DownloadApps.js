@@ -6,7 +6,7 @@ import NavBar from './../navBar/navBar';
 const DownloadApps = () => {
     const handlePcRegistrationDownload = () => {
         // window.open('https://shorthandexam2024.s3.ap-south-1.amazonaws.com/gen/publish/setup.exe', '_blank');
-        const fileUrl = "https://shorthandexam2024.s3.ap-south-1.amazonaws.com/Dec24/setup/GCC-SH-DEC24-PC-REGISTRATION.exe";
+        const fileUrl = "https://shorthandexam2024.s3.ap-south-1.amazonaws.com/Dec24/setup/GCC-SH-JUNE25-PC-REGISTRATION.exe";
         const link = document.createElement("a");
         link.href = fileUrl;
         link.download = "pc_registration.exe"; // Optional: specify the downloaded file name
@@ -16,7 +16,7 @@ const DownloadApps = () => {
 
     const handleExamAppDownload = () => {
         // window.open('https://shorthandexam2024.s3.ap-south-1.amazonaws.com/publish/setup.exe', '_blank');
-        const fileUrl = "https://shorthandexam2024.s3.ap-south-1.amazonaws.com/Dec24/setup/GCC-SH-DEC24-EXAM-CLIENT.exe";
+        const fileUrl = "https://shorthandexam2024.s3.ap-south-1.amazonaws.com/Dec24/setup/GCC-SH-JUNE25-EXAM-CLIENT.exe";
         const link = document.createElement("a");
         link.href = fileUrl;
         link.download = "software.exe"; // Optional: specify the downloaded file name
