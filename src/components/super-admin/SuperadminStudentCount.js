@@ -44,7 +44,7 @@ const SuperAdminCount = () => {
         setLoading(true);
         setError('');
         try {
-            let url = 'https://www.shorthandonlineexam.in/super-admin-student-track-dashboard';
+            let url = 'http://localhost:3000/super-admin-student-track-dashboard';
             
             const response = await axios.post(url, { withCredentials: true });
             const distinctBatches = [...new Set(response.data.map(item => item.batchNo))];
@@ -74,7 +74,7 @@ const SuperAdminCount = () => {
         setLoading(true);
         setError('');
         try {
-            let url = `https://www.shorthandonlineexam.in/get-super-admin-student-count`
+            let url = `http://localhost:3000/get-super-admin-student-count`
             if(batchNo || center || departmentId){
                 url += '?';
                 if(batchNo) url += `batchNo=${batchNo}&`;

@@ -34,13 +34,18 @@ const DepartmentDashboard = () => {
             return dateString; // Return original string if it's not a valid date
         }
 
-        const day = String(date.getUTCDate()).padStart(2, '0');
-        const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Months are 0-indexed
-        const year = date.getUTCFullYear();
-        const hours = String(date.getUTCHours()).padStart(2, '0');
-        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        let hours = date.getHours();
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
 
-        return `${day}/${month}/${year} ${hours}:${minutes}`;
+        hours = hours % 12;
+        hours = hours ? hours : 12; // 0 should be 12
+        const formattedHours = String(hours).padStart(2, '0');
+
+        return `${day}/${month}/${year} ${formattedHours}:${minutes} ${ampm}`;
     };
     // function formatDate(dateString) {
     //     if(!dateString) return null;
@@ -49,7 +54,7 @@ const DepartmentDashboard = () => {
 
     const fetchSubjects = async () => {
         try {
-            const response = await axios.get('https://www.shorthandonlineexam.in/subjects');
+            const response = await axios.get('http://localhost:3000/subjects');
             if (response.data.subjects) {
                 setAllSubjects(response.data.subjects);
             }
@@ -63,7 +68,7 @@ const DepartmentDashboard = () => {
         setLoading(true);
         setError('');
         try {
-            let url = 'https://www.shorthandonlineexam.in/track-students-on-department-code';
+            let url = 'http://localhost:3000/track-students-on-department-code';
 
             const params = new URLSearchParams();
             if (subject) params.append('subject_name', subject);
@@ -72,6 +77,7 @@ const DepartmentDashboard = () => {
             if (center) params.append('center', center);
             if (exam_type) params.append('exam_type', exam_type);
             if (batchDate) {
+                // Format the date properly before sending to backend
                 params.append('batchDate', batchDate);
             }
 
@@ -84,28 +90,21 @@ const DepartmentDashboard = () => {
             console.log("Response:", response.data);
             setData(response.data);
 
-            const distinctBatches = [...new Set(response.data.map(item => item.batchNo))];
-            setBatches(prevBatches => {
-                const newBatches = [...new Set([...prevBatches, ...distinctBatches])];
-                return newBatches.sort();
-            });
+            // ... rest of your existing code for setting batches, centers, subjects
 
-            const distinctCenters = [...new Set(response.data.map(item => item.center))];
-            setCenters(prevCenters => {
-                const newCenters = [...new Set([...prevCenters, ...distinctCenters])];
-                return newCenters.sort();
-            });
-
-            const distinctSubjects = [...new Set(response.data.map(item => item.subject_name))];
-            setSubjects(distinctSubjects);
-
+            // Fix the batch dates extraction and formatting
             const distinctBatchDates = [...new Set(response.data
-                .filter(item => item.batchdate && typeof item.batchdate === 'string')
+                .filter(item => item.batchdate && item.batchdate !== "invalid date" && item.batchdate !== "0")
                 .map(item => {
-
-                    return item.batchdate
+                    // Ensure consistent date format for display
+                    const date = new Date(item.batchdate);
+                    if (!isNaN(date.getTime())) {
+                        return date.toISOString().split('T')[0]; // YYYY-MM-DD format
+                    }
+                    return item.batchdate;
                 })
             )];
+
             setBatchDates(prevDates => {
                 const newDates = [...new Set([...prevDates, ...distinctBatchDates])];
                 return newDates.sort().reverse();
@@ -116,6 +115,7 @@ const DepartmentDashboard = () => {
         }
         setLoading(false);
     };
+
 
     useEffect(() => {
         fetchSubjects();
@@ -344,9 +344,13 @@ const DepartmentDashboard = () => {
                                 onChange={(e) => setBatchDate(e.target.value)}
                             >
                                 <option value="">All Dates</option>
-                                {batchDates.map((date, index) => (
-                                    <option key={index} value={date}>{date}</option>
-                                ))}
+                                {batchDates.map((date, index) => {
+                                    // Format date for display
+                                    const displayDate = new Date(date).toLocaleDateString('en-GB'); // DD/MM/YYYY format
+                                    return (
+                                        <option key={index} value={date}>{displayDate}</option>
+                                    );
+                                })}
                             </select>
                         </div>
                         <div className="dept-col-md-3 dept-col-sm-6 mb-2">

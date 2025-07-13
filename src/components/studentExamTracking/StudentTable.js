@@ -30,9 +30,64 @@ const StudentTable = () => {
         return dateTime.toLocaleString();
     }
 
+    const formatDate = (dateString) => {
+        if (!dateString || dateString === "invalid date" || dateString === "0") {
+            return "";
+        }
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) {
+            return dateString; // Return original string if it's not a valid date
+        }
+        
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        let hours = date.getHours();
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        
+        hours = hours % 12;
+        hours = hours ? hours : 12; // 0 should be 12
+        const formattedHours = String(hours).padStart(2, '0');
+        
+        return `${day}/${month}/${year} ${formattedHours}:${minutes} ${ampm}`;
+    };
+
+    // Helper function to format date for display in dropdown
+    const formatDateForDisplay = (dateString) => {
+        if (!dateString || dateString === "invalid date" || dateString === "0") {
+            return dateString;
+        }
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) {
+                return dateString;
+            }
+            return date.toLocaleDateString('en-GB'); // DD/MM/YYYY format
+        } catch (error) {
+            return dateString;
+        }
+    };
+
+    // Helper function to normalize date for comparison
+    const normalizeDateForFilter = (dateString) => {
+        if (!dateString || dateString === "invalid date" || dateString === "0") {
+            return null;
+        }
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) {
+                return null;
+            }
+            return date.toISOString().split('T')[0]; // YYYY-MM-DD format
+        } catch (error) {
+            return null;
+        }
+    };
+
     const fetchSubjects = async () => {
         try {
-            const response = await axios.get('https://www.shorthandonlineexam.in/subjects');
+            const response = await axios.get('http://localhost:3000/subjects');
             if (response.data.subjects) {
                 setAllSubjects(response.data.subjects);
             }
@@ -46,7 +101,7 @@ const StudentTable = () => {
         setLoading(true);
         setError('');
         try {
-            let url = 'https://www.shorthandonlineexam.in/track-students-on-exam-center-code';
+            let url = 'http://localhost:3000/track-students-on-exam-center-code';
             if (batchNo) {
                 url += `/${batchNo}`;
             }
@@ -55,7 +110,10 @@ const StudentTable = () => {
             if (subject) params.append('subject_name', subject);
             if (loginStatus) params.append('loginStatus', loginStatus);
             if (exam_type) params.append('exam_type', exam_type);
-            if (batchDate) params.append('batchDate', batchDate);
+            if (batchDate) {
+                // Send the selected date in the format expected by backend
+                params.append('batchDate', batchDate);
+            }
             
             if (params.toString()) {
                 url += `?${params.toString()}`;
@@ -75,13 +133,19 @@ const StudentTable = () => {
             const distinctSubjects = [...new Set(response.data.map(item => item.subject_name))];
             setSubjects(distinctSubjects);
 
+            // Fix batch dates extraction and formatting
             const distinctBatchDates = [...new Set(response.data
-                .filter(item => item.batchdate)
-                .map(item => item.batchdate)
+                .filter(item => item.batchdate && item.batchdate !== "invalid date" && item.batchdate !== "0")
+                .map(item => {
+                    const normalizedDate = normalizeDateForFilter(item.batchdate);
+                    return normalizedDate;
+                })
+                .filter(date => date !== null) // Remove null values
             )];
+            
             setBatchDates(prevDates => {
                 const newDates = [...new Set([...prevDates, ...distinctBatchDates])];
-                return newDates.sort().reverse();
+                return newDates.sort().reverse(); // Most recent dates first
             });
         } catch (error) {
             console.error("Error fetching data:", error);
@@ -171,10 +235,10 @@ const StudentTable = () => {
             "Trial": formatDate(item.trial_time),
             "Audio Track A": formatDate(item.audio1_time),
             "Passage A": formatDate(item.passage1_time),
-            "Audio Track B": formatDate(item.audio1_time),
-            "Passage B": formatDate(item.passage1_time),
-            "typing trial": formatDate(item.trial_passage_time),
-            "Typing passage": formatDate(item.typing_passage_time),
+            "Audio Track B": formatDate(item.audio2_time),
+            "Passage B": formatDate(item.passage2_time),
+            "Typing Trial": formatDate(item.trial_passage_time),
+            "Typing Passage": formatDate(item.typing_passage_time),
             "Feedback": formatDate(item.feedback_time)
         })));
         const workbook = XLSX.utils.book_new();
@@ -194,27 +258,6 @@ const StudentTable = () => {
         pageNumbers.push(i);
     }
 
-    const formatDate = (dateString) => {
-        if (!dateString || dateString === "invalid date" || dateString === "0") {
-            return "";
-        }
-        const date = new Date(dateString);
-        if (isNaN(date.getTime())) {
-            return dateString; // Return original string if it's not a valid date
-        }
-        
-        const day = String(date.getUTCDate()).padStart(2, '0');
-        const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Months are 0-indexed
-        const year = date.getUTCFullYear();
-        const hours = String(date.getUTCHours()).padStart(2, '0');
-        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-        
-        return `${day}/${month}/${year} ${hours}:${minutes}`;
-    };
-    // function formatDate(dateString) {
-    //     if(!dateString) return null;
-    //     return moment(dateString).tz('Asia/Kolkata').format('DD-MM-YYYY hh:mm:ss A')
-    // }
     const renderPaginationItems = () => {
         const totalPages = pageNumbers.length;
         const currentPageNumber = Math.min(totalPages, Math.max(1, currentPage));
@@ -352,7 +395,9 @@ const StudentTable = () => {
                             >
                                 <option value="">All Dates</option>
                                 {batchDates.map((date, index) => (
-                                    <option key={index} value={date}>{date}</option>
+                                    <option key={index} value={date}>
+                                        {formatDateForDisplay(date)}
+                                    </option>
                                 ))}
                             </select>
                         </div>
@@ -407,15 +452,15 @@ const StudentTable = () => {
                                             <tr key={index}>
                                                 <td>{item.batchNo}</td>
                                                 <td>{item.student_id}</td>
-                                                <td className={getCellClass(item, 'loginTime')}>{formatDate(item.loginTime)}</td>
-                                                {exam_type !== 'typewriting' && <td className={getCellClass(item, 'trial_time')}>{formatDate(item.trial_time)}</td>}
-                                                {exam_type !== 'typewriting' && <td className={getCellClass(item, 'audio1_time')}>{formatDate(item.audio1_time)}</td>}
-                                                {exam_type !== 'typewriting' && <td className={getCellClass(item, 'passage1_time')}>{formatDate(item.passage1_time)}</td>}
-                                                {exam_type !== 'typewriting' && <td className={getCellClass(item, 'audio2_time')}>{formatDate(item.audio2_time)}</td>}
-                                                {exam_type !== 'typewriting' && <td className={getCellClass(item, 'passage2_time')}>{formatDate(item.passage2_time)}</td>}
-                                                {exam_type !== 'shorthand' && <td className={getCellClass(item, 'trial_passage_time')}>{formatDate(item.trial_passage_time)}</td>}
-                                                {exam_type !== 'shorthand' && <td className={getCellClass(item, 'typing_passage_time')}>{formatDate(item.typing_passage_time)}</td>}
-                                                <td className={getCellClass(item, 'feedback_time')}>{formatDate(item.feedback_time)}</td>
+                                                <td className={getCellClass(item, 'loginTime', exam_type)}>{formatDate(item.loginTime)}</td>
+                                                {exam_type !== 'typewriting' && <td className={getCellClass(item, 'trial_time', exam_type)}>{formatDate(item.trial_time)}</td>}
+                                                {exam_type !== 'typewriting' && <td className={getCellClass(item, 'audio1_time', exam_type)}>{formatDate(item.audio1_time)}</td>}
+                                                {exam_type !== 'typewriting' && <td className={getCellClass(item, 'passage1_time', exam_type)}>{formatDate(item.passage1_time)}</td>}
+                                                {exam_type !== 'typewriting' && <td className={getCellClass(item, 'audio2_time', exam_type)}>{formatDate(item.audio2_time)}</td>}
+                                                {exam_type !== 'typewriting' && <td className={getCellClass(item, 'passage2_time', exam_type)}>{formatDate(item.passage2_time)}</td>}
+                                                {exam_type !== 'shorthand' && <td className={getCellClass(item, 'trial_passage_time', exam_type)}>{formatDate(item.trial_passage_time)}</td>}
+                                                {exam_type !== 'shorthand' && <td className={getCellClass(item, 'typing_passage_time', exam_type)}>{formatDate(item.typing_passage_time)}</td>}
+                                                <td className={getCellClass(item, 'feedback_time', exam_type)}>{formatDate(item.feedback_time)}</td>
                                             </tr>
                                         ))}
                                     </tbody>

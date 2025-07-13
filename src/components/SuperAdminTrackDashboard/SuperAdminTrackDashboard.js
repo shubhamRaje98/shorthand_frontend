@@ -10,7 +10,6 @@ const isValidData = (value) => {
     return value && value !== "invalid date" && value !== "0" && !isNaN(new Date(value).getTime());
 };
 
-
 const getCellClass = (item, field, exam_type) => {
     let stages; 
     if (exam_type === 'shorthand') {
@@ -98,16 +97,6 @@ const SuperAdminTrackDashboard = () => {
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [totalPages, setTotalPages] = useState(0);
 
-    const formatDateTime = (dateTimeString) => {
-        if (!dateTimeString) return '';
-
-        // Parse the dateTimeString and convert it to Asia/Kolkata timezone
-        const dateTime = moment(dateTimeString).tz('Asia/Kolkata');
-    
-        // Format the date as dd-mm-yy hh:mm:ss
-        return dateTime.format('DD-MM-YY hh:mm:ss A');
-    }
-
     const formatDate = (dateString) => {
         if (!dateString || dateString === "invalid date" || dateString === "0") {
             return "";
@@ -117,21 +106,55 @@ const SuperAdminTrackDashboard = () => {
             return dateString; // Return original string if it's not a valid date
         }
         
-        const day = String(date.getUTCDate()).padStart(2, '0');
-        const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Months are 0-indexed
-        const year = date.getUTCFullYear();
-        const hours = String(date.getUTCHours()).padStart(2, '0');
-        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        let hours = date.getHours();
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
         
-        return `${day}/${month}/${year} ${hours}:${minutes}`;
+        hours = hours % 12;
+        hours = hours ? hours : 12; // 0 should be 12
+        const formattedHours = String(hours).padStart(2, '0');
+        
+        return `${day}/${month}/${year} ${formattedHours}:${minutes} ${ampm}`;
     };
-    // function formatDate(dateString) {
-    //         if(!dateString) return null;
-    //         return moment(dateString).tz('Asia/Kolkata').format('DD-MM-YYYY hh:mm:ss A')
-    //     }
+
+    // Helper function to format date for display in dropdown
+    const formatDateForDisplay = (dateString) => {
+        if (!dateString || dateString === "invalid date" || dateString === "0") {
+            return dateString;
+        }
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) {
+                return dateString;
+            }
+            return date.toLocaleDateString('en-GB'); // DD/MM/YYYY format
+        } catch (error) {
+            return dateString;
+        }
+    };
+
+    // Helper function to normalize date for comparison
+    const normalizeDateForFilter = (dateString) => {
+        if (!dateString || dateString === "invalid date" || dateString === "0") {
+            return null;
+        }
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) {
+                return null;
+            }
+            return date.toISOString().split('T')[0]; // YYYY-MM-DD format
+        } catch (error) {
+            return null;
+        }
+    };
+
     const fetchSubjects = async () => {
         try {
-            const response = await axios.get('https://www.shorthandonlineexam.in/subjects');
+            const response = await axios.get('http://localhost:3000/subjects');
             if (response.data.subjects) {
                 setAllSubjects(response.data.subjects);
             }
@@ -143,7 +166,7 @@ const SuperAdminTrackDashboard = () => {
 
     const fetchTotalLoginCount = async () => {
        try {
-        const response = await axios.post('https://www.shorthandonlineexam.in/total-login-count',{
+        const response = await axios.post('http://localhost:3000/total-login-count',{
             center,batchNo,department:departmentId
         })
         if(response.data){
@@ -153,14 +176,13 @@ const SuperAdminTrackDashboard = () => {
        } catch (error) {
         console.log(error)
        }
-        
     }
 
     const fetchData = async () => {
         setLoading(true);
         setError('');
         try {
-            let url = 'https://www.shorthandonlineexam.in/super-admin-student-track-dashboard';
+            let url = 'http://localhost:3000/super-admin-student-track-dashboard';
 
             const params = new URLSearchParams();
             if (subject) params.append('subject_name', subject);
@@ -170,7 +192,8 @@ const SuperAdminTrackDashboard = () => {
             if (exam_type) params.append('exam_type', exam_type);
             if (departmentId) params.append('deprtmentId', departmentId);
             if (batchDate) {
-                params.append('batchDate',batchDate);
+                // Send the selected date in the format expected by backend
+                params.append('batchDate', batchDate);
             }
 
             if (params.toString()) {
@@ -194,24 +217,29 @@ const SuperAdminTrackDashboard = () => {
                 const newCenters = [...new Set([...prevCenters, ...distinctCenters])];
                 return newCenters.sort();
             });
+            
             const distinctDepartments = [...new Set(response.data.map(item => item.departmentId))];
             setDepartments(prevDepartments => {
                 const newDepartments = [...new Set([...prevDepartments, ...distinctDepartments])];
                 return newDepartments.sort();
             });
+            
             const distinctSubjects = [...new Set(response.data.map(item => item.subject_name))];
             setSubjects(distinctSubjects);
 
+            // Fix batch dates extraction and formatting
             const distinctBatchDates = [...new Set(response.data
-                .filter(item => item.batchdate && typeof item.batchdate === 'string')
+                .filter(item => item.batchdate && item.batchdate !== "invalid date" && item.batchdate !== "0")
                 .map(item => {
-                   
-                    return item.batchdate
+                    const normalizedDate = normalizeDateForFilter(item.batchdate);
+                    return normalizedDate;
                 })
+                .filter(date => date !== null) // Remove null values
             )];
+            
             setBatchDates(prevDates => {
                 const newDates = [...new Set([...prevDates, ...distinctBatchDates])];
-                return newDates.sort().reverse();
+                return newDates.sort().reverse(); // Most recent dates first
             });
         } catch (error) {
             console.error("Error fetching data:", error);
@@ -236,6 +264,8 @@ const SuperAdminTrackDashboard = () => {
     const exportToExcel = () => {
         const worksheet = XLSX.utils.json_to_sheet(data.map(item => ({
             "Batch Number": item.batchNo,
+            "Center": item.center,
+            "Department": item.departmentId,
             "Seat No": item.student_id,
             "Login": formatDate(item.loginTime),
             "Trial": formatDate(item.trial_time),
@@ -243,15 +273,14 @@ const SuperAdminTrackDashboard = () => {
             "Passage A": formatDate(item.passage1_time),
             "Audio Track B": formatDate(item.audio2_time),
             "Passage B": formatDate(item.passage2_time),
-            "Trial Passage": formatDate(item.typing_passage_time),
-            "Typing Passage": formatDate(item.trial_passage_time),
+            "Trial Typing": formatDate(item.trial_passage_time),
+            "Typing Passage": formatDate(item.typing_passage_time),
             "Feedback": formatDate(item.feedback_time)
         })));
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, "Student Data");
         XLSX.writeFile(workbook, "student_data.xlsx");
     };
-
 
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
@@ -359,10 +388,10 @@ const SuperAdminTrackDashboard = () => {
                             </select>
                         </div>
                         <div className="dept-col-md-3 dept-col-sm-6 mb-2">
-                            <label htmlFor="e" className="dept-form-label">Exam Status:</label>
+                            <label htmlFor="examStatus" className="dept-form-label">Exam Status:</label>
                             <select
                                 className="dept-form-select"
-                                id="loginStatus"
+                                id="examStatus"
                                 value={exam_type}
                                 onChange={(e) => setExam_type(e.target.value)}
                                 defaultValue="shorthand"
@@ -385,7 +414,9 @@ const SuperAdminTrackDashboard = () => {
                             >
                                 <option value="">All Dates</option>
                                 {batchDates.map((date, index) => (
-                                    <option key={index} value={date}>{date}</option>
+                                    <option key={index} value={date}>
+                                        {formatDateForDisplay(date)}
+                                    </option>
                                 ))}
                             </select>
                         </div>
@@ -428,25 +459,23 @@ const SuperAdminTrackDashboard = () => {
                             >
                                 <option value="all">All</option>
                                 <option value="5">5</option>
-                                {/* <option value="10">10</option> */}
                                 <option value="25">25</option>
                                 <option value="50">50</option>
                                 <option value="100">100</option>
-                                
                             </select>
                         </div>
                     </div>
                     <div className="dept-row mb-3">
-    <div className="dept-col-md-12 dept-col-sm-12 mb-2 d-flex align-items-center">
-        <button onClick={exportToExcel} className="dept-btn dept-btn-primary dept-export-btn me-3">
-            Export to Excel
-        </button>
-        <div className="dept-total-count-container ms-3">
-            <span className="dept-total-count-label">Total logged in students:</span>
-            <span className="dept-total-count-value">{total_login_count}</span>
-        </div>
-    </div>
-</div>
+                        <div className="dept-col-md-12 dept-col-sm-12 mb-2 d-flex align-items-center">
+                            <button onClick={exportToExcel} className="dept-btn dept-btn-primary dept-export-btn me-3">
+                                Export to Excel
+                            </button>
+                            <div className="dept-total-count-container ms-3">
+                                <span className="dept-total-count-label">Total logged in students:</span>
+                                <span className="dept-total-count-value">{total_login_count}</span>
+                            </div>
+                        </div>
+                    </div>
                     {loading ? (
                         <p>Loading...</p>
                     ) : error ? (
@@ -467,7 +496,6 @@ const SuperAdminTrackDashboard = () => {
                                                 <th>Passage A</th>
                                                 <th>Audio Track B</th>
                                                 <th>Passage B</th>
-                                                
                                             </>
                                         )}
                                         {exam_type !== 'shorthand' && (
@@ -480,31 +508,31 @@ const SuperAdminTrackDashboard = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                {getPaginatedData().map((item, index) => (
-                    <tr key={index}>
-                        <td className="batch-number-column">{item.batchNo}</td>
-                        <td>{item.center}</td>
-                        <td>{item.student_id}</td>
-                        <td className={getCellClass(item, 'loginTime')}>{formatDate(item.loginTime)}</td>
-                        {exam_type !== 'typewriting' && <td className={getCellClass(item, 'trial_time')}>{formatDate(item.trial_time)}</td>}
-                        {exam_type !== 'typewriting' && (
-                            <>
-                                <td className={getCellClass(item, 'audio1_time')}>{formatDate(item.audio1_time)}</td>
-                                <td className={getCellClass(item, 'passage1_time')}>{formatDate(item.passage1_time)}</td>
-                                <td className={getCellClass(item, 'audio2_time')}>{formatDate(item.audio2_time)}</td>
-                                <td className={getCellClass(item, 'passage2_time')}>{formatDate(item.passage2_time)}</td>
-                            </>
-                        )}
-                        {exam_type !== 'shorthand' && (
-                            <>
-                                <td className={getCellClass(item, 'trial_passage_time')}>{formatDate(item.trial_passage_time)}</td>
-                                <td className={getCellClass(item, 'typing_passage_time')}>{formatDate(item.typing_passage_time)}</td>
-                            </>
-                        )}
-                        <td className={getCellClass(item, 'feedback_time')}>{formatDate(item.feedback_time)}</td>
-                    </tr>
-                ))}
-            </tbody>
+                                    {getPaginatedData().map((item, index) => (
+                                        <tr key={index}>
+                                            <td className="batch-number-column">{item.batchNo}</td>
+                                            <td>{item.center}</td>
+                                            <td>{item.student_id}</td>
+                                            <td className={getCellClass(item, 'loginTime', exam_type)}>{formatDate(item.loginTime)}</td>
+                                            {exam_type !== 'typewriting' && <td className={getCellClass(item, 'trial_time', exam_type)}>{formatDate(item.trial_time)}</td>}
+                                            {exam_type !== 'typewriting' && (
+                                                <>
+                                                    <td className={getCellClass(item, 'audio1_time', exam_type)}>{formatDate(item.audio1_time)}</td>
+                                                    <td className={getCellClass(item, 'passage1_time', exam_type)}>{formatDate(item.passage1_time)}</td>
+                                                    <td className={getCellClass(item, 'audio2_time', exam_type)}>{formatDate(item.audio2_time)}</td>
+                                                    <td className={getCellClass(item, 'passage2_time', exam_type)}>{formatDate(item.passage2_time)}</td>
+                                                </>
+                                            )}
+                                            {exam_type !== 'shorthand' && (
+                                                <>
+                                                    <td className={getCellClass(item, 'trial_passage_time', exam_type)}>{formatDate(item.trial_passage_time)}</td>
+                                                    <td className={getCellClass(item, 'typing_passage_time', exam_type)}>{formatDate(item.typing_passage_time)}</td>
+                                                </>
+                                            )}
+                                            <td className={getCellClass(item, 'feedback_time', exam_type)}>{formatDate(item.feedback_time)}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
                             </table>
                         </div>
                     ) : (

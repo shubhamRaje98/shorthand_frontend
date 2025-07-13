@@ -12,7 +12,7 @@ const SuperAdminLogin = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('https://www.shorthandonlineexam.in/admin-login', {
+            const response = await axios.post('http://localhost:3000/admin-login', {
                 userId,
                 password
             }, {

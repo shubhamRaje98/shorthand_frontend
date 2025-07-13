@@ -45,7 +45,7 @@ const ExpertReview = () => {
 
   const fetchDepartments = async () => {
     try {
-      const response = await axios.get('https://www.shorthandonlineexam.in/get-departments');
+      const response = await axios.get('http://localhost:3000/get-departments');
       
       if (response.status === 201) {
         setDepartments(response.data);
@@ -65,7 +65,7 @@ const ExpertReview = () => {
     setMessage('');
 
     try {
-      const response = await axios.get(`https://www.shorthandonlineexam.in/get-expert-review-logs?department=${selectedDepartment}&page=${currentPage}&limit=${logsPerPage}`);
+      const response = await axios.get(`http://localhost:3000/get-expert-review-logs?department=${selectedDepartment}&page=${currentPage}&limit=${logsPerPage}`);
       
       if (response.status === 201) {
         setExpertReviewLogs(response.data);
@@ -88,7 +88,7 @@ const ExpertReview = () => {
     setMessage('');
 
     try {
-      const response = await axios.get(`https://www.shorthandonlineexam.in/get-mod-review-logs?department=${selectedDepartment}&page=${currentPage}&limit=${logsPerPage}`);
+      const response = await axios.get(`http://localhost:3000/get-mod-review-logs?department=${selectedDepartment}&page=${currentPage}&limit=${logsPerPage}`);
      
       if (response.status === 201) {
         setModReviewLogs(response.data);
@@ -122,7 +122,7 @@ const ExpertReview = () => {
 
     try {
         console.log(`[${new Date().toISOString()}] Making API request to populate expert review log`);
-        const response = await axios.post('https://www.shorthandonlineexam.in/populate-expert-review-log', {
+        const response = await axios.post('http://localhost:3000/populate-expert-review-log', {
             department: selectedDepartment
         });
         
@@ -166,7 +166,7 @@ const ExpertReview = () => {
     setMessage('');
 
     try {
-      const response = await axios.post('https://www.shorthandonlineexam.in/populate-mod-review-log', {
+      const response = await axios.post('http://localhost:3000/populate-mod-review-log', {
         department: selectedDepartment
       });
      
