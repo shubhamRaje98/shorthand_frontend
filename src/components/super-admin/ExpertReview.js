@@ -1,3 +1,4 @@
+// src\components\super-admin\ExpertReview.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './ExpertReview.css';
@@ -45,7 +46,7 @@ const ExpertReview = () => {
 
   const fetchDepartments = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/get-departments');
+      const response = await axios.get('http://localhost:3000/get-departments-students');
       
       if (response.status === 201) {
         setDepartments(response.data);
