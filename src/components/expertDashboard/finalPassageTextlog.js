@@ -44,14 +44,14 @@ const MistakesList = ({ mistakes, onAddIgnoreWord, onWordHover, fontSize, ignore
 
         switch(category) {
           case 'missed':
-            categoryTitle = 'Omitted Words';
+            categoryTitle = 'Extra Added Words';
             categoryStyle = {
               backgroundColor: '#fee2e2',
               color: '#b91c1c'
             };
             break;
           case 'added':
-            categoryTitle = 'Extra Added Words';
+            categoryTitle = 'Omitted Words';
             categoryStyle = {
               backgroundColor: '#e6fffa',
               color: '#047857'
@@ -148,7 +148,7 @@ const FinalPassageTextlog = () => {
   const handleSubmit = async () => {
     try {
       const response = await axios.post(
-        `http://localhost:3000/submit-passage-review/${subjectId}/${qset}`, 
+        `http://45.119.47.81:3000/submit-passage-review/${subjectId}/${qset}`, 
         {}, 
         { withCredentials: true }
       );
@@ -176,7 +176,7 @@ const FinalPassageTextlog = () => {
   const handleHold = async () => {
     try {
       const response = await axios.post(
-        `http://localhost:3000/hold-passage-review/${subjectId}/${qset}`, 
+        `http://45.119.47.81:3000/hold-passage-review/${subjectId}/${qset}`, 
         {}, 
         { withCredentials: true }
       );
@@ -205,7 +205,7 @@ const FinalPassageTextlog = () => {
   useEffect(() => {
     const fetchPassages = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/expert-assigned-passages/${subjectId}/${qset}`, { withCredentials: true });
+        const response = await axios.get(`http://45.119.47.81:3000/expert-assigned-passages/${subjectId}/${qset}`, { withCredentials: true });
         if (response.status === 200) {
           console.log("Raw data:", JSON.stringify(response.data));
           setPassages(response.data);
@@ -223,7 +223,7 @@ const FinalPassageTextlog = () => {
       try {
         console.log(subjectId, qset, activePassage);
         
-        const response = await axios.post('http://localhost:3000/active-passage', {
+        const response = await axios.post('http://45.119.47.81:3000/active-passage', {
           subjectId,
           qset,
           activePassage,
@@ -254,7 +254,7 @@ const FinalPassageTextlog = () => {
   useEffect(() => {
     const fetchAudio = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/get-subject-qset-audio/${subjectId}/${qset}`, { withCredentials: true });
+        const response = await axios.get(`http://45.119.47.81:3000/get-subject-qset-audio/${subjectId}/${qset}`, { withCredentials: true });
         if (response.status === 200) {
           setAudioUrl(response.data.passage1);
           setAudioBUrl(response.data.passage2); // Assuming 'passage2' is the audio URL for passageB
@@ -316,7 +316,7 @@ const FinalPassageTextlog = () => {
     }, {});
 
     const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
-    let average = 80 - (total / 2); // for skilltest
+    let average = 50 - (total / 3); // for skilltest
     if (average < 0) {
       average = 0;
     }
@@ -334,7 +334,7 @@ const FinalPassageTextlog = () => {
     // Send total mistakes, marks, and individual mistake counts to server
     const sendMarksToServer = async () => {
       try {
-        const response = await axios.post(`http://localhost:3000/update-student-marks/${subjectId}/${qset}`, {
+        const response = await axios.post(`http://45.119.47.81:3000/update-student-marks/${subjectId}/${qset}`, {
           total_mistakes: total,
           total_marks: parseFloat(average.toFixed(2)),
           spelling: counts.spelling,
@@ -462,7 +462,7 @@ const FinalPassageTextlog = () => {
       }
 
       // Still send only the incorrect word to the backend
-      const response = await axios.post('http://localhost:3000/add-ignore-word', {
+      const response = await axios.post('http://45.119.47.81:3000/add-ignore-word', {
         subjectId,
         qset,
         activePassage,
@@ -482,7 +482,7 @@ const FinalPassageTextlog = () => {
 
   const handleUndoWord = useCallback(async (wordToRemove) => {
     try {
-      const response = await axios.post('http://localhost:3000/undo-word', {
+      const response = await axios.post('http://45.119.47.81:3000/undo-word', {
         subjectId,
         qset,
         activePassage,
@@ -503,7 +503,7 @@ const FinalPassageTextlog = () => {
 
   const handleClearIgnoreList = useCallback(async () => {
     try {
-      const response = await axios.post('http://localhost:3000/clear-ignore-list', {
+      const response = await axios.post('http://45.119.47.81:3000/clear-ignore-list', {
         subjectId,
         qset,
         activePassage
@@ -688,8 +688,8 @@ const FinalPassageTextlog = () => {
         )}
         <div className="mistake-counts">
           <span className="mistake-count spelling">Spelling: {categoryCounts.spelling}</span>
-          <span className="mistake-count missed">Missed: {categoryCounts.missed}</span>
-          <span className="mistake-count added">Added: {categoryCounts.added}</span>
+          <span className="mistake-count missed">Added: {categoryCounts.missed}</span>
+          <span className="mistake-count added">Omitted: {categoryCounts.added}</span>
           <span className="mistake-count grammar">Grammar: {categoryCounts.grammar}</span>
           <span className="mistake-count total">Total: {categoryCounts.total}</span>
           <span className="mistake-count average">Marks: {categoryCounts.average}</span>

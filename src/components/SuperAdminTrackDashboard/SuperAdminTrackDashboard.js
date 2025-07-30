@@ -171,7 +171,7 @@ const formatDateForDisplay = (dateString) => {
     // Fetch filter options separately for better performance
     const fetchFilterOptions = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/super-admin-filter-options', { withCredentials: true });
+            const response = await axios.get('http://45.119.47.81:3000/super-admin-filter-options', { withCredentials: true });
             if (response.data) {
                 // Set batches with proper filtering
                 const validBatches = (response.data.batches || [])
@@ -207,7 +207,7 @@ const formatDateForDisplay = (dateString) => {
 
     const fetchSubjects = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/subjects');
+            const response = await axios.get('http://45.119.47.81:3000/subjects');
             if (response.data.subjects) {
                 setAllSubjects(response.data.subjects);
             }
@@ -219,7 +219,7 @@ const formatDateForDisplay = (dateString) => {
 
     const fetchTotalLoginCount = async () => {
         try {
-            const response = await axios.post('http://localhost:3000/total-login-count',{
+            const response = await axios.post('http://45.119.47.81:3000/total-login-count',{
                 center, batchNo, department: departmentId
             })
             if(response.data){
@@ -235,7 +235,7 @@ const formatDateForDisplay = (dateString) => {
         setLoading(true);
         setError('');
         try {
-            let url = 'http://localhost:3000/super-admin-student-track-dashboard';
+            let url = 'http://45.119.47.81:3000/super-admin-student-track-dashboard';
 
             const params = new URLSearchParams();
             if (subject) params.append('subject_name', subject);
