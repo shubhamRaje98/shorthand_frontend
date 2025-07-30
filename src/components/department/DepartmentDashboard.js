@@ -54,7 +54,7 @@ const DepartmentDashboard = () => {
 
     const fetchSubjects = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/subjects');
+            const response = await axios.get('http://45.119.47.81:3000/subjects');
             if (response.data.subjects) {
                 setAllSubjects(response.data.subjects);
             }
@@ -68,7 +68,7 @@ const DepartmentDashboard = () => {
         setLoading(true);
         setError('');
         try {
-            let url = 'http://localhost:3000/track-students-on-department-code';
+            let url = 'http://45.119.47.81:3000/track-students-on-department-code';
 
             const params = new URLSearchParams();
             if (subject) params.append('subject_name', subject);
