@@ -22,6 +22,30 @@ const ExpertAssign = () => {
   const [expertsWithAssignedCounts, setExpertsWithAssignedCounts] = useState([]);
   const [showSummaryTable, setShowSummaryTable] = useState(false);
   
+  // Review logs state
+  const [showReviewLogs, setShowReviewLogs] = useState(false);
+  const [reviewLogType, setReviewLogType] = useState('expert');
+  const [reviewLogs, setReviewLogs] = useState([]);
+  const [reviewFilters, setReviewFilters] = useState({
+    subjectId: '',
+    qset: '',
+    expertId: '',
+    status: '',
+    subm_done: ''
+  });
+  const [filterOptions, setFilterOptions] = useState({
+    subjects: [],
+    experts: [],
+    qsets: []
+  });
+  const [resetData, setResetData] = useState({
+    resetType: 'subject',
+    subjectId: '',
+    qset: '',
+    expertId: ''
+  });
+  const [showResetModal, setShowResetModal] = useState(false);
+  
   const departmentRefs = useRef({});
   const subjectRefs = useRef({});
 
@@ -31,11 +55,17 @@ const ExpertAssign = () => {
     fetchSummaryData();
   }, [selectedDepartment, selectedSubject, stage]);
 
+  useEffect(() => {
+    if (showReviewLogs) {
+      fetchFilterOptions();
+      fetchReviewLogs();
+    }
+  }, [showReviewLogs, reviewLogType]);
+
   const fetchData = async () => {
     try {
       let url = `http://45.119.47.81:3000/get-student-count-expert?${stage === 'stage1' ? 'stage_1' : 'stage_3'}=true`;
       if (selectedDepartment) {
-        // console.log(selectedDepartment);
         url += `&department=${selectedDepartment.toString()}`;
         if (selectedSubject) {
           url += `&subject=${selectedSubject}`;
@@ -80,8 +110,64 @@ const ExpertAssign = () => {
     }
   };
 
+  // Review logs functions
+  const fetchFilterOptions = async () => {
+    try {
+      const table = reviewLogType === 'expert' ? 'expertreviewlog' : 'modreviewlog';
+      const response = await axios.get(`http://45.119.47.81:3000/review-logs/filter-options?table=${table}`);
+      setFilterOptions(response.data.data);
+    } catch (error) {
+      console.error('Error fetching filter options:', error);
+      toast.error('Error fetching filter options');
+    }
+  };
+
+  const fetchReviewLogs = async () => {
+    try {
+      const endpoint = reviewLogType === 'expert' ? 'expert-review-logs' : 'moderator-review-logs';
+      const params = new URLSearchParams();
+      
+      Object.entries(reviewFilters).forEach(([key, value]) => {
+        if (value) params.append(key, value);
+      });
+
+      const response = await axios.get(`http://45.119.47.81:3000/${endpoint}?${params}`);
+      setReviewLogs(response.data.data || []);
+    } catch (error) {
+      console.error('Error fetching review logs:', error);
+      if (error.response?.status === 404) {
+        setReviewLogs([]);
+        toast.info('No logs found with the specified criteria');
+      } else {
+        toast.error('Error fetching review logs');
+      }
+    }
+  };
+
+  const handleResetSubmit = async () => {
+    try {
+      const endpoint = reviewLogType === 'expert' ? 'expert-review-logs/reset' : 'moderator-review-logs/reset';
+      
+      const payload = {
+        resetType: resetData.resetType,
+        subjectId: resetData.subjectId || undefined,
+        qset: resetData.qset || undefined,
+        expertId: resetData.expertId || undefined
+      };
+
+      const response = await axios.post(`http://45.119.47.81:3000/${endpoint}`, payload);
+      
+      toast.success(response.data.message);
+      setShowResetModal(false);
+      setResetData({ resetType: 'subject', subjectId: '', qset: '', expertId: '' });
+      fetchReviewLogs(); // Refresh the logs
+    } catch (error) {
+      console.error('Error resetting logs:', error);
+      toast.error(error.response?.data?.message || 'Error resetting logs');
+    }
+  };
+
   const handleDepartmentClick = (departmentId) => {
-    // console.log(departmentId)
     setSelectedDepartment(departmentId);
     setSelectedSubject('');
     setTimeout(() => departmentRefs.current[departmentId]?.focus(), 0);
@@ -100,36 +186,34 @@ const ExpertAssign = () => {
   };
 
   const fetchExpertsWithAssignedCounts = (qset) => {
-  
     const expertsWithCounts = experts.map(expert => {
-  
       const departmentSummary = summaryData
         .find(dept => dept.departmentId === parseInt(selectedDepartment));
       
       let assignedCount = 0;
-  
+
       if (departmentSummary) {
         const expertSummary = departmentSummary.experts
           .find(e => e.expertId === expert.expertId);
-  
+
         if (expertSummary) {
           const subjectData = expertSummary.subjects
             .find(subject => subject.subjectId === selectedSubject);
-  
+
           if (subjectData) {
             const qsetData = subjectData.qsets
               .find(q => q.qset === qset.qset);
             
             console.log("Qset Data:", qsetData);
-  
+
             assignedCount = qsetData ? qsetData.expert_assigned_count : 0;
           }
         }
       }
-  
+
       return { ...expert, assignedCount };
     });
-  
+
     setExpertsWithAssignedCounts(expertsWithCounts);
   };
 
@@ -454,6 +538,216 @@ const ExpertAssign = () => {
     );
   };
 
+  // Review logs render functions
+  const renderResetModal = () => (
+    <div className="ea-modal">
+      <div className="ea-modal-content">
+        <h2>Reset {reviewLogType === 'expert' ? 'Expert' : 'Moderator'} Review Logs</h2>
+        
+        <div className="ea-reset-form">
+          <div className="ea-form-group">
+            <label>Reset Type:</label>
+            <select 
+              value={resetData.resetType} 
+              onChange={(e) => setResetData({...resetData, resetType: e.target.value})}
+            >
+              <option value="subject">By Subject</option>
+              <option value="qset">By Question Set</option>
+              <option value="expert">By Expert</option>
+            </select>
+          </div>
+
+          {(resetData.resetType === 'subject' || resetData.resetType === 'qset') && (
+            <div className="ea-form-group">
+              <label>Subject ID:</label>
+              <select 
+                value={resetData.subjectId} 
+                onChange={(e) => setResetData({...resetData, subjectId: e.target.value})}
+              >
+                <option value="">Select Subject</option>
+                {filterOptions.subjects.map(subjectId => (
+                  <option key={subjectId} value={subjectId}>{subjectId}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {resetData.resetType === 'qset' && (
+            <div className="ea-form-group">
+              <label>Question Set:</label>
+              <select 
+                value={resetData.qset} 
+                onChange={(e) => setResetData({...resetData, qset: e.target.value})}
+              >
+                <option value="">Select Q Set</option>
+                {filterOptions.qsets
+                  .filter(qset => !resetData.subjectId || qset.subjectId === parseInt(resetData.subjectId))
+                  .map(qset => (
+                    <option key={`${qset.subjectId}-${qset.qset}`} value={qset.qset}>
+                      Subject {qset.subjectId} - Q Set {qset.qset}
+                    </option>
+                  ))}
+              </select>
+            </div>
+          )}
+
+          {resetData.resetType === 'expert' && (
+            <div className="ea-form-group">
+              <label>Expert ID:</label>
+              <select 
+                value={resetData.expertId} 
+                onChange={(e) => setResetData({...resetData, expertId: e.target.value})}
+              >
+                <option value="">Select Expert</option>
+                {filterOptions.experts.map(expertId => (
+                  <option key={expertId} value={expertId}>{expertId}</option>
+                ))}
+              </select>
+            </div>
+          )}
+        </div>
+
+        <div className="ea-modal-actions">
+          <button onClick={handleResetSubmit}>Reset Logs</button>
+          <button onClick={() => setShowResetModal(false)}>Cancel</button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderReviewLogsFilters = () => (
+    <div className="ea-review-filters">
+      <div className="ea-filter-row">
+        <select 
+          value={reviewFilters.subjectId} 
+          onChange={(e) => setReviewFilters({...reviewFilters, subjectId: e.target.value})}
+        >
+          <option value="">All Subjects</option>
+          {filterOptions.subjects.map(subjectId => (
+            <option key={subjectId} value={subjectId}>Subject {subjectId}</option>
+          ))}
+        </select>
+
+        <select 
+          value={reviewFilters.qset} 
+          onChange={(e) => setReviewFilters({...reviewFilters, qset: e.target.value})}
+        >
+          <option value="">All Q Sets</option>
+          {filterOptions.qsets
+            .filter(qset => !reviewFilters.subjectId || qset.subjectId === parseInt(reviewFilters.subjectId))
+            .map(qset => (
+              <option key={`${qset.subjectId}-${qset.qset}`} value={qset.qset}>
+                Q Set {qset.qset}
+              </option>
+            ))}
+        </select>
+
+        <select 
+          value={reviewFilters.expertId} 
+          onChange={(e) => setReviewFilters({...reviewFilters, expertId: e.target.value})}
+        >
+          <option value="">All Experts</option>
+          {filterOptions.experts.map(expertId => (
+            <option key={expertId} value={expertId}>Expert {expertId}</option>
+          ))}
+        </select>
+
+        <select 
+          value={reviewFilters.subm_done} 
+          onChange={(e) => setReviewFilters({...reviewFilters, subm_done: e.target.value})}
+        >
+          <option value="">All Status</option>
+          <option value="0">Not Submitted</option>
+          <option value="1">Submitted</option>
+        </select>
+      </div>
+
+      <div className="ea-filter-actions">
+        <button onClick={fetchReviewLogs}>Apply Filters</button>
+        <button onClick={() => setReviewFilters({subjectId: '', qset: '', expertId: '', status: '', subm_done: ''})}>
+          Clear Filters
+        </button>
+        <button onClick={() => setShowResetModal(true)}>
+          Reset Logs
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderReviewLogsTable = () => (
+    <div className="ea-review-logs-table">
+      <div className="ea-table-header">
+        <h3>{reviewLogType === 'expert' ? 'Expert' : 'Moderator'} Review Logs ({reviewLogs.length} records)</h3>
+      </div>
+      
+      <div className="ea-table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Student ID</th>
+              <th>Subject ID</th>
+              <th>Q Set</th>
+              <th>Expert ID</th>
+              <th>Status</th>
+              <th>Submitted</th>
+              <th>Logged In</th>
+              <th>Submit Time</th>
+              {reviewLogType === 'moderator' && <th>Hold</th>}
+              {reviewLogType === 'moderator' && <th>Total Marks</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {reviewLogs.map(log => (
+              <tr key={log.id}>
+                <td>{log.id}</td>
+                <td>{log.student_id}</td>
+                <td>{log.subjectId}</td>
+                <td>{log.qset}</td>
+                <td>{log.expertId}</td>
+                <td>{log.status}</td>
+                <td>
+                  <span className={`ea-status ${log.subm_done ? 'submitted' : 'pending'}`}>
+                    {log.subm_done ? 'Yes' : 'No'}
+                  </span>
+                </td>
+                <td>{log.loggedin || 'N/A'}</td>
+                <td>{log.subm_time || 'N/A'}</td>
+                {reviewLogType === 'moderator' && <td>{log.hold ? 'Yes' : 'No'}</td>}
+                {reviewLogType === 'moderator' && <td>{log.total_marks || 0}</td>}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+
+  const renderReviewLogs = () => (
+    <div className="ea-review-logs-section">
+      <h2>Review Logs Management</h2>
+      
+      <div className="ea-review-log-type-switch">
+        <button 
+          className={`ea-log-type-button ${reviewLogType === 'expert' ? 'active' : ''}`}
+          onClick={() => setReviewLogType('expert')}
+        >
+          Expert Logs
+        </button>
+        <button 
+          className={`ea-log-type-button ${reviewLogType === 'moderator' ? 'active' : ''}`}
+          onClick={() => setReviewLogType('moderator')}
+        >
+          Moderator Logs
+        </button>
+      </div>
+
+      {renderReviewLogsFilters()}
+      {renderReviewLogsTable()}
+      {showResetModal && renderResetModal()}
+    </div>
+  );
+
   return (
     <div className="ea-expert-assign">
       <h1 className="ea-title">Expert Assign</h1>
@@ -473,6 +767,15 @@ const ExpertAssign = () => {
       </button>
       
       {showSummaryTable && renderSummaryTable()}
+
+      <button 
+        className="ea-toggle-review-logs-button"
+        onClick={() => setShowReviewLogs(!showReviewLogs)}
+      >
+        {showReviewLogs ? 'Hide' : 'Show'} Review Logs Management
+      </button>
+      
+      {showReviewLogs && renderReviewLogs()}
     </div>
   );
 };
