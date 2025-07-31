@@ -46,7 +46,7 @@ const ExpertReview = () => {
 
   const fetchDepartments = async () => {
     try {
-      const response = await axios.get('http://45.119.47.81:3000/get-departments-students');
+      const response = await axios.get('http://localhost:3002/get-departments-students');
       
       if (response.status === 201) {
         setDepartments(response.data);
@@ -66,7 +66,7 @@ const ExpertReview = () => {
     setMessage('');
 
     try {
-      const response = await axios.get(`http://45.119.47.81:3000/get-expert-review-logs?department=${selectedDepartment}&page=${currentPage}&limit=${logsPerPage}`);
+      const response = await axios.get(`http://localhost:3002/get-expert-review-logs?department=${selectedDepartment}&page=${currentPage}&limit=${logsPerPage}`);
       
       if (response.status === 201) {
         setExpertReviewLogs(response.data);
@@ -89,7 +89,7 @@ const ExpertReview = () => {
     setMessage('');
 
     try {
-      const response = await axios.get(`http://45.119.47.81:3000/get-mod-review-logs?department=${selectedDepartment}&page=${currentPage}&limit=${logsPerPage}`);
+      const response = await axios.get(`http://localhost:3002/get-mod-review-logs?department=${selectedDepartment}&page=${currentPage}&limit=${logsPerPage}`);
      
       if (response.status === 201) {
         setModReviewLogs(response.data);
@@ -123,7 +123,7 @@ const ExpertReview = () => {
 
     try {
         console.log(`[${new Date().toISOString()}] Making API request to populate expert review log`);
-        const response = await axios.post('http://45.119.47.81:3000/populate-expert-review-log', {
+        const response = await axios.post('http://localhost:3002/populate-expert-review-log', {
             department: selectedDepartment
         });
         
@@ -167,7 +167,7 @@ const ExpertReview = () => {
     setMessage('');
 
     try {
-      const response = await axios.post('http://45.119.47.81:3000/populate-mod-review-log', {
+      const response = await axios.post('http://localhost:3002/populate-mod-review-log', {
         department: selectedDepartment
       });
      

@@ -72,7 +72,7 @@ function HallticketsGeneration() {
       formData.append('excelFile', excelFile);
       
       // Upload file to server directly to localhost:3000
-      const response = await axios.post('http://45.119.47.81:3000/upload-student-data', formData, {
+      const response = await axios.post('http://localhost:3002/upload-student-data', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -197,7 +197,7 @@ function HallticketsGeneration() {
       setLoading(true);
       setError(null);
       
-      const url = `http://45.119.47.81:3000/download-student-hall-ticket/${student.seatNo}`;
+      const url = `http://localhost:3002/download-student-hall-ticket/${student.seatNo}`;
       console.log('Generated download URL:', url);
 
       // Open the download URL in a new tab
@@ -235,7 +235,7 @@ function HallticketsGeneration() {
       }, 500);
 
       // Open direct download link to localhost:3000
-      window.open('http://45.119.47.81:3000/download-all-hall-tickets', '_blank');
+      window.open('http://localhost:3002/download-all-hall-tickets', '_blank');
       
       // Finish progress after a delay
       setTimeout(() => {

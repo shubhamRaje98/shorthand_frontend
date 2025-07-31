@@ -14,7 +14,7 @@ const ExpertAdmin = () => {
 
         if (studentId) {
             try {
-                const response = await axios.post('http://45.119.47.81:3000/get-student-passages', { studentId }, { withCredentials: true });
+                const response = await axios.post('http://localhost:3002/get-student-passages', { studentId }, { withCredentials: true });
                 if (response.status === 200 && response.data) {
                     if (response.data.expertId === 8 || response.data.expertId === 100){
                         const {subjectId, qset } = response.data;

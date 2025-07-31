@@ -11,7 +11,7 @@ const PcRegistrationCount = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get('http://45.119.47.81:3000/get-center-pcregistration-details');
+                const response = await axios.get('http://localhost:3002/get-center-pcregistration-details');
                 setPcData(response.data.results);
                 setLoading(false);
             } catch (err) {

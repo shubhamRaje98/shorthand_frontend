@@ -26,7 +26,7 @@ const ResetCenterAdmin = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://45.119.47.81:3000/centerrequest', formData);
+      await axios.post('http://localhost:3002/centerrequest', formData);
       fetchRequests(); // Fetch updated requests after submission
       setFormData({ student_id: '', reason: '', reset_type: '' }); // Clear form
       setError('');
@@ -42,7 +42,7 @@ const ResetCenterAdmin = () => {
 
   const fetchRequests = async () => {
     try {
-      const response = await axios.get('http://45.119.47.81:3000/center-request-data');
+      const response = await axios.get('http://localhost:3002/center-request-data');
       setRequests(response.data);
     } catch (err) {
       console.error('Error fetching requests:', err);
@@ -52,7 +52,7 @@ const ResetCenterAdmin = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://45.119.47.81:3000/centerrequest/${id}`);
+      await axios.delete(`http://localhost:3002/centerrequest/${id}`);
       fetchRequests(); // Fetch updated requests after deletion
       setError('');
     } catch (err) {

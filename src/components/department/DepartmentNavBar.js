@@ -16,7 +16,7 @@ const DepartmentNavBar = () => {
     useEffect(() => {
         const fetchDepartmentDetails = async () => {
             try {
-                const response = await axios.get(`http://45.119.47.81:3000/get-department-details`);
+                const response = await axios.get(`http://localhost:3002/get-department-details`);
                 if (response.data) {
                     console.log(response.data.departmentDetails)
                     setDepartmentDetails(response.data.departmentDetails);

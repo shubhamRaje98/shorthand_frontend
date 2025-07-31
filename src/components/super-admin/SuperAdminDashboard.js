@@ -28,7 +28,7 @@ const SuperAdminDashboard = () => {
 
     const fetchTableNames = async () => {
         try {
-            const response = await axios.get('http://45.119.47.81:3000/fetch-table-names', {
+            const response = await axios.get('http://localhost:3002/fetch-table-names', {
                 withCredentials: true
             });
             setTableNames(response.data);
@@ -39,7 +39,7 @@ const SuperAdminDashboard = () => {
 
     const fetchTableData = async (tableName) => {
         try {
-            const response = await axios.post('http://45.119.47.81:3000/fetch-table-data', {
+            const response = await axios.post('http://localhost:3002/fetch-table-data', {
                 tableName
             }, {
                 withCredentials: true
@@ -134,7 +134,7 @@ const SuperAdminDashboard = () => {
 
     const submitChanges = async () => {
         try {
-            const response = await axios.post('http://45.119.47.81:3000/update-table-data', {
+            const response = await axios.post('http://localhost:3002/update-table-data', {
                 tableName: selectedTable,
                 updatedRows: Object.values(changedRows)
             }, {

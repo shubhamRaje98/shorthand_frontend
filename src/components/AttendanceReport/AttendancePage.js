@@ -18,7 +18,7 @@ const AttendancePage = () => {
 
     const fetchBatches = async () => {
         try {
-            const response = await axios.post('http://45.119.47.81:3000/track-students-on-exam-center-code');
+            const response = await axios.post('http://localhost:3002/track-students-on-exam-center-code');
             const distinctBatches = [...new Set(response.data.map(item => item.batchNo))];
             setBatches(prevBatches => {
                 const newBatches = [...new Set([...prevBatches, ...distinctBatches])];
@@ -31,7 +31,7 @@ const AttendancePage = () => {
 
     const fetchDepartments = async () => {
         try {
-            const response = await axios.get('http://45.119.47.81:3000/get-active-departments');
+            const response = await axios.get('http://localhost:3002/get-active-departments');
             setDepartments(response.data || []);
         } catch (error) {
             setError("Failed to fetch departments. Please try again later.");
@@ -40,7 +40,7 @@ const AttendancePage = () => {
 
     const fetchReports = async () => {
         try {
-            const response = await axios.get('http://45.119.47.81:3000/get-attendance-report');
+            const response = await axios.get('http://localhost:3002/get-attendance-report');
             setReports(response.data.Reports || []);
         } catch (error) {
             setError("Attendance Reports Not added yet!!");
@@ -55,7 +55,7 @@ const AttendancePage = () => {
 
     const handleDeleteReport = async (batchNo, departmentId) => {
         try {
-            const response = await axios.post('http://45.119.47.81:3000/delete-atttendance', { 
+            const response = await axios.post('http://localhost:3002/delete-atttendance', { 
                 batchNo, 
                 departmentId 
             });
@@ -123,7 +123,7 @@ const AttendanceUploadForm = ({ batches, departments, onUploadSuccess }) => {
         data.append('attendance', formData.file);
 
         try {
-            const response = await axios.post('http://45.119.47.81:3000/upload-attendance', data, {
+            const response = await axios.post('http://localhost:3002/upload-attendance', data, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             alert(response.data.message);
@@ -251,7 +251,7 @@ const AttendanceReportList = ({ reports, onDeleteReport }) => (
                             <td className="ap-table-cell">{report.absent_count}</td>
                             <td className="ap-table-cell pdf-link">
                                 <a
-                                    href={`http://45.119.47.81:3000${report.attendance_pdf}`}
+                                    href={`http://localhost:3002${report.attendance_pdf}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="ap-pdf-link"

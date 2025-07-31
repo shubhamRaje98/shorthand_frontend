@@ -24,7 +24,7 @@ const ResetStudentProgress = ({ studentId ,resetId }) => {
 
   const handleConfirmReset = async () => {
     try {
-      let url = `http://45.119.47.81:3000/super-admin-reset-student-logs`
+      let url = `http://localhost:3002/super-admin-reset-student-logs`
       if(resetId) {
           url += `?reset_id=${resetId}`
       }
