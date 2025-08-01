@@ -12,7 +12,7 @@ const SuperAdminLogin = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:3002/admin-login', {
+            const response = await axios.post('http://localhost:3004/admin-login', {
                 userId,
                 password
             }, {

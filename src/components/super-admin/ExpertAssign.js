@@ -64,7 +64,7 @@ const ExpertAssign = () => {
 
   const fetchData = async () => {
     try {
-      let url = `http://localhost:3002/get-student-count-expert?${stage === 'stage1' ? 'stage_1' : 'stage_3'}=true`;
+      let url = `http://localhost:3004/get-student-count-expert?${stage === 'stage1' ? 'stage_1' : 'stage_3'}=true`;
       if (selectedDepartment) {
         url += `&department=${selectedDepartment.toString()}`;
         if (selectedSubject) {
@@ -90,7 +90,7 @@ const ExpertAssign = () => {
 
   const fetchExperts = async () => {
     try {
-      const response = await axios.get('http://localhost:3002/get-experts');
+      const response = await axios.get('http://localhost:3004/get-experts');
       setExperts(response.data.results || []);
       
     } catch (error) {
@@ -101,7 +101,7 @@ const ExpertAssign = () => {
 
   const fetchSummaryData = async () => {
     try {
-      const response = await axios.get(`http://localhost:3002/get-student-summary-expert?${stage === 'stage1' ? 'stage_1' : 'stage_3'}=true`);
+      const response = await axios.get(`http://localhost:3004/get-student-summary-expert?${stage === 'stage1' ? 'stage_1' : 'stage_3'}=true`);
       setSummaryData(response.data.departments);
       
     } catch (error) {
@@ -114,7 +114,7 @@ const ExpertAssign = () => {
   const fetchFilterOptions = async () => {
     try {
       const table = reviewLogType === 'expert' ? 'expertreviewlog' : 'modreviewlog';
-      const response = await axios.get(`http://localhost:3002/review-logs/filter-options?table=${table}`);
+      const response = await axios.get(`http://localhost:3004/review-logs/filter-options?table=${table}`);
       setFilterOptions(response.data.data);
     } catch (error) {
       console.error('Error fetching filter options:', error);
@@ -131,7 +131,7 @@ const ExpertAssign = () => {
         if (value) params.append(key, value);
       });
 
-      const response = await axios.get(`http://localhost:3002/${endpoint}?${params}`);
+      const response = await axios.get(`http://localhost:3004/${endpoint}?${params}`);
       setReviewLogs(response.data.data || []);
     } catch (error) {
       console.error('Error fetching review logs:', error);
@@ -155,7 +155,7 @@ const ExpertAssign = () => {
         expertId: resetData.expertId || undefined
       };
 
-      const response = await axios.post(`http://localhost:3002/${endpoint}`, payload);
+      const response = await axios.post(`http://localhost:3004/${endpoint}`, payload);
       
       toast.success(response.data.message);
       setShowResetModal(false);
@@ -229,7 +229,7 @@ const ExpertAssign = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:3002/assign-expert', {
+      const response = await axios.post('http://localhost:3004/assign-expert', {
         department: selectedDepartment,
         subject: selectedSubject,
         qset: selectedQset.qset,
@@ -260,7 +260,7 @@ const ExpertAssign = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:3002/unassign-expert', {
+      const response = await axios.post('http://localhost:3004/unassign-expert', {
         department: selectedDepartment,
         subject: selectedSubject,
         qset: selectedQset.qset,

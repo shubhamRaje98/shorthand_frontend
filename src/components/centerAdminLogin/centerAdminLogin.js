@@ -14,7 +14,7 @@ const Login = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:3002/center_admin_login', {
+            const response = await axios.post('http://localhost:3004/center_admin_login', {
                 centerId,
                 password
             }, {

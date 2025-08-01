@@ -10,7 +10,7 @@ const StudentAssignmentReport = () => {
   useEffect(() => {
     const fetchStudentData = async () => {
       try {
-        const response = await axios.get(`http://localhost:3002/student-passages/${subjectId}/${qset}/${studentId}`, { withCredentials: true });
+        const response = await axios.get(`http://localhost:3004/student-passages/${subjectId}/${qset}/${studentId}`, { withCredentials: true });
         if (response.status === 200) {
           setStudentData(response.data);
         }

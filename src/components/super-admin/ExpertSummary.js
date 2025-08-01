@@ -31,7 +31,7 @@ const ExpertSummary = () => {
 
   const fetchSummaryData = async () => {
     try {
-      const response = await axios.get(`http://localhost:3002/checked-students?${stage}=true`);
+      const response = await axios.get(`http://localhost:3004/checked-students?${stage}=true`);
       setSummaryData(response.data.departments);
     } catch (error) {
       console.error('Error fetching summary data:', error);
@@ -42,7 +42,7 @@ const ExpertSummary = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:3002/checked-students?${stage}=true`);
+      const response = await axios.get(`http://localhost:3004/checked-students?${stage}=true`);
       setData(response.data);
       setError(null);
     } catch (err) {
