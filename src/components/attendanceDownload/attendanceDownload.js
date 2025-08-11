@@ -1,4 +1,3 @@
-// src\components\attendanceDownload\attendanceDownload.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -22,11 +21,14 @@ const AttendanceDownload = () => {
     }, []);
 
     useEffect(() => {
+        console.log('Department useEffect triggered, departmentId:', departmentId);
         if (departmentId) {
+            console.log('Department selected, calling fetchBatches');
             fetchBatches();
             setBatchNo(''); // Reset batch selection when department changes
             setIsControllerPasswordVisible(false);
         } else {
+            console.log('No department selected, clearing batches');
             setBatches([]);
             setBatchNo('');
             setIsControllerPasswordVisible(false);
@@ -42,11 +44,15 @@ const AttendanceDownload = () => {
     }, [batchNo, departmentId]);
 
     const fetchDepartments = async () => {
+        console.log('fetchDepartments called');
         try {
+            console.log('Making request to:', 'http://localhost:3000/get-active-departments');
             const response = await axios.get('http://localhost:3000/get-active-departments');
+            console.log('Departments response received:', response.data);
             setDepartments(response.data);
         } catch (error) {
             console.error("Error fetching departments:", error);
+            console.error("Error response:", error.response);
             setError("Failed to fetch departments. Please try again later.");
         }
     };
@@ -70,14 +76,21 @@ const AttendanceDownload = () => {
     };
 
     const fetchBatches = async () => {
+        console.log('fetchBatches function called with departmentId:', departmentId);
         try {
+            console.log('Making POST request to get batches...');
             const response = await axios.post('http://localhost:3000/track-students-on-exam-center-code', {
                 departmentId
             });
-            const distinctBatches = [...new Set(response.data.map(item => item.batchNo))];
-            setBatches(distinctBatches.sort((a, b) => a - b));
+            console.log('Batches response:', response.data);
+            
+            // Fix: Since response.data is already an array of batch numbers, use it directly
+            const distinctBatches = [...new Set(response.data)].sort((a, b) => a - b);
+            setBatches(distinctBatches);
+            console.log('Processed batches:', distinctBatches);
         } catch (error) {
             console.error("Error fetching batches:", error);
+            console.error("Error details:", error.response?.data);
             setError("No batches available.");
             setBatches([]);
         }
@@ -175,7 +188,10 @@ const AttendanceDownload = () => {
                                 className="attendance-download__select"
                                 id="departmentId"
                                 value={departmentId}
-                                onChange={(e) => setDepartmentId(e.target.value)}
+                                onChange={(e) => {
+                                    console.log('Department dropdown changed to:', e.target.value);
+                                    setDepartmentId(e.target.value);
+                                }}
                                 required
                             >
                                 <option value="">Select a department</option>
