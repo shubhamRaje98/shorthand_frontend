@@ -12,52 +12,74 @@ const ControllerPassword = () => {
     const [selectedDepartment, setSelectedDepartment] = useState('all');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [departmentLoading, setDepartmentLoading] = useState(false);
 
     // Fetch departments on component mount
     useEffect(() => {
         const fetchDepartments = async () => {
+            setDepartmentLoading(true);
             try {
-                const response = await axios.get(`http://localhost:3000/get-departments`);
-                setDepartments(response.data.departments || []);
+                const response = await axios.get('http://localhost:3000/get-active-departments');
+                setDepartments(response.data);
+                console.log('Departments fetched:', response.data);
             } catch (error) {
                 console.error("Error fetching departments:", error);
+                setError("Failed to fetch departments. Please try again later.");
             }
+            setDepartmentLoading(false);
         };
+
         fetchDepartments();
     }, []);
 
-    // Fetch controller passwords
-    const fetchControllerPasswords = async (departmentId = 'all') => {
-        setLoading(true);
-        setError('');
-        try {
-            // Make POST request with departmentId in body
-            const response = await axios.post(`http://localhost:3000/get-controller-pass`, {
-                departmentId: departmentId
-            });
-            console.log(response.data.controllerPassDto);
-            setInfo(response.data.controllerPassDto || []);
-        } catch (error) {
-            console.error("Error fetching data:", error);
-            if (error.response && error.response.status === 404) {
-                setError('No Controller password available at this time');
-            } else {
-                setError('Error fetching controller passwords');
-            }
-        }
-        setLoading(false);
-    };
-
-    // Initial fetch
+    // Fetch controller passwords whenever department selection changes
     useEffect(() => {
-        fetchControllerPasswords();
-    }, [center]);
+        const fetchData = async () => {
+            setLoading(true);
+            setError('');
+            try {
+                let url = 'http://localhost:3000/get-controller-pass';
+                
+                // Add department filter if not 'all'
+                if (selectedDepartment && selectedDepartment !== 'all') {
+                    url += `?departmentId=${selectedDepartment}`;
+                }
+                
+                const response = await axios.get(url);
+                console.log('Controller passwords response:', response.data);
+                
+                if (response.data.controllerPassDto) {
+                    setInfo(response.data.controllerPassDto);
+                    
+                    // Show message if no data but request was successful
+                    if (response.data.controllerPassDto.length === 0) {
+                        setError(response.data.message || 'No Controller passwords available at this time (passwords are shown 30 minutes before batch start)');
+                    }
+                } else {
+                    setInfo([]);
+                    setError('No Controller passwords available at this time');
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                if (error.response?.status === 404) {
+                    setError('No Controller passwords available at this time');
+                } else {
+                    setError('Error fetching controller passwords. Please try again.');
+                }
+                setInfo([]);
+            }
+            setLoading(false);
+        };
 
-    // Handle department filter change
+        // Only fetch data if departments have been loaded (to avoid calling with undefined departmentId)
+        if (!departmentLoading) {
+            fetchData();
+        }
+    }, [selectedDepartment, departmentLoading]);
+
     const handleDepartmentChange = (e) => {
-        const selectedDept = e.target.value;
-        setSelectedDepartment(selectedDept);
-        fetchControllerPasswords(selectedDept);
+        setSelectedDepartment(e.target.value);
+        setError(''); // Clear previous errors when changing department
     };
 
     return (
@@ -67,14 +89,17 @@ const ControllerPassword = () => {
                 <main role="main" className="col-md-9 ml-sm-auto col-lg-10 px-md-4">
                     <h2 className="mt-3">Controller Password Table</h2>
                     
-                    {/* Department Filter */}
+                    {/* Department Filter Dropdown */}
                     <div className="mb-3">
-                        <label htmlFor="departmentSelect" className="form-label">Filter by Department:</label>
+                        <label htmlFor="departmentSelect" className="form-label">
+                            <strong>Filter by Department:</strong>
+                        </label>
                         <select 
                             id="departmentSelect"
                             className="form-select" 
                             value={selectedDepartment} 
                             onChange={handleDepartmentChange}
+                            disabled={departmentLoading}
                         >
                             <option value="all">All Departments</option>
                             {departments.map(dept => (
@@ -83,10 +108,14 @@ const ControllerPassword = () => {
                                 </option>
                             ))}
                         </select>
+                        {departmentLoading && <small className="text-muted">Loading departments...</small>}
                     </div>
 
-                    {loading && <p>Loading...</p>}
-                    {error && <p className="text-danger">{error}</p>}
+                    {/* Loading and Error States */}
+                    {loading && <div className="alert alert-info">Loading controller passwords...</div>}
+                    {error && <div className="alert alert-warning">{error}</div>}
+                    
+                    {/* Controller Password Table */}
                     {!loading && !error && Array.isArray(info) && info.length > 0 && (
                         <div className="table-responsive">
                             <table className="table table-bordered table-hover">
@@ -104,23 +133,37 @@ const ControllerPassword = () => {
                                 </thead>
                                 <tbody>
                                     {info.map((item, index) => (
-                                        <tr key={index}>
+                                        <tr key={`${item.center}-${item.batchNo}-${item.departmentId}`}>
                                             <td>{item.center}</td>
                                             <td>{item.batchNo}</td>
                                             <td>{item.departmentName}</td>
-                                            <td>{item.controllerPass}</td>
+                                            <td>
+                                                <strong className="text-primary">
+                                                    {item.controllerPass}
+                                                </strong>
+                                            </td>
                                             <td>{item.batchDate}</td>
                                             <td>{item.startTime}</td>
                                             <td>{item.endTime}</td>
-                                            <td>{item.batchStatus === 1 ? "Active" : "Inactive"}</td>
+                                            <td>
+                                                <span className={`badge ${item.batchStatus === 1 ? 'bg-success' : 'bg-secondary'}`}>
+                                                    {item.batchStatus === 1 ? "Active" : "Inactive"}
+                                                </span>
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </table>
                         </div>
                     )}
+
+                    {/* No Data Message */}
                     {!loading && !error && (!info || info.length === 0) && (
-                        <p className="text-info">No controller passwords available at this time.</p>
+                        <div className="alert alert-info">
+                            <h5>No Controller Passwords Available</h5>
+                            <p>Controller passwords are only displayed 30 minutes before the batch start time.</p>
+                            <small>Please check back closer to your batch start time.</small>
+                        </div>
                     )}
                 </main>
             </div>
