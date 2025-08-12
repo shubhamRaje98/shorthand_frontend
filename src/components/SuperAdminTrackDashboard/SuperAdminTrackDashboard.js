@@ -61,7 +61,7 @@ const SuperAdminTrackDashboard = () => {
     const [batchNo, setBatchNo] = useState('');
     const [subject, setSubject] = useState('');
     const [loginStatus, setLoginStatus] = useState('');
-    const [exam_type, setExam_type] = useState('Shorthand');
+    const [exam_type, setExam_type] = useState('');
     const [batchDate, setBatchDate] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -128,21 +128,6 @@ const SuperAdminTrackDashboard = () => {
         }
     };
 
-    const normalizeDateForFilter = (dateString) => {
-        if (!dateString || dateString === "invalid date" || dateString === "0") {
-            return null;
-        }
-        try {
-            const date = new Date(dateString);
-            if (isNaN(date.getTime())) {
-                return null;
-            }
-            return date.toISOString().split('T')[0];
-        } catch (error) {
-            return null;
-        }
-    };
-
     const debounce = (func, delay) => {
         let timeoutId;
         return (...args) => {
@@ -154,9 +139,72 @@ const SuperAdminTrackDashboard = () => {
     // Fetch all filter options from backend
     const fetchFilterOptions = async () => {
         try {
-            const response = await axios.post('https://www.shorthandonlineexam.in/super-admin-student-track-dashboard', {}, { withCredentials: true });
+            console.log("🔍 Fetching filter options...");
+            const response = await axios.post(
+                'https://www.shorthandonlineexam.in/super-admin-student-track-dashboard', 
+                {}, // Empty request body to get all data
+                { withCredentials: true }
+            );
             
             if (response.data && response.data.length > 0) {
+                console.log("📊 Total records received:", response.data.length);
+                
+                // Process dates WITHOUT timezone conversion
+                const processedDates = response.data
+                    .filter(item => {
+                        const date = item.batchdate;
+                        const isValid = date && 
+                                    date !== "invalid date" && 
+                                    date !== "0" && 
+                                    date !== "" &&
+                                    date !== null &&
+                                    date !== undefined;
+                        return isValid;
+                    })
+                    .map(item => {
+                        const date = item.batchdate;
+                        
+                        // Handle string dates
+                        if (typeof date === 'string') {
+                            // If it's already in YYYY-MM-DD format
+                            if (date.match(/^\d{4}-\d{2}-\d{2}/)) {
+                                return date.split('T')[0]; // Remove time part if exists
+                            }
+                            // If it's in DD/MM/YYYY format
+                            if (date.includes('/')) {
+                                const [day, month, year] = date.split('/');
+                                return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+                            }
+                        }
+                        
+                        // Handle Date objects
+                        if (date instanceof Date) {
+                            const year = date.getFullYear();
+                            const month = String(date.getMonth() + 1).padStart(2, '0');
+                            const day = String(date.getDate()).padStart(2, '0');
+                            return `${year}-${month}-${day}`;
+                        }
+                        
+                        // Try to parse as date but avoid timezone issues
+                        try {
+                            const parsed = new Date(date);
+                            if (!isNaN(parsed.getTime())) {
+                                const year = parsed.getFullYear();
+                                const month = String(parsed.getMonth() + 1).padStart(2, '0');
+                                const day = String(parsed.getDate()).padStart(2, '0');
+                                return `${year}-${month}-${day}`;
+                            }
+                        } catch (e) {
+                            console.error('Error parsing date:', date, e);
+                        }
+                        
+                        return null;
+                    })
+                    .filter(date => date !== null);
+
+                const uniqueBatchDates = [...new Set(processedDates)].sort().reverse();
+                setBatchDates(uniqueBatchDates);
+                
                 const uniqueBatches = [...new Set(response.data
                     .map(item => item.batchNo)
                     .filter(batch => batch && batch !== "" && batch !== null && batch !== undefined)
@@ -180,16 +228,9 @@ const SuperAdminTrackDashboard = () => {
                     .filter(subject => subject && subject !== "" && subject !== null && subject !== undefined)
                 )];
                 setSubjects(uniqueSubjects);
-
-                const uniqueBatchDates = [...new Set(response.data
-                    .filter(item => item.batchdate && item.batchdate !== "invalid date" && item.batchdate !== "0")
-                    .map(item => normalizeDateForFilter(item.batchdate))
-                    .filter(date => date !== null)
-                )].sort().reverse();
-                setBatchDates(uniqueBatchDates);
             }
         } catch (error) {
-            console.error('Error fetching filter options:', error);
+            console.error('❌ Error fetching filter options:', error);
         }
     };
 
@@ -208,34 +249,115 @@ const SuperAdminTrackDashboard = () => {
     // Updated fetchTotalLoginCount with ALL filters
     const fetchTotalLoginCount = async (filters = currentFilters) => {
         try {
-            const requestBody = {
-                center: filters.center,
-                batchNo: filters.batchNo,
-                department: filters.departmentId,
-                subject_name: filters.subject,
-                loginStatus: filters.loginStatus,
-                exam_type: filters.exam_type,
-                batchDate: filters.batchDate
-            };
+            const requestBody = {};
 
-            console.log('Fetching login count with filters:', requestBody);
+            if (filters.center && filters.center.trim()) {
+                requestBody.center = filters.center.trim();
+            }
+            if (filters.batchNo && filters.batchNo.trim()) {
+                requestBody.batchNo = filters.batchNo.trim();
+            }
+            if (filters.departmentId && filters.departmentId.trim()) {
+                requestBody.department = filters.departmentId.trim();
+            }
+            if (filters.subject && filters.subject.trim()) {
+                requestBody.subject_name = filters.subject.trim();
+            }
+            if (filters.loginStatus && filters.loginStatus.trim()) {
+                requestBody.loginStatus = filters.loginStatus.trim();
+            }
+            if (filters.exam_type && filters.exam_type.trim()) {
+                requestBody.exam_type = filters.exam_type.trim();
+            }
+            if (filters.batchDate && filters.batchDate.trim()) {
+                requestBody.batchDate = filters.batchDate.trim();
+            }
+
+            console.log('🔢 Fetching login count with filters:', requestBody);
 
             const response = await axios.post('https://www.shorthandonlineexam.in/total-login-count', requestBody, { withCredentials: true });
             
             if (response.data) {
+                console.log('🔢 Login count response:', response.data);
                 setTotal_login_count(response.data.total_count);
             }
         } catch (error) {
-            console.log('Error fetching login count:', error);
+            console.log('❌ Error fetching login count:', error);
             setTotal_login_count(0);
         }
     };
 
-    // Updated fetchData function that sends filters to backend
-    const fetchData = async (preserveFilters = false) => {
+    // Create a separate function that accepts filters directly
+    const fetchDataWithFilters = async (filters) => {
         setLoading(true);
         setError('');
         
+        console.log("🔍 fetchDataWithFilters called with:", filters);
+
+        try {
+            // Build request body
+            const requestBody = {};
+            
+            if (filters.subject && filters.subject.trim()) {
+                requestBody.subject_name = filters.subject.trim();
+            }
+            if (filters.loginStatus && filters.loginStatus.trim()) {
+                requestBody.loginStatus = filters.loginStatus.trim();
+            }
+            if (filters.batchNo && filters.batchNo.trim()) {
+                requestBody.batchNo = filters.batchNo.trim();
+            }
+            if (filters.center && filters.center.trim()) {
+                requestBody.center = filters.center.trim();
+            }
+            if (filters.exam_type && filters.exam_type.trim()) {
+                requestBody.exam_type = filters.exam_type.trim();
+            }
+            if (filters.departmentId && filters.departmentId.trim()) {
+                requestBody.departmentId = filters.departmentId.trim();
+            }
+            if (filters.batchDate && filters.batchDate.trim()) {
+                requestBody.batchDate = filters.batchDate.trim();
+            }
+
+            console.log("🚀 Sending request body:", requestBody);
+            console.log("🔍 BatchNo specifically:", {
+                original: filters.batchNo,
+                trimmed: filters.batchNo ? filters.batchNo.trim() : 'undefined',
+                inRequestBody: requestBody.batchNo
+            });
+            
+            const response = await axios.post(
+                'https://www.shorthandonlineexam.in/super-admin-student-track-dashboard',
+                requestBody,
+                { 
+                    withCredentials: true,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+            
+            console.log("📨 Response:", response.data.length, "records");
+            
+            setData(response.data);
+            setTotalPages(Math.ceil(response.data.length / rowsPerPage));
+
+        } catch (error) {
+            console.error("❌ Error fetching filtered data:", error);
+            if (error.response && error.response.status === 404) {
+                setError("No students found for the selected filter criteria. Please try different filters.");
+                setData([]);
+                setTotal_login_count(0);
+            } else {
+                setError("Failed to fetch data. Please try again.");
+            }
+        }
+        setLoading(false);
+    };
+
+    // Updated fetchData function
+    const fetchData = async (preserveFilters = false) => {
         // Use current state values or preserved filters
         const filters = preserveFilters ? currentFilters : {
             subject,
@@ -247,47 +369,16 @@ const SuperAdminTrackDashboard = () => {
             batchDate
         };
 
-        try {
-            // Build query parameters for GET request
-            const params = new URLSearchParams();
-            
-            if (filters.subject) params.append('subject_name', filters.subject);
-            if (filters.loginStatus) params.append('loginStatus', filters.loginStatus);
-            if (filters.batchNo) params.append('batchNo', filters.batchNo);
-            if (filters.center) params.append('center', filters.center);
-            if (filters.exam_type) params.append('exam_type', filters.exam_type);
-            if (filters.departmentId) params.append('departmentId', filters.departmentId);
-            if (filters.batchDate) params.append('batchDate', filters.batchDate);
+        console.log("🔍 fetchData called with preserveFilters:", preserveFilters);
+        console.log("🔍 Current state values:", { subject, loginStatus, batchNo, center, exam_type, departmentId, batchDate });
+        console.log("🔍 Using filters:", filters);
 
-            let url = 'https://www.shorthandonlineexam.in/super-admin-student-track-dashboard';
-            if (params.toString()) {
-                url += `?${params.toString()}`;
-            }
-
-            console.log("Fetching filtered data from URL:", url);
-            
-            const response = await axios.post(url, {}, { withCredentials: true });
-            console.log("Filtered response:", response.data);
-            
-            setData(response.data);
-            setTotalPages(Math.ceil(response.data.length / rowsPerPage));
-
-            // Update current filters for refresh
-            if (!preserveFilters) {
-                setCurrentFilters(filters);
-            }
-
-        } catch (error) {
-            console.error("Error fetching filtered data:", error);
-            if (error.response && error.response.status === 404) {
-                setError("No students found for the selected filter criteria. Please try different filters.");
-                setData([]);
-                setTotal_login_count(0);
-            } else {
-                setError("Failed to fetch data. Please try again.");
-            }
+        // Update current filters for refresh
+        if (!preserveFilters) {
+            setCurrentFilters(filters);
         }
-        setLoading(false);
+
+        await fetchDataWithFilters(filters);
     };
 
     // Debounced fetch data for filter changes
@@ -302,12 +393,9 @@ const SuperAdminTrackDashboard = () => {
 
     // Filter change handlers
     const handleFilterChange = (filterName, value) => {
-        console.log(`Filter changed: ${filterName} = ${value}`);
+        console.log(`🔍 Filter changed: ${filterName} = ${value}`);
         
-        const newFilters = { ...currentFilters, [filterName]: value };
-        setCurrentFilters(newFilters);
-        
-        // Update individual state
+        // Update individual state immediately
         switch (filterName) {
             case 'batchNo': setBatchNo(value); break;
             case 'subject': setSubject(value); break;
@@ -318,12 +406,22 @@ const SuperAdminTrackDashboard = () => {
             case 'departmentId': setDepartmentId(value); break;
         }
         
+        // Create new filters object with the updated value
+        const newFilters = {
+            ...currentFilters,
+            [filterName]: value
+        };
+        
+        console.log(`🔍 New filters object:`, newFilters);
+        
+        setCurrentFilters(newFilters);
+        
         // Reset to first page when filters change
         setCurrentPage(1);
         
-        // Trigger debounced fetch with new filters
+        // Use the new filters directly instead of state
         setTimeout(() => {
-            fetchData(false);
+            fetchDataWithFilters(newFilters); // Pass filters directly
             fetchTotalLoginCount(newFilters);
         }, 100);
     };
@@ -337,13 +435,24 @@ const SuperAdminTrackDashboard = () => {
         setBatchDate('');
         setCenter('');
         setDepartmentId('');
-        setCurrentFilters({});
+        
+        const emptyFilters = {
+            batchNo: '',
+            subject: '',
+            loginStatus: '',
+            exam_type: '',
+            batchDate: '',
+            center: '',
+            departmentId: ''
+        };
+        
+        setCurrentFilters(emptyFilters);
         setCurrentPage(1);
         
         // Fetch data without any filters
         setTimeout(() => {
-            fetchData(false);
-            fetchTotalLoginCount({});
+            fetchDataWithFilters(emptyFilters);
+            fetchTotalLoginCount(emptyFilters);
         }, 100);
     };
 
@@ -459,6 +568,7 @@ const SuperAdminTrackDashboard = () => {
 
     return (
         <div>
+            <NavBar />
             <div className="home-container">
                 <div className="dept-container-fluid">
                     <div className="dept-row mb-3">
