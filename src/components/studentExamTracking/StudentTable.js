@@ -18,8 +18,6 @@ const getCellClass = (item, field, exam_type) => {
       "trial_time",
       "audio1_time",
       "passage1_time",
-      "audio2_time",
-      "passage2_time",
       "feedback_time",
     ];
   } else if (exam_type === "typewriting") {
@@ -35,8 +33,6 @@ const getCellClass = (item, field, exam_type) => {
       "trial_time",
       "audio1_time",
       "passage1_time",
-      "audio2_time",
-      "passage2_time",
       "feedback_time",
     ];
   }
@@ -93,7 +89,7 @@ const StudentTable = () => {
   const [batchNo, setBatchNo] = useState("");
   const [subject, setSubject] = useState("");
   const [loginStatus, setLoginStatus] = useState("");
-  const [exam_type, setExam_type] = useState("");
+  const [exam_type, setExam_type] = useState("shorthand");
   const [batchDate, setBatchDate] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -530,8 +526,6 @@ const StudentTable = () => {
         Trial: formatDate(item.trial_time),
         "Audio Track A": formatDate(item.audio1_time),
         "Passage A": formatDate(item.passage1_time),
-        "Audio Track B": formatDate(item.audio2_time),
-        "Passage B": formatDate(item.passage2_time),
         "Trial Typing": formatDate(item.trial_passage_time),
         "Typing Passage": formatDate(item.typing_passage_time),
         Feedback: formatDate(item.feedback_time),
@@ -690,7 +684,7 @@ const StudentTable = () => {
                   handleFilterChange("exam_type", e.target.value)
                 }
               >
-                <option value="">All</option>
+                
                 <option value="shorthand">Short Hand</option>
                 <option value="typewriting">Type Writing</option>
                 <option value="both">Both</option>
@@ -815,8 +809,6 @@ const StudentTable = () => {
                         <>
                           <th>Audio Track A</th>
                           <th>Passage A</th>
-                          <th>Audio Track B</th>
-                          <th>Passage B</th>
                         </>
                       )}
                       {exam_type !== "shorthand" && (
@@ -864,24 +856,6 @@ const StudentTable = () => {
                               )}
                             >
                               {formatDate(item.passage1_time)}
-                            </td>
-                            <td
-                              className={getCellClass(
-                                item,
-                                "audio2_time",
-                                exam_type
-                              )}
-                            >
-                              {formatDate(item.audio2_time)}
-                            </td>
-                            <td
-                              className={getCellClass(
-                                item,
-                                "passage2_time",
-                                exam_type
-                              )}
-                            >
-                              {formatDate(item.passage2_time)}
                             </td>
                           </>
                         )}

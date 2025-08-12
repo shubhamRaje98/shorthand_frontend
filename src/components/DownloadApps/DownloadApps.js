@@ -36,7 +36,7 @@ const DownloadApps = () => {
     };
 
     const handleIsmDownload = () => {
-        const fileUrl = "https://download947.mediafire.com/5s9qaaz83vxggzO20i2xXVXdVkzEYaEj560McLf4S-dv2lS-obKIyNVEJ2e1dsyViZZYl6TH4KoAQpcHFAFF_kzI2ukPneEyHZzpEwlohrtwurTcRweNqYbb1c12nQ8mcy4iZNoCP6vpiw_-5l4bdBcfJhc0KDSZxhlnTGgluVK6w48/0p0jwd7l7oy4j2h/ISM+V6.2.zip";
+        const fileUrl = "https://drive.google.com/file/d/17KkbCZQZE_mvR51VBBXVVfYOoQmOtoii/view?usp=drive_link";
         const link = document.createElement("a");
         link.href = fileUrl;
         link.download = "ISM_v6.2.zip"; // Optional: specify the downloaded file name

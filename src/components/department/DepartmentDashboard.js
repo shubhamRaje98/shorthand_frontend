@@ -1,10 +1,60 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import './DepartmentDashboard.css';
-import NavBar from '../navBar/navBar';
+import DepartmentNavBar from './DepartmentNavBar';
 import * as XLSX from 'xlsx';
 import moment from 'moment-timezone';
-import DepartmentNavBar from './DepartmentNavBar';
+
+// Importing the utility functions
+const isValidData = (value) => {
+    return value && value !== "invalid date" && value !== "0" && !isNaN(new Date(value).getTime());
+};
+
+const getCellClass = (item, field, exam_type) => {
+    let stages;
+    if (exam_type === 'shorthand') {
+        stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time', 'feedback_time'];
+    } else if (exam_type === 'typewriting') {
+        stages = ['loginTime', 'trial_passage_time', 'typing_passage_time', 'feedback_time'];
+    } else {
+        stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time', 'feedback_time'];
+    }
+    const currentStageIndex = stages.indexOf(field);
+
+    if (currentStageIndex === -1) return '';
+
+    if (field === 'loginTime') {
+        return isValidData(item[field]) ? 'dept-cell-green dept-text-white' : 'dept-cell-red dept-text-white';
+    }
+
+    if (field === 'feedback_time') {
+        if (isValidData(item[field])) {
+            return 'dept-cell-green dept-text-white';
+        } else {
+            return 'dept-cell-red dept-text-white';
+        }
+    }
+
+    if (isValidData(item[field])) {
+        if (currentStageIndex === stages.length - 1 || isValidData(item[stages[currentStageIndex + 1]])) {
+            return 'dept-cell-green dept-text-white';
+        } else if (currentStageIndex > 0 && currentStageIndex < stages.length - 1) {
+            const prevCellGreen = isValidData(item[stages[currentStageIndex - 1]]);
+            const nextCellRed = !isValidData(item[stages[currentStageIndex + 1]]);
+            if (prevCellGreen && nextCellRed) {
+                return 'dept-cell-yellow dept-text-black';
+            } else {
+                return 'dept-cell-green dept-text-white';
+            }
+        } else {
+            return 'dept-cell-green dept-text-white';
+        }
+    } else if (currentStageIndex > 0 && isValidData(item[stages[currentStageIndex - 1]])) {
+        return 'dept-cell-red dept-text-black';
+    } else {
+        return 'dept-cell-red dept-text-white';
+    }
+};
 
 const DepartmentDashboard = () => {
     const [data, setData] = useState([]);
@@ -22,35 +72,118 @@ const DepartmentDashboard = () => {
     const [subjects, setSubjects] = useState([]);
     const [allSubjects, setAllSubjects] = useState([]);
     const [batchDates, setBatchDates] = useState([]);
+    const [total_login_count, setTotal_login_count] = useState(0);
+
+    // Pagination states
     const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage, setItemsPerPage] = useState(10);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [totalPages, setTotalPages] = useState(0);
+
+    // Current filters state for refresh
+    const [currentFilters, setCurrentFilters] = useState({});
 
     const formatDate = (dateString) => {
         if (!dateString || dateString === "invalid date" || dateString === "0") {
             return "";
         }
-        const date = new Date(dateString);
-        if (isNaN(date.getTime())) {
-            return dateString; // Return original string if it's not a valid date
+        
+        const dateStr = String(dateString);
+        const dateTimeMatch = dateStr.match(/(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}):(\d{2}):?(\d{2})?/);
+        
+        if (dateTimeMatch) {
+            const [, year, month, day, hours, minutes, seconds] = dateTimeMatch;
+            const formattedDate = `${day}/${month}/${year}`;
+            
+            let hour = parseInt(hours, 10);
+            const minute = minutes;
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            
+            if (hour === 0) {
+                hour = 12;
+            } else if (hour > 12) {
+                hour = hour - 12;
+            }
+            
+            const formattedTime = `${hour.toString().padStart(2, '0')}:${minute} ${ampm}`;
+            return `${formattedDate} ${formattedTime}`;
         }
-
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
-        let hours = date.getHours();
-        const minutes = String(date.getMinutes()).padStart(2, '0');
-        const ampm = hours >= 12 ? 'PM' : 'AM';
-
-        hours = hours % 12;
-        hours = hours ? hours : 12; // 0 should be 12
-        const formattedHours = String(hours).padStart(2, '0');
-
-        return `${day}/${month}/${year} ${formattedHours}:${minutes} ${ampm}`;
+        
+        return dateStr;
     };
-    // function formatDate(dateString) {
-    //     if(!dateString) return null;
-    //     return moment(dateString).tz('Asia/Kolkata').format('DD-MM-YYYY hh:mm:ss A')
-    // }
+
+    const formatDateForDisplay = (dateString) => {
+        if (!dateString || dateString === "invalid date" || dateString === "0") {
+            return dateString;
+        }
+        
+        try {
+            const dateStr = String(dateString);
+            const datePart = dateStr.split('T')[0] || dateStr.split(' ')[0];
+            const [year, month, day] = datePart.split('-');
+            return `${day}/${month}/${year}`;
+        } catch (error) {
+            return dateString;
+        }
+    };
+
+    const normalizeDateForFilter = (dateString) => {
+        if (!dateString || dateString === "invalid date" || dateString === "0") {
+            return null;
+        }
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) {
+                return null;
+            }
+            return date.toISOString().split('T')[0];
+        } catch (error) {
+            return null;
+        }
+    };
+
+    const debounce = (func, delay) => {
+        let timeoutId;
+        return (...args) => {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => func.apply(null, args), delay);
+        };
+    };
+
+    // Fetch all filter options from backend
+    const fetchFilterOptions = async () => {
+        try {
+            const response = await axios.post('http://localhost:3000/track-students-on-department-code', {}, { withCredentials: true });
+            
+            if (response.data && response.data.length > 0) {
+                const uniqueBatches = [...new Set(response.data
+                    .map(item => item.batchNo)
+                    .filter(batch => batch && batch !== "" && batch !== null && batch !== undefined)
+                )].sort();
+                setBatches(uniqueBatches);
+
+                const uniqueCenters = [...new Set(response.data
+                    .map(item => item.center)
+                    .filter(center => center && center !== "" && center !== null && center !== undefined)
+                )].sort();
+                setCenters(uniqueCenters);
+
+                const uniqueSubjects = [...new Set(response.data
+                    .map(item => item.subject_name)
+                    .filter(subject => subject && subject !== "" && subject !== null && subject !== undefined)
+                )];
+                setSubjects(uniqueSubjects);
+
+                const uniqueBatchDates = [...new Set(response.data
+                    .filter(item => item.batchdate && item.batchdate !== "invalid date" && item.batchdate !== "0")
+                    .map(item => normalizeDateForFilter(item.batchdate))
+                    .filter(date => date !== null)
+                )].sort().reverse();
+                setBatchDates(uniqueBatchDates);
+            }
+        } catch (error) {
+            console.error('Error fetching filter options:', error);
+        }
+    };
 
     const fetchSubjects = async () => {
         try {
@@ -64,209 +197,248 @@ const DepartmentDashboard = () => {
         }
     };
 
-    const fetchData = async () => {
+    // Updated fetchTotalLoginCount with ALL filters for department
+    const fetchTotalLoginCount = async (filters = currentFilters) => {
+        try {
+            const requestBody = {
+                center: filters.center,
+                batchNo: filters.batchNo,
+                subject_name: filters.subject,
+                loginStatus: filters.loginStatus,
+                exam_type: filters.exam_type,
+                batchDate: filters.batchDate
+            };
+
+            console.log('Fetching department login count with filters:', requestBody);
+
+            const response = await axios.post('http://localhost:3000/total-login-count', requestBody, { withCredentials: true });
+            
+            if (response.data) {
+                setTotal_login_count(response.data.total_count);
+            }
+        } catch (error) {
+            console.log('Error fetching login count:', error);
+            setTotal_login_count(0);
+        }
+    };
+
+    // Updated fetchData function that sends filters to backend
+    const fetchData = async (preserveFilters = false) => {
         setLoading(true);
         setError('');
+        
+        // Use current state values or preserved filters
+        const filters = preserveFilters ? currentFilters : {
+            subject,
+            loginStatus,
+            batchNo,
+            center,
+            exam_type,
+            batchDate
+        };
+
         try {
-            let url = 'http://localhost:3000/track-students-on-department-code';
-
+            // Build query parameters for GET request
             const params = new URLSearchParams();
-            if (subject) params.append('subject_name', subject);
-            if (loginStatus) params.append('loginStatus', loginStatus);
-            if (batchNo) params.append('batchNo', batchNo);
-            if (center) params.append('center', center);
-            if (exam_type) params.append('exam_type', exam_type);
-            if (batchDate) {
-                // Format the date properly before sending to backend
-                params.append('batchDate', batchDate);
-            }
+            
+            if (filters.subject) params.append('subject_name', filters.subject);
+            if (filters.loginStatus) params.append('loginStatus', filters.loginStatus);
+            if (filters.batchNo) params.append('batchNo', filters.batchNo);
+            if (filters.center) params.append('center', filters.center);
+            if (filters.exam_type) params.append('exam_type', filters.exam_type);
+            if (filters.batchDate) params.append('batchDate', filters.batchDate);
 
+            let url = 'http://localhost:3000/track-students-on-department-code';
             if (params.toString()) {
                 url += `?${params.toString()}`;
             }
 
-            console.log("Fetching data from URL:", url);
-            const response = await axios.post(url, { withCredentials: true });
-            console.log("Response:", response.data);
+            console.log("Fetching department filtered data from URL:", url);
+            
+            const response = await axios.post(url, {}, { withCredentials: true });
+            console.log("Department filtered response:", response.data);
+            
             setData(response.data);
+            setTotalPages(Math.ceil(response.data.length / rowsPerPage));
 
-            // ... rest of your existing code for setting batches, centers, subjects
+            // Update current filters for refresh
+            if (!preserveFilters) {
+                setCurrentFilters(filters);
+            }
 
-            // Fix the batch dates extraction and formatting
-            const distinctBatchDates = [...new Set(response.data
-                .filter(item => item.batchdate && item.batchdate !== "invalid date" && item.batchdate !== "0")
-                .map(item => {
-                    // Ensure consistent date format for display
-                    const date = new Date(item.batchdate);
-                    if (!isNaN(date.getTime())) {
-                        return date.toISOString().split('T')[0]; // YYYY-MM-DD format
-                    }
-                    return item.batchdate;
-                })
-            )];
-
-            setBatchDates(prevDates => {
-                const newDates = [...new Set([...prevDates, ...distinctBatchDates])];
-                return newDates.sort().reverse();
-            });
         } catch (error) {
-            console.error("Error fetching data:", error);
-            setError("No students found for provided filter parameters. Please check the parameters!");
+            console.error("Error fetching department filtered data:", error);
+            if (error.response && error.response.status === 404) {
+                setError("No students found for the selected filter criteria. Please try different filters.");
+                setData([]);
+                setTotal_login_count(0);
+            } else {
+                setError("Failed to fetch data. Please try again.");
+            }
         }
         setLoading(false);
     };
 
+    // Debounced fetch data for filter changes
+    const debouncedFetchData = useCallback(debounce(() => fetchData(false), 500), []);
+
+    // Refresh function that preserves filters
+    const refreshData = useCallback(() => {
+        console.log("Refreshing department data with current filters:", currentFilters);
+        fetchData(true); // Preserve current filters
+        fetchTotalLoginCount(currentFilters);
+    }, [currentFilters]);
+
+    // Filter change handlers
+    const handleFilterChange = (filterName, value) => {
+        console.log(`Department filter changed: ${filterName} = ${value}`);
+        
+        const newFilters = { ...currentFilters, [filterName]: value };
+        setCurrentFilters(newFilters);
+        
+        // Update individual state
+        switch (filterName) {
+            case 'batchNo': setBatchNo(value); break;
+            case 'subject': setSubject(value); break;
+            case 'loginStatus': setLoginStatus(value); break;
+            case 'exam_type': setExam_type(value); break;
+            case 'batchDate': setBatchDate(value); break;
+            case 'center': setCenter(value); break;
+        }
+        
+        // Reset to first page when filters change
+        setCurrentPage(1);
+        
+        // Trigger debounced fetch with new filters
+        setTimeout(() => {
+            fetchData(false);
+            fetchTotalLoginCount(newFilters);
+        }, 100);
+    };
+
+    // Clear all filters
+    const clearAllFilters = () => {
+        setBatchNo('');
+        setSubject('');
+        setLoginStatus('');
+        setExam_type('');
+        setBatchDate('');
+        setCenter('');
+        setCurrentFilters({});
+        setCurrentPage(1);
+        
+        // Fetch data without any filters
+        setTimeout(() => {
+            fetchData(false);
+            fetchTotalLoginCount({});
+        }, 100);
+    };
 
     useEffect(() => {
         fetchSubjects();
-        fetchData();
-        const interval = setInterval(fetchData, updateInterval);
+        fetchFilterOptions();
+        setTimeout(() => {
+            fetchData(false);
+            fetchTotalLoginCount();
+        }, 500);
+    }, []);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            refreshData();
+        }, updateInterval);
         return () => clearInterval(interval);
-    }, [batchNo, subject, loginStatus, batchDate, updateInterval, center, exam_type]);
+    }, [updateInterval, refreshData]);
 
-    const isValidData = (value) => {
-        return value && value !== "invalid date" && value !== "0" && !isNaN(new Date(value).getTime());
-    };
-
-    const getCellClass = (item, field, exam_type) => {
-        let stages;
-        if (exam_type === 'shorthand') {
-            stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time', 'audio2_time', 'passage2_time', 'feedback_time'];
-        } else if (exam_type === 'typewriting') {
-            stages = ['loginTime', 'trial_passage_time', 'typing_passage_time', 'feedback_time'];
-        } else {
-            stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time', 'audio2_time', 'passage2_time', 'feedback_time'];
-        }
-        const currentStageIndex = stages.indexOf(field);
-
-        if (currentStageIndex === -1) return '';
-
-        if (field === 'loginTime') {
-            return isValidData(item[field]) ? 'dept-cell-green dept-text-white' : 'dept-cell-red dept-text-white';
-        }
-
-        if (field === 'feedback_time') {
-            if (isValidData(item[field])) {
-                // If feedback is green, also turn passage1_time or typing_passage_time green
-                if (exam_type === 'shorthand') {
-                    item['passage2_time'] = item[field]; // Force passage1_time to be valid
-                } else if (exam_type === 'typewriting') {
-                    item['typing_passage_time'] = item[field]; // Force typing_passage_time to be valid
-                }
-                return 'dept-cell-green dept-text-white';
-            } else {
-                return 'dept-cell-red dept-text-white';
-            }
-        }
-
-        if (isValidData(item[field])) {
-            // Special case for passage1_time in shorthand and typing_passage_time in typewriting
-            if ((exam_type === 'shorthand' && field === 'passage2_time') ||
-                (exam_type === 'typewriting' && field === 'typing_passage_time')) {
-                if (isValidData(item['feedback_time'])) {
-                    return 'dept-cell-green dept-text-white';
-                }
-            }
-
-            // Check if it's the last field or if the next field has valid data
-            if (currentStageIndex === stages.length - 1 || isValidData(item[stages[currentStageIndex + 1]])) {
-                return 'dept-cell-green dept-text-white';
-            } else if (currentStageIndex > 0 && currentStageIndex < stages.length - 1) {
-                // Check if the previous cell is green and the next cell is red
-                const prevCellGreen = isValidData(item[stages[currentStageIndex - 1]]);
-                const nextCellRed = !isValidData(item[stages[currentStageIndex + 1]]);
-                if (prevCellGreen && nextCellRed) {
-                    return 'dept-cell-yellow dept-text-black';
-                } else {
-                    return 'dept-cell-green dept-text-white';
-                }
-            } else {
-                return 'dept-cell-green dept-text-white';
-            }
-        } else if (currentStageIndex > 0 && isValidData(item[stages[currentStageIndex - 1]])) {
-            return 'dept-cell-red dept-text-black';
-        } else {
-            return 'dept-cell-red dept-text-white';
-        }
-    };
-
+    useEffect(() => {
+        setTotalPages(Math.ceil(data.length / rowsPerPage));
+        setCurrentPage(1);
+    }, [data, rowsPerPage]);
 
     const exportToExcel = () => {
         const worksheet = XLSX.utils.json_to_sheet(data.map(item => ({
             "Batch Number": item.batchNo,
+            "Center": item.center,
             "Seat No": item.student_id,
+            "Student Name": item.fullname,
+            "Subject": item.subject_name,
+            "Batch Date": formatDateForDisplay(item.batchdate),
             "Login": formatDate(item.loginTime),
             "Trial": formatDate(item.trial_time),
             "Audio Track A": formatDate(item.audio1_time),
             "Passage A": formatDate(item.passage1_time),
-            "Audio Track B": formatDate(item.audio1_time),
-            "Passage B": formatDate(item.passage1_time),
-            "Trial Passage": formatDate(item.trial_passage_time),
+            "Trial Typing": formatDate(item.trial_passage_time),
             "Typing Passage": formatDate(item.typing_passage_time),
             "Feedback": formatDate(item.feedback_time)
         })));
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, "Student Data");
-        XLSX.writeFile(workbook, "student_data.xlsx");
+        XLSX.writeFile(workbook, `department_student_data_${new Date().toISOString().split('T')[0]}.xlsx`);
     };
 
-    // Pagination
-    const indexOfLastItem = itemsPerPage === 'all' ? data.length : currentPage * Number(itemsPerPage);
-    const indexOfFirstItem = itemsPerPage === 'all' ? 0 : indexOfLastItem - Number(itemsPerPage);
-    const currentItems = itemsPerPage === 'all' ? data : data.slice(indexOfFirstItem, indexOfLastItem);
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+    };
 
-    const paginate = (pageNumber) => setCurrentPage(pageNumber);
+    const handleRowsPerPageChange = (event) => {
+        const newRowsPerPage = event.target.value === 'all' ? data.length : parseInt(event.target.value, 10);
+        setRowsPerPage(newRowsPerPage);
+        setCurrentPage(1);
+    };
 
-    const pageNumbers = [];
-    for (let i = 1; i <= Math.ceil(data.length / (itemsPerPage === 'all' ? data.length : Number(itemsPerPage))); i++) {
-        pageNumbers.push(i);
-    }
+    const getPaginatedData = () => {
+        if (rowsPerPage === 'all' || rowsPerPage >= data.length) {
+            return data;
+        }
+        const startIndex = (currentPage - 1) * rowsPerPage;
+        const endIndex = startIndex + rowsPerPage;
+        return data.slice(startIndex, endIndex);
+    };
 
     const renderPaginationButtons = () => {
-        const totalPages = pageNumbers.length;
-        const maxButtonsToShow = 5;
-
-        if (totalPages <= maxButtonsToShow) {
-            return pageNumbers.map(number => (
-                <button key={number} onClick={() => paginate(number)} className={currentPage === number ? 'active' : ''}>
-                    {number}
-                </button>
-            ));
+        if (rowsPerPage === 'all' || rowsPerPage >= data.length) {
+            return null;
         }
 
-        let startPage = Math.max(1, currentPage - Math.floor(maxButtonsToShow / 2));
-        let endPage = startPage + maxButtonsToShow - 1;
-
-        if (endPage > totalPages) {
-            endPage = totalPages;
-            startPage = Math.max(1, endPage - maxButtonsToShow + 1);
+        const pageNumbers = [];
+        if (totalPages <= 5) {
+            for (let i = 1; i <= totalPages; i++) {
+                pageNumbers.push(i);
+            }
+        } else {
+            if (currentPage <= 3) {
+                for (let i = 1; i <= 5; i++) {
+                    pageNumbers.push(i);
+                }
+                pageNumbers.push('...');
+                pageNumbers.push(totalPages);
+            } else if (currentPage >= totalPages - 2) {
+                pageNumbers.push(1);
+                pageNumbers.push('...');
+                for (let i = totalPages - 4; i <= totalPages; i++) {
+                    pageNumbers.push(i);
+                }
+            } else {
+                pageNumbers.push(1);
+                pageNumbers.push('...');
+                for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+                    pageNumbers.push(i);
+                }
+                pageNumbers.push('...');
+                pageNumbers.push(totalPages);
+            }
         }
 
-        const buttons = [];
-
-        if (startPage > 1) {
-            buttons.push(
-                <button key={1} onClick={() => paginate(1)}>1</button>,
-                <span key="ellipsis1">...</span>
-            );
-        }
-
-        for (let i = startPage; i <= endPage; i++) {
-            buttons.push(
-                <button key={i} onClick={() => paginate(i)} className={currentPage === i ? 'active' : ''}>
-                    {i}
-                </button>
-            );
-        }
-
-        if (endPage < totalPages) {
-            buttons.push(
-                <span key="ellipsis2">...</span>,
-                <button key={totalPages} onClick={() => paginate(totalPages)}>{totalPages}</button>
-            );
-        }
-
-        return buttons;
+        return pageNumbers.map((page, index) => (
+            <button
+                key={index}
+                onClick={() => page !== '...' && handlePageChange(page)}
+                className={`dept-btn ${currentPage === page ? 'dept-btn-primary' : 'dept-btn-secondary'}`}
+                disabled={page === '...'}
+            >
+                {page}
+            </button>
+        ));
     };
 
     return (
@@ -281,7 +453,7 @@ const DepartmentDashboard = () => {
                                 className="dept-form-select dept-scrollable-dropdown"
                                 id="batchNo"
                                 value={batchNo}
-                                onChange={(e) => setBatchNo(e.target.value)}
+                                onChange={(e) => handleFilterChange('batchNo', e.target.value)}
                             >
                                 <option value="">All Batches</option>
                                 {batches.map((batch, index) => (
@@ -295,7 +467,7 @@ const DepartmentDashboard = () => {
                                 className="dept-form-select dept-scrollable-dropdown"
                                 id="subject"
                                 value={subject}
-                                onChange={(e) => setSubject(e.target.value)}
+                                onChange={(e) => handleFilterChange('subject', e.target.value)}
                             >
                                 <option value="">All Subjects</option>
                                 {allSubjects.map((subj) => (
@@ -311,7 +483,7 @@ const DepartmentDashboard = () => {
                                 className="dept-form-select"
                                 id="loginStatus"
                                 value={loginStatus}
-                                onChange={(e) => setLoginStatus(e.target.value)}
+                                onChange={(e) => handleFilterChange('loginStatus', e.target.value)}
                             >
                                 <option value="">All</option>
                                 <option value="loggedin">Logged In</option>
@@ -324,10 +496,9 @@ const DepartmentDashboard = () => {
                                 className="dept-form-select"
                                 id="examStatus"
                                 value={exam_type}
-                                onChange={(e) => setExam_type(e.target.value)}
-                                defaultValue="shorthand"
+                                onChange={(e) => handleFilterChange('exam_type', e.target.value)}
                             >
-                                <option value="">All</option>
+                        
                                 <option value="shorthand">Short Hand</option>
                                 <option value="typewriting">Type Writing</option>
                                 <option value="both">Both</option>
@@ -341,16 +512,14 @@ const DepartmentDashboard = () => {
                                 className="dept-form-select"
                                 id="batchDate"
                                 value={batchDate}
-                                onChange={(e) => setBatchDate(e.target.value)}
+                                onChange={(e) => handleFilterChange('batchDate', e.target.value)}
                             >
                                 <option value="">All Dates</option>
-                                {batchDates.map((date, index) => {
-                                    // Format date for display
-                                    const displayDate = new Date(date).toLocaleDateString('en-GB'); // DD/MM/YYYY format
-                                    return (
-                                        <option key={index} value={date}>{displayDate}</option>
-                                    );
-                                })}
+                                {batchDates.map((date, index) => (
+                                    <option key={index} value={date}>
+                                        {formatDateForDisplay(date)}
+                                    </option>
+                                ))}
                             </select>
                         </div>
                         <div className="dept-col-md-3 dept-col-sm-6 mb-2">
@@ -359,7 +528,7 @@ const DepartmentDashboard = () => {
                                 className="dept-form-select dept-scrollable-dropdown"
                                 id="center"
                                 value={center}
-                                onChange={(e) => setCenter(e.target.value)}
+                                onChange={(e) => handleFilterChange('center', e.target.value)}
                             >
                                 <option value="">All Centers</option>
                                 {centers.map((centerOption, index) => (
@@ -368,98 +537,108 @@ const DepartmentDashboard = () => {
                             </select>
                         </div>
                         <div className="dept-col-md-3 dept-col-sm-6 mb-2">
-                            <label htmlFor="itemsPerPage" className="dept-form-label">Rows per page:</label>
+                            <label htmlFor="rowsPerPage" className="dept-form-label">Rows per page:</label>
                             <select
                                 className="dept-form-select"
-                                id="itemsPerPage"
-                                value={itemsPerPage}
-                                onChange={(e) => {
-                                    setItemsPerPage(e.target.value);
-                                    setCurrentPage(1);
-                                }}
+                                id="rowsPerPage"
+                                value={rowsPerPage}
+                                onChange={handleRowsPerPageChange}
                             >
-                                <option value="5">5</option>
                                 <option value="10">10</option>
-                                <option value="20">20</option>
+                                <option value="25">25</option>
                                 <option value="50">50</option>
                                 <option value="100">100</option>
                                 <option value="all">All</option>
                             </select>
                         </div>
-                        <div className="dept-col-md-3 dept-col-sm-6 mb-2">
-                            <button onClick={exportToExcel} className="dept-btn dept-btn-primary dept-export-btn">
+                    </div>
+                    <div className="dept-row mb-3">
+                        <div className="dept-col-md-12 dept-col-sm-12 mb-2 d-flex align-items-center flex-wrap">
+                            <button onClick={exportToExcel} className="dept-btn dept-btn-primary dept-export-btn me-3 mb-2">
                                 Export to Excel
                             </button>
+                            <button onClick={() => refreshData()} className="dept-btn dept-btn-secondary me-3 mb-2">
+                                Refresh Now
+                            </button>
+                            <button onClick={clearAllFilters} className="dept-btn dept-btn-outline-secondary me-3 mb-2">
+                                Clear All Filters
+                            </button>
+                            <div className="dept-total-count-container ms-3 mb-2">
+                                <span className="dept-total-count-label">Total students: {data.length} | </span>
+                                <span className="dept-total-count-label">Total logged in: </span>
+                                <span className="dept-total-count-value">{total_login_count}</span>
+                            </div>
                         </div>
                     </div>
                     {loading ? (
-                        <p>Loading...</p>
+                        <div className="text-center p-4">
+                            <div className="spinner-border" role="status">
+                                <span className="visually-hidden">Loading...</span>
+                            </div>
+                            <p className="mt-2">Loading filtered data...</p>
+                        </div>
                     ) : error ? (
-                        <p>{error}</p>
+                        <div className="alert alert-warning" role="alert">
+                            {error}
+                        </div>
                     ) : data.length > 0 ? (
-                        <div>
-                            <div className="dept-table-container">
-                                <table className="dept-table dept-table-bordered dept-table-striped dept-table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th style={{ width: '8%' }}>Batch No</th>
-                                            <th style={{ width: '8%' }}>Center</th>
-                                            <th style={{ width: '12%' }}>Seat No</th>
-                                            <th>Login</th>
-                                            {exam_type !== 'typewriting' && <th>Trial</th>}
+                        <div className="dept-table-container">
+                            <table className="dept-table dept-table-bordered dept-table-striped dept-table-hover">
+                                <thead>
+                                    <tr>
+                                        <th style={{ width: '8%' }}>Batch No</th>
+                                        <th style={{ width: '8%' }}>Center</th>
+                                        <th style={{ width: '12%' }}>Seat No</th>
+                                        <th>Login</th>
+                                        {exam_type !== 'typewriting' && <th>Trial</th>}
+                                        {exam_type !== 'typewriting' && (
+                                            <>
+                                                <th>Audio Track A</th>
+                                                <th>Passage A</th>
+                                            </>
+                                        )}
+                                        {exam_type !== 'shorthand' && (
+                                            <>
+                                                <th>Trial Typing</th>
+                                                <th>Typing Test</th>
+                                            </>
+                                        )}
+                                        <th>Feedback</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {getPaginatedData().map((item, index) => (
+                                        <tr key={index}>
+                                            <td className="batch-number-column">{item.batchNo}</td>
+                                            <td>{item.center}</td>
+                                            <td>{item.student_id}</td>
+                                            <td className={getCellClass(item, 'loginTime', exam_type)}>{formatDate(item.loginTime)}</td>
+                                            {exam_type !== 'typewriting' && <td className={getCellClass(item, 'trial_time', exam_type)}>{formatDate(item.trial_time)}</td>}
                                             {exam_type !== 'typewriting' && (
                                                 <>
-                                                    <th>Audio Track A</th>
-                                                    <th>Passage A</th>
-                                                    <th>Audio Track B</th>
-                                                    <th>Passage B</th>
+                                                    <td className={getCellClass(item, 'audio1_time', exam_type)}>{formatDate(item.audio1_time)}</td>
+                                                    <td className={getCellClass(item, 'passage1_time', exam_type)}>{formatDate(item.passage1_time)}</td>
                                                 </>
                                             )}
                                             {exam_type !== 'shorthand' && (
                                                 <>
-                                                    <th>Trial Typing</th>
-                                                    <th>Typing Test</th>
+                                                    <td className={getCellClass(item, 'trial_passage_time', exam_type)}>{formatDate(item.trial_passage_time)}</td>
+                                                    <td className={getCellClass(item, 'typing_passage_time', exam_type)}>{formatDate(item.typing_passage_time)}</td>
                                                 </>
                                             )}
-                                            <th>Feedback</th>
+                                            <td className={getCellClass(item, 'feedback_time', exam_type)}>{formatDate(item.feedback_time)}</td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        {currentItems.map((item, index) => (
-                                            <tr key={index}>
-                                                <td className="batch-number-column">{item.batchNo}</td>
-                                                <td>{item.center}</td>
-                                                <td>{item.student_id}</td>
-                                                <td className={getCellClass(item, 'loginTime')}>{formatDate(item.loginTime)}</td>
-                                                {exam_type !== 'typewriting' && <td className={getCellClass(item, 'trial_time')}>{formatDate(item.trial_time)}</td>}
-                                                {exam_type !== 'typewriting' && (
-                                                    <>
-                                                        <td className={getCellClass(item, 'audio1_time')}>{formatDate(item.audio1_time)}</td>
-                                                        <td className={getCellClass(item, 'passage1_time')}>{formatDate(item.passage1_time)}</td>
-                                                        <td className={getCellClass(item, 'audio2_time')}>{formatDate(item.audio2_time)}</td>
-                                                        <td className={getCellClass(item, 'passage2_time')}>{formatDate(item.passage2_time)}</td>
-                                                    </>
-                                                )}
-                                                {exam_type !== 'shorthand' && (
-                                                    <>
-                                                        <td className={getCellClass(item, 'trial_passage_time')}>{formatDate(item.trial_passage_time)}</td>
-                                                        <td className={getCellClass(item, 'typing_passage_time')}>{formatDate(item.typing_passage_time)}</td>
-
-                                                    </>
-
-                                                )}
-                                                <td className={getCellClass(item, 'feedback_time')}>{formatDate(item.feedback_time)}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
                     ) : (
-                        <p>No records found</p>
+                        <div className="text-center p-4">
+                            <p>No records found for the selected criteria. Try adjusting your filters.</p>
+                        </div>
                     )}
-                    {itemsPerPage !== 'all' && (
-                        <div className="pagination">
+                    {data.length > 0 && renderPaginationButtons() && (
+                        <div className="dept-pagination" style={{ marginTop: '20px' }}>
                             {renderPaginationButtons()}
                         </div>
                     )}

@@ -61,7 +61,7 @@ const SuperAdminTrackDashboard = () => {
     const [batchNo, setBatchNo] = useState('');
     const [subject, setSubject] = useState('');
     const [loginStatus, setLoginStatus] = useState('');
-    const [exam_type, setExam_type] = useState('');
+    const [exam_type, setExam_type] = useState('Shorthand');
     const [batchDate, setBatchDate] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
