@@ -152,7 +152,7 @@ const DepartmentDashboard = () => {
     // Fetch all filter options from backend
     const fetchFilterOptions = async () => {
         try {
-            const response = await axios.post('http://localhost:3000/track-students-on-department-code', {}, { withCredentials: true });
+            const response = await axios.post('https://www.shorthandonlineexam.in/track-students-on-department-code', {}, { withCredentials: true });
             
             if (response.data && response.data.length > 0) {
                 const uniqueBatches = [...new Set(response.data
@@ -187,7 +187,7 @@ const DepartmentDashboard = () => {
 
     const fetchSubjects = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/subjects');
+            const response = await axios.get('https://www.shorthandonlineexam.in/subjects');
             if (response.data.subjects) {
                 setAllSubjects(response.data.subjects);
             }
@@ -211,7 +211,7 @@ const DepartmentDashboard = () => {
 
             console.log('Fetching department login count with filters:', requestBody);
 
-            const response = await axios.post('http://localhost:3000/total-login-count', requestBody, { withCredentials: true });
+            const response = await axios.post('https://www.shorthandonlineexam.in/total-login-count', requestBody, { withCredentials: true });
             
             if (response.data) {
                 setTotal_login_count(response.data.total_count);
@@ -248,7 +248,7 @@ const DepartmentDashboard = () => {
             if (filters.exam_type) params.append('exam_type', filters.exam_type);
             if (filters.batchDate) params.append('batchDate', filters.batchDate);
 
-            let url = 'http://localhost:3000/track-students-on-department-code';
+            let url = 'https://www.shorthandonlineexam.in/track-students-on-department-code';
             if (params.toString()) {
                 url += `?${params.toString()}`;
             }

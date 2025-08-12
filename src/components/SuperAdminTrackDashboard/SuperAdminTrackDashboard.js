@@ -154,7 +154,7 @@ const SuperAdminTrackDashboard = () => {
     // Fetch all filter options from backend
     const fetchFilterOptions = async () => {
         try {
-            const response = await axios.post('http://localhost:3000/super-admin-student-track-dashboard', {}, { withCredentials: true });
+            const response = await axios.post('https://www.shorthandonlineexam.in/super-admin-student-track-dashboard', {}, { withCredentials: true });
             
             if (response.data && response.data.length > 0) {
                 const uniqueBatches = [...new Set(response.data
@@ -195,7 +195,7 @@ const SuperAdminTrackDashboard = () => {
 
     const fetchSubjects = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/subjects');
+            const response = await axios.get('https://www.shorthandonlineexam.in/subjects');
             if (response.data.subjects) {
                 setAllSubjects(response.data.subjects);
             }
@@ -220,7 +220,7 @@ const SuperAdminTrackDashboard = () => {
 
             console.log('Fetching login count with filters:', requestBody);
 
-            const response = await axios.post('http://localhost:3000/total-login-count', requestBody, { withCredentials: true });
+            const response = await axios.post('https://www.shorthandonlineexam.in/total-login-count', requestBody, { withCredentials: true });
             
             if (response.data) {
                 setTotal_login_count(response.data.total_count);
@@ -259,7 +259,7 @@ const SuperAdminTrackDashboard = () => {
             if (filters.departmentId) params.append('departmentId', filters.departmentId);
             if (filters.batchDate) params.append('batchDate', filters.batchDate);
 
-            let url = 'http://localhost:3000/super-admin-student-track-dashboard';
+            let url = 'https://www.shorthandonlineexam.in/super-admin-student-track-dashboard';
             if (params.toString()) {
                 url += `?${params.toString()}`;
             }

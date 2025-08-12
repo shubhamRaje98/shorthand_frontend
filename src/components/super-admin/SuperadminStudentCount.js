@@ -44,7 +44,7 @@ const SuperAdminCount = () => {
         setLoading(true);
         setError('');
         try {
-            let url = 'http://localhost:3000/super-admin-student-track-dashboard';
+            let url = 'https://www.shorthandonlineexam.in/super-admin-student-track-dashboard';
             
             const response = await axios.post(url, { withCredentials: true });
             const distinctBatches = [...new Set(response.data.map(item => item.batchNo))];
@@ -74,7 +74,7 @@ const SuperAdminCount = () => {
         setLoading(true);
         setError('');
         try {
-            let url = `http://localhost:3000/get-super-admin-student-count`
+            let url = `https://www.shorthandonlineexam.in/get-super-admin-student-count`
             if(batchNo || center || departmentId){
                 url += '?';
                 if(batchNo) url += `batchNo=${batchNo}&`;
@@ -85,6 +85,7 @@ const SuperAdminCount = () => {
         
             const response = await axios.get(url, { withCredentials: true });
             if (response.data && response.data.results && Array.isArray(response.data.results)) {
+                console.log('Fetched data:', response.data.results); // Debug log
                 setAllData(response.data.results);
             } else {
                 setError('Received unexpected data format from server');
@@ -119,6 +120,7 @@ const SuperAdminCount = () => {
             }
         });
 
+        console.log('Aggregated subjects:', Array.from(subjectMap.values())); // Debug log
         setAggregatedSubjects(Array.from(subjectMap.values()));
     };
 
@@ -136,61 +138,59 @@ const SuperAdminCount = () => {
             totals[item.batchNo].loggedInStudents += parseInt(item.logged_in_students) || 0;
             totals[item.batchNo].completedStudents += parseInt(item.completed_student) || 0;
         });
+        console.log('Batch totals:', totals); // Debug log
         setBatchTotals(totals);
     };
 
     const calculateFilteredAggregations = () => {
-        // Filter data based on current filters
-        let filteredData = allData;
-        
-        if (batchNo) {
-            filteredData = filteredData.filter(item => item.batchNo === batchNo);
-        }
-        if (center) {
-            filteredData = filteredData.filter(item => item.center === center);
-        }
-        if (departmentId) {
-            filteredData = filteredData.filter(item => item.departmentId === departmentId);
-        }
+        // For subjects, when filters are applied, use the already filtered data from API
+        // since the API call itself filters the data
+        if (batchNo || center || departmentId) {
+            // Use the filtered data directly from API response
+            const subjectMap = new Map();
+            allData.forEach(item => {
+                if (item.subjects && Array.isArray(item.subjects)) {
+                    item.subjects.forEach(subject => {
+                        if (subjectMap.has(subject.id)) {
+                            const existingSubject = subjectMap.get(subject.id);
+                            existingSubject.count += parseInt(subject.count) || 0;
+                            existingSubject.loggedIn += parseInt(subject.loggedIn) || 0;
+                            existingSubject.completed += parseInt(subject.completed) || 0;
+                        } else {
+                            subjectMap.set(subject.id, {
+                                ...subject,
+                                count: parseInt(subject.count) || 0,
+                                loggedIn: parseInt(subject.loggedIn) || 0,
+                                completed: parseInt(subject.completed) || 0
+                            });
+                        }
+                    });
+                }
+            });
+            console.log('Filtered subjects:', Array.from(subjectMap.values())); // Debug log
+            setFilteredAggregatedSubjects(Array.from(subjectMap.values()));
 
-        // Calculate filtered subject aggregations
-        const subjectMap = new Map();
-        filteredData.forEach(item => {
-            if (item.subjects && Array.isArray(item.subjects)) {
-                item.subjects.forEach(subject => {
-                    if (subjectMap.has(subject.id)) {
-                        const existingSubject = subjectMap.get(subject.id);
-                        existingSubject.count += parseInt(subject.count) || 0;
-                        existingSubject.loggedIn += parseInt(subject.loggedIn) || 0;
-                        existingSubject.completed += parseInt(subject.completed) || 0;
-                    } else {
-                        subjectMap.set(subject.id, {
-                            ...subject,
-                            count: parseInt(subject.count) || 0,
-                            loggedIn: parseInt(subject.loggedIn) || 0,
-                            completed: parseInt(subject.completed) || 0
-                        });
-                    }
-                });
-            }
-        });
-        setFilteredAggregatedSubjects(Array.from(subjectMap.values()));
-
-        // Calculate filtered batch totals
-        const batchTotals = {};
-        filteredData.forEach(item => {
-            if (!batchTotals[item.batchNo]) {
-                batchTotals[item.batchNo] = {
-                    totalStudents: 0,
-                    loggedInStudents: 0,
-                    completedStudents: 0
-                };
-            }
-            batchTotals[item.batchNo].totalStudents += parseInt(item.total_students) || 0;
-            batchTotals[item.batchNo].loggedInStudents += parseInt(item.logged_in_students) || 0;
-            batchTotals[item.batchNo].completedStudents += parseInt(item.completed_student) || 0;
-        });
-        setFilteredBatchTotals(batchTotals);
+            // Calculate batch totals from filtered data
+            const batchTotals = {};
+            allData.forEach(item => {
+                if (!batchTotals[item.batchNo]) {
+                    batchTotals[item.batchNo] = {
+                        totalStudents: 0,
+                        loggedInStudents: 0,
+                        completedStudents: 0
+                    };
+                }
+                batchTotals[item.batchNo].totalStudents += parseInt(item.total_students) || 0;
+                batchTotals[item.batchNo].loggedInStudents += parseInt(item.logged_in_students) || 0;
+                batchTotals[item.batchNo].completedStudents += parseInt(item.completed_student) || 0;
+            });
+            console.log('Filtered batch totals:', batchTotals); // Debug log
+            setFilteredBatchTotals(batchTotals);
+        } else {
+            // No filters applied, use aggregated data
+            setFilteredAggregatedSubjects(aggregatedSubjects);
+            setFilteredBatchTotals(batchTotals);
+        }
     };
 
     const formatDate = (dateString) => {
@@ -229,17 +229,29 @@ const SuperAdminCount = () => {
         }, { totalStudents: 0, loggedInStudents: 0, completedStudents: 0 });
     };
 
-    // Determine which subjects to show based on filters
+    // Get subjects to show
     const getSubjectsToShow = () => {
-        if (center && allData.length > 0 && allData[0]?.subjects) {
-            return allData[0].subjects;
+        if (batchNo || center || departmentId) {
+            return filteredAggregatedSubjects;
         }
-        return (batchNo || center || departmentId) ? filteredAggregatedSubjects : aggregatedSubjects;
+        return aggregatedSubjects;
     };
 
-    // Determine which batch totals to show based on filters
+    // Get batch totals to show
     const getBatchTotalsToShow = () => {
-        return (batchNo || center || departmentId) ? filteredBatchTotals : batchTotals;
+        if (batchNo || center || departmentId) {
+            return filteredBatchTotals;
+        }
+        return batchTotals;
+    };
+
+    // Get title suffix for tables based on active filters
+    const getFilterSuffix = () => {
+        let suffix = '';
+        if (batchNo) suffix += ` - Batch ${batchNo}`;
+        if (center) suffix += ` - Center ${center}`;
+        if (departmentId) suffix += ` - Department ${departmentId}`;
+        return suffix;
     };
 
     return (
@@ -297,114 +309,141 @@ const SuperAdminCount = () => {
                 {loading && <p className="sac-loading">Loading...</p>}
                 {error && <p className="sac-error">{error}</p>}
                 
+                {/* Debug Information
+                {!loading && !error && (
+                    <div style={{ backgroundColor: '#f0f0f0', padding: '10px', margin: '10px 0', fontSize: '12px' }}>
+                        <strong>Debug Info:</strong><br/>
+                        All Data Length: {allData.length}<br/>
+                        Subjects to Show: {getSubjectsToShow().length}<br/>
+                        Batch Totals: {Object.keys(getBatchTotalsToShow()).length}<br/>
+                        Current Filters: Batch={batchNo || 'None'}, Center={center || 'None'}, Department={departmentId || 'None'}
+                        {allData.length > 0 && (
+                            <>
+                                <br/>Sample Data: {JSON.stringify(allData[0], null, 2)}
+                            </>
+                        )}
+                    </div>
+                )} */}
+                
                 {/* Subjects Table - Always show if data exists */}
-                {!loading && !error && allData.length > 0 && getSubjectsToShow().length > 0 && (
+                {!loading && !error && allData.length > 0 && (
                     <div className="sac-subjects-section">
                         <h4 className="sac-subtitle">
-                            Subjects
-                            {batchNo ? ` - Batch ${batchNo}` : ''}
-                            {center ? ` - Center ${center}` : ''}
-                            {departmentId ? ` - Department ${departmentId}` : ''}:
+                            Subjects{getFilterSuffix()}:
                         </h4>
                         <div className="sac-table-wrapper">
-                            <table className="sac-table sac-subjects-table">
-                                <thead>
-                                    <tr>
-                                        <th>Subject ID</th>
-                                        <th>Subject Name</th>
-                                        <th>Count</th>
-                                        <th>Logged In</th>
-                                        <th>Completed</th>
-                                        <th>Pending</th>
-                                        <th>Absent</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {getSubjectsToShow()
-                                        .filter(subject => subject.count > 0)
-                                        .map((subject, index) => (
-                                        <tr key={index}>
-                                            <td>{subject.id}</td>
-                                            <td>{subject.name}</td>
-                                            <td>{subject.count || 0}</td>
-                                            <td>{subject.loggedIn || 0}</td>
-                                            <td>{subject.completed || 0}</td>
-                                            <td>{(subject.loggedIn - subject.completed) || 0}</td>
-                                            <td>{(subject.count - subject.loggedIn) || 0}</td>
+                            {getSubjectsToShow().length > 0 ? (
+                                <table className="sac-table sac-subjects-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Subject ID</th>
+                                            <th>Subject Name</th>
+                                            <th>Count</th>
+                                            <th>Logged In</th>
+                                            <th>Completed</th>
+                                            <th>Pending</th>
+                                            <th>Absent</th>
                                         </tr>
-                                    ))}
-                                    {(() => {
-                                        const subjects = getSubjectsToShow().filter(subject => subject.count > 0);
-                                        const totals = calculateTotals(subjects);
-                                        return (
-                                            <tr className="sac-totals-row">
-                                                <td colSpan="2"><strong>Total</strong></td>
-                                                <td><strong>{totals.count}</strong></td>
-                                                <td><strong>{totals.loggedIn}</strong></td>
-                                                <td><strong>{totals.completed}</strong></td>
-                                                <td><strong>{(totals.loggedIn - totals.completed)}</strong></td>
-                                                <td><strong>{(totals.count - totals.loggedIn)}</strong></td>
+                                    </thead>
+                                    <tbody>
+                                        {getSubjectsToShow()
+                                            .filter(subject => subject.count > 0)
+                                            .map((subject, index) => (
+                                            <tr key={index}>
+                                                <td>{subject.id}</td>
+                                                <td>{subject.name}</td>
+                                                <td>{subject.count || 0}</td>
+                                                <td>{subject.loggedIn || 0}</td>
+                                                <td>{subject.completed || 0}</td>
+                                                <td>{(subject.loggedIn - subject.completed) || 0}</td>
+                                                <td>{(subject.count - subject.loggedIn) || 0}</td>
                                             </tr>
-                                        );
-                                    })()}
-                                </tbody>
-                            </table>
+                                        ))}
+                                        {(() => {
+                                            const subjects = getSubjectsToShow().filter(subject => subject.count > 0);
+                                            if (subjects.length > 0) {
+                                                const totals = calculateTotals(subjects);
+                                                return (
+                                                    <tr className="sac-totals-row">
+                                                        <td colSpan="2"><strong>Total</strong></td>
+                                                        <td><strong>{totals.count}</strong></td>
+                                                        <td><strong>{totals.loggedIn}</strong></td>
+                                                        <td><strong>{totals.completed}</strong></td>
+                                                        <td><strong>{(totals.loggedIn - totals.completed)}</strong></td>
+                                                        <td><strong>{(totals.count - totals.loggedIn)}</strong></td>
+                                                    </tr>
+                                                );
+                                            }
+                                            return null;
+                                        })()}
+                                    </tbody>
+                                </table>
+                            ) : (
+                                <div>
+                                    <p className="sac-no-data">No subjects found for the current filters.</p>
+                                    <p style={{ fontSize: '12px', color: '#666' }}>
+                                        Available subjects in raw data: {allData.length > 0 && allData[0]?.subjects ? allData[0].subjects.length : 'No subjects field'}
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}
 
-                {/* Batch Totals Table - Show when no specific batch is selected and data exists */}
-                {!loading && !error && !batchNo && allData.length > 0 && Object.keys(getBatchTotalsToShow()).length > 0 && (
+                {/* Batch Totals Table - Always show if data exists */}
+                {!loading && !error && allData.length > 0 && (
                     <div className="sac-batch-totals-section">
                         <h4 className="sac-subtitle">
-                            Batch-wise Totals
-                            {center ? ` - Center ${center}` : ''}
-                            {departmentId ? ` - Department ${departmentId}` : ''}:
+                            Batch-wise Totals{getFilterSuffix()}:
                         </h4>
                         <div className="sac-table-wrapper">
-                            <table className="sac-table sac-batch-totals-table">
-                                <thead>
-                                    <tr>
-                                        <th>Batch No</th>
-                                        <th>Total Students</th>
-                                        <th>Logged In Students</th>
-                                        <th>Completed Students</th>
-                                        <th>Pending Students</th>
-                                        <th>Absent Students</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {Object.entries(getBatchTotalsToShow()).map(([batch, totals]) => (
-                                        <tr key={batch}>
-                                            <td>{batch}</td>
-                                            <td>{totals.totalStudents || 0}</td>
-                                            <td>{totals.loggedInStudents || 0}</td>
-                                            <td>{totals.completedStudents || 0}</td>
-                                            <td>{(totals.loggedInStudents - totals.completedStudents) || 0}</td>
-                                            <td>{(totals.totalStudents - totals.loggedInStudents) || 0}</td>
+                            {Object.keys(getBatchTotalsToShow()).length > 0 ? (
+                                <table className="sac-table sac-batch-totals-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Batch No</th>
+                                            <th>Total Students</th>
+                                            <th>Logged In Students</th>
+                                            <th>Completed Students</th>
+                                            <th>Pending Students</th>
+                                            <th>Absent Students</th>
                                         </tr>
-                                    ))}
-                                    {(() => {
-                                        const grandTotals = Object.values(getBatchTotalsToShow()).reduce((acc, totals) => {
-                                            acc.totalStudents += totals.totalStudents || 0;
-                                            acc.loggedInStudents += totals.loggedInStudents || 0;
-                                            acc.completedStudents += totals.completedStudents || 0;
-                                            return acc;
-                                        }, { totalStudents: 0, loggedInStudents: 0, completedStudents: 0 });
-                                        
-                                        return (
-                                            <tr className="sac-totals-row">
-                                                <td><strong>Grand Total</strong></td>
-                                                <td><strong>{grandTotals.totalStudents}</strong></td>
-                                                <td><strong>{grandTotals.loggedInStudents}</strong></td>
-                                                <td><strong>{grandTotals.completedStudents}</strong></td>
-                                                <td><strong>{(grandTotals.loggedInStudents - grandTotals.completedStudents)}</strong></td>
-                                                <td><strong>{(grandTotals.totalStudents - grandTotals.loggedInStudents)}</strong></td>
+                                    </thead>
+                                    <tbody>
+                                        {Object.entries(getBatchTotalsToShow()).map(([batch, totals]) => (
+                                            <tr key={batch}>
+                                                <td>{batch}</td>
+                                                <td>{totals.totalStudents || 0}</td>
+                                                <td>{totals.loggedInStudents || 0}</td>
+                                                <td>{totals.completedStudents || 0}</td>
+                                                <td>{(totals.loggedInStudents - totals.completedStudents) || 0}</td>
+                                                <td>{(totals.totalStudents - totals.loggedInStudents) || 0}</td>
                                             </tr>
-                                        );
-                                    })()}
-                                </tbody>
-                            </table>
+                                        ))}
+                                        {(() => {
+                                            const grandTotals = Object.values(getBatchTotalsToShow()).reduce((acc, totals) => {
+                                                acc.totalStudents += totals.totalStudents || 0;
+                                                acc.loggedInStudents += totals.loggedInStudents || 0;
+                                                acc.completedStudents += totals.completedStudents || 0;
+                                                return acc;
+                                            }, { totalStudents: 0, loggedInStudents: 0, completedStudents: 0 });
+                                            
+                                            return (
+                                                <tr className="sac-totals-row">
+                                                    <td><strong>Grand Total</strong></td>
+                                                    <td><strong>{grandTotals.totalStudents}</strong></td>
+                                                    <td><strong>{grandTotals.loggedInStudents}</strong></td>
+                                                    <td><strong>{grandTotals.completedStudents}</strong></td>
+                                                    <td><strong>{(grandTotals.loggedInStudents - grandTotals.completedStudents)}</strong></td>
+                                                    <td><strong>{(grandTotals.totalStudents - grandTotals.loggedInStudents)}</strong></td>
+                                                </tr>
+                                            );
+                                        })()}
+                                    </tbody>
+                                </table>
+                            ) : (
+                                <p className="sac-no-data">No batch totals found for the current filters.</p>
+                            )}
                         </div>
                     </div>
                 )}
@@ -413,10 +452,7 @@ const SuperAdminCount = () => {
                 {!loading && !error && allData.length > 0 && (
                     <div className="sac-data-table">
                         <h3 className="sac-subtitle">
-                            Detailed View -
-                            {batchNo ? ` Batch ${batchNo}` : ' All Batches'} 
-                            {center ? ` - Center ${center}` : ''} 
-                            {departmentId ? ` - Department ${departmentId}` : ''}
+                            Detailed View{getFilterSuffix()}
                         </h3>
                         <div className="sac-table-wrapper">
                             <table className="sac-table">

@@ -186,7 +186,7 @@ const StudentTable = () => {
     try {
       console.log("Fetching filter options from super admin API...");
       const response = await axios.post(
-        'http://localhost:3000/super-admin-student-track-dashboard',
+        'https://www.shorthandonlineexam.in/super-admin-student-track-dashboard',
         {},
         { withCredentials: true }
       );
@@ -230,7 +230,7 @@ const StudentTable = () => {
     try {
       console.log("Fetching local filter options...");
       // FIXED: Use the correct endpoint with "all" parameter to get all data for filter options
-      const url = "http://localhost:3000/track-students-on-exam-center-code/all";
+      const url = "https://www.shorthandonlineexam.in/track-students-on-exam-center-code/all";
       const response = await axios.post(url, { withCredentials: true });
 
       if (response.data && response.data.length > 0) {
@@ -274,7 +274,7 @@ const StudentTable = () => {
 
   const fetchSubjects = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/subjects");
+      const response = await axios.get("https://www.shorthandonlineexam.in/subjects");
       if (response.data.subjects) {
         setAllSubjects(response.data.subjects);
       }
@@ -313,7 +313,7 @@ const StudentTable = () => {
 
     try {
       // FIXED: Always use the student tracking endpoint with proper batch handling
-      let url = "http://localhost:3000/track-students-on-exam-center-code/";
+      let url = "https://www.shorthandonlineexam.in/track-students-on-exam-center-code/";
       
       // If batchNo is selected, use it; otherwise, use "all" to get all batches
       if (filters.batchNo && filters.batchNo.trim() !== "") {
@@ -425,7 +425,7 @@ const StudentTable = () => {
 
     try {
       // FIXED: Use the same URL construction logic as fetchData
-      let url = "http://localhost:3000/track-students-on-exam-center-code/";
+      let url = "https://www.shorthandonlineexam.in/track-students-on-exam-center-code/";
       
       // If batchNo is selected, use it; otherwise, use "all"
       if (filters.batchNo && filters.batchNo.trim() !== "") {
