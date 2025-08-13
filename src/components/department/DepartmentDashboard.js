@@ -7,12 +7,25 @@ import moment from "moment-timezone";
 
 // Importing the utility functions
 const isValidData = (value) => {
-  return (
-    value &&
-    value !== "invalid date" &&
-    value !== "0" &&
-    !isNaN(new Date(value).getTime())
-  );
+    // Check for obviously invalid values first
+    if (!value || value === "invalid date" || value === "0" || value === "" || value === null || value === undefined) {
+        return false;
+    }
+    
+    // If it's already a formatted string with time, consider it valid
+    // Pattern: DD/MM/YYYY HH:MM AM/PM
+    const formattedPattern = /^\d{1,2}\/\d{1,2}\/\d{4}\s\d{1,2}:\d{2}\s(AM|PM)$/;
+    if (formattedPattern.test(value)) {
+        return true;
+    }
+    
+    // For other formats, try to parse as date
+    try {
+        const date = new Date(value);
+        return !isNaN(date.getTime());
+    } catch (error) {
+        return false;
+    }
 };
 
 const getCellClass = (item, field, exam_type) => {
@@ -188,7 +201,7 @@ const DepartmentDashboard = () => {
     try {
       console.log("🔍 Fetching filter options...");
       const response = await axios.post(
-        "https://www.shorthandonlineexam.in/track-students-on-department-code",
+        "http://localhost:3000/track-students-on-department-code",
         {},
         { withCredentials: true }
       );
@@ -321,7 +334,7 @@ const DepartmentDashboard = () => {
 
   const fetchSubjects = async () => {
     try {
-      const response = await axios.get("https://www.shorthandonlineexam.in/subjects");
+      const response = await axios.get("http://localhost:3000/subjects");
       if (response.data.subjects) {
         setAllSubjects(response.data.subjects);
       }
@@ -346,7 +359,7 @@ const DepartmentDashboard = () => {
   //       console.log("Fetching department login count with filters:", requestBody);
 
   //       const response = await axios.post(
-  //         "https://www.shorthandonlineexam.in/total-login-count",
+  //         "http://localhost:3000/total-login-count",
   //         requestBody,
   //         { withCredentials: true }
   //       );
@@ -410,7 +423,7 @@ const DepartmentDashboard = () => {
       );
 
       const response = await axios.post(
-        "https://www.shorthandonlineexam.in/total-login-count",
+        "http://localhost:3000/total-login-count",
         requestBody,
         { withCredentials: true }
       );
@@ -518,7 +531,7 @@ const DepartmentDashboard = () => {
       console.log("🚀 Sending request body:", requestBody);
 
       const response = await axios.post(
-        "https://www.shorthandonlineexam.in/track-students-on-department-code",
+        "http://localhost:3000/track-students-on-department-code",
         requestBody,
         { withCredentials: true }
       );

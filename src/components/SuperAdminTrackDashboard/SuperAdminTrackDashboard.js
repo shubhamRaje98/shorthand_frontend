@@ -5,11 +5,27 @@ import * as XLSX from 'xlsx';
 import './SuperAdminTrackDashboard.css'
 import moment from 'moment-timezone'
 
-// Importing the utility functions
 const isValidData = (value) => {
-    return value && value !== "invalid date" && value !== "0" && !isNaN(new Date(value).getTime());
+    // Check for obviously invalid values first
+    if (!value || value === "invalid date" || value === "0" || value === "" || value === null || value === undefined) {
+        return false;
+    }
+    
+    // If it's already a formatted string with time, consider it valid
+    // Pattern: DD/MM/YYYY HH:MM AM/PM
+    const formattedPattern = /^\d{1,2}\/\d{1,2}\/\d{4}\s\d{1,2}:\d{2}\s(AM|PM)$/;
+    if (formattedPattern.test(value)) {
+        return true;
+    }
+    
+    // For other formats, try to parse as date
+    try {
+        const date = new Date(value);
+        return !isNaN(date.getTime());
+    } catch (error) {
+        return false;
+    }
 };
-
 const getCellClass = (item, field, exam_type) => {
     let stages; 
     if (exam_type === 'shorthand') {
@@ -141,7 +157,7 @@ const SuperAdminTrackDashboard = () => {
         try {
             console.log("🔍 Fetching filter options...");
             const response = await axios.post(
-                'https://www.shorthandonlineexam.in/super-admin-student-track-dashboard', 
+                'http://localhost:3000/super-admin-student-track-dashboard', 
                 {}, // Empty request body to get all data
                 { withCredentials: true }
             );
@@ -236,7 +252,7 @@ const SuperAdminTrackDashboard = () => {
 
     const fetchSubjects = async () => {
         try {
-            const response = await axios.get('https://www.shorthandonlineexam.in/subjects');
+            const response = await axios.get('http://localhost:3000/subjects');
             if (response.data.subjects) {
                 setAllSubjects(response.data.subjects);
             }
@@ -275,7 +291,7 @@ const SuperAdminTrackDashboard = () => {
 
             console.log('🔢 Fetching login count with filters:', requestBody);
 
-            const response = await axios.post('https://www.shorthandonlineexam.in/total-login-count', requestBody, { withCredentials: true });
+            const response = await axios.post('http://localhost:3000/total-login-count', requestBody, { withCredentials: true });
             
             if (response.data) {
                 console.log('🔢 Login count response:', response.data);
@@ -328,7 +344,7 @@ const SuperAdminTrackDashboard = () => {
             });
             
             const response = await axios.post(
-                'https://www.shorthandonlineexam.in/super-admin-student-track-dashboard',
+                'http://localhost:3000/super-admin-student-track-dashboard',
                 requestBody,
                 { 
                     withCredentials: true,

@@ -148,7 +148,7 @@ const FinalPassageTextlog = () => {
   const handleSubmit = async () => {
     try {
       const response = await axios.post(
-        `https://www.shorthandonlineexam.in/submit-passage-review/${subjectId}/${qset}`, 
+        `http://localhost:3000/submit-passage-review/${subjectId}/${qset}`, 
         {}, 
         { withCredentials: true }
       );
@@ -176,7 +176,7 @@ const FinalPassageTextlog = () => {
   const handleHold = async () => {
     try {
       const response = await axios.post(
-        `https://www.shorthandonlineexam.in/hold-passage-review/${subjectId}/${qset}`, 
+        `http://localhost:3000/hold-passage-review/${subjectId}/${qset}`, 
         {}, 
         { withCredentials: true }
       );
@@ -205,7 +205,7 @@ const FinalPassageTextlog = () => {
   useEffect(() => {
     const fetchPassages = async () => {
       try {
-        const response = await axios.get(`https://www.shorthandonlineexam.in/expert-assigned-passages/${subjectId}/${qset}`, { withCredentials: true });
+        const response = await axios.get(`http://localhost:3000/expert-assigned-passages/${subjectId}/${qset}`, { withCredentials: true });
         if (response.status === 200) {
           console.log("Raw data:", JSON.stringify(response.data));
           setPassages(response.data);
@@ -223,7 +223,7 @@ const FinalPassageTextlog = () => {
       try {
         console.log(subjectId, qset, activePassage);
         
-        const response = await axios.post('https://www.shorthandonlineexam.in/active-passage', {
+        const response = await axios.post('http://localhost:3000/active-passage', {
           subjectId,
           qset,
           activePassage,
@@ -254,7 +254,7 @@ const FinalPassageTextlog = () => {
   useEffect(() => {
     const fetchAudio = async () => {
       try {
-        const response = await axios.get(`https://www.shorthandonlineexam.in/get-subject-qset-audio/${subjectId}/${qset}`, { withCredentials: true });
+        const response = await axios.get(`http://localhost:3000/get-subject-qset-audio/${subjectId}/${qset}`, { withCredentials: true });
         if (response.status === 200) {
           setAudioUrl(response.data.passage1);
           setAudioBUrl(response.data.passage2); // Assuming 'passage2' is the audio URL for passageB
@@ -334,7 +334,7 @@ const FinalPassageTextlog = () => {
     // Send total mistakes, marks, and individual mistake counts to server
     const sendMarksToServer = async () => {
       try {
-        const response = await axios.post(`https://www.shorthandonlineexam.in/update-student-marks/${subjectId}/${qset}`, {
+        const response = await axios.post(`http://localhost:3000/update-student-marks/${subjectId}/${qset}`, {
           total_mistakes: total,
           total_marks: parseFloat(average.toFixed(2)),
           spelling: counts.spelling,
@@ -462,7 +462,7 @@ const FinalPassageTextlog = () => {
       }
 
       // Still send only the incorrect word to the backend
-      const response = await axios.post('https://www.shorthandonlineexam.in/add-ignore-word', {
+      const response = await axios.post('http://localhost:3000/add-ignore-word', {
         subjectId,
         qset,
         activePassage,
@@ -482,7 +482,7 @@ const FinalPassageTextlog = () => {
 
   const handleUndoWord = useCallback(async (wordToRemove) => {
     try {
-      const response = await axios.post('https://www.shorthandonlineexam.in/undo-word', {
+      const response = await axios.post('http://localhost:3000/undo-word', {
         subjectId,
         qset,
         activePassage,
@@ -503,7 +503,7 @@ const FinalPassageTextlog = () => {
 
   const handleClearIgnoreList = useCallback(async () => {
     try {
-      const response = await axios.post('https://www.shorthandonlineexam.in/clear-ignore-list', {
+      const response = await axios.post('http://localhost:3000/clear-ignore-list', {
         subjectId,
         qset,
         activePassage

@@ -5,9 +5,26 @@ import NavBar from "../navBar/navBar";
 import * as XLSX from "xlsx";
 import moment from "moment-timezone";
 
-// Importing the utility functions
 const isValidData = (value) => {
-  return value && value !== "invalid date" && value !== "0" && !isNaN(new Date(value).getTime());
+    // Check for obviously invalid values first
+    if (!value || value === "invalid date" || value === "0" || value === "" || value === null || value === undefined) {
+        return false;
+    }
+    
+    // If it's already a formatted string with time, consider it valid
+    // Pattern: DD/MM/YYYY HH:MM AM/PM
+    const formattedPattern = /^\d{1,2}\/\d{1,2}\/\d{4}\s\d{1,2}:\d{2}\s(AM|PM)$/;
+    if (formattedPattern.test(value)) {
+        return true;
+    }
+    
+    // For other formats, try to parse as date
+    try {
+        const date = new Date(value);
+        return !isNaN(date.getTime());
+    } catch (error) {
+        return false;
+    }
 };
 
 const getCellClass = (item, field, exam_type) => {
@@ -186,7 +203,7 @@ const StudentTable = () => {
     try {
       console.log("Fetching filter options from super admin API...");
       const response = await axios.post(
-        'https://www.shorthandonlineexam.in/super-admin-student-track-dashboard',
+        'http://localhost:3000/super-admin-student-track-dashboard',
         {},
         { withCredentials: true }
       );
@@ -230,7 +247,7 @@ const StudentTable = () => {
     try {
       console.log("Fetching local filter options...");
       // FIXED: Use the correct endpoint with "all" parameter to get all data for filter options
-      const url = "https://www.shorthandonlineexam.in/track-students-on-exam-center-code/all";
+      const url = "http://localhost:3000/track-students-on-exam-center-code/all";
       const response = await axios.post(url, { withCredentials: true });
 
       if (response.data && response.data.length > 0) {
@@ -274,7 +291,7 @@ const StudentTable = () => {
 
   const fetchSubjects = async () => {
     try {
-      const response = await axios.get("https://www.shorthandonlineexam.in/subjects");
+      const response = await axios.get("http://localhost:3000/subjects");
       if (response.data.subjects) {
         setAllSubjects(response.data.subjects);
       }
@@ -313,7 +330,7 @@ const StudentTable = () => {
 
     try {
       // FIXED: Always use the student tracking endpoint with proper batch handling
-      let url = "https://www.shorthandonlineexam.in/track-students-on-exam-center-code/";
+      let url = "http://localhost:3000/track-students-on-exam-center-code/";
       
       // If batchNo is selected, use it; otherwise, use "all" to get all batches
       if (filters.batchNo && filters.batchNo.trim() !== "") {
@@ -425,7 +442,7 @@ const StudentTable = () => {
 
     try {
       // FIXED: Use the same URL construction logic as fetchData
-      let url = "https://www.shorthandonlineexam.in/track-students-on-exam-center-code/";
+      let url = "http://localhost:3000/track-students-on-exam-center-code/";
       
       // If batchNo is selected, use it; otherwise, use "all"
       if (filters.batchNo && filters.batchNo.trim() !== "") {
