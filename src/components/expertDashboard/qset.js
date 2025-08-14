@@ -18,7 +18,7 @@ const QSet = () => {
     const fetchQSets = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:3000/qsets/${subjectId}${isHeld ? '?held=true' : ''}`, { withCredentials: true });
+        const response = await axios.get(`https://www.shorthandonlineexam.in/qsets/${subjectId}${isHeld ? '?held=true' : ''}`, { withCredentials: true });
         if (response.status === 200) {
           const sortedQSets = response.data.sort((a, b) => a.qset - b.qset);
           setQsets(sortedQSets);
@@ -38,7 +38,7 @@ const QSet = () => {
     try {
       // Include the held parameter in the URL
       const response = await axios.post(
-        `http://localhost:3000/assignStudent/${subjectId}/${qsetObj.qset}?held=${isHeld}`, 
+        `https://www.shorthandonlineexam.in/assignStudent/${subjectId}/${qsetObj.qset}?held=${isHeld}`, 
         {}, 
         { withCredentials: true }
       );

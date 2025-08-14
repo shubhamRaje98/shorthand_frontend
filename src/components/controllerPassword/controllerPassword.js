@@ -19,7 +19,7 @@ const ControllerPassword = () => {
         const fetchDepartments = async () => {
             setDepartmentLoading(true);
             try {
-                const response = await axios.get('http://localhost:3000/get-active-departments');
+                const response = await axios.get('https://www.shorthandonlineexam.in/get-active-departments');
                 setDepartments(response.data);
                 console.log('Departments fetched:', response.data);
             } catch (error) {
@@ -38,7 +38,7 @@ const ControllerPassword = () => {
             setLoading(true);
             setError('');
             try {
-                let url = 'http://localhost:3000/get-controller-pass';
+                let url = 'https://www.shorthandonlineexam.in/get-controller-pass';
                 
                 // Add department filter if not 'all'
                 if (selectedDepartment && selectedDepartment !== 'all') {
