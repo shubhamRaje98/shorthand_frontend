@@ -1,4 +1,4 @@
-// src\components\expertDashboard\finalPassageTextlog.js
+// finalPassageTextlog.js
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import './finalPassageTextlog.css';
@@ -108,7 +108,7 @@ const MistakesList = ({ mistakes, onAddIgnoreWord, onWordHover, fontSize, ignore
 
 const FinalPassageTextlog = () => {
   const navigate = useNavigate();
-  const { subjectId, qset, departmentId } = useParams();
+  const { subjectId, qset } = useParams();
   const [passages, setPassages] = useState({
     passageA: '',
     passageB: '',
@@ -148,7 +148,7 @@ const FinalPassageTextlog = () => {
   const handleSubmit = async () => {
     try {
       const response = await axios.post(
-        `http://localhost:3000/submit-passage-review/${subjectId}/${qset}/${departmentId}`, 
+        `http://localhost:3000/submit-passage-review/${subjectId}/${qset}`, 
         {}, 
         { withCredentials: true }
       );
@@ -176,7 +176,7 @@ const FinalPassageTextlog = () => {
   const handleHold = async () => {
     try {
       const response = await axios.post(
-        `http://localhost:3000/hold-passage-review/${subjectId}/${qset}/${departmentId}`, 
+        `http://localhost:3000/hold-passage-review/${subjectId}/${qset}`, 
         {}, 
         { withCredentials: true }
       );
@@ -205,7 +205,7 @@ const FinalPassageTextlog = () => {
   useEffect(() => {
     const fetchPassages = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/expert-assigned-passages/${subjectId}/${qset}/${departmentId}`, { withCredentials: true });
+        const response = await axios.get(`http://localhost:3000/expert-assigned-passages/${subjectId}/${qset}`, { withCredentials: true });
         if (response.status === 200) {
           console.log("Raw data:", JSON.stringify(response.data));
           setPassages(response.data);
@@ -227,7 +227,6 @@ const FinalPassageTextlog = () => {
           subjectId,
           qset,
           activePassage,
-          departmentId
         }, { withCredentials: true });
     
         if (response.status === 200) {
@@ -333,23 +332,23 @@ const FinalPassageTextlog = () => {
     console.log('Average mistakes:', average.toFixed(2));
 
     // Send total mistakes, marks, and individual mistake counts to server
-    // const sendMarksToServer = async () => {
-    //   try {
-    //     const response = await axios.post(`http://localhost:3000/update-student-marks/${subjectId}/${qset}`, {
-    //       total_mistakes: total,
-    //       total_marks: parseFloat(average.toFixed(2)),
-    //       spelling: counts.spelling,
-    //       missed: counts.missed,
-    //       added: counts.added,
-    //       grammar: counts.grammar
-    //     });
-    //     console.log('Server response: ', response.data);
-    //   } catch (error) {
-    //     console.error('Error sending data to server: ', error);
-    //   }
-    // };
+    const sendMarksToServer = async () => {
+      try {
+        const response = await axios.post(`http://localhost:3000/update-student-marks/${subjectId}/${qset}`, {
+          total_mistakes: total,
+          total_marks: parseFloat(average.toFixed(2)),
+          spelling: counts.spelling,
+          missed: counts.missed,
+          added: counts.added,
+          grammar: counts.grammar
+        });
+        console.log('Server response: ', response.data);
+      } catch (error) {
+        console.error('Error sending data to server: ', error);
+      }
+    };
     
-    // sendMarksToServer();
+    sendMarksToServer();
   }, [mistakes, subjectId, qset]);
 
   // Improved useEffect to populate wordCorrections when mistakes data changes
@@ -467,8 +466,7 @@ const FinalPassageTextlog = () => {
         subjectId,
         qset,
         activePassage,
-        newWord: word,
-        departmentId
+        newWord: word
       }, { withCredentials: true });
 
       if (response.status === 200) {
@@ -480,7 +478,7 @@ const FinalPassageTextlog = () => {
       console.error('Error adding word to ignore list:', err);
       toast.error(`Failed to add "${word}" to ignore list`);
     }
-  }, [subjectId, qset, activePassage, mistakes, departmentId]);
+  }, [subjectId, qset, activePassage, mistakes]);
 
   const handleUndoWord = useCallback(async (wordToRemove) => {
     try {
@@ -488,8 +486,7 @@ const FinalPassageTextlog = () => {
         subjectId,
         qset,
         activePassage,
-        wordToRemove,
-        departmentId
+        wordToRemove
       }, { withCredentials: true });
 
       if (response.status === 200) {
@@ -509,8 +506,7 @@ const FinalPassageTextlog = () => {
       const response = await axios.post('http://localhost:3000/clear-ignore-list', {
         subjectId,
         qset,
-        activePassage,
-        departmentId
+        activePassage
       }, { withCredentials: true });
 
       if (response.status === 200) {

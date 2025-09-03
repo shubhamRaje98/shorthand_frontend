@@ -75,14 +75,14 @@ const App = () => {
                     <Route path="/expertAdmin" element={<ExpertAdmin />} />
                     <Route path="/student-table" element={<StudentTable />} />
                     <Route path="/home" element={<Home />} />
-                    <Route path="/student-assignment-report/:subjectId/:qset/:studentId" element={<StudentAssignmentReport />} />
+                    <Route path="/student-assignment-report/:subjectId/:qset/:studentId/:departmentId" element={<StudentAssignmentReport />} />
                     <Route path="/attendance-upload" element={<AttendancePage/>}/>
                     <Route path="/expertDashboard" element={<ExpertDashboard />}>
-                        <Route index element={<SubjectSelection />} />
-                        <Route path=":subjectId" element={<QSet />} />
-                        <Route path=":subjectId/:qset" element={<FinalPassageTextlog />} />
-                        <Route path=":subjectId/:qset/stage2" element={<Stage2 />} />
-                        <Route path=":subjectId/:qset/:studentId" element={<FetchPassageById />} />
+                    <Route index element={<SubjectSelection />} />
+                    <Route path=":subjectId" element={<QSet />} />
+                    <Route path=":subjectId/:qset" element={<FinalPassageTextlog />} />
+                    <Route path=":subjectId/:qset/stage2" element={<Stage2 />} />
+                    <Route path=":subjectId/:qset/:studentId/:departmentId" element={<FetchPassageById />} />
                     </Route>
 
                     <Route path='/student_info/:studentId' element={<StudentDetails/>}/>

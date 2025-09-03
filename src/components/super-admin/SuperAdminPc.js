@@ -12,7 +12,7 @@ const SuperAdminPc = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get('https://www.shorthandonlineexam.in/get-center-pcregistration-details');
+                const response = await axios.get('http://localhost:3000/get-center-pcregistration-details');
                 setPcData(response.data.results);
                 setLoading(false);
             } catch (err) {
