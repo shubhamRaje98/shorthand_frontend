@@ -1,4 +1,4 @@
-// src/App.js
+// src/App.js - Updated routes to include departmentId and examType
 import React from 'react';
 import axios from 'axios';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
@@ -17,14 +17,11 @@ import Home from './components/Home/home';
 import ExpertDashboard from './components/expertDashboard/expertDashboard';
 import Stage2 from './components/expertDashboard/stage2';
 import FinalPassageTextlog from './components/expertDashboard/finalPassageTextlog';
-
-
 import QSet from './components/expertDashboard/qset';
 import AttendanceDownload from './components/attendanceDownload/attendanceDownload';
 import CenterwiseStudentCount from './components/centerwiseStudentExamCountTracking/centerwiseCountReport';
 import AbsenteeRoll from './components/attendeeRoll/attendeeRoll';
 import ControllerPassword from './components/controllerPassword/controllerPassword';
-// import FetchUpdateTable from './components/superAdmin/fetchUpdateTables';
 import PCRegistration from './components/pcRegistration/pcRegistration';
 import FetchPassageById from './components/expertDashboard/FetchPassageById'
 import ResultFetchUpdate from './components/resultSuperAdmin/fetchUpdateTables'; 
@@ -38,7 +35,6 @@ import SuperAdminDashboard from './components/super-admin/SuperAdminDashboard';
 import SuperAdminTrackDashboard from './components/SuperAdminTrackDashboard/SuperAdminTrackDashboard';
 import DownloadApps from './components/DownloadApps/DownloadApps';
 import DataUpdateForm from './components/super-admin/DataUpdateForm';
-// New SuperAdmin Layout
 import SuperAdminLayout from './components/super-admin/SuperAdminLayout';
 import CurrentStudentDetails from './components/CurrentStudentDetails/CurrentStudentDetails';
 import PcRegistrationCount from './components/department/PcRegistrationCount';
@@ -59,13 +55,10 @@ import AttendancePage from './components/AttendanceReport/AttendancePage';
 import AttendanceReports from './components/super-admin/AttendanceReports';
 import HallticketsGeneration from './components/super-admin/HallticketsGeneration';
 
-
 axios.defaults.withCredentials = true;
 
 const App = () => {
     return (
-
-        
         <DashboardProvider>
             <Router>
                 <ToastContainer />
@@ -77,16 +70,18 @@ const App = () => {
                     <Route path="/home" element={<Home />} />
                     <Route path="/student-assignment-report/:subjectId/:qset/:studentId/:departmentId" element={<StudentAssignmentReport />} />
                     <Route path="/attendance-upload" element={<AttendancePage/>}/>
+                    
+                    {/* Updated ExpertDashboard routes to include departmentId and examType */}
                     <Route path="/expertDashboard" element={<ExpertDashboard />}>
-                    <Route index element={<SubjectSelection />} />
-                    <Route path=":subjectId" element={<QSet />} />
-                    <Route path=":subjectId/:qset" element={<FinalPassageTextlog />} />
-                    <Route path=":subjectId/:qset/stage2" element={<Stage2 />} />
-                    <Route path=":subjectId/:qset/:studentId/:departmentId" element={<FetchPassageById />} />
+                        <Route index element={<SubjectSelection />} />
+                        <Route path=":subjectId" element={<QSet />} />
+                        {/* Updated routes with departmentId and examType parameters */}
+                        <Route path=":subjectId/:qset/:departmentId/:examType" element={<FinalPassageTextlog />} />
+                        <Route path=":subjectId/:qset/:departmentId/:examType/stage2" element={<Stage2 />} />
+                        <Route path=":subjectId/:qset/:studentId/:departmentId/:examType" element={<FetchPassageById />} />
                     </Route>
 
                     <Route path='/student_info/:studentId' element={<StudentDetails/>}/>
-
                     <Route path="/attendance-download" element={<AttendanceDownload />} />
                     <Route path="/centerwise-student-count" element={<CenterwiseStudentCount />} />
                     <Route path="/absentee-roll" element={<AbsenteeRoll />} />

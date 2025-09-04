@@ -17,12 +17,12 @@ const ExpertAdmin = () => {
                 const response = await axios.post('http://localhost:3000/get-student-passages', { studentId }, { withCredentials: true });
                 if (response.status === 200 && response.data) {
                     if (response.data.expertId === 8 || response.data.expertId === 100){
-                        const {subjectId, qset, departmentId } = response.data; // Get departmentId from response
-                        navigate(`/expertDashboard/${subjectId}/${qset}/${studentId}/${departmentId}`); // Include departmentId
+                        const {subjectId, qset, departmentId, examType } = response.data; // Get departmentId from response
+                        navigate(`/expertDashboard/${subjectId}/${qset}/${studentId}/${departmentId}/${examType}`); // Include departmentId
                     }
                     else if(response.data.expertId === 101){
-                        const {subjectId, qset, departmentId } = response.data; // Get departmentId from response
-                        navigate(`/student-assignment-report/${subjectId}/${qset}/${studentId}/${departmentId}`); // Include departmentId
+                        const {subjectId, qset, departmentId, examType } = response.data; // Get departmentId from response
+                        navigate(`/student-assignment-report/${subjectId}/${qset}/${studentId}/${departmentId}/${examType}`); // Include departmentId
                     }
                 } else {
                     setError('No matching record found for this Student ID');

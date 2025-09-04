@@ -108,7 +108,7 @@ const MistakesList = ({ mistakes, onAddIgnoreWord, onWordHover, fontSize, ignore
 
 const FinalPassageTextlog = () => {
   const navigate = useNavigate();
-  const { subjectId, qset, departmentId } = useParams();
+  const { subjectId, qset, departmentId, examType } = useParams();
   const [passages, setPassages] = useState({
     passageA: '',
     passageB: '',
@@ -317,10 +317,18 @@ const FinalPassageTextlog = () => {
     }, {});
 
     const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
-    let average = 50 - (total / 3); // for skilltest
+
+    let average;
+
+    if (examType === 'SKILL'){
+      average = 80 - (total / 2); // for skilltest
+    }else{
+      average = 50 - (total / 2); // for skilltest
+    }
     if (average < 0) {
       average = 0;
     }
+
 
     setCategoryCounts({
       ...counts,

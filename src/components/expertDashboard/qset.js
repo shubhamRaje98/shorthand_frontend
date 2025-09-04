@@ -1,3 +1,4 @@
+// src/components/expertDashboard/qset.js
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
@@ -10,7 +11,7 @@ const QSet = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { subjectId } = useParams();
-  const { setSelectedQSet } = useDashboard();
+  const { setSelectedQSet, selectedSubject } = useDashboard();
   const location = useLocation();
   const isHeld = new URLSearchParams(location.search).get('held') === 'true';
 
@@ -18,7 +19,15 @@ const QSet = () => {
     const fetchQSets = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:3000/qsets/${subjectId}${isHeld ? '?held=true' : ''}`, { withCredentials: true });
+        // Include departmentId in the query if available
+        const departmentId = selectedSubject?.departmentId;
+        let url = `http://localhost:3000/qsets/${subjectId}${isHeld ? '?held=true' : ''}`;
+        
+        if (departmentId) {
+          url += `${isHeld ? '&' : '?'}departmentId=${departmentId}`;
+        }
+        
+        const response = await axios.get(url, { withCredentials: true });
         if (response.status === 200) {
           const sortedQSets = response.data.sort((a, b) => a.qset - b.qset);
           setQsets(sortedQSets);
@@ -32,27 +41,42 @@ const QSet = () => {
     };
 
     fetchQSets();
-  }, [subjectId, isHeld]);
+  }, [subjectId, isHeld, selectedSubject]);
 
   const handleQSetClick = async (qsetObj) => {
     try {
-      // Include the held parameter in the URL
-      const response = await axios.post(
-        `http://localhost:3000/assignStudent/${subjectId}/${qsetObj.qset}?held=${isHeld}`, 
-        {}, 
-        { withCredentials: true }
-      );
+      // Get departmentId and examType from selectedSubject
+      const departmentId = selectedSubject?.departmentId || 'null';
+      const examType = selectedSubject?.examType || 'null';
+      
+      // Build URL with departmentId and examType as path parameters
+      let url = `http://localhost:3000/assignStudent/${subjectId}/${qsetObj.qset}/${departmentId}/${examType}`;
+      
+      // Add held as query parameter if needed
+      if (isHeld) {
+        url += '?held=true';
+      }
+      
+      const response = await axios.post(url, {}, { withCredentials: true });
   
       if (response.status === 200) {
-        setSelectedQSet(qsetObj);
+        setSelectedQSet({
+          ...qsetObj,
+          departmentId: response.data.departmentId,
+          examType: response.data.examType
+        });
+        
+        // Use the actual departmentId and examType from the response for navigation
+        const finalDepartmentId = response.data.departmentId || 'null';
+        const finalExamType = response.data.examType || 'null';
         
         if (response.data.paper_mod === 1) {
-          navigate(`/expertDashboard/${subjectId}/${qsetObj.qset}/stage2`, { replace: true });
+          navigate(`/expertDashboard/${subjectId}/${qsetObj.qset}/${finalDepartmentId}/${finalExamType}/stage2`, { replace: true });
         } else {
           if (isHeld){
-            navigate(`/expertDashboard/${subjectId}/${qsetObj.qset}?held=${isHeld}`, { replace: true });
+            navigate(`/expertDashboard/${subjectId}/${qsetObj.qset}/${finalDepartmentId}/${finalExamType}?held=${isHeld}`, { replace: true });
           }else{
-            navigate(`/expertDashboard/${subjectId}/${qsetObj.qset}`, { replace: true });
+            navigate(`/expertDashboard/${subjectId}/${qsetObj.qset}/${finalDepartmentId}/${finalExamType}`, { replace: true });
           }
         }
       }
@@ -85,6 +109,9 @@ const QSet = () => {
           <div className="item-title">QSet: {qsetObj.qset}</div>
           {qsetObj.incomplete_count !== undefined && qsetObj.total_count !== undefined && (
             <div className="item-count">Students: {qsetObj.incomplete_count}/{qsetObj.total_count}</div>
+          )}
+          {selectedSubject?.departmentName && (
+            <div className="item-department">Dept: {selectedSubject.departmentName}</div>
           )}
         </button>
       ))}
