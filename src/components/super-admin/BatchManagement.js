@@ -43,7 +43,7 @@ const BatchManagement = () => {
 
     const fetchBatches = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/get-all-batches');
+            const response = await axios.get('http://45.119.47.81:3000/get-all-batches');
             setBatches(response.data.data);
             console.log(response.data)
             setLoading(false);
@@ -55,7 +55,7 @@ const BatchManagement = () => {
 
     const handleStatusUpdate = async (batchNo, status, departmentId) => {
         try {
-            const response = await axios.post('http://localhost:3000/update-batch-status', {
+            const response = await axios.post('http://45.119.47.81:3000/update-batch-status', {
                 batchNo,
                 departmentId,
                 status: Boolean(status)
