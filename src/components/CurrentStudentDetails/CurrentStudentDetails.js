@@ -29,7 +29,7 @@ const CurrentStudentDetails = () => {
 
     const fetchDepartments = async () => {
         try {
-            const response = await axios.get('http://localhost:3004/departments', { withCredentials: true });
+            const response = await axios.get('http://localhost:3001/departments', { withCredentials: true });
             if (response.data && Array.isArray(response.data.departments)) {
                 setDepartments(response.data.departments);
             }
@@ -43,7 +43,7 @@ const CurrentStudentDetails = () => {
         setLoading(true);
         setError('');
         try {
-            let url = 'http://localhost:3004/center-batches';
+            let url = 'http://localhost:3001/center-batches';
             if (departmentId) {
                 url += `?departmentId=${departmentId}`;
             }
@@ -69,7 +69,7 @@ const CurrentStudentDetails = () => {
         setLoading(true);
         setError('');
         try {
-            let url = `http://localhost:3004/get-current-student-details`;
+            let url = `http://localhost:3001/get-current-student-details`;
             const params = new URLSearchParams();
             
             if (batchNo) {

@@ -15,7 +15,7 @@ const Student_info = () => {
         setLoading(true);
         setError('');
         try {
-            const response = await axios.post('http://localhost:3004/admin/student-data', { student_id: studentId });
+            const response = await axios.post('http://localhost:3001/admin/student-data', { student_id: studentId });
             console.log(response.data);
             setStudentData(response.data);
         } catch (err) {
@@ -117,23 +117,33 @@ const Student_info = () => {
                             </div>
                         </section>
 
+                        {/* Modified Typing Passage section with error handling */}
                         <section className="sd-section passage-section">
                             <h2 className="sd-subtitle">Typing Passage</h2>
-                            <div className="sd-passage-split">
-                                <div className="sd-passage-half">
-                                    <h3>Typing Passage Log</h3>
-                                    <p>{studentData.typingPassage[0].typing_passage_log || 'N/A'}</p>
+                            {studentData.typingPassage?.length > 0 ? (
+                                <div className="sd-passage-split">
+                                    <div className="sd-passage-half">
+                                        <h3>Typing Passage Log</h3>
+                                        <p>{studentData.typingPassage[0].typing_passage_log || 'N/A'}</p>
+                                    </div>
+                                    <div className="sd-passage-half">
+                                        <h3>Final Typing Passage</h3>
+                                        <p>{studentData.typingPassage[0].final_typing_passage || 'N/A'}</p>
+                                    </div>
                                 </div>
-                                <div className="sd-passage-half">
-                                    <h3>Final Typing Passage</h3>
-                                    <p>{studentData.typingPassage[0].final_typing_passage || 'N/A'}</p>
+                            ) : (
+                                <div className="sd-passage-split">
+                                    <div className="sd-passage-half">
+                                        <h3>Typing Passage Log</h3>
+                                        <p>No typing passage data available</p>
+                                    </div>
+                                    <div className="sd-passage-half">
+                                        <h3>Final Typing Passage</h3>
+                                        <p>No typing passage data available</p>
+                                    </div>
                                 </div>
-                            </div>
+                            )}
                         </section>
-
-                       
-
-                       
 
                         {/* Modified Student Logs section */}
                         <section className="sd-section student-logs-section">
@@ -161,6 +171,7 @@ const Student_info = () => {
                                 <p>No logs available</p>
                             )}
                         </section>
+                        
                         <section className="sd-section exam-stages-section">
                             <h2 className="sd-subtitle">Exam Stages</h2>
                             {studentData.examStages?.length ? (
@@ -186,7 +197,6 @@ const Student_info = () => {
                                 <p>No exam stages available</p>
                             )}
                         </section>
-
 
                     </div>
                 )}

@@ -46,7 +46,7 @@ const ExpertReview = () => {
 
   const fetchDepartments = async () => {
     try {
-      const response = await axios.get('http://localhost:3004/get-departments-students');
+      const response = await axios.get('http://localhost:3001/get-departments-students');
       
       if (response.status === 201) {
         setDepartments(response.data);
@@ -66,7 +66,7 @@ const ExpertReview = () => {
     setMessage('');
 
     try {
-      const response = await axios.get(`http://localhost:3004/get-expert-review-logs?department=${selectedDepartment}&page=${currentPage}&limit=${logsPerPage}`);
+      const response = await axios.get(`http://localhost:3001/get-expert-review-logs?department=${selectedDepartment}&page=${currentPage}&limit=${logsPerPage}`);
       
       if (response.status === 201) {
         setExpertReviewLogs(response.data);
@@ -89,7 +89,7 @@ const ExpertReview = () => {
     setMessage('');
 
     try {
-      const response = await axios.get(`http://localhost:3004/get-mod-review-logs?department=${selectedDepartment}&page=${currentPage}&limit=${logsPerPage}`);
+      const response = await axios.get(`http://localhost:3001/get-mod-review-logs?department=${selectedDepartment}&page=${currentPage}&limit=${logsPerPage}`);
      
       if (response.status === 201) {
         setModReviewLogs(response.data);
@@ -123,7 +123,7 @@ const ExpertReview = () => {
 
     try {
         console.log(`[${new Date().toISOString()}] Making API request to populate expert review log`);
-        const response = await axios.post('http://localhost:3004/populate-expert-review-log', {
+        const response = await axios.post('http://localhost:3001/populate-expert-review-log', {
             department: selectedDepartment
         });
         
@@ -167,7 +167,7 @@ const ExpertReview = () => {
     setMessage('');
 
     try {
-      const response = await axios.post('http://localhost:3004/populate-mod-review-log', {
+      const response = await axios.post('http://localhost:3001/populate-mod-review-log', {
         department: selectedDepartment
       });
      

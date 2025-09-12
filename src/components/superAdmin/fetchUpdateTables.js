@@ -113,7 +113,7 @@ const FetchUpdateTable = () => {
         };
       }
       
-      const response = await axios.post('http://localhost:3004/fetch-update-tables', fetchParams);
+      const response = await axios.post('http://localhost:3001/fetch-update-tables', fetchParams);
 
       const fetchedData = response.data;
       if (fetchedData.length > 0) {
@@ -146,7 +146,7 @@ const FetchUpdateTable = () => {
 
   const handleSave = async (index) => {
     try {
-      await axios.put(`http://localhost:3004/update-table/${selectedTable}/${editingData.student_id}`, editingData);
+      await axios.put(`http://localhost:3001/update-table/${selectedTable}/${editingData.student_id}`, editingData);
       const updatedData = [...data];
       updatedData[index] = editingData;
       setData(updatedData);
@@ -158,7 +158,7 @@ const FetchUpdateTable = () => {
 
   const handleAddNewEntry = async () => {
     try {
-      const response = await axios.post(`http://localhost:3004/add-entry/${selectedTable}`, newEntryData);
+      const response = await axios.post(`http://localhost:3001/add-entry/${selectedTable}`, newEntryData);
       setData([...data, response.data]);
       setNewEntryData({});
       alert(response);

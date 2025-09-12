@@ -31,7 +31,7 @@ const DepartmentStudentCount = () => {
         setLoading(true);
         setError('');
         try {
-            let url = 'http://localhost:3004/track-students-on-department-code';
+            let url = 'http://localhost:3001/track-students-on-department-code';
             
             console.log("Fetching data from URL:", url);
             const response = await fetch(url, { 
@@ -62,7 +62,7 @@ const DepartmentStudentCount = () => {
         setLoading(true);
         setError('');
         try {
-            let url = `http://localhost:3004/get-department-batch-student-count`
+            let url = `http://localhost:3001/get-department-batch-student-count`
             if(batchNo || center){
                 url += '?';
                 if(batchNo) url += `batchNo=${batchNo}&`;

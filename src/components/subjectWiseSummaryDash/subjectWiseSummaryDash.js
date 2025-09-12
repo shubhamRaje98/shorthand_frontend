@@ -18,13 +18,13 @@ const SubjectWiseResultSummary = () => {
       setProgress(0);
 
       // Start listening for progress updates
-      const eventSource = new EventSource('http://localhost:3004/recalculate-progress');
+      const eventSource = new EventSource('http://localhost:3001/recalculate-progress');
       eventSource.onmessage = (event) => {
         const data = JSON.parse(event.data);
         setProgress(data.progress);
       };
 
-      const response = await axios.get('http://localhost:3004/recalculate-result');
+      const response = await axios.get('http://localhost:3001/recalculate-result');
       console.log("Response:", response.data);
       setSummaryData(response.data);
       setIsLoading(false);
