@@ -1,0 +1,472 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import './DepartmentDashboard.css';
+import NavBar from '../navBar/navBar';
+import * as XLSX from 'xlsx';
+import moment from 'moment-timezone';
+import DepartmentNavBar from './DepartmentNavBar';
+
+const DepartmentDashboard = () => {
+    const [data, setData] = useState([]);
+    const [batchNo, setBatchNo] = useState('');
+    const [subject, setSubject] = useState('');
+    const [loginStatus, setLoginStatus] = useState('');
+    const [exam_type, setExam_type] = useState('shorthand');
+    const [batchDate, setBatchDate] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [updateInterval, setUpdateInterval] = useState(100000);
+    const [batches, setBatches] = useState([]);
+    const [center, setCenter] = useState('');
+    const [centers, setCenters] = useState([]);
+    const [subjects, setSubjects] = useState([]);
+    const [allSubjects, setAllSubjects] = useState([]);
+    const [batchDates, setBatchDates] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
+
+    const formatDate = (dateString) => {
+        if (!dateString || dateString === "invalid date" || dateString === "0") {
+            return "";
+        }
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) {
+            return dateString; // Return original string if it's not a valid date
+        }
+
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        let hours = date.getHours();
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+
+        hours = hours % 12;
+        hours = hours ? hours : 12; // 0 should be 12
+        const formattedHours = String(hours).padStart(2, '0');
+
+        return `${day}/${month}/${year} ${formattedHours}:${minutes} ${ampm}`;
+    };
+    // function formatDate(dateString) {
+    //     if(!dateString) return null;
+    //     return moment(dateString).tz('Asia/Kolkata').format('DD-MM-YYYY hh:mm:ss A')
+    // }
+
+    const fetchSubjects = async () => {
+        try {
+            const response = await axios.get('http://localhost:3004/subjects');
+            if (response.data.subjects) {
+                setAllSubjects(response.data.subjects);
+            }
+        } catch (error) {
+            console.error('Error fetching subjects:', error);
+            setError('Failed to fetch subjects');
+        }
+    };
+
+    const fetchData = async () => {
+        setLoading(true);
+        setError('');
+        try {
+            let url = 'http://localhost:3004/track-students-on-department-code';
+
+            const params = new URLSearchParams();
+            if (subject) params.append('subject_name', subject);
+            if (loginStatus) params.append('loginStatus', loginStatus);
+            if (batchNo) params.append('batchNo', batchNo);
+            if (center) params.append('center', center);
+            if (exam_type) params.append('exam_type', exam_type);
+            if (batchDate) {
+                // Format the date properly before sending to backend
+                params.append('batchDate', batchDate);
+            }
+
+            if (params.toString()) {
+                url += `?${params.toString()}`;
+            }
+
+            console.log("Fetching data from URL:", url);
+            const response = await axios.post(url, { withCredentials: true });
+            console.log("Response:", response.data);
+            setData(response.data);
+
+            // ... rest of your existing code for setting batches, centers, subjects
+
+            // Fix the batch dates extraction and formatting
+            const distinctBatchDates = [...new Set(response.data
+                .filter(item => item.batchdate && item.batchdate !== "invalid date" && item.batchdate !== "0")
+                .map(item => {
+                    // Ensure consistent date format for display
+                    const date = new Date(item.batchdate);
+                    if (!isNaN(date.getTime())) {
+                        return date.toISOString().split('T')[0]; // YYYY-MM-DD format
+                    }
+                    return item.batchdate;
+                })
+            )];
+
+            setBatchDates(prevDates => {
+                const newDates = [...new Set([...prevDates, ...distinctBatchDates])];
+                return newDates.sort().reverse();
+            });
+        } catch (error) {
+            console.error("Error fetching data:", error);
+            setError("No students found for provided filter parameters. Please check the parameters!");
+        }
+        setLoading(false);
+    };
+
+
+    useEffect(() => {
+        fetchSubjects();
+        fetchData();
+        const interval = setInterval(fetchData, updateInterval);
+        return () => clearInterval(interval);
+    }, [batchNo, subject, loginStatus, batchDate, updateInterval, center, exam_type]);
+
+    const isValidData = (value) => {
+        return value && value !== "invalid date" && value !== "0" && !isNaN(new Date(value).getTime());
+    };
+
+    const getCellClass = (item, field, exam_type) => {
+        let stages;
+        if (exam_type === 'shorthand') {
+            stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time', 'audio2_time', 'passage2_time', 'feedback_time'];
+        } else if (exam_type === 'typewriting') {
+            stages = ['loginTime', 'trial_passage_time', 'typing_passage_time', 'feedback_time'];
+        } else {
+            stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time', 'audio2_time', 'passage2_time', 'feedback_time'];
+        }
+        const currentStageIndex = stages.indexOf(field);
+
+        if (currentStageIndex === -1) return '';
+
+        if (field === 'loginTime') {
+            return isValidData(item[field]) ? 'dept-cell-green dept-text-white' : 'dept-cell-red dept-text-white';
+        }
+
+        if (field === 'feedback_time') {
+            if (isValidData(item[field])) {
+                // If feedback is green, also turn passage1_time or typing_passage_time green
+                if (exam_type === 'shorthand') {
+                    item['passage2_time'] = item[field]; // Force passage1_time to be valid
+                } else if (exam_type === 'typewriting') {
+                    item['typing_passage_time'] = item[field]; // Force typing_passage_time to be valid
+                }
+                return 'dept-cell-green dept-text-white';
+            } else {
+                return 'dept-cell-red dept-text-white';
+            }
+        }
+
+        if (isValidData(item[field])) {
+            // Special case for passage1_time in shorthand and typing_passage_time in typewriting
+            if ((exam_type === 'shorthand' && field === 'passage2_time') ||
+                (exam_type === 'typewriting' && field === 'typing_passage_time')) {
+                if (isValidData(item['feedback_time'])) {
+                    return 'dept-cell-green dept-text-white';
+                }
+            }
+
+            // Check if it's the last field or if the next field has valid data
+            if (currentStageIndex === stages.length - 1 || isValidData(item[stages[currentStageIndex + 1]])) {
+                return 'dept-cell-green dept-text-white';
+            } else if (currentStageIndex > 0 && currentStageIndex < stages.length - 1) {
+                // Check if the previous cell is green and the next cell is red
+                const prevCellGreen = isValidData(item[stages[currentStageIndex - 1]]);
+                const nextCellRed = !isValidData(item[stages[currentStageIndex + 1]]);
+                if (prevCellGreen && nextCellRed) {
+                    return 'dept-cell-yellow dept-text-black';
+                } else {
+                    return 'dept-cell-green dept-text-white';
+                }
+            } else {
+                return 'dept-cell-green dept-text-white';
+            }
+        } else if (currentStageIndex > 0 && isValidData(item[stages[currentStageIndex - 1]])) {
+            return 'dept-cell-red dept-text-black';
+        } else {
+            return 'dept-cell-red dept-text-white';
+        }
+    };
+
+
+    const exportToExcel = () => {
+        const worksheet = XLSX.utils.json_to_sheet(data.map(item => ({
+            "Batch Number": item.batchNo,
+            "Seat No": item.student_id,
+            "Login": formatDate(item.loginTime),
+            "Trial": formatDate(item.trial_time),
+            "Audio Track A": formatDate(item.audio1_time),
+            "Passage A": formatDate(item.passage1_time),
+            "Audio Track B": formatDate(item.audio1_time),
+            "Passage B": formatDate(item.passage1_time),
+            "Trial Passage": formatDate(item.trial_passage_time),
+            "Typing Passage": formatDate(item.typing_passage_time),
+            "Feedback": formatDate(item.feedback_time)
+        })));
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Student Data");
+        XLSX.writeFile(workbook, "student_data.xlsx");
+    };
+
+    // Pagination
+    const indexOfLastItem = itemsPerPage === 'all' ? data.length : currentPage * Number(itemsPerPage);
+    const indexOfFirstItem = itemsPerPage === 'all' ? 0 : indexOfLastItem - Number(itemsPerPage);
+    const currentItems = itemsPerPage === 'all' ? data : data.slice(indexOfFirstItem, indexOfLastItem);
+
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+    const pageNumbers = [];
+    for (let i = 1; i <= Math.ceil(data.length / (itemsPerPage === 'all' ? data.length : Number(itemsPerPage))); i++) {
+        pageNumbers.push(i);
+    }
+
+    const renderPaginationButtons = () => {
+        const totalPages = pageNumbers.length;
+        const maxButtonsToShow = 5;
+
+        if (totalPages <= maxButtonsToShow) {
+            return pageNumbers.map(number => (
+                <button key={number} onClick={() => paginate(number)} className={currentPage === number ? 'active' : ''}>
+                    {number}
+                </button>
+            ));
+        }
+
+        let startPage = Math.max(1, currentPage - Math.floor(maxButtonsToShow / 2));
+        let endPage = startPage + maxButtonsToShow - 1;
+
+        if (endPage > totalPages) {
+            endPage = totalPages;
+            startPage = Math.max(1, endPage - maxButtonsToShow + 1);
+        }
+
+        const buttons = [];
+
+        if (startPage > 1) {
+            buttons.push(
+                <button key={1} onClick={() => paginate(1)}>1</button>,
+                <span key="ellipsis1">...</span>
+            );
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            buttons.push(
+                <button key={i} onClick={() => paginate(i)} className={currentPage === i ? 'active' : ''}>
+                    {i}
+                </button>
+            );
+        }
+
+        if (endPage < totalPages) {
+            buttons.push(
+                <span key="ellipsis2">...</span>,
+                <button key={totalPages} onClick={() => paginate(totalPages)}>{totalPages}</button>
+            );
+        }
+
+        return buttons;
+    };
+
+    return (
+        <div>
+            <DepartmentNavBar />
+            <div className="home-container">
+                <div className="dept-container-fluid">
+                    <div className="dept-row mb-3">
+                        <div className="dept-col-md-3 dept-col-sm-6 mb-2">
+                            <label htmlFor="batchNo" className="dept-form-label">Batch Number:</label>
+                            <select
+                                className="dept-form-select dept-scrollable-dropdown"
+                                id="batchNo"
+                                value={batchNo}
+                                onChange={(e) => setBatchNo(e.target.value)}
+                            >
+                                <option value="">All Batches</option>
+                                {batches.map((batch, index) => (
+                                    <option key={index} value={batch}>{batch}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="dept-col-md-3 dept-col-sm-6 mb-2">
+                            <label htmlFor="subject" className="dept-form-label">Subject:</label>
+                            <select
+                                className="dept-form-select dept-scrollable-dropdown"
+                                id="subject"
+                                value={subject}
+                                onChange={(e) => setSubject(e.target.value)}
+                            >
+                                <option value="">All Subjects</option>
+                                {allSubjects.map((subj) => (
+                                    <option key={subj.subjectId} value={subj.subject_name}>
+                                        {subj.subject_name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="dept-col-md-3 dept-col-sm-6 mb-2">
+                            <label htmlFor="loginStatus" className="dept-form-label">Login Status:</label>
+                            <select
+                                className="dept-form-select"
+                                id="loginStatus"
+                                value={loginStatus}
+                                onChange={(e) => setLoginStatus(e.target.value)}
+                            >
+                                <option value="">All</option>
+                                <option value="loggedin">Logged In</option>
+                                <option value="loggedout">Logged Out</option>
+                            </select>
+                        </div>
+                        <div className="dept-col-md-3 dept-col-sm-6 mb-2">
+                            <label htmlFor="examStatus" className="dept-form-label">Exam Status:</label>
+                            <select
+                                className="dept-form-select"
+                                id="examStatus"
+                                value={exam_type}
+                                onChange={(e) => setExam_type(e.target.value)}
+                                defaultValue="shorthand"
+                            >
+                                <option value="">All</option>
+                                <option value="shorthand">Short Hand</option>
+                                <option value="typewriting">Type Writing</option>
+                                <option value="both">Both</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div className="dept-row mb-3">
+                        <div className="dept-col-md-3 dept-col-sm-6 mb-2">
+                            <label htmlFor="batchDate" className="dept-form-label">Batch Date:</label>
+                            <select
+                                className="dept-form-select"
+                                id="batchDate"
+                                value={batchDate}
+                                onChange={(e) => setBatchDate(e.target.value)}
+                            >
+                                <option value="">All Dates</option>
+                                {batchDates.map((date, index) => {
+                                    // Format date for display
+                                    const displayDate = new Date(date).toLocaleDateString('en-GB'); // DD/MM/YYYY format
+                                    return (
+                                        <option key={index} value={date}>{displayDate}</option>
+                                    );
+                                })}
+                            </select>
+                        </div>
+                        <div className="dept-col-md-3 dept-col-sm-6 mb-2">
+                            <label htmlFor="center" className="dept-form-label">Center:</label>
+                            <select
+                                className="dept-form-select dept-scrollable-dropdown"
+                                id="center"
+                                value={center}
+                                onChange={(e) => setCenter(e.target.value)}
+                            >
+                                <option value="">All Centers</option>
+                                {centers.map((centerOption, index) => (
+                                    <option key={index} value={centerOption}>{centerOption}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="dept-col-md-3 dept-col-sm-6 mb-2">
+                            <label htmlFor="itemsPerPage" className="dept-form-label">Rows per page:</label>
+                            <select
+                                className="dept-form-select"
+                                id="itemsPerPage"
+                                value={itemsPerPage}
+                                onChange={(e) => {
+                                    setItemsPerPage(e.target.value);
+                                    setCurrentPage(1);
+                                }}
+                            >
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                                <option value="all">All</option>
+                            </select>
+                        </div>
+                        <div className="dept-col-md-3 dept-col-sm-6 mb-2">
+                            <button onClick={exportToExcel} className="dept-btn dept-btn-primary dept-export-btn">
+                                Export to Excel
+                            </button>
+                        </div>
+                    </div>
+                    {loading ? (
+                        <p>Loading...</p>
+                    ) : error ? (
+                        <p>{error}</p>
+                    ) : data.length > 0 ? (
+                        <div>
+                            <div className="dept-table-container">
+                                <table className="dept-table dept-table-bordered dept-table-striped dept-table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th style={{ width: '8%' }}>Batch No</th>
+                                            <th style={{ width: '8%' }}>Center</th>
+                                            <th style={{ width: '12%' }}>Seat No</th>
+                                            <th>Login</th>
+                                            {exam_type !== 'typewriting' && <th>Trial</th>}
+                                            {exam_type !== 'typewriting' && (
+                                                <>
+                                                    <th>Audio Track A</th>
+                                                    <th>Passage A</th>
+                                                    <th>Audio Track B</th>
+                                                    <th>Passage B</th>
+                                                </>
+                                            )}
+                                            {exam_type !== 'shorthand' && (
+                                                <>
+                                                    <th>Trial Typing</th>
+                                                    <th>Typing Test</th>
+                                                </>
+                                            )}
+                                            <th>Feedback</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {currentItems.map((item, index) => (
+                                            <tr key={index}>
+                                                <td className="batch-number-column">{item.batchNo}</td>
+                                                <td>{item.center}</td>
+                                                <td>{item.student_id}</td>
+                                                <td className={getCellClass(item, 'loginTime')}>{formatDate(item.loginTime)}</td>
+                                                {exam_type !== 'typewriting' && <td className={getCellClass(item, 'trial_time')}>{formatDate(item.trial_time)}</td>}
+                                                {exam_type !== 'typewriting' && (
+                                                    <>
+                                                        <td className={getCellClass(item, 'audio1_time')}>{formatDate(item.audio1_time)}</td>
+                                                        <td className={getCellClass(item, 'passage1_time')}>{formatDate(item.passage1_time)}</td>
+                                                        <td className={getCellClass(item, 'audio2_time')}>{formatDate(item.audio2_time)}</td>
+                                                        <td className={getCellClass(item, 'passage2_time')}>{formatDate(item.passage2_time)}</td>
+                                                    </>
+                                                )}
+                                                {exam_type !== 'shorthand' && (
+                                                    <>
+                                                        <td className={getCellClass(item, 'trial_passage_time')}>{formatDate(item.trial_passage_time)}</td>
+                                                        <td className={getCellClass(item, 'typing_passage_time')}>{formatDate(item.typing_passage_time)}</td>
+
+                                                    </>
+
+                                                )}
+                                                <td className={getCellClass(item, 'feedback_time')}>{formatDate(item.feedback_time)}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    ) : (
+                        <p>No records found</p>
+                    )}
+                    {itemsPerPage !== 'all' && (
+                        <div className="pagination">
+                            {renderPaginationButtons()}
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default DepartmentDashboard;

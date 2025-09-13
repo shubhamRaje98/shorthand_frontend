@@ -1,0 +1,124 @@
+/* AttendanceReports.css */
+
+.ar-page {
+    font-family: 'Arial', sans-serif;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f5f7fa;
+}
+
+.ar-container {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.ar-title {
+    color: #2c3e50;
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.ar-filter-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.ar-select-wrapper {
+    flex: 1;
+    margin: 0 10px;
+}
+
+.ar-label {
+    display: block;
+    margin-bottom: 5px;
+    color: #34495e;
+    font-weight: bold;
+}
+
+.ar-select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #bdc3c7;
+    border-radius: 4px;
+    background-color: #fff;
+    font-size: 14px;
+    color: #2c3e50;
+}
+
+.ar-attendance-report-list {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+.ar-list-title {
+    color: #2c3e50;
+    font-size: 20px;
+    margin-bottom: 15px;
+}
+
+.ar-no-reports {
+    color: #7f8c8d;
+    font-style: italic;
+    text-align: center;
+}
+
+.ar-report-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.ar-table-header {
+    background-color: #3498db;
+    color: #ffffff;
+    padding: 12px;
+    text-align: left;
+}
+
+.ar-table-row:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.ar-table-cell {
+    padding: 12px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.ar-pdf-link {
+    text-align: center;
+}
+
+.ar-view-link {
+    display: inline-block;
+    padding: 6px 12px;
+    background-color: #2ecc71;
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.ar-view-link:hover {
+    background-color: #27ae60;
+}
+
+@media (max-width: 768px) {
+    .ar-filter-container {
+        flex-direction: column;
+    }
+
+    .ar-select-wrapper {
+        margin: 10px 0;
+    }
+
+    .ar-table-header, .ar-table-cell {
+        padding: 8px;
+    }
+}

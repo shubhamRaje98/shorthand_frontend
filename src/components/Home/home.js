@@ -1,4 +1,3 @@
-// Home.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, Route, Routes } from 'react-router-dom';
@@ -10,8 +9,9 @@ import CenterwiseStudentCount from '../centerwiseStudentExamCountTracking/center
 import './home.css';
 
 const Home = () => {
-    const { center } = useParams(); // Get the 'center' parameter from the URL
+    const { center } = useParams();
     const [centerDetails, setCenterDetails] = useState(null);
+    const [pcCount, setPcCount] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
@@ -20,15 +20,17 @@ const Home = () => {
             try {
                 console.log(`Fetching details for center: ${center}`);
                 
-                // Using POST request as required by your API
-                const response = await axios.get(`http://localhost:3000/get-center-details`);
+                const response = await axios.get(`http://localhost:3004/get-center-details`);
                 console.log("API Response:", response.data);
 
-                if (response.data && response.data.length > 0) {
-                    setCenterDetails(response.data[0]);
-                    console.log("Center details:", response.data[0]);
+                if (response.data && response.data.examCenterDTO && response.data.examCenterDTO.length > 0) {
+                    setCenterDetails(response.data.examCenterDTO[0]);
+                    setPcCount(response.data.pcCount);
+                    console.log("Center details:", response.data.examCenterDTO[0]);
+                    console.log("PC Count:", response.data.pcCount);
                 } else {
                     setCenterDetails(null);
+                    setPcCount(null);
                     console.log("No center details found");
                 }
                 setLoading(false);
@@ -51,25 +53,43 @@ const Home = () => {
     }
 
     return (
-        <div>
+        <div className="home-wrapper">
             <NavBar />
             <div className="home-container">
-                
                 <div className="content">
                     <Routes>
                         <Route path="/" element={
-                            <div>
-                                <h1>Center Details</h1>
+                            <div className="center-details">
+                                <h1>Center Admin</h1>
                                 {centerDetails ? (
-                                    <div>
-                                        <p>Center Name: {centerDetails.center}</p>
-                                        <p>Center Address: {centerDetails.center_address}</p>
-                                        <p>Max PC: {centerDetails.max_pc}</p>
-                                        <p>PC count: {centerDetails.pc_count}</p>
-                                        
+                                    <div className="details-grid">
+                                        <div className="detail-item">
+                                            <span className="detail-label">Center Code:</span>
+                                            <span className="detail-value">{centerDetails.center}</span>
+                                        </div>
+                                        <div className="detail-item">
+                                            <span className="detail-label">Center Name:</span>
+                                            <span className="detail-value">{centerDetails.center_name}</span>
+                                        </div>
+                                        <div className="detail-item">
+                                            <span className="detail-label">Center Address:</span>
+                                            <span className="detail-value">{centerDetails.center_address}</span>
+                                        </div>
+                                        <div className="detail-item">
+                                            <span className="detail-label">Max PC:</span>
+                                            <span className="detail-value">{centerDetails.max_pc}</span>
+                                        </div>
+                                        <div className="detail-item">
+                                            <span className="detail-label">PC Count:</span>
+                                            <span className="detail-value">{centerDetails.pc_count}</span>
+                                        </div>
+                                        <div className="detail-item">
+                                            <span className="detail-label">Registered PCs:</span>
+                                            <span className="detail-value">{pcCount}</span>
+                                        </div>
                                     </div>
                                 ) : (
-                                    <p>No details available for this center.</p>
+                                    <p className="no-details">No details available for this center.</p>
                                 )}
                             </div>
                         } />

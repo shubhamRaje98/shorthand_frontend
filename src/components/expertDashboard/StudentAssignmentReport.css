@@ -1,0 +1,328 @@
+/* StudentAssignmentReport.css */
+
+.final-passage-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.6rem;
+    border-radius: 0.5rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+.passage-buttons {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: center;
+    gap: 0.5em;
+}
+
+.red { color: red; }
+.green { color: green; }
+.black { color: black; }
+
+.passage-button {
+    padding: 0.5em 1em;
+    font-size: 0.9em;
+    background-color: #e0e0e0;
+    border: none;
+    border-radius: 0.25em;
+    cursor: pointer;
+    color: #495057;
+    transition: background-color 0.3s;
+    font-weight: 600;
+}
+
+.passage-button:hover {
+    background-color: #dee2e6;
+}
+
+.passage-button.active {
+    background-color: #007bff;
+    color: white;
+    box-shadow: 0 0.1rem 0.25rem rgba(0, 123, 255, 0.3);
+}
+
+.grid-item {
+    background-color: #ffffff;
+    padding: 0.5em;
+    border: 1px solid #90caf9;
+    border-radius: 0.25em;
+    text-align: left;
+    overflow: hidden;
+    box-shadow: 0 0.1rem 0.25rem rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.3s ease;
+    height: 100%;
+}
+
+.grid-item:hover {
+    box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.1);
+}
+
+.column-header {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5em;
+    color: #007bff;
+    padding-bottom: 0.5em;
+    border-bottom: 1px solid #e9ecef;
+    flex-shrink: 0;
+}
+
+.preformatted-text, .mistakes-list {
+    flex-grow: 1;
+    overflow-y: auto;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    padding: 0.75rem;
+    background-color: #f8f9fa;
+    border-radius: 0.25rem;
+    border: 1px solid #e9ecef;
+    max-height: none;
+}
+
+pre.preformatted-text {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    text-align: left;
+    margin: 0;
+}
+
+.mistakes-list h3 {
+    font-size: 0.9rem;
+    color: #495057;
+    margin-bottom: 0.7rem;
+}
+
+.mistakes-list ul {
+    padding-left: 1.25rem;
+    margin: 0;
+}
+
+.mistakes-list li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.4rem;
+}
+
+.word-actions {
+    display: flex;
+    margin-right: 3rem;
+}
+
+.action-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.2rem;
+    font-size: 0.8rem;
+    color: #6c757d;
+    transition: color 0.3s ease;
+}
+
+.action-button:hover {
+    color: #007bff;
+}
+
+.ignore-button {
+    margin-right: 3rem;
+}
+
+.mistake-word {
+    flex-grow: 1;
+}
+
+.mistake-word.ignored {
+    text-decoration: line-through;
+    color: #a0aec0;
+    transition: all 0.3s ease;
+}
+
+.added {
+    background-color: #e6fffa;
+    color: #047857;
+}
+
+.removed {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    text-decoration: line-through;
+}
+
+.equal {
+    color: #1f2937;
+}
+
+.highlighted {
+    background-color: #fef3c7;
+    font-weight: 600;
+}
+
+.zoom-buttons {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: auto;
+    padding-top: 0.5rem;
+}
+
+.zoom-buttons button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.3rem;
+    margin-left: 0.3rem;
+    font-size: 1rem;
+    color: #6c757d;
+    transition: color 0.3s ease;
+}
+
+.zoom-buttons button:hover {
+    color: #007bff;
+}
+
+.submit-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.submit-button-container {
+    position: relative;
+    display: inline-block;
+}
+
+.submit-tooltip {
+    position: absolute;
+    left: 75%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.submit-button:disabled:hover + .submit-tooltip {
+    visibility: visible;
+    opacity: 1;
+}
+
+.red {
+    background-color: #fee2e2;
+    color: #b91c1c;
+}
+
+.green {
+    background-color: #e6fffa;
+    color: #047857;
+}
+
+.black {
+    color: black;
+}
+
+.dustbin-button {
+    color: #6c757d;
+    transition: color 0.3s ease;
+  }
+  
+  .dustbin-button:hover {
+    color: #dc3545;
+  }
+
+.mistakes-ignored-container {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    overflow: hidden;
+}
+
+.mistakes-container, .ignored-container {
+    flex: 1;
+    background-color: #f8f9fa;
+    border-radius: 0.25rem;
+    border: 1px solid #e9ecef;
+    margin-right: 0.5rem;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.ignored-container {
+    margin-right: 0;
+}
+
+.mistakes-container > div, .ignored-container > div {
+    overflow-y: auto;
+    max-height: 100%;
+    padding: 0rem 0.75rem;
+    padding-right: 0; /* Remove right padding to allow scrollbar to touch the edge */
+}
+
+.mistakes-container h5, .ignored-container h5 {
+    margin-bottom: 0;
+    position: sticky;
+    top: 0;
+    background-color: #f8f9fa;
+    padding: 0.75rem 0.75rem 0.2rem;
+    z-index: 1;
+}
+
+.mistake-counts{
+    margin-left: 2rem;
+}
+.mistake-count{
+    margin-left: 1rem;
+}
+/* Modern and aesthetic scrollbar styles */
+.preformatted-text::-webkit-scrollbar,
+.mistakes-list::-webkit-scrollbar,
+.mistakes-container > div::-webkit-scrollbar,
+.ignored-container > div::-webkit-scrollbar {
+    width: 8px;
+}
+
+.preformatted-text::-webkit-scrollbar-track,
+.mistakes-list::-webkit-scrollbar-track,
+.mistakes-container > div::-webkit-scrollbar-track,
+.ignored-container > div::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.preformatted-text::-webkit-scrollbar-thumb,
+.mistakes-list::-webkit-scrollbar-thumb,
+.mistakes-container > div::-webkit-scrollbar-thumb,
+.ignored-container > div::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+.preformatted-text::-webkit-scrollbar-thumb:hover,
+.mistakes-list::-webkit-scrollbar-thumb:hover,
+.mistakes-container > div::-webkit-scrollbar-thumb:hover,
+.ignored-container > div::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* For Firefox */
+.preformatted-text,
+.mistakes-list,
+.mistakes-container > div,
+.ignored-container > div {
+    scrollbar-width: thin;
+    scrollbar-color: #c1c1c1 #f1f1f1;
+}
+
+/* Ensure content doesn't overlap with scrollbar */
+.mistakes-container > div > *,
+.ignored-container > div > * {
+    padding-right: 8px; /* Width of the scrollbar */
+}

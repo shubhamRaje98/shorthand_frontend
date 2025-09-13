@@ -1,0 +1,42 @@
+.dept-total-count-container {
+    display: inline-flex;
+    align-items: center;
+    background-color: #f0f0f0;
+    padding: 8px 12px;
+    border-radius: 4px;
+}
+
+.dept-total-count-label {
+    font-weight: bold;
+    margin-right: 8px;
+}
+
+.dept-total-count-value {
+    font-size: 1.2em;
+    color: #007bff;
+}
+.dept-total-count-container {
+    display: inline-flex;
+    align-items: center;
+    background-color: #f0f0f0;
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-left: 15px;
+    
+}
+
+.dept-total-count-label {
+    font-weight: bold;
+    margin-right: 8px;
+}
+
+.dept-total-count-value {
+    font-size: 1.2em;
+    color: #007bff;
+}
+
+.dept-export-btn {
+    margin-right: 10px;
+}
+
+/* Add any other existing styles here */

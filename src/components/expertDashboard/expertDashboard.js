@@ -14,7 +14,7 @@ const ExpertDashboard = () => {
     useEffect(() => {
         const fetchExpertDetails = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/expert-details', { withCredentials: true });
+                const response = await axios.get('http://localhost:3004/expert-details', { withCredentials: true });
                 if (response.status === 200) {
                     setExpertDetails(response.data);
                 }
@@ -25,20 +25,6 @@ const ExpertDashboard = () => {
 
         fetchExpertDetails();
     }, []);
-
-    useEffect(() => {
-        const heartbeatInterval = setInterval(() => {
-            axios.post('http://localhost:3000/expert-heartbeat', {}, { withCredentials: true })
-                .catch((error) => {
-                    if (error.response && error.response.status === 401) {
-                        // Unauthorized, session might have expired
-                        navigate('/expert-login', {replace: true});
-                    }
-                });
-        }, 30000); // Send heartbeat every 30 seconds
-
-        return () => clearInterval(heartbeatInterval);
-    }, [navigate]);
 
     useEffect(() => {
         // Reset selected subject and QSet based on the current URL
@@ -53,7 +39,7 @@ const ExpertDashboard = () => {
 
     const handleLogout = async () => {
         try {
-            await axios.post('http://localhost:3000/expert-logout', {}, { withCredentials: true });
+            await axios.post('http://localhost:3004/expert-logout', {}, { withCredentials: true });
             navigate('/expert-login', {replace: true});
         } catch (error) {
             console.error('Error logging out:', error);
@@ -69,12 +55,14 @@ const ExpertDashboard = () => {
                         <h5 className="expert-id">Expert ID: {expertDetails.expertId}</h5>
                         <h5 className="expert-name">Expert Name: {expertDetails.expert_name}</h5>
                         {selectedSubject && (
-                            <h5 className="selected-subject">Selected Subject: {selectedSubject.subject_name}</h5>
+                            <>
+                                <h5 className="selected-subject">Selected Subject: {selectedSubject.subject_name}</h5>
+                            </>
                         )}
                         {selectedQSet && (
                             <>
                                 <h5 className="selected-qset">Selected QSet: {selectedQSet.qset}</h5>
-                                <h5 className="qset-student-count">Student Count: {selectedQSet.student_count}</h5>
+                                <h5 className="qset-student-count">Student Count: {selectedQSet.incomplete_count}/{selectedQSet.total_count}</h5>
                             </>
                         )}
                     </div>

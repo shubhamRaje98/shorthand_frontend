@@ -6,7 +6,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUndo, faEyeSlash, faExchangeAlt, faSearchPlus, faSearchMinus } from '@fortawesome/free-solid-svg-icons';
-
+import { faToggleOn, faToggleOff } from '@fortawesome/free-solid-svg-icons';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 const ColoredText = ({ coloredWords, highlightedWord }) => {
   return (
@@ -43,17 +44,17 @@ const MistakesList = ({ mistakes, onAddIgnoreWord, onWordHover, fontSize, ignore
   
         switch(category) {
           case 'missed':
-            categoryTitle = 'Extra Added Words';
-            categoryStyle = {
-              backgroundColor: '#e6fffa',
-              color: '#047857'
-            };
-            break;
-          case 'added':
             categoryTitle = 'Omitted Words';
             categoryStyle = {
               backgroundColor: '#fee2e2',
               color: '#b91c1c'
+            };
+            break;
+          case 'added':
+            categoryTitle = 'Extra Added Words';
+            categoryStyle = {
+              backgroundColor: '#e6fffa',
+              color: '#047857'
             };
             break;
           case 'spelling':
@@ -107,7 +108,7 @@ const MistakesList = ({ mistakes, onAddIgnoreWord, onWordHover, fontSize, ignore
 
 const FetchPassageById = () => {
     const navigate = useNavigate();
-    const { studentId } = useParams();
+    const { studentId, subjectId, qset } = useParams();
     const [passages, setPassages] = useState({ 
         passageA: '', 
         passageB: '', 
@@ -128,6 +129,12 @@ const FetchPassageById = () => {
     const [coloredWords, setColoredWords] = useState([]);
     const [highlightedWord, setHighlightedWord] = useState(null);
     const [passageBViewed, setPassageBViewed] = useState(false);
+    const [categoryCounts, setCategoryCounts] = useState({});
+    const [isIgnoreListVisible, setisIgnoreListVisible] = useState(true)
+    const [tempIgnoreList, settempIgnoreList] = useState([])
+    const [audioUrl, setAudioUrl] = useState('');
+    const [audioBUrl, setAudioBUrl] = useState('');
+
 
     const handleZoom = (column, action) => {
         setFontSizes(prev => ({
@@ -150,15 +157,25 @@ const FetchPassageById = () => {
       }
     };
 
+    const handleToggleIgnoreList = () => {
+      if (isIgnoreListVisible) {
+        settempIgnoreList(ignoreList);
+        setIgnoreList([]);
+      }
+      else{
+        setIgnoreList(tempIgnoreList);
+        settempIgnoreList([]);
+      }
+      setisIgnoreListVisible(!isIgnoreListVisible)
+    } 
+
     useEffect(() => {
       const fetchPassages = async () => {
           try {
-              const response = await axios.post('http://localhost:3000/get-student-passages', { studentId }, { withCredentials: true });
-              if (response.status === 200 && response.data && Object.keys(response.data).length > 0) {
-                  console.log("Raw data:", JSON.stringify(response.data));
-                  setPassages(response.data);
-                  // Update the URL with the fetched subjectId and qset
-                  navigate(`/expertDashboard/${response.data.subjectId}/${response.data.qset}/${studentId}`, { replace: true });
+                const response = await axios.get(`http://localhost:3004/student-passages/${subjectId}/${qset}/${studentId}`, { withCredentials: true });
+                if (response.status === 200 && response.data && Object.keys(response.data).length > 0) {
+                console.log("Raw data:", JSON.stringify(response.data));
+                setPassages(response.data);
               } else {
                   console.error('No matching record found for this Student ID');
               }
@@ -166,31 +183,60 @@ const FetchPassageById = () => {
               console.error('Error fetching passages:', err);
           }
       };
-  
+
       fetchPassages();
-  }, [studentId, navigate]);
+    }, [subjectId, qset, studentId]);
+
+    useEffect(() => {
+      const fetchAudio = async () => {
+        try {
+          const response = await axios.get(`http://localhost:3004/get-student-audio-id/${subjectId}/${qset}/${studentId}`, { withCredentials: true });
+          if (response.status === 200) {
+            setAudioUrl(response.data.passage1);
+            setAudioBUrl(response.data.passage2); // Assuming 'passage2' is the audio URL for passageB
+          }
+        } catch (err) {
+          console.error('Error fetching audio:', err);
+        }
+      };
+    
+      fetchAudio();
+    }, [subjectId, qset]);
+  
 
     useEffect(() => {
       const sendActivePassageData = async () => {
-          try {              
-              const response = await axios.post('http://localhost:3000/active-passage', {
-                  subjectId: passages.subjectId,
-                  qset: passages.qset,
-                  activePassage
+          try {
+              console.log(subjectId, qset, activePassage, studentId);
+              
+              const response = await axios.post('http://localhost:3004/student-active-passage', {
+                  subjectId,
+                  qset,
+                  activePassage,
+                  studentId
               }, { withCredentials: true });
           
               if (response.status === 200) {
                   console.log("Active passage data sent successfully");
                   setIgnoreList(response.data.ignoreList || []);
                   console.log("Ignore list:", response.data.ignoreList);
+                  console.log("Debug info:", response.data.debug);
+                  
+                  // You can add additional checks here if needed
+                  if (response.data.debug.student_id) {
+                      console.log(`Fetched data for student_id: ${response.data.debug.student_id}`);
+                  }
               }
           } catch (err) {
               console.error('Error sending active passage data:', err);
+              if (err.response) {
+                  console.error('Error debug info:', err.response.data.debug);
+              }
           }
       };
-
+    
       sendActivePassageData();
-    }, [passages.subjectId, passages.qset, activePassage]);
+    }, [subjectId, qset, activePassage, studentId]);
 
     const handlePassageChange = (passage) => {
       setActivePassage(passage);
@@ -200,38 +246,88 @@ const FetchPassageById = () => {
     };
 
     const comparePassages = useCallback(async () => {
-        const modelAnswer = passages[`ansPassage${activePassage}`];
-        const userAnswer = passages[`passage${activePassage}`];
-        
-        if (!modelAnswer || !userAnswer) return;
-
-        try {
-            const response = await axios.post('http://localhost:5000/compare', {
-                text1: modelAnswer,
-                text2: userAnswer,
-                ignore_list: ignoreList,
-                ignore_case: true
-            });
-
-            if (response.status === 200) {
-                const { colored_words, added, missed, spelling, grammar } = response.data;
-                setColoredWords(colored_words);
-                setMistakes({
-                    added,
-                    missed,
-                    spelling,
-                    grammar
-                });
-            }
-        } catch (err) {
-            console.error('Error comparing passages:', err);
+      const modelAnswer = passages[`passage${activePassage}`];
+      const userAnswer = passages[`ansPassage${activePassage}`];
+          
+      if (!modelAnswer || !userAnswer) return;
+    
+      try {
+        const response = await axios.post('http://localhost:3004:5002/compare', {
+        // const response = await axios.post('/api/compare', {
+          text1: modelAnswer,
+          text2: userAnswer,
+          ignore_list: ignoreList,
+          ignore_case: true
+        }, {
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          }
+        });
+    
+        if (response.status === 200) {
+          const { colored_words, added, missed, spelling, grammar } = response.data;
+          setColoredWords(colored_words);
+          setMistakes({
+            added,
+            missed,
+            spelling,
+            grammar
+          });
         }
+      } catch (err) {
+        console.error('Error comparing passages:', err);
+      }
     }, [activePassage, passages, ignoreList]);
 
     useEffect(() => {
         comparePassages();
-    }, [comparePassages]);
+    }, [comparePassages, activePassage, passages]);
 
+    // Add the new useEffect hook here
+    useEffect(() => {
+      if (Object.keys(mistakes).length > 0) {
+        const orderedCategories = ['spelling', 'missed', 'added', 'grammar'];
+        const counts = orderedCategories.reduce((counts, category) => {
+          counts[category] = mistakes[category] ? mistakes[category].length : 0;
+          return counts;
+        }, {});
+    
+        const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
+        let average = 50 - (total / 3); // for skilltest
+        if (average < 0) average = 0;
+    
+      //   setCategoryCounts({
+      //     ...counts,
+      //     total,
+      //     average: average.toFixed(2)
+      //   });
+    
+      //   console.log('Mistake category counts:', counts);
+      //   console.log('Total mistakes:', total);
+      //   console.log('Average mistakes:', average.toFixed(2));
+    
+        // Send data to server
+        const sendMarksToServer = async () => {
+          try {
+            const response = await axios.post(`http://localhost:3004/update-student-marks/${subjectId}/${qset}`, {
+              total_mistakes: total,
+              total_marks: parseFloat(average.toFixed(2)),
+              spelling: counts.spelling,
+              missed: counts.missed,
+              added: counts.added,
+              grammar: counts.grammar
+            });
+            console.log('Server response: ', response.data);
+          } catch (error) {
+            console.error('Error sending data to server: ', error);
+          }
+        };
+    
+        sendMarksToServer(); // Important: call the function
+      }
+    }, [mistakes]);
+    
     const handleWordHover = useCallback((word) => {
       if (word) {
         const actualWord = word.split('(')[0].trim();
@@ -243,44 +339,70 @@ const FetchPassageById = () => {
 
     const handleAddIgnoreWord = useCallback(async (word) => {
       try {
-        const response = await axios.post('http://localhost:3000/add-ignore-word', {
-          subjectId: passages.subjectId,
-          qset: passages.qset,
+        const response = await axios.post('http://localhost:3004/student-add-ignore-word', {
+          subjectId,
+          qset,
           activePassage,
-          newWord: word
+          newWord: word,
+          studentId
         }, { withCredentials: true });
     
         if (response.status === 200) {
-          setIgnoreList(prevList => [...prevList, word.toLowerCase()]);
+          setIgnoreList(response.data.ignoreList);
           toast.success(`Word "${word}" added to ignore list`);
+          console.log("Debug info:", response.data.debug);
         }
       } catch (err) {
         console.error('Error adding word to ignore list:', err);
         toast.error(`Failed to add "${word}" to ignore list`);
       }
-    }, [passages.subjectId, passages.qset, activePassage]);
+    }, [subjectId, qset, activePassage, studentId]);
     
     const handleUndoWord = useCallback(async (wordToRemove) => {
       try {
-        const response = await axios.post('http://localhost:3000/undo-word', {
-          subjectId: passages.subjectId,
-          qset: passages.qset,
+        const response = await axios.post('http://localhost:3004/student-undo-word', {
+          subjectId,
+          qset,
           activePassage,
-          wordToRemove
+          wordToRemove, 
+          studentId
         }, { withCredentials: true });
     
         if (response.status === 200) {
-          setIgnoreList(prevList => prevList.filter(w => w.toLowerCase() !== wordToRemove.toLowerCase()));
+          setIgnoreList(response.data.ignoreList);
           toast.success(`Word "${wordToRemove}" removed from ignore list`);
           comparePassages();
+          console.log("Debug info:", response.data.debug);
         }
       } catch (err) {
         console.error('Error removing word from ignore list:', err);
         toast.error('Failed to remove word from ignore list');
       }
-    }, [passages.subjectId, passages.qset, activePassage, comparePassages]);
+    }, [subjectId, qset, activePassage, comparePassages, studentId]);
 
-    const IgnoredList = ({ ignoreList, fontSize, onUndoIgnore }) => {
+    const handleClearIgnoreList = useCallback(async () => {
+      try {
+        const response = await axios.post('http://localhost:3004/student-clear-ignore-list', {
+          subjectId,
+          qset,
+          activePassage,
+          studentId
+        }, { withCredentials: true });
+    
+        if (response.status === 200) {
+          setIgnoreList([]);
+          toast.success('Ignore list cleared successfully');
+          comparePassages();
+          console.log("Debug info:", response.data.debug);
+        }
+      } catch (err) {
+        console.error('Error clearing ignore list:', err);
+        toast.error('Failed to clear ignore list');
+      }
+    }, [subjectId, qset, activePassage, comparePassages]);
+
+    const IgnoredList = ({ ignoreList, fontSize, onUndoIgnore, isVisible }) => {
+      if (!isVisible) return null;
       return (
         <div className="ignored-list" style={{ fontSize: `${fontSize}px`, marginLeft: '1rem' }}>
           {ignoreList.map((word, index) => (
@@ -300,34 +422,138 @@ const FetchPassageById = () => {
       );
     };
 
+    const AudioPlayer = ({ audioUrl }) => {
+      const audioRef = React.useRef(null);
+      const progressBarRef = React.useRef(null);
+      const [isPlaying, setIsPlaying] = React.useState(false);
+      const [progress, setProgress] = React.useState(0);
+      const [hoverPosition, setHoverPosition] = React.useState(null);
+    
+      const togglePlayPause = () => {
+        if (audioRef.current) {
+          if (audioRef.current.paused) {
+            audioRef.current.play();
+            setIsPlaying(true);
+          } else {
+            audioRef.current.pause();
+            setIsPlaying(false);
+          }
+        }
+      };
+    
+      const handleTimeUpdate = () => {
+        if (audioRef.current) {
+          const duration = audioRef.current.duration;
+          const currentTime = audioRef.current.currentTime;
+          const progressPercent = (currentTime / duration) * 100;
+          setProgress(progressPercent);
+        }
+      };
+    
+      const handleProgressBarClick = (event) => {
+        if (audioRef.current && progressBarRef.current) {
+          const progressBar = progressBarRef.current;
+          const clickPosition = event.clientX - progressBar.getBoundingClientRect().left;
+          const progressBarWidth = progressBar.offsetWidth;
+          const clickPercentage = (clickPosition / progressBarWidth) * 100;
+          const newTime = (clickPercentage / 100) * audioRef.current.duration;
+          
+          audioRef.current.currentTime = newTime;
+          setProgress(clickPercentage);
+    
+          if (!isPlaying) {
+            audioRef.current.play();
+            setIsPlaying(true);
+          }
+        }
+      };
+    
+      const handleMouseMove = (event) => {
+        if (progressBarRef.current) {
+          const progressBar = progressBarRef.current;
+          const mousePosition = event.clientX - progressBar.getBoundingClientRect().left;
+          const progressBarWidth = progressBar.offsetWidth;
+          const hoverPercentage = (mousePosition / progressBarWidth) * 100;
+          setHoverPosition(hoverPercentage);
+        }
+      };
+    
+      const handleMouseLeave = () => {
+        setHoverPosition(null);
+      };
+    
+      React.useEffect(() => {
+        const audioElement = audioRef.current;
+        if (audioElement) {
+          audioElement.addEventListener('timeupdate', handleTimeUpdate);
+        }
+        return () => {
+          if (audioElement) {
+            audioElement.removeEventListener('timeupdate', handleTimeUpdate);
+          }
+        };
+      }, []);
+    
+      return (
+        <div className="audio-player">
+          <audio ref={audioRef} src={audioUrl} />
+          <button onClick={togglePlayPause}>
+            {isPlaying ? '❚❚' : '▶'}
+          </button>
+          <div 
+            className="progress-bar-container" 
+            ref={progressBarRef}
+            onClick={handleProgressBarClick}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+          >
+            <div className="progress-bar">
+              <div className="progress" style={{ width: `${progress}%` }}></div>
+              {hoverPosition !== null && (
+                <div className="playhead" style={{ left: `${hoverPosition}%` }}></div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    };
+
     return (
       <div className="final-passage-container">
-          <div className="passage-buttons-container">
-              <div className="passage-buttons">
-                  <button 
-                      className={`passage-button ${activePassage === 'A' ? 'active' : ''}`}
-                      onClick={() => handlePassageChange('A')}
-                  >
-                      Passage A
-                  </button>
-                  <button 
-                      className={`passage-button ${activePassage === 'B' ? 'active' : ''}`}
-                      onClick={() => handlePassageChange('B')}
-                  >
-                      Passage B
-                  </button>
-              </div>
-                  <button 
-                      className="submit-button" 
-                      onClick={handleSubmit} 
-                      disabled={!passageBViewed}
-                  >
-                      Submit
-                  </button>
-                  {!passageBViewed && (
-                      <span className="submit-tooltip">Please view Passage B before submitting</span>
-                  )}
-              </div>
+        <div className="passage-buttons-container">
+          <div className="passage-buttons">
+            <button 
+              className={`passage-button ${activePassage === 'A' ? 'active' : ''}`}
+              onClick={() => handlePassageChange('A')}
+            >
+              Passage A
+            </button>
+            <button 
+              className={`passage-button ${activePassage === 'B' ? 'active' : ''}`}
+              onClick={() => handlePassageChange('B')}
+            >
+              Passage B
+            </button>
+          </div>
+          <button 
+            className="submit-button" 
+            onClick={handleSubmit} 
+            disabled={!passageBViewed}
+          >
+            Submit
+          </button>
+          {!passageBViewed && (
+            <span className="submit-tooltip">Please view Passage B before submitting</span>
+          )}
+          <div className="mistake-counts">
+            <span className="mistake-count spelling">Spelling: {categoryCounts.spelling}</span>
+            <span className="mistake-count missed">Missed: {categoryCounts.missed}</span>
+            <span className="mistake-count added">Added: {categoryCounts.added}</span>
+            <span className="mistake-count grammar">Grammar: {categoryCounts.grammar}</span>
+            <span className="mistake-count total">Total: {categoryCounts.total}</span>
+            <span className="mistake-count average">Marks: {categoryCounts.average}</span>
+          </div>
+        </div>
           <div className="grid-item">
               <h2 className="column-header">
                 {isSwapped ? 'User Answer' : 'Model Answer'}
@@ -340,6 +566,7 @@ const FetchPassageById = () => {
                 <button onClick={() => handleZoom('modelAnswer', 'in')}><FontAwesomeIcon icon={faSearchPlus} /></button>
                 <button onClick={() => handleZoom('modelAnswer', 'out')}><FontAwesomeIcon icon={faSearchMinus} /></button>
               </div>
+              <AudioPlayer audioUrl={activePassage === 'A' ? audioUrl : audioBUrl} />
           </div>
           <div className="grid-item">
               <h2 className="column-header">Difference Passage</h2>
@@ -366,15 +593,26 @@ const FetchPassageById = () => {
                 />
               </div>
               <div className="ignored-container">
-                <h5 style={{color: 'red'}}>Ignored List</h5>
+                <h5 style={{color: 'red', display: 'flex', alignItems: 'center'}}>
+                  Ignored List
+                <button 
+                  className="dustbin-button" 
+                  onClick={handleClearIgnoreList}
+                  style={{marginLeft: '0.5rem', background: 'none', border: 'none', cursor: 'pointer'}}
+                >
+                  <FontAwesomeIcon icon={faTrash} />
+                </button>
+                </h5>
                 <IgnoredList 
                   ignoreList={ignoreList}
                   fontSize={fontSizes.mistakes}
                   onUndoIgnore={handleUndoWord}
+                  isVisible={isIgnoreListVisible}
                 />
               </div>
             </div>
             <div className="zoom-buttons">
+              <button onClick={handleToggleIgnoreList}><FontAwesomeIcon icon={isIgnoreListVisible ? faToggleOn : faToggleOff} /></button>
               <button onClick={() => handleZoom('mistakes', 'in')}><FontAwesomeIcon icon={faSearchPlus} /></button>
               <button onClick={() => handleZoom('mistakes', 'out')}><FontAwesomeIcon icon={faSearchMinus} /></button>
             </div>
