@@ -155,6 +155,20 @@
   transition: all 0.3s linear;
 }
 
+/* Add these styles to your existing CSS file */
+
+.disabled-link {
+    opacity: 0.6;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+.feature-unavailable {
+    margin-left: 5px;
+    font-size: 12px;
+}
+
+
 @media (max-width: 968px) {
   .sa-navbar__container {
     flex-direction: row;
@@ -220,3 +234,4 @@
     padding: 0.4rem 0.8rem;
   }
 }
+

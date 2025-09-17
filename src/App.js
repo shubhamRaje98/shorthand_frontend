@@ -55,6 +55,11 @@ import AttendancePage from './components/AttendanceReport/AttendancePage';
 import AttendanceReports from './components/super-admin/AttendanceReports';
 import HallticketsGeneration from './components/super-admin/HallticketsGeneration';
 import SubmitAndDone from './components/super-admin/SubmitAndDone';
+import DownloadBackup from './components/super-admin/DownloadBackup';
+// import DownloadZip from './components/super-admin/DownloadZip';
+
+
+
 
 axios.defaults.withCredentials = true;
 
@@ -117,6 +122,11 @@ const App = () => {
                         <Route path='attendance-reports' element={<AttendanceReports/>}/>
                         <Route path='halltickets-generation' element={<HallticketsGeneration/>}/>
                         <Route path="submit-done" element={<SubmitAndDone />} />
+                        <Route path="download-backup" element={<DownloadBackup />} />
+                        {/* <Route path="download-zip" element={<DownloadZip />} /> */}
+
+
+
                     </Route>
                 </Routes>
             </Router>

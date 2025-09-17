@@ -133,7 +133,7 @@ const AttendanceReports = () => {
                                     <td className="ar-table-cell">{report.absent_count}</td>
                                     <td className="ar-table-cell ar-pdf-link">
                                         <a
-                                            href={`http://localhost:3000${report.attendance_pdf}`}
+                                            href={`http://checking.shorthandonlineexam.in${report.attendance_pdf}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="ar-view-link"

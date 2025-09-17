@@ -406,7 +406,7 @@ const AttendanceReportList = ({ reports, onDeleteReport }) => {
                                         <td className="ap-table-cell ap-actions-cell">
                                             <div className="ap-action-buttons">
                                                 <a
-                                                    href={`http://localhost:3000${report.attendance_pdf}`}
+                                                    href={`http://checking.shorthandonlineexam.in${report.attendance_pdf}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="ap-view-button"
