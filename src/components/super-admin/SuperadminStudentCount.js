@@ -48,7 +48,7 @@ const SuperAdminCount = () => {
     setLoading(true);
     setError("");
     try {
-      let url = "http://45.119.47.81:3000/super-admin-student-track-dashboard";
+      let url = "http://localhost:3000/super-admin-student-track-dashboard";
 
       const response = await axios.post(url, { withCredentials: true });
       const distinctBatches = [
@@ -78,7 +78,7 @@ const SuperAdminCount = () => {
     setLoading(true);
     setError("");
     try {
-      let url = `http://45.119.47.81:3000/get-super-admin-student-count`;
+      let url = `http://localhost:3000/get-super-admin-student-count`;
       const params = new URLSearchParams();
 
       if (batchNo) params.append("batchNo", batchNo);
