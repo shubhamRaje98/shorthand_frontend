@@ -323,3 +323,104 @@
       margin-bottom: 10px;
     }
   }
+
+  
+  /* ExpertSummary.css */
+
+.expert-summary__title {
+  color: #2c3e50;
+  font-size: 2.5rem;
+}
+
+.expert-summary__summary-title {
+  color: #2c3e50;
+  font-size: 2rem;
+}
+
+.expert-summary__department-title {
+  color: #34495e;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 10px;
+  font-size: 1.8rem;
+}
+
+.expert-summary__expert-title {
+  color: #2980b9;
+  font-size: 1.5rem;
+}
+
+/* Custom button styles to mimic original design */
+.expert-summary__toggle-button {
+  font-weight: bold;
+}
+
+.expert-summary__toggle-button.btn-success {
+  background-color: #3498db; /* Default color for inactive buttons */
+  border-color: #3498db;
+  color: white;
+}
+
+.expert-summary__toggle-button.btn-success:hover {
+  background-color: #2980b9;
+  border-color: #2980b9;
+}
+
+.expert-summary__toggle-button.btn-primary {
+  background-color: #198754; /* Highlight color for active button */
+  border-color: #198754;
+  color: white;
+}
+
+.expert-summary__toggle-button.btn-primary:hover {
+  background-color: #157347;
+  border-color: #157347;
+}
+
+/* Styles for the analytical dashboard cards */
+.bg-light {
+    background-color: #f8f9fa !important;
+}
+
+.p-3 {
+    padding: 1rem !important;
+}
+
+.shadow-sm {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+}
+
+.display-4 {
+    font-size: 3.5rem;
+}
+
+.fw-bold {
+    font-weight: 700;
+}
+
+/* Text color utilities from Bootstrap, added for clarity */
+.text-primary { color: #0d6efd !important; }
+.text-success { color: #198754 !important; }
+.text-info { color: #0dcaf0 !important; }
+.text-secondary { color: #6c757d !important; }
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+  .expert-summary__title {
+    font-size: 2rem;
+    text-align: center;
+  }
+  .expert-summary__summary-title,
+  .expert-summary__department-title {
+    font-size: 1.5rem;
+  }
+  .expert-summary__expert-title {
+    font-size: 1.3rem;
+  }
+  .expert-summary__toggle-button {
+    font-size: 14px;
+    padding: 10px 15px;
+  }
+  .display-4 {
+    font-size: 2.5rem;
+  }
+}

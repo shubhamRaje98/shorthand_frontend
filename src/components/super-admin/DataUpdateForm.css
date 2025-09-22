@@ -1,0 +1,43 @@
+/* General container spacing */
+.my-4 {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Custom styles for the card and shadow */
+.card.shadow-sm {
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+}
+
+/* Ensure form controls have a consistent look */
+.form-select,
+.form-control {
+  font-size: 1rem;
+  padding: 0.5rem 0.75rem;
+}
+
+/* Button enhancements */
+.btn-primary, .btn-danger {
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(13, 110, 253, 0.3);
+}
+
+.btn-danger:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+/* Adjust button group spacing for better visual flow */
+.d-flex.gap-2 {
+  gap: 0.75rem !important;
+}
+
+/* Alert styling */
+.alert {
+  font-weight: 500;
+}
