@@ -343,36 +343,7 @@ const DepartmentDashboard = () => {
       setError("Failed to fetch subjects");
     }
   };
-
-  // Updated fetchTotalLoginCount with ALL filters for department
-  //   const fetchTotalLoginCount = async (filters = currentFilters) => {
-  //     try {
-  //       const requestBody = {
-  //         center: filters.center,
-  //         batchNo: filters.batchNo,
-  //         subject_name: filters.subject,
-  //         loginStatus: filters.loginStatus,
-  //         exam_type: filters.exam_type,
-  //         batchDate: filters.batchDate,
-  //       };
-
-  //       console.log("Fetching department login count with filters:", requestBody);
-
-  //       const response = await axios.post(
-  //         "http://localhost:3000/total-login-count",
-  //         requestBody,
-  //         { withCredentials: true }
-  //       );
-
-  //       if (response.data) {
-  //         setTotal_login_count(response.data.total_count);
-  //       }
-  //     } catch (error) {
-  //       console.log("Error fetching login count:", error);
-  //       setTotal_login_count(0);
-  //     }
-  //   };
-
+  
   // Update fetchData to use the new function
   const fetchData = async (preserveFilters = false) => {
     const filters = preserveFilters

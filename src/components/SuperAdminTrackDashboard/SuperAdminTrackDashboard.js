@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import NavBar from '../navBar/navBar';
 import * as XLSX from 'xlsx';
 import './SuperAdminTrackDashboard.css'
 import moment from 'moment-timezone'
@@ -584,7 +583,6 @@ const SuperAdminTrackDashboard = () => {
 
     return (
         <div>
-            <NavBar />
             <div className="home-container">
                 <div className="dept-container-fluid">
                     <div className="dept-row mb-3">

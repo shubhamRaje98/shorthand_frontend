@@ -246,10 +246,12 @@
 
 // export default SubmitAndDone;
 
-
-//src\components\super-admin\SubmitAndDone.js
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import {
+  Container, Row, Col, Form, Button, Table, Spinner, Alert, Card,
+  Pagination
+} from 'react-bootstrap';
 import './SubmitAndDone.css';
 
 const SubmitAndDone = () => {
@@ -257,7 +259,6 @@ const SubmitAndDone = () => {
     subjectId: '',
     qset: '',
     expertId: '',
-    resetType: 'subject',
   });
   const [logs, setLogs] = useState([]);
   const [options, setOptions] = useState({
@@ -267,6 +268,9 @@ const SubmitAndDone = () => {
   });
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [logsPerPage] = useState(10);
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Fetch initial subjects and experts
   useEffect(() => {
@@ -306,7 +310,6 @@ const SubmitAndDone = () => {
     setTimeout(() => fetchLogsWithFilters(updatedFilters), 0);
   };
 
-  // Manual fetch function
   const fetchLogsWithFilters = async (customFilters) => {
     setLoading(true);
     try {
@@ -321,26 +324,16 @@ const SubmitAndDone = () => {
       }
 
       const res = await axios.get('http://localhost:3000/expert-review-logs', { params });
-
       setLogs(res.data.data || []);
+      setCurrentPage(1); // Reset to the first page when filters change
 
       if (res.data.subjectQsets && customFilters.subjectId !== 'ALL') {
         const existingQsets = res.data.subjectQsets
           .filter(q => q.exists)
-          .map(q => ({
-            qset: q.qset,
-            displayText: `${customFilters.subjectId} - QSet ${q.qset}`
-          }));
-
-        setOptions(prev => ({
-          ...prev,
-          qsets: existingQsets
-        }));
+          .map(q => ({ qset: q.qset, displayText: `QSet ${q.qset}` }));
+        setOptions(prev => ({ ...prev, qsets: existingQsets }));
       } else {
-        setOptions(prev => ({
-          ...prev,
-          qsets: []
-        }));
+        setOptions(prev => ({ ...prev, qsets: [] }));
       }
 
       setMessage(res.data.message || '');
@@ -353,7 +346,6 @@ const SubmitAndDone = () => {
     }
   };
 
-  // Reset logs
   const resetLogs = async () => {
     if (!filters.subjectId || filters.subjectId === 'ALL') {
       setMessage('Please select a specific subject to reset');
@@ -362,10 +354,7 @@ const SubmitAndDone = () => {
 
     setLoading(true);
     try {
-      const backendResetType = filters.resetType === 'subject' && filters.qset
-        ? 'qset'
-        : filters.resetType;
-
+      const backendResetType = filters.qset ? 'qset' : 'subject';
       const data = {
         subjectId: filters.subjectId,
         qset: filters.qset || undefined,
@@ -384,139 +373,184 @@ const SubmitAndDone = () => {
     }
   };
 
+  // Pagination Logic
+  const filteredLogs = logs.filter(log =>
+    log.id.toString().includes(searchTerm.toLowerCase())
+  );
+  const indexOfLastLog = currentPage * logsPerPage;
+  const indexOfFirstLog = indexOfLastLog - logsPerPage;
+  const currentLogs = filteredLogs.slice(indexOfFirstLog, indexOfLastLog);
+  const totalPages = Math.ceil(filteredLogs.length / logsPerPage);
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
   return (
-    <div className="submit-container">
-      <h2>Submit and Done</h2>
+    <Container className="my-4">
+      <h2 className="text-center mb-4">Submit and Done</h2>
 
-      <div className="filters">
-        <div className="filter-group">
-          <select
-            value={filters.subjectId}
-            onChange={handleSubjectChange}
-            disabled={loading}
-          >
-            <option value="">Select Subject</option>
-            <option value="ALL">All Subjects</option>
-            {options.subjects.map((id) => (
-              <option key={`subject-${id}`} value={id}>
-                {id}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="filter-group">
-          <select
-            value={filters.qset}
-            onChange={(e) => {
-              const newQset = e.target.value;
-              const updatedFilters = { ...filters, qset: newQset };
-              setFilters(updatedFilters);
-
-              if (filters.subjectId && filters.subjectId !== 'ALL' && newQset) {
-                setTimeout(() => fetchLogsWithFilters(updatedFilters), 0);
-              }
-            }}
-            disabled={
-              !filters.subjectId ||
-              filters.subjectId === 'ALL' ||
-              loading ||
-              options.qsets.length === 0
-            }
-          >
-            <option value="">Select QSet</option>
-            {options.qsets.map((q) => (
-              <option key={`qset-${q.qset}`} value={q.qset}>
-                {q.displayText}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="filter-group">
-          <select
-            value={filters.expertId}
-            onChange={(e) => {
-              const newExpertId = e.target.value;
-              setFilters({ ...filters, expertId: newExpertId });
-            }}
-            disabled={loading}
-          >
-            <option value="">Select Expert</option>
-            {options.experts.map((id) => (
-              <option key={`expert-${id}`} value={id}>
-                {id}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* <div className="filter-group">
-          <select
-            value={filters.resetType}
-            onChange={(e) => setFilters({ ...filters, resetType: e.target.value })}
-            disabled={loading}
-          >
-            <option value="subject">By Subject</option>
-            <option value="qset">By QSet</option>
-            <option value="expert">By Expert</option>
-          </select>
-        </div> */}
-
-        <div className="filter-group button-group">
-          <button
-            onClick={resetLogs}
-            disabled={!filters.subjectId || filters.subjectId === 'ALL' || loading}
-            className="reset-button"
-          >
-            {loading ? 'Processing...' : 'Reset Done Status'}
-          </button>
-        </div>
-      </div>
+      <Card className="p-4 mb-4 shadow">
+        <Form>
+          <Row className="g-3 align-items-end">
+            <Col xs={12} md={3}>
+              <Form.Group>
+                <Form.Label>Subject</Form.Label>
+                <Form.Select
+                  value={filters.subjectId}
+                  onChange={handleSubjectChange}
+                  disabled={loading}
+                >
+                  <option value="">Select Subject</option>
+                  <option value="ALL">All Subjects</option>
+                  {options.subjects.map((id) => (
+                    <option key={`subject-${id}`} value={id}>{id}</option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+            </Col>
+            <Col xs={12} md={3}>
+              <Form.Group>
+                <Form.Label>QSet</Form.Label>
+                <Form.Select
+                  value={filters.qset}
+                  onChange={(e) => {
+                    const newQset = e.target.value;
+                    const updatedFilters = { ...filters, qset: newQset };
+                    setFilters(updatedFilters);
+                    if (updatedFilters.subjectId && updatedFilters.subjectId !== 'ALL' && newQset) {
+                      setTimeout(() => fetchLogsWithFilters(updatedFilters), 0);
+                    }
+                  }}
+                  disabled={!filters.subjectId || filters.subjectId === 'ALL' || loading || options.qsets.length === 0}
+                >
+                  <option value="">Select QSet</option>
+                  {options.qsets.map((q) => (
+                    <option key={`qset-${q.qset}`} value={q.qset}>{q.displayText}</option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+            </Col>
+            <Col xs={12} md={3}>
+              <Form.Group>
+                <Form.Label>Expert</Form.Label>
+                <Form.Select
+                  value={filters.expertId}
+                  onChange={(e) => setFilters({ ...filters, expertId: e.target.value })}
+                  disabled={loading}
+                >
+                  <option value="">Select Expert</option>
+                  {options.experts.map((id) => (
+                    <option key={`expert-${id}`} value={id}>{id}</option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+            </Col>
+            <Col xs={12} md={3}>
+              <Button
+                variant="danger"
+                onClick={resetLogs}
+                disabled={!filters.subjectId || filters.subjectId === 'ALL' || loading}
+                className="w-100"
+              >
+                {loading ? (
+                  <>
+                    <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+                    <span className="ms-2">Processing...</span>
+                  </>
+                ) : (
+                  'Reset Done Status'
+                )}
+              </Button>
+            </Col>
+          </Row>
+        </Form>
+      </Card>
 
       {message && (
-        <div className={`message ${message.includes('Error') ? 'error' : 'success'}`}>
+        <Alert variant={message.includes('Error') ? 'danger' : 'success'}>
           {message}
-        </div>
+        </Alert>
       )}
 
-      <div className="log-table">
-        {logs.length > 0 ? (
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Expert</th>
-                <th>Subject</th>
-                <th>QSet</th>
-                <th>Status</th>
-                <th>Submitted</th>
-                <th>Logged In</th>
-              </tr>
-            </thead>
-            <tbody>
-              {logs.map((log) => (
-                <tr key={log.id}>
-                  <td>{log.id}</td>
-                  <td>{log.expertId}</td>
-                  <td>{log.subjectId}</td>
-                  <td>{log.qset}</td>
-                  <td>{log.status}</td>
-                  <td>{log.subm_time || '-'}</td>
-                  <td>{log.loggedin || '-'}</td>
+      <Card className="shadow">
+        <Card.Header className="d-flex justify-content-between align-items-center">
+          <h4 className="mb-0">Logs Table</h4>
+          <Form.Group className="mb-0">
+            <Form.Control
+              type="text"
+              placeholder="Search by Student ID"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1); // Reset page on search
+              }}
+            />
+          </Form.Group>
+        </Card.Header>
+        <Card.Body>
+          <div className="table-responsive">
+            <Table striped bordered hover className="mb-0">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Expert</th>
+                  <th>Subject</th>
+                  <th>QSet</th>
+                  <th>Status</th>
+                  <th>Submitted</th>
+                  <th>Logged In</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p className="no-logs">
-            {filters.subjectId
-              ? 'No logs found for selected criteria'
-              : 'Please select a subject'}
-          </p>
-        )}
-      </div>
-    </div>
+              </thead>
+              <tbody>
+                {currentLogs.length > 0 ? (
+                  currentLogs.map((log) => (
+                    <tr key={log.id}>
+                      <td>{log.id}</td>
+                      <td>{log.expertId}</td>
+                      <td>{log.subjectId}</td>
+                      <td>{log.qset}</td>
+                      <td>{log.status}</td>
+                      <td>{log.subm_time || '-'}</td>
+                      <td>{log.loggedin || '-'}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="7" className="text-center">
+                      {loading ? (
+                        <Spinner animation="border" />
+                      ) : (
+                        filters.subjectId ? 'No logs found for selected criteria' : 'Please select a subject'
+                      )}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </Table>
+          </div>
+        </Card.Body>
+        <Card.Footer>
+          <div className="d-flex justify-content-center">
+            {totalPages > 1 && (
+              <Pagination className="mb-0">
+                <Pagination.Prev onClick={handlePrevPage} disabled={currentPage === 1} />
+                <Pagination.Item active>{currentPage}</Pagination.Item>
+                <Pagination.Next onClick={handleNextPage} disabled={currentPage === totalPages} />
+              </Pagination>
+            )}
+          </div>
+        </Card.Footer>
+      </Card>
+    </Container>
   );
 };
 
