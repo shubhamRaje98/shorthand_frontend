@@ -263,6 +263,9 @@ const SuperAdminNavbar = () => {
                   {/* <li>
                     <Link to="/super-admin/download-zip" onClick={closeDropdowns}>Download Zip</Link>
                   </li> */}
+                  <li>
+                    <Link to="/super-admin/download-register" onClick={closeDropdowns}>Download Register</Link>
+                  </li>
                 </ul>
               </li>
 

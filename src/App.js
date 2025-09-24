@@ -57,6 +57,7 @@ import HallticketsGeneration from './components/super-admin/HallticketsGeneratio
 import SubmitAndDone from './components/super-admin/SubmitAndDone';
 import DownloadBackup from './components/super-admin/DownloadBackup';
 // import DownloadZip from './components/super-admin/DownloadZip';
+import DownloadRegister from './components/super-admin/DownloadRegister';
 
 
 
@@ -124,6 +125,8 @@ const App = () => {
                         <Route path="submit-done" element={<SubmitAndDone />} />
                         <Route path="download-backup" element={<DownloadBackup />} />
                         {/* <Route path="download-zip" element={<DownloadZip />} /> */}
+                        <Route path="download-register" element={<DownloadRegister />} />
+
 
 
 
