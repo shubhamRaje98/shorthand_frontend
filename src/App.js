@@ -58,6 +58,7 @@ import SubmitAndDone from './components/super-admin/SubmitAndDone';
 import DownloadBackup from './components/super-admin/DownloadBackup';
 // import DownloadZip from './components/super-admin/DownloadZip';
 import DownloadRegister from './components/super-admin/DownloadRegister';
+import ExcelUpload from './components/super-admin/ExcelUpload';
 
 
 
@@ -126,6 +127,7 @@ const App = () => {
                         <Route path="download-backup" element={<DownloadBackup />} />
                         {/* <Route path="download-zip" element={<DownloadZip />} /> */}
                         <Route path="download-register" element={<DownloadRegister />} />
+                        <Route path="upload-excel" element={<ExcelUpload />} />
 
 
 
