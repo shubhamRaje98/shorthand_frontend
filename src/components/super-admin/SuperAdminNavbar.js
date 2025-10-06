@@ -221,6 +221,12 @@ const SuperAdminNavbar = () => {
     setIsMenuOpen(false);
   };
 
+  // Function to handle Add Department click
+  const handleAddDepartment = () => {
+    closeDropdowns();
+    navigate('/super-admin/add-department');
+  };
+
   return (
     <nav className="sa-navbar">
       <div className="sa-navbar__container">
@@ -239,6 +245,23 @@ const SuperAdminNavbar = () => {
             <>
               <li className={location.pathname === "/super-admin/dashboard" ? "sa-navbar__item sa-navbar__item--active" : "sa-navbar__item"}>
                 <Link to="/super-admin/dashboard" onClick={closeDropdowns} className="sa-navbar__link">Dashboard</Link>
+              </li>
+
+              {/* NEW: Add Department Button */}
+              <li className="sa-navbar__item">
+                <button 
+                  onClick={handleAddDepartment}
+                  className="sa-navbar__link sa-navbar__button"
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                    fontSize: 'inherit'
+                  }}
+                >
+                  Add Department
+                </button>
               </li>
 
               {/* Halltickets Generation - Keeping it as a dropdown like your original */}
