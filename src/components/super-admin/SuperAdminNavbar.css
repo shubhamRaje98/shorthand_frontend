@@ -168,6 +168,55 @@
     font-size: 12px;
 }
 
+/* Add these styles to your existing SuperAdminNavbar.css */
+
+/* Enhanced dropdown styles for Add New */
+.sa-navbar__item--dropdown .sa-navbar__dropdown {
+  min-width: 180px;
+}
+
+.sa-navbar__dropdown a {
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid #3a506b;
+  transition: all 0.2s ease;
+}
+
+.sa-navbar__dropdown a:last-child {
+  border-bottom: none;
+}
+
+.sa-navbar__dropdown a:hover {
+  background-color: #3498db;
+  color: #ffffff;
+  padding-left: 2rem;
+}
+
+/* Active state for dropdown items */
+.sa-navbar__dropdown a.active {
+  background-color: #2980b9;
+  color: #ffffff;
+}
+
+/* Mobile responsiveness improvements */
+@media (max-width: 968px) {
+  .sa-navbar__item--dropdown .sa-navbar__dropdown {
+    position: static;
+    width: 100%;
+    box-shadow: none;
+    background-color: #2c3e50;
+    border-radius: 0;
+  }
+  
+  .sa-navbar__dropdown a {
+    padding-left: 3rem;
+    border-bottom: 1px solid #34495e;
+  }
+  
+  .sa-navbar__dropdown a:hover {
+    padding-left: 3.5rem;
+  }
+}
+
 
 @media (max-width: 968px) {
   .sa-navbar__container {
