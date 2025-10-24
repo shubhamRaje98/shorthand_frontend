@@ -203,6 +203,9 @@ import AddExamCenter from './components/super-admin/department-setup/AddExamCent
 import CreateBatch from './components/super-admin/department-setup/CreateBatch';
 import AssignController from './components/super-admin/department-setup/AssignController';
 import RegisterStudents from './components/super-admin/department-setup/RegisterStudents';
+import AddController from './components/super-admin/add-new/AddController';
+import MockStudentPage from './components/super-admin/MockStudentPage';
+import EvaluationDashboard from './components/super-admin/EvaluationDashboard'; 
 
 axios.defaults.withCredentials = true;
 
@@ -277,6 +280,9 @@ const App = () => {
                         <Route path="create-batch" element={<CreateBatch />} />
                         <Route path="assign-controller" element={<AssignController />} />
                         <Route path="register-students" element={<RegisterStudents />} />
+                        <Route path="add-controller" element={<AddController />} />
+                        <Route path="mock-students" element={<MockStudentPage />} />
+                        <Route path="evaluation-dashboard" element={<EvaluationDashboard />} />
                     </Route>
                 </Routes>
             </Router>

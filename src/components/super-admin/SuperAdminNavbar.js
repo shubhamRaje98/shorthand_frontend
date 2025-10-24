@@ -1,3 +1,4 @@
+// // src/components/super-admin/SuperAdminNavbar.js
 // import React, { useEffect, useState } from 'react';
 // import { Link, useLocation, useNavigate } from 'react-router-dom';
 // import './SuperAdminNavbar.css';
@@ -19,11 +20,8 @@
 //     }
 //   }, [navigate]);
 
-//   // Simple backup status check - we'll assume it's available initially
-//   // and handle any errors in the actual backup page
 //   useEffect(() => {
 //     if (adminType && adminType !== 'trackAdmin') {
-//       // We'll assume backup is available and handle errors on the backup page
 //       setBackupAvailable(true);
 //     }
 //   }, [adminType]);
@@ -46,6 +44,12 @@
 //     setIsMenuOpen(false);
 //   };
 
+//   // Function to handle Add Department click
+//   const handleAddDepartment = () => {
+//     closeDropdowns();
+//     navigate('/super-admin/add-department');
+//   };
+
 //   return (
 //     <nav className="sa-navbar">
 //       <div className="sa-navbar__container">
@@ -66,8 +70,44 @@
 //                 <Link to="/super-admin/dashboard" onClick={closeDropdowns} className="sa-navbar__link">Dashboard</Link>
 //               </li>
 
-//               <li className={location.pathname === "/super-admin/halltickets-generation" ? "sa-navbar__item sa-navbar__item--active" : "sa-navbar__item"}>
-//                 <Link to="/super-admin/halltickets-generation" onClick={closeDropdowns} className="sa-navbar__link">Halltickets Generation</Link>
+//               {/* NEW: Add Department Button */}
+//               <li className="sa-navbar__item">
+//                 <button 
+//                   onClick={handleAddDepartment}
+//                   className="sa-navbar__link sa-navbar__button"
+//                   style={{
+//                     background: 'none',
+//                     border: 'none',
+//                     cursor: 'pointer',
+//                     fontFamily: 'inherit',
+//                     fontSize: 'inherit'
+//                   }}
+//                 >
+//                   Add Department
+//                 </button>
+//               </li>
+
+//               {/* Halltickets Generation - Keeping it as a dropdown like your original */}
+//               <li className="sa-navbar__item sa-navbar__item--dropdown">
+//                 <button
+//                   className="sa-navbar__dropdown-toggle"
+//                   onClick={() => toggleDropdown('halltickets')}
+//                 >
+//                   Halltickets Generation
+//                   <span className="sa-navbar__dropdown-arrow"></span>
+//                 </button>
+//                 <ul className={`sa-navbar__dropdown ${activeDropdown === 'halltickets' ? 'sa-navbar__dropdown--active' : ''}`}>
+//                   <li>
+//                     <Link to="/super-admin/halltickets-generation" onClick={closeDropdowns}>
+//                       Generate Hall Tickets
+//                     </Link>
+//                   </li>
+//                   <li>
+//                     <Link to="/super-admin/upload-excel" onClick={closeDropdowns}>
+//                       Upload Excel
+//                     </Link>
+//                   </li>
+//                 </ul>
 //               </li>
 
 //               <li className={location.pathname === "/super-admin/submit-done" ? "sa-navbar__item sa-navbar__item--active" : "sa-navbar__item"}>
@@ -107,9 +147,6 @@
 //                       {!backupAvailable && <span className="feature-unavailable">⚠️</span>}
 //                     </Link>
 //                   </li>
-//                   {/* <li>
-//                     <Link to="/super-admin/download-zip" onClick={closeDropdowns}>Download Zip</Link>
-//                   </li> */}
 //                   <li>
 //                     <Link to="/super-admin/download-register" onClick={closeDropdowns}>Download Register</Link>
 //                   </li>
@@ -158,7 +195,7 @@
 //                     <Link to="/superadmin-pc" onClick={closeDropdowns}>PC Registration Count</Link>
 //                   </li>
 //                   <li>
-//                     <Link to="/super-admin/track-dashboard" onClick={closeDropdowns} className="sa-navbar__link">Track Dashboard</Link>
+//                     <Link to="/super-admin/track-dashboard" onClick={closeDropdowns}>Track Dashboard</Link>
 //                   </li>
 //                 </ul>
 //               </li>
@@ -172,8 +209,8 @@
 //     </nav>
 //   );
 // };
-// export default SuperAdminNavbar;
 
+// export default SuperAdminNavbar;
 
 // src/components/super-admin/SuperAdminNavbar.js
 import React, { useEffect, useState } from 'react';
@@ -221,12 +258,6 @@ const SuperAdminNavbar = () => {
     setIsMenuOpen(false);
   };
 
-  // Function to handle Add Department click
-  const handleAddDepartment = () => {
-    closeDropdowns();
-    navigate('/super-admin/add-department');
-  };
-
   return (
     <nav className="sa-navbar">
       <div className="sa-navbar__container">
@@ -247,21 +278,27 @@ const SuperAdminNavbar = () => {
                 <Link to="/super-admin/dashboard" onClick={closeDropdowns} className="sa-navbar__link">Dashboard</Link>
               </li>
 
-              {/* NEW: Add Department Button */}
-              <li className="sa-navbar__item">
-                <button 
-                  onClick={handleAddDepartment}
-                  className="sa-navbar__link sa-navbar__button"
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                    fontSize: 'inherit'
-                  }}
+              {/* Add Department Dropdown - Updated from button to dropdown */}
+              <li className="sa-navbar__item sa-navbar__item--dropdown">
+                <button
+                  className="sa-navbar__dropdown-toggle"
+                  onClick={() => toggleDropdown('department')}
                 >
                   Add Department
+                  <span className="sa-navbar__dropdown-arrow"></span>
                 </button>
+                <ul className={`sa-navbar__dropdown ${activeDropdown === 'department' ? 'sa-navbar__dropdown--active' : ''}`}>
+                  <li>
+                    <Link to="/super-admin/add-department" onClick={closeDropdowns}>
+                      Add Department
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/super-admin/add-controller" onClick={closeDropdowns}>
+                      Add Controller
+                    </Link>
+                  </li>
+                </ul>
               </li>
 
               {/* Halltickets Generation - Keeping it as a dropdown like your original */}
@@ -284,6 +321,12 @@ const SuperAdminNavbar = () => {
                       Upload Excel
                     </Link>
                   </li>
+                  {/* New Mock Students link */}
+    <li>
+      <Link to="/super-admin/mock-students" onClick={closeDropdowns}>
+        Mock Students
+      </Link>
+    </li>
                 </ul>
               </li>
 

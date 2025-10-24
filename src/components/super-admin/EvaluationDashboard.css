@@ -1,0 +1,31 @@
+.evaluation-dashboard {
+    padding: 20px;
+}
+
+.evaluation-dashboard h2 {
+    color: #333;
+    font-weight: 600;
+}
+
+.evaluation-dashboard .card {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-radius: 8px;
+}
+
+.evaluation-dashboard .card-header {
+    border-radius: 8px 8px 0 0;
+}
+
+.evaluation-dashboard .table {
+    font-size: 0.9rem;
+}
+
+.evaluation-dashboard .table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.evaluation-dashboard .badge {
+    padding: 5px 10px;
+    font-size: 0.85rem;
+}
