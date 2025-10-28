@@ -108,6 +108,7 @@ import {
 import * as XLSX from 'xlsx';
 import { useNavigate, useLocation } from 'react-router-dom';
 
+
 function GenerateSkillTestHallTickets() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -128,9 +129,11 @@ function GenerateSkillTestHallTickets() {
   const [totalStudents, setTotalStudents] = useState(0);
   const [activeTab, setActiveTab] = useState('upload');
 
-  // Get department ID from URL params if available
+
+  // Get department ID from URL params
   const queryParams = new URLSearchParams(location.search);
   const departmentId = queryParams.get('departmentId');
+
 
   // Function to handle file upload
   const handleFileUpload = (event) => {
@@ -141,12 +144,14 @@ function GenerateSkillTestHallTickets() {
     setUploadStatus('selected');
   };
 
+
   // Upload Excel file to server for Skill Test
   const uploadExcelFile = async () => {
     if (!excelFile) {
       setError('Please select an Excel file first');
       return;
     }
+
 
     try {
       setLoading(true);
@@ -176,6 +181,7 @@ function GenerateSkillTestHallTickets() {
     }
   };
 
+
   // Function to read Excel file locally for preview
   const readExcelFile = async (file) => {
     try {
@@ -190,6 +196,7 @@ function GenerateSkillTestHallTickets() {
           const sheetName = workbook.SheetNames[0];
           const worksheet = workbook.Sheets[sheetName];
           const excelData = XLSX.utils.sheet_to_json(worksheet);
+
 
           // Map Excel data to required format for Skill Test
           const mappedStudents = excelData.map(row => ({
@@ -211,6 +218,7 @@ function GenerateSkillTestHallTickets() {
             start_time: row['start_time'] || '',
             examType: 'Skill Test'
           }));
+
 
           // Extract unique centers
           const uniqueCenters = [...new Set(mappedStudents.map(student => student.center_name))].filter(Boolean);
@@ -237,6 +245,7 @@ function GenerateSkillTestHallTickets() {
     }
   };
 
+
   // Filter students by center
   const filterStudentsByCenter = (centerName) => {
     setSelectedCenter(centerName);
@@ -248,6 +257,7 @@ function GenerateSkillTestHallTickets() {
       setFilteredStudents(filtered);
     }
   };
+
 
   // Handle search
   const handleSearch = (e) => {
@@ -272,16 +282,19 @@ function GenerateSkillTestHallTickets() {
     }
   };
 
+
   // Download single Skill Test hall ticket
   const downloadSingleHallTicket = async (student) => {
     try {
       console.log('Starting Skill Test hall ticket download...');
       console.log('Student object received:', student);
+      console.log('Department ID:', departmentId);
 
       setLoading(true);
       setError(null);
       
-      const url = `http://localhost:3000/api/skilltest-halltickets/download-skilltest-hall-ticket/${student.applicationNo}`;
+      // MODIFIED: Add departmentId as query parameter
+      const url = `http://localhost:3000/api/skilltest-halltickets/download-skilltest-hall-ticket/${student.applicationNo}?departmentId=${departmentId || ''}`;
       console.log('Generated Skill Test download URL:', url);
 
       // Open the download URL in a new tab
@@ -298,6 +311,7 @@ function GenerateSkillTestHallTickets() {
       console.log('Skill Test download function finished (loading false).');
     }
   };
+
 
   // Download all Skill Test hall tickets
   const downloadAllHallTickets = async () => {
@@ -317,8 +331,12 @@ function GenerateSkillTestHallTickets() {
         });
       }, 500);
 
+      // MODIFIED: Add departmentId as query parameter
+      const url = `http://localhost:3000/api/skilltest-halltickets/download-all-skilltest-hall-tickets?departmentId=${departmentId || ''}`;
+      console.log('Downloading all hall tickets with URL:', url);
+      
       // Open direct download link for Skill Test
-      window.open('http://localhost:3000/api/skilltest-halltickets/download-all-skilltest-hall-tickets', '_blank');
+      window.open(url, '_blank');
       
       // Finish progress after a delay
       setTimeout(() => {
@@ -335,16 +353,19 @@ function GenerateSkillTestHallTickets() {
     }
   };
 
+
   // Show student preview
   const openPreview = (student) => {
     setPreviewStudent(student);
     setShowPreviewModal(true);
   };
 
+
   // Navigate back to department selection
   const navigateToDepartmentSelection = () => {
     navigate('/super-admin/halltickets-department-selection');
   };
+
 
   // Clear alerts after some time
   useEffect(() => {
@@ -357,6 +378,7 @@ function GenerateSkillTestHallTickets() {
       return () => clearTimeout(timer);
     }
   }, [success, error]);
+
 
   // Render student preview modal for Skill Test
   const renderPreviewModal = () => {
@@ -389,7 +411,7 @@ function GenerateSkillTestHallTickets() {
               <p><strong>Start Time:</strong> {previewStudent.start_time}</p>
               <p><strong>Reporting Time:</strong> {previewStudent.reporting_time}</p>
               <p><strong>Gate Closure Time:</strong> {previewStudent.gate_closure_time}</p>
-              <p><strong>Department:</strong> <Badge variant="success" className="ms-1">Skill Test</Badge></p>
+              <p><strong>Department:</strong> <Badge bg="success" className="ms-1">Skill Test</Badge></p>
               {departmentId && (
                 <p><strong>Department ID:</strong> {departmentId}</p>
               )}
@@ -426,6 +448,7 @@ function GenerateSkillTestHallTickets() {
       </Modal>
     );
   };
+
 
   // Render upload tab for Skill Test
   const renderUploadTab = () => (
@@ -507,6 +530,7 @@ function GenerateSkillTestHallTickets() {
     </Row>
   );
 
+
   // Render generate tab for Skill Test
   const renderGenerateTab = () => (
     <Row>
@@ -533,6 +557,7 @@ function GenerateSkillTestHallTickets() {
               </Form.Select>
             </Form.Group>
 
+
             <Form.Group className="mb-3">
               <Form.Label>Search Students</Form.Label>
               <Form.Control 
@@ -545,6 +570,7 @@ function GenerateSkillTestHallTickets() {
             </Form.Group>
           </Card.Body>
         </Card>
+
 
         <Card>
           <Card.Header>
@@ -637,7 +663,7 @@ function GenerateSkillTestHallTickets() {
                       </div>
                       <div>
                         <small>
-                          Department: <Badge variant="success" className="ms-1">
+                          Department: <Badge bg="success" className="ms-1">
                             Skill Test
                           </Badge>
                         </small>
@@ -673,6 +699,7 @@ function GenerateSkillTestHallTickets() {
     </Row>
   );
 
+
   return (
     <Container fluid className="mt-4">
       {/* Header with Department Info */}
@@ -685,11 +712,11 @@ function GenerateSkillTestHallTickets() {
         </Col>
         <Col xs="auto">
           <div className="d-flex align-items-center">
-            <Badge variant="success" className="fs-6 me-3">
+            <Badge bg="success" className="fs-6 me-3">
               Department: Skill Test
             </Badge>
             {departmentId && (
-              <Badge variant="info" className="fs-6 me-3">
+              <Badge bg="info" className="fs-6 me-3">
                 Department ID: {departmentId}
               </Badge>
             )}
@@ -705,8 +732,10 @@ function GenerateSkillTestHallTickets() {
         </Col>
       </Row>
 
+
       {error && <Alert variant="danger">{error}</Alert>}
       {success && <Alert variant="success">{success}</Alert>}
+
 
       <Card className="mb-4">
         <Card.Header>
@@ -746,9 +775,11 @@ function GenerateSkillTestHallTickets() {
         </Card.Body>
       </Card>
 
+
       {renderPreviewModal()}
     </Container>
   );
 }
+
 
 export default GenerateSkillTestHallTickets;
