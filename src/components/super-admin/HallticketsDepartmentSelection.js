@@ -691,6 +691,14 @@ function HallticketsDepartmentSelection() {
                                 </>
                               )}
                             </Button>
+                            <Button 
+  variant="info"
+  onClick={() => navigate(`/super-admin/generate-halltickets-db?departmentId=${selectedDepartment}`)}
+>
+  <FaDatabase className="me-2" />
+  Generate from Database
+</Button>
+
                             <p className="text-muted mt-3 mb-0">
                               Click the button above to proceed to hall ticket generation
                             </p>

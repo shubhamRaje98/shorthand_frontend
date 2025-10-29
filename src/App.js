@@ -208,6 +208,8 @@ import AddController from './components/super-admin/add-new/AddController';
 import HallticketsDepartmentSelection from './components/super-admin/HallticketsDepartmentSelection';
 import GenerateGccTbcHallTickets from './components/super-admin/GenerateGccTbcHallTickets';
 import GenerateSkillTestHallTickets from './components/super-admin/GenerateSkillTestHallTickets';
+import GenerateSkillTestHallTicketsFromDB from './components/super-admin/GenerateSkillTestHallTicketsFromDB';
+
 
 axios.defaults.withCredentials = true;
 
@@ -287,6 +289,10 @@ const App = () => {
                         <Route path="halltickets-department-selection" element={<HallticketsDepartmentSelection />} />
                         <Route path="halltickets-generation/gcc-tbc" element={<GenerateGccTbcHallTickets />} />
                         <Route path="halltickets-generation/skill-test" element={<GenerateSkillTestHallTickets />} />
+                        <Route
+                            path="/super-admin/generate-halltickets-db"
+                            element={<GenerateSkillTestHallTicketsFromDB />}
+                        />
 
 
                     </Route>
