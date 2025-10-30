@@ -212,11 +212,12 @@
 // // export default AddDepartment;
 
 
+// 
+
 // src/components/super-admin/department-setup/AddDepartment.js
 import React, { useState, useEffect } from 'react';
 import {
-  Container, Row, Col, Card, Form, Button, Alert, Spinner,
-  Accordion, ButtonGroup
+  Container, Row, Col, Card, Form, Button, Alert, ButtonGroup
 } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -226,7 +227,9 @@ import DepartmentForms from './DepartmentForms';
 import DepartmentTables from './DepartmentTables';
 
 const AddDepartment = () => {
-  // State management
+  // -------------------------------
+  // State Management
+  // -------------------------------
   const [departments, setDepartments] = useState([]);
   const [batches, setBatches] = useState([]);
   const [controllers, setControllers] = useState([]);
@@ -235,25 +238,28 @@ const AddDepartment = () => {
   const [message, setMessage] = useState('');
   const [activeAccordion, setActiveAccordion] = useState('new');
   const [fetchingDepartments, setFetchingDepartments] = useState(true);
-  
-  // Table visibility states - controlled by buttons
+  const [refreshingDepartments, setRefreshingDepartments] = useState(false);
   const [activeTable, setActiveTable] = useState(''); // 'departments', 'batches', 'controllers', or ''
 
   const navigate = useNavigate();
 
-  // Load data on component mount
+  // -------------------------------
+  // Lifecycle Hooks
+  // -------------------------------
   useEffect(() => {
     loadPersistedData();
     fetchDepartments();
   }, []);
 
-  // Reset table visibility when leaving component or route change
   useEffect(() => {
     return () => {
-      setActiveTable(''); // Clear table when component unmounts
+      setActiveTable(''); // Reset when unmounting
     };
   }, []);
 
+  // -------------------------------
+  // Local Storage Persistence
+  // -------------------------------
   const loadPersistedData = () => {
     try {
       const persisted = localStorage.getItem('departmentSetupData');
@@ -287,8 +293,11 @@ const AddDepartment = () => {
     localStorage.removeItem('departmentSetupData');
   };
 
-  // API functions
+  // -------------------------------
+  // API Calls
+  // -------------------------------
   const fetchDepartments = async () => {
+    setRefreshingDepartments(true);
     try {
       const response = await axios.get('http://localhost:3000/api/new-department/departments');
       setDepartments(response.data.data || []);
@@ -297,19 +306,19 @@ const AddDepartment = () => {
       setMessage('Error loading departments');
     } finally {
       setFetchingDepartments(false);
+      setRefreshingDepartments(false);
     }
   };
 
   const fetchBatches = async (departmentId = null) => {
     try {
-      const url = departmentId 
+      const url = departmentId
         ? `http://localhost:3000/api/new-department/batches/${departmentId}`
         : 'http://localhost:3000/api/new-department/batches';
-      
+
       const response = await axios.get(url);
       const fetchedBatches = response.data.data || [];
-      
-      // Sort batches to show newest first
+
       const sortedBatches = sortBatchesByNewest(fetchedBatches);
       setBatches(sortedBatches);
     } catch (err) {
@@ -321,17 +330,16 @@ const AddDepartment = () => {
   const fetchControllers = async (departmentId = null, batchNo = null) => {
     try {
       let url = 'http://localhost:3000/api/new-department/controllers';
-      
+
       if (departmentId && batchNo) {
         url = `http://localhost:3000/api/new-department/controllers/department/${departmentId}/batch/${batchNo}`;
       } else if (departmentId) {
         url = `http://localhost:3000/api/new-department/controllers/department/${departmentId}`;
       }
-      
+
       const response = await axios.get(url);
       const fetchedControllers = response.data.data || [];
-      
-      // Sort controllers to show newest first
+
       const sortedControllers = sortControllersByNewest(fetchedControllers);
       setControllers(sortedControllers);
     } catch (err) {
@@ -340,16 +348,18 @@ const AddDepartment = () => {
     }
   };
 
-  // Sorting functions
+  // -------------------------------
+  // Sorting Helpers
+  // -------------------------------
   const sortBatchesByNewest = (batchList) => {
     return batchList.sort((a, b) => {
-      const aIsNew = newlyAddedBatches.some(newBatch => 
-        newBatch.batchNo == a.batchNo && 
+      const aIsNew = newlyAddedBatches.some(newBatch =>
+        newBatch.batchNo == a.batchNo &&
         newBatch.batchdate === a.batchdate &&
         newBatch.departmentId == a.departmentId
       );
-      const bIsNew = newlyAddedBatches.some(newBatch => 
-        newBatch.batchNo == b.batchNo && 
+      const bIsNew = newlyAddedBatches.some(newBatch =>
+        newBatch.batchNo == b.batchNo &&
         newBatch.batchdate === b.batchdate &&
         newBatch.departmentId == b.departmentId
       );
@@ -369,13 +379,13 @@ const AddDepartment = () => {
 
   const sortControllersByNewest = (controllerList) => {
     return controllerList.sort((a, b) => {
-      const aIsNew = newlyAddedControllers.some(newController => 
-        newController.controller_code == a.controller_code && 
+      const aIsNew = newlyAddedControllers.some(newController =>
+        newController.controller_code == a.controller_code &&
         newController.departmentId == a.departmentId &&
         newController.batchNo == a.batchNo
       );
-      const bIsNew = newlyAddedControllers.some(newController => 
-        newController.controller_code == b.controller_code && 
+      const bIsNew = newlyAddedControllers.some(newController =>
+        newController.controller_code == b.controller_code &&
         newController.departmentId == b.departmentId &&
         newController.batchNo == b.batchNo
       );
@@ -387,7 +397,9 @@ const AddDepartment = () => {
     });
   };
 
-  // Table control functions
+  // -------------------------------
+  // Table Controls
+  // -------------------------------
   const handleShowDepartments = async () => {
     setActiveTable('departments');
     await fetchDepartments();
@@ -403,36 +415,42 @@ const AddDepartment = () => {
     await fetchControllers();
   };
 
+  // -------------------------------
+  // Continue Button Handler
+  // -------------------------------
   const handleContinueToNextStep = () => {
+    clearPersistedData();
     navigate('/super-admin/add-exam-center');
   };
 
-  // Check functions for newly added items
+  // -------------------------------
+  // Utility Checks
+  // -------------------------------
   const isNewlyAddedBatch = (batch) => {
-    return newlyAddedBatches.some(newBatch => 
-      newBatch.batchNo == batch.batchNo && 
+    return newlyAddedBatches.some(newBatch =>
+      newBatch.batchNo == batch.batchNo &&
       newBatch.batchdate === batch.batchdate &&
       newBatch.departmentId == batch.departmentId
     );
   };
 
   const isNewlyAddedController = (controller) => {
-    return newlyAddedControllers.some(newController => 
-      newController.controller_code == controller.controller_code && 
+    return newlyAddedControllers.some(newController =>
+      newController.controller_code == controller.controller_code &&
       newController.departmentId == controller.departmentId &&
       newController.batchNo == controller.batchNo
     );
   };
 
-  // Calculate layout sizes
-  const getLeftColSize = () => {
-    return activeTable ? 8 : 12;
-  };
+  // -------------------------------
+  // Layout Helpers
+  // -------------------------------
+  const getLeftColSize = () => (activeTable ? 8 : 12);
+  const getRightColSize = () => 4;
 
-  const getRightColSize = () => {
-    return 4;
-  };
-
+  // -------------------------------
+  // JSX Render
+  // -------------------------------
   return (
     <Container fluid className="my-4">
       <Row className="g-4">
@@ -445,29 +463,29 @@ const AddDepartment = () => {
                   <h4 className="mb-0">Step 1: Department Management</h4>
                   <small>Create department, add batches, and assign center controllers</small>
                 </div>
-                
+
                 {/* Table Control Buttons */}
                 <ButtonGroup size="sm">
-                  <Button 
+                  <Button
                     variant={activeTable === 'departments' ? 'success' : 'outline-light'}
                     onClick={handleShowDepartments}
                   >
                     📋 Departments
                   </Button>
-                  <Button 
+                  <Button
                     variant={activeTable === 'batches' ? 'info' : 'outline-light'}
                     onClick={handleShowBatches}
                   >
                     📅 Batches
                   </Button>
-                  <Button 
+                  <Button
                     variant={activeTable === 'controllers' ? 'warning' : 'outline-light'}
                     onClick={handleShowControllers}
                   >
                     👤 Controllers
                   </Button>
                   {activeTable && (
-                    <Button 
+                    <Button
                       variant="outline-light"
                       onClick={() => setActiveTable('')}
                     >
@@ -477,7 +495,7 @@ const AddDepartment = () => {
                 </ButtonGroup>
               </div>
             </Card.Header>
-            
+
             <Card.Body className="p-4">
               {message && (
                 <Alert variant={message.includes('successfully') || message.includes('✅') ? 'success' : 'danger'}>
@@ -510,8 +528,8 @@ const AddDepartment = () => {
               {/* Continue Button */}
               {activeTable && (
                 <div className="mt-4 text-center">
-                  <Button 
-                    variant="success" 
+                  <Button
+                    variant="success"
                     size="lg"
                     onClick={handleContinueToNextStep}
                   >

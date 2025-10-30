@@ -75,7 +75,7 @@
 //                     <Route path="/home" element={<Home />} />
 //                     <Route path="/student-assignment-report/:subjectId/:qset/:studentId/:departmentId" element={<StudentAssignmentReport />} />
 //                     <Route path="/attendance-upload" element={<AttendancePage/>}/>
-                    
+
 //                     {/* Updated ExpertDashboard routes to include departmentId and examType */}
 //                     <Route path="/expertDashboard" element={<ExpertDashboard />}>
 //                         <Route index element={<SubjectSelection />} />
@@ -160,7 +160,7 @@ import AbsenteeRoll from './components/attendeeRoll/attendeeRoll';
 import ControllerPassword from './components/controllerPassword/controllerPassword';
 import PCRegistration from './components/pcRegistration/pcRegistration';
 import FetchPassageById from './components/expertDashboard/FetchPassageById'
-import ResultFetchUpdate from './components/resultSuperAdmin/fetchUpdateTables'; 
+import ResultFetchUpdate from './components/resultSuperAdmin/fetchUpdateTables';
 import StudentAssignmentReport from './components/expertDashboard/StudentAssignmentReport'
 import DepartmentLogin from './components/department/DepartmentLogin';
 import StudentDetails from './components/Students/SudentDetails';
@@ -189,7 +189,7 @@ import BatchManagement from './components/super-admin/BatchManagement';
 import Student_info from './components/super-admin/Student_info';
 import AttendancePage from './components/AttendanceReport/AttendancePage';
 import AttendanceReports from './components/super-admin/AttendanceReports';
-import HallticketsGeneration from './components/super-admin/HallticketsGeneration';
+import HallticketsGeneration from './components/super-admin/GenerateGccTbcHallTickets';
 import SubmitAndDone from './components/super-admin/SubmitAndDone';
 import DownloadBackup from './components/super-admin/DownloadBackup';
 // import DownloadZip from './components/super-admin/DownloadZip';
@@ -206,6 +206,13 @@ import RegisterStudents from './components/super-admin/department-setup/Register
 import AddController from './components/super-admin/add-new/AddController';
 import MockStudentPage from './components/super-admin/MockStudentPage';
 import EvaluationDashboard from './components/super-admin/EvaluationDashboard'; 
+import AddNewExamCenter from './components/super-admin/add-new/AddNewExamCenter';
+// import AddController from './components/super-admin/add-new/AddController';
+import HallticketsDepartmentSelection from './components/super-admin/HallticketsDepartmentSelection';
+import GenerateGccTbcHallTickets from './components/super-admin/GenerateGccTbcHallTickets';
+import GenerateSkillTestHallTickets from './components/super-admin/GenerateSkillTestHallTickets';
+import GenerateSkillTestHallTicketsFromDB from './components/super-admin/GenerateSkillTestHallTicketsFromDB';
+
 
 axios.defaults.withCredentials = true;
 
@@ -221,8 +228,8 @@ const App = () => {
                     <Route path="/student-table" element={<StudentTable />} />
                     <Route path="/home" element={<Home />} />
                     <Route path="/student-assignment-report/:subjectId/:qset/:studentId/:departmentId" element={<StudentAssignmentReport />} />
-                    <Route path="/attendance-upload" element={<AttendancePage/>}/>
-                    
+                    <Route path="/attendance-upload" element={<AttendancePage />} />
+
                     {/* Updated ExpertDashboard routes to include departmentId and examType */}
                     <Route path="/expertDashboard" element={<ExpertDashboard />}>
                         <Route index element={<SubjectSelection />} />
@@ -233,7 +240,7 @@ const App = () => {
                         <Route path=":subjectId/:qset/:studentId/:departmentId/:examType" element={<FetchPassageById />} />
                     </Route>
 
-                    <Route path='/student_info/:studentId' element={<StudentDetails/>}/>
+                    <Route path='/student_info/:studentId' element={<StudentDetails />} />
                     <Route path="/attendance-download" element={<AttendanceDownload />} />
                     <Route path="/centerwise-student-count" element={<CenterwiseStudentCount />} />
                     <Route path="/absentee-roll" element={<AbsenteeRoll />} />
@@ -241,16 +248,16 @@ const App = () => {
                     <Route path="/fetch-pc-registration" element={<PCRegistration />} />
                     <Route path="/result-subjectwise-summary" element={<SubjectWiseResultSummary />} />
                     <Route path="/result-super-admin" element={<ResultFetchUpdate />} />
-                    <Route path='/department-login' element={<DepartmentLogin/>}/>
-                    <Route path='/department-dashboard' element={<DepartmentDashboard/>}/>
-                    <Route path='/camera-upload' element={<CameraCapture/>}/>
-                    <Route path='/download-apps' element={<DownloadApps/>}/>
-                    <Route path='/current-student-details' element={<CurrentStudentDetails/>}/>
-                    <Route path='/pc-registration-count' element={<PcRegistrationCount/>}/>
-                    <Route path='/reset-center-admin' element={<ResetCenterAdmin/>}/>
-                    <Route path='/department-student-count' element={<DepartmentStudentCount/>}/>
-                    <Route path='/superadmin-student-count' element={<SuperAdminCount/>}/>
-                    <Route path='/superadmin-pc' element={<SuperAdminPc/>}/>
+                    <Route path='/department-login' element={<DepartmentLogin />} />
+                    <Route path='/department-dashboard' element={<DepartmentDashboard />} />
+                    <Route path='/camera-upload' element={<CameraCapture />} />
+                    <Route path='/download-apps' element={<DownloadApps />} />
+                    <Route path='/current-student-details' element={<CurrentStudentDetails />} />
+                    <Route path='/pc-registration-count' element={<PcRegistrationCount />} />
+                    <Route path='/reset-center-admin' element={<ResetCenterAdmin />} />
+                    <Route path='/department-student-count' element={<DepartmentStudentCount />} />
+                    <Route path='/superadmin-student-count' element={<SuperAdminCount />} />
+                    <Route path='/superadmin-pc' element={<SuperAdminPc />} />
 
                     {/* SuperAdmin Routes */}
                     <Route path="/admin-login" element={<SuperAdminLogin />} />
@@ -258,15 +265,15 @@ const App = () => {
                         <Route path="dashboard" element={<SuperAdminDashboard />} />
                         <Route path="track-dashboard" element={<SuperAdminTrackDashboard />} />
                         <Route path="fetch-update-table" element={<DataUpdateForm />} />
-                        <Route path="student-data" element={<StudentData/>}/>
-                        <Route path="expert-review" element={<ExpertReview/>}/>
-                        <Route path="expert-management" element={<ExpertManagement/>}/>
-                        <Route path="expert-assign" element={<ExpertAssign/>}/>
-                        <Route path="expert-summary" element={<ExpertSummary/>}/>
-                        <Route path="batch-management" element={<BatchManagement/>}/>
-                        <Route path='student-info' element={<Student_info/>}/>
-                        <Route path='attendance-reports' element={<AttendanceReports/>}/>
-                        <Route path='halltickets-generation' element={<HallticketsGeneration/>}/>
+                        <Route path="student-data" element={<StudentData />} />
+                        <Route path="expert-review" element={<ExpertReview />} />
+                        <Route path="expert-management" element={<ExpertManagement />} />
+                        <Route path="expert-assign" element={<ExpertAssign />} />
+                        <Route path="expert-summary" element={<ExpertSummary />} />
+                        <Route path="batch-management" element={<BatchManagement />} />
+                        <Route path='student-info' element={<Student_info />} />
+                        <Route path='attendance-reports' element={<AttendanceReports />} />
+                        <Route path='halltickets-generation' element={<HallticketsGeneration />} />
                         <Route path="submit-done" element={<SubmitAndDone />} />
                         <Route path="download-backup" element={<DownloadBackup />} />
                         {/* <Route path="download-zip" element={<DownloadZip />} /> */}
@@ -283,6 +290,17 @@ const App = () => {
                         <Route path="add-controller" element={<AddController />} />
                         <Route path="mock-students" element={<MockStudentPage />} />
                         <Route path="evaluation-dashboard" element={<EvaluationDashboard />} />
+                        <Route path="add-new-exam-center" element={<AddNewExamCenter />} />
+                        {/* <Route path="add-controller" element={<AddController />} /> */}
+                        <Route path="halltickets-department-selection" element={<HallticketsDepartmentSelection />} />
+                        <Route path="halltickets-generation/gcc-tbc" element={<GenerateGccTbcHallTickets />} />
+                        <Route path="halltickets-generation/skill-test" element={<GenerateSkillTestHallTickets />} />
+                        <Route
+                            path="/super-admin/generate-halltickets-db"
+                            element={<GenerateSkillTestHallTicketsFromDB />}
+                        />
+
+
                     </Route>
                 </Routes>
             </Router>

@@ -1,4 +1,4 @@
-// src\components\super-admin\HallticketsGeneration.js
+// src/components/super-admin/GenerateGccTbcHallTickets.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { 
@@ -12,7 +12,8 @@ import {
   Alert,
   ListGroup,
   ProgressBar,
-  Modal
+  Modal,
+  Badge
 } from 'react-bootstrap';
 import { 
   FaFilePdf, 
@@ -24,11 +25,14 @@ import {
   FaUniversity, 
   FaUpload,
   FaEye,
-  FaInfoCircle
+  FaInfoCircle,
+  FaArrowLeft
 } from 'react-icons/fa';
 import * as XLSX from 'xlsx';
+import { useNavigate } from 'react-router-dom';
 
-function HallticketsGeneration() {
+function GenerateGccTbcHallTickets() {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -45,7 +49,7 @@ function HallticketsGeneration() {
   const [previewStudent, setPreviewStudent] = useState(null);
   const [totalStudents, setTotalStudents] = useState(0);
   const [activeTab, setActiveTab] = useState('upload');
-  
+
   // Function to handle file upload
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
@@ -215,7 +219,6 @@ function HallticketsGeneration() {
     }
   };
 
-
   // Download all hall tickets
   const downloadAllHallTickets = async () => {
     try {
@@ -258,6 +261,11 @@ function HallticketsGeneration() {
     setShowPreviewModal(true);
   };
 
+  // Navigate back to department selection
+  const navigateToDepartmentSelection = () => {
+    navigate('/super-admin/halltickets-department-selection');
+  };
+
   // Clear alerts after some time
   useEffect(() => {
     if (success || error) {
@@ -282,7 +290,7 @@ function HallticketsGeneration() {
         centered
       >
         <Modal.Header closeButton>
-          <Modal.Title>Student Preview</Modal.Title>
+          <Modal.Title>Student Preview - GCC TBC</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Row>
@@ -300,6 +308,7 @@ function HallticketsGeneration() {
               <p><strong>Exam Center:</strong> {previewStudent.examCenter}</p>
               <p><strong>Center Address:</strong> {previewStudent.centerAddress}</p>
               <p><strong>Password:</strong> {previewStudent.password}</p>
+              <p><strong>Department:</strong> <Badge variant="primary">GCC TBC</Badge></p>
             </Col>
             <Col md={4} className="text-center">
               {previewStudent.image ? (
@@ -357,11 +366,11 @@ function HallticketsGeneration() {
         <Card className="mb-4">
           <Card.Header>
             <FaFileExcel className="me-2" />
-            Upload Student Data
+            Upload Student Data - GCC TBC
           </Card.Header>
           <Card.Body>
             <p className="mb-3">
-              Upload an Excel file containing student data for hall ticket generation. The file should include the following fields:
+              Upload an Excel file containing student data for GCC TBC hall ticket generation. The file should include the following fields:
             </p>
             <Row className="mb-4">
               <Col md={6}>
@@ -437,7 +446,7 @@ function HallticketsGeneration() {
         <Card className="mb-4">
           <Card.Header>
             <FaFilter className="me-2" />
-            Filter Options
+            Filter Options - GCC TBC
           </Card.Header>
           <Card.Body>
             <Form.Group className="mb-3">
@@ -472,7 +481,7 @@ function HallticketsGeneration() {
         <Card>
           <Card.Header>
             <FaFileArchive className="me-2" />
-            Generate Hall Tickets
+            Generate Hall Tickets - GCC TBC
           </Card.Header>
           <Card.Body>
             <Button 
@@ -505,7 +514,7 @@ function HallticketsGeneration() {
             
             <div className="text-muted">
               <small>
-                This will generate PDFs for all students grouped by institute and compress them into a single ZIP file.
+                This will generate PDFs for all GCC TBC students grouped by institute and compress them into a single ZIP file.
               </small>
             </div>
           </Card.Body>
@@ -518,7 +527,7 @@ function HallticketsGeneration() {
             <Row className="align-items-center">
               <Col>
                 <FaUniversity className="me-2" />
-                Student List
+                Student List - GCC TBC
               </Col>
               <Col className="text-end">
                 <small>
@@ -555,6 +564,13 @@ function HallticketsGeneration() {
                       <div>
                         <small>Institute ID: {student.instituteId}</small>
                       </div>
+                      <div>
+                        <small>
+                          Department: <Badge variant="primary" className="ms-1">
+                            GCC TBC
+                          </Badge>
+                        </small>
+                      </div>
                     </div>
                     <div>
                       <Button 
@@ -588,10 +604,30 @@ function HallticketsGeneration() {
 
   return (
     <Container fluid className="mt-4">
-      <h2 className="mb-4">
-        <FaFilePdf className="me-2" />
-        Hall Tickets Generation
-      </h2>
+      {/* Header with Department Info */}
+      <Row className="align-items-center mb-4">
+        <Col>
+          <h2 className="mb-0">
+            <FaFilePdf className="me-2" />
+            Hall Tickets Generation - GCC TBC
+          </h2>
+        </Col>
+        <Col xs="auto">
+          <div className="d-flex align-items-center">
+            <Badge variant="primary" className="fs-6 me-3">
+              Department: GCC TBC
+            </Badge>
+            <Button 
+              variant="outline-secondary" 
+              size="sm"
+              onClick={navigateToDepartmentSelection}
+            >
+              <FaArrowLeft className="me-1" />
+              Change Department
+            </Button>
+          </div>
+        </Col>
+      </Row>
 
       {error && <Alert variant="danger">{error}</Alert>}
       {success && <Alert variant="success">{success}</Alert>}
@@ -639,4 +675,4 @@ function HallticketsGeneration() {
   );
 }
 
-export default HallticketsGeneration;
+export default GenerateGccTbcHallTickets;

@@ -312,7 +312,7 @@ const SuperAdminNavbar = () => {
                 </button>
                 <ul className={`sa-navbar__dropdown ${activeDropdown === 'halltickets' ? 'sa-navbar__dropdown--active' : ''}`}>
                   <li>
-                    <Link to="/super-admin/halltickets-generation" onClick={closeDropdowns}>
+                    <Link to="/super-admin/halltickets-department-selection" onClick={closeDropdowns}>
                       Generate Hall Tickets
                     </Link>
                   </li>
