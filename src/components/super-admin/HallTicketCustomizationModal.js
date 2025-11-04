@@ -10,13 +10,13 @@ function HallTicketCustomizationModal({ show, onHide, onApplyCustomization }) {
   const [rightLogo, setRightLogo] = useState(null);
   const [rightLogoPreview, setRightLogoPreview] = useState(null);
   
-  const [invigilatorImage, setInvigilatorImage] = useState(null);
-  const [invigilatorImagePreview, setInvigilatorImagePreview] = useState(null);
+  const [invigilatorImage, setOfficerImage] = useState(null);
+  const [invigilatorImagePreview, setOfficerImagePreview] = useState(null);
 
-  const [invigilatorTitle, setInvigilatorTitle] = useState('नियंत्रक अधिकारी');
-  const [invigilatorLine1, setInvigilatorLine1] = useState('मुख्य अभियंता');
-  const [invigilatorLine2, setInvigilatorLine2] = useState('सा.बां.प्रादेशिक विभाग मुंबई तथा,');
-  const [invigilatorLine3, setInvigilatorLine3] = useState('अध्यक्ष राज्यस्तरीय समन्वय समिती.');
+  const [invigilatorTitle, setOfficerTitle] = useState('नियंत्रक अधिकारी');
+  const [invigilatorLine1, setOfficerLine1] = useState('मुख्य अभियंता');
+  const [invigilatorLine2, setOfficerLine2] = useState('सा.बां.प्रादेशिक विभाग मुंबई तथा,');
+  const [invigilatorLine3, setOfficerLine3] = useState('अध्यक्ष राज्यस्तरीय समन्वय समिती.');
 
   const [error, setError] = useState(null);
   const [uploading, setUploading] = useState(false);
@@ -55,8 +55,8 @@ function HallTicketCustomizationModal({ show, onHide, onApplyCustomization }) {
         setRightLogo(base64);
         setRightLogoPreview(base64);
       } else if (imageType === 'invigilator') {
-        setInvigilatorImage(base64);
-        setInvigilatorImagePreview(base64);
+        setOfficerImage(base64);
+        setOfficerImagePreview(base64);
       }
       
       setError(null);
@@ -76,8 +76,8 @@ function HallTicketCustomizationModal({ show, onHide, onApplyCustomization }) {
       setRightLogo(null);
       setRightLogoPreview(null);
     } else if (imageType === 'invigilator') {
-      setInvigilatorImage(null);
-      setInvigilatorImagePreview(null);
+      setOfficerImage(null);
+      setOfficerImagePreview(null);
     }
   };
 
@@ -107,12 +107,12 @@ function HallTicketCustomizationModal({ show, onHide, onApplyCustomization }) {
     setLeftLogoPreview(null);
     setRightLogo(null);
     setRightLogoPreview(null);
-    setInvigilatorImage(null);
-    setInvigilatorImagePreview(null);
-    setInvigilatorTitle('नियंत्रक अधिकारी');
-    setInvigilatorLine1('मुख्य अभियंता');
-    setInvigilatorLine2('सा.बां.प्रादेशिक विभाग मुंबई तथा,');
-    setInvigilatorLine3('अध्यक्ष राज्यस्तरीय समन्वय समिती.');
+    setOfficerImage(null);
+    setOfficerImagePreview(null);
+    setOfficerTitle('नियंत्रक अधिकारी');
+    setOfficerLine1('मुख्य अभियंता');
+    setOfficerLine2('सा.बां.प्रादेशिक विभाग मुंबई तथा,');
+    setOfficerLine3('अध्यक्ष राज्यस्तरीय समन्वय समिती.');
     setError(null);
   };
 
@@ -159,7 +159,7 @@ function HallTicketCustomizationModal({ show, onHide, onApplyCustomization }) {
             {/* Left Logo */}
             <Form.Group className="mb-4">
               <Form.Label className="fw-bold">
-                Left Logo (PWD Logo Position)
+                Left Logo (Department Logo)
               </Form.Label>
               <Row className="align-items-center">
                 <Col md={8}>
@@ -202,7 +202,8 @@ function HallTicketCustomizationModal({ show, onHide, onApplyCustomization }) {
             {/* Right Logo */}
             <Form.Group className="mb-4">
               <Form.Label className="fw-bold">
-                Right Logo (Ashok Stambh / Department Logo Position)
+                Right Logo 
+                {/* (Ashok Stambh / Department Logo Position) */}
               </Form.Label>
               <Row className="align-items-center">
                 <Col md={8}>
@@ -242,10 +243,10 @@ function HallTicketCustomizationModal({ show, onHide, onApplyCustomization }) {
               </Row>
             </Form.Group>
 
-            {/* Invigilator Image */}
+            {/* Officer Image */}
             <Form.Group className="mb-0">
               <Form.Label className="fw-bold">
-                Invigilator Signature Image
+                Officer Signature Image
               </Form.Label>
               <Row className="align-items-center">
                 <Col md={8}>
@@ -264,7 +265,7 @@ function HallTicketCustomizationModal({ show, onHide, onApplyCustomization }) {
                     <div className="d-flex align-items-center justify-content-end">
                       <img 
                         src={invigilatorImagePreview} 
-                        alt="Invigilator" 
+                        alt="Officer" 
                         height="60" 
                         className="me-2 border rounded p-1"
                         style={{ objectFit: 'contain' }}
@@ -292,7 +293,7 @@ function HallTicketCustomizationModal({ show, onHide, onApplyCustomization }) {
           <Card.Header className="bg-light">
             <h6 className="mb-0">
               <FaFont className="me-2" />
-              Invigilator Section Text
+              Officer Section Text
             </h6>
           </Card.Header>
           <Card.Body>
@@ -301,7 +302,7 @@ function HallTicketCustomizationModal({ show, onHide, onApplyCustomization }) {
               <Form.Control
                 type="text"
                 value={invigilatorTitle}
-                onChange={(e) => setInvigilatorTitle(e.target.value)}
+                onChange={(e) => setOfficerTitle(e.target.value)}
                 placeholder="नियंत्रक अधिकारी"
               />
               <Form.Text className="text-muted">
@@ -314,7 +315,7 @@ function HallTicketCustomizationModal({ show, onHide, onApplyCustomization }) {
               <Form.Control
                 type="text"
                 value={invigilatorLine1}
-                onChange={(e) => setInvigilatorLine1(e.target.value)}
+                onChange={(e) => setOfficerLine1(e.target.value)}
                 placeholder="मुख्य अभियंता"
               />
             </Form.Group>
@@ -324,7 +325,7 @@ function HallTicketCustomizationModal({ show, onHide, onApplyCustomization }) {
               <Form.Control
                 type="text"
                 value={invigilatorLine2}
-                onChange={(e) => setInvigilatorLine2(e.target.value)}
+                onChange={(e) => setOfficerLine2(e.target.value)}
                 placeholder="सा.बां.प्रादेशिक विभाग मुंबई तथा,"
               />
             </Form.Group>
@@ -334,7 +335,7 @@ function HallTicketCustomizationModal({ show, onHide, onApplyCustomization }) {
               <Form.Control
                 type="text"
                 value={invigilatorLine3}
-                onChange={(e) => setInvigilatorLine3(e.target.value)}
+                onChange={(e) => setOfficerLine3(e.target.value)}
                 placeholder="अध्यक्ष राज्यस्तरीय समन्वय समिती."
               />
             </Form.Group>
@@ -371,10 +372,10 @@ function HallTicketCustomizationModal({ show, onHide, onApplyCustomization }) {
                 )}
                 {invigilatorImagePreview && (
                   <Col md={4} className="text-center mb-3">
-                    <small className="text-muted d-block mb-2">Invigilator Signature</small>
+                    <small className="text-muted d-block mb-2">Officer Signature</small>
                     <img 
                       src={invigilatorImagePreview} 
-                      alt="Invigilator Preview" 
+                      alt="Officer Preview" 
                       style={{ maxWidth: '120px', height: '72px', objectFit: 'contain' }}
                       className="border rounded bg-white p-2"
                     />

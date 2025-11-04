@@ -1,124 +1,271 @@
-.download-backup-container {
-    padding: 20px;
-    background-color: #f5f7fa;
-    font-family: Arial, sans-serif;
-    max-width: 600px;
-    margin: 0 auto;
+/* DownloadBackup.css - Modern Professional UI */
+
+/* Wrapper */
+.download-backup-wrapper {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+    padding: 24px 0;
 }
 
-.backup-form {
-    background: white;
-    padding: 25px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
+/* Header */
+.backup-header {
+    padding: 0 12px;
 }
 
-.form-group {
-    margin-bottom: 20px;
+.backup-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #212529;
+    letter-spacing: -0.5px;
+    margin: 0;
 }
 
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: bold;
-    color: #333;
-}
-
-.filename-input {
-    width: 100%;
-    padding: 10px;
-    border: 2px solid #ddd;
-    border-radius: 4px;
+.backup-subtitle {
     font-size: 14px;
-    box-sizing: border-box;
+    color: #6c757d;
+    margin: 0;
 }
 
-.filename-input:focus {
-    border-color: #4CAF50;
-    outline: none;
-}
-
-.filename-hint {
-    font-size: 12px;
-    color: #666;
-    margin-top: 5px;
-}
-
-.download-button {
-    background-color: #4CAF50;
-    color: white;
-    padding: 12px 24px;
+/* Cards */
+.backup-card,
+.backup-info-card {
     border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: bold;
-    width: 100%;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    background: white;
 }
 
-.download-button:hover:not(:disabled) {
-    background-color: #45a049;
+.backup-card:hover,
+.backup-info-card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
 }
 
-.download-button:disabled {
-    background-color: #cccccc;
+/* Form Elements */
+.backup-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 8px;
+}
+
+.backup-input {
+    padding: 12px 16px;
+    padding-right: 45px;
+    font-size: 14px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.backup-input:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1);
+}
+
+.backup-input:disabled {
+    background-color: #f8f9fa;
     cursor: not-allowed;
 }
 
-.message {
-    padding: 15px;
-    border-radius: 4px;
-    margin-bottom: 20px;
-    font-weight: bold;
+.input-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
 }
 
-.message.success {
-    background-color: #dff0d8;
-    border: 1px solid #d6e9c6;
-    color: #3c763d;
+.backup-hint {
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    color: #6c757d;
+    margin-top: 8px;
 }
 
-.message.error {
-    background-color: #f2dede;
-    border: 1px solid #ebccd1;
-    color: #a94442;
-}
-
-.backup-info {
-    background: white;
-    padding: 20px;
+/* Download Button */
+.backup-download-btn {
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+    border: none;
     border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 14px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
 }
 
-.backup-info h3 {
-    margin-top: 0;
-    color: #333;
-    border-bottom: 2px solid #4CAF50;
-    padding-bottom: 10px;
+.backup-download-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #0a58ca 0%, #0842a0 100%);
+    box-shadow: 0 6px 16px rgba(13, 110, 253, 0.4);
+    transform: translateY(-2px);
 }
 
-.backup-info ul {
-    list-style: none;
-    padding: 0;
+.backup-download-btn:active:not(:disabled) {
+    transform: translateY(0);
 }
 
-.backup-info li {
-    padding: 8px 0;
-    border-bottom: 1px solid #eee;
-    color: #555;
+.backup-download-btn:disabled {
+    background: linear-gradient(135deg, #adb5bd 0%, #6c757d 100%);
+    cursor: not-allowed;
+    box-shadow: none;
+    opacity: 0.6;
 }
 
-.backup-info li:before {
-    content: "•";
-    color: #4CAF50;
-    font-weight: bold;
-    display: inline-block;
-    width: 1em;
-    margin-left: -1em;
+/* Alert Message */
+.backup-alert {
+    border: none;
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 14px;
+    animation: slideIn 0.3s ease;
 }
 
-.backup-info li:last-child {
-    border-bottom: none;
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.backup-alert.alert-success {
+    background-color: #d1e7dd;
+    color: #0f5132;
+}
+
+.backup-alert.alert-danger {
+    background-color: #f8d7da;
+    color: #842029;
+}
+
+/* Info List */
+.info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.info-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.info-icon {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #e7f3ff 0%, #cfe5ff 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0d6efd;
+}
+
+.info-content h6 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 4px;
+}
+
+.info-content p {
+    font-size: 13px;
+    color: #6c757d;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Backup Tip */
+.backup-tip {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%);
+    border-left: 4px solid #ffc107;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.tip-header {
+    display: flex;
+    align-items: center;
+    color: #664d03;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.tip-text {
+    font-size: 13px;
+    color: #664d03;
+    line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .backup-title {
+        font-size: 24px;
+    }
+
+    .backup-card,
+    .backup-info-card {
+        margin-bottom: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .download-backup-wrapper {
+        padding: 16px 0;
+    }
+
+    .backup-title {
+        font-size: 22px;
+    }
+
+    .backup-subtitle {
+        font-size: 13px;
+    }
+
+    .backup-card .card-body,
+    .backup-info-card .card-body {
+        padding: 20px !important;
+    }
+
+    .info-list {
+        gap: 16px;
+    }
+
+    .backup-download-btn {
+        padding: 12px 20px;
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 576px) {
+    .backup-header .d-flex {
+        flex-direction: column;
+        align-items: flex-start !important;
+    }
+
+    .backup-header .text-primary {
+        margin-bottom: 12px;
+    }
+}
+
+/* Spinner Animation */
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+    border-width: 0.15em;
+}
+
+/* Smooth Transitions */
+* {
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
