@@ -1,4 +1,3 @@
-// // // src/components/super-admin/HallticketsDepartmentSelection.js
 // src/components/super-admin/HallticketsDepartmentSelection.js
 import React, { useState, useEffect } from 'react';
 import { Card, Container, Row, Col, Button, Form, Alert, Spinner, Modal } from 'react-bootstrap';
@@ -7,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import CustomizationChoiceModal from './CustomizationChoiceModal'; // ✅ Import
 import HallTicketCustomizationModal from './HallTicketCustomizationModal'; // ✅ Import
+
 
 function HallticketsDepartmentSelection() {
   const navigate = useNavigate();
@@ -17,15 +17,18 @@ function HallticketsDepartmentSelection() {
   const [redirecting, setRedirecting] = useState(false);
   const [error, setError] = useState('');
 
+
   // QR Code Selection Modal State
   const [showQRModal, setShowQRModal] = useState(false);
   const [selectedQRType, setSelectedQRType] = useState('both');
   const [pendingNavigation, setPendingNavigation] = useState(null);
 
+
   // ✅ NEW: Customization Modals State
   const [showCustomizationChoiceModal, setShowCustomizationChoiceModal] = useState(false);
   const [showCustomizationModal, setShowCustomizationModal] = useState(false);
   const [customizationData, setCustomizationData] = useState(null);
+
 
   // Fetch departments from backend
   useEffect(() => {
@@ -49,6 +52,7 @@ function HallticketsDepartmentSelection() {
 
     fetchDepartments();
   }, []);
+
 
   const handleDepartmentSelect = (departmentId) => {
     if (!departmentId) {
@@ -76,7 +80,8 @@ function HallticketsDepartmentSelection() {
     }
   };
 
-  // Show QR Modal for Excel Upload
+
+  // ✅ UPDATED: Show QR Modal for Excel Upload with Exam Type Check
   const handleProceedToHallTickets = () => {
     if (!selectedDepartment || !detectedExamType) {
       alert('Please select a valid department first');
@@ -84,10 +89,20 @@ function HallticketsDepartmentSelection() {
     }
 
     setPendingNavigation({ type: 'excel', examType: detectedExamType, departmentId: selectedDepartment });
-    setShowQRModal(true);
+    
+    // ✅ NEW: Check exam type - skip modals for GCC
+    if (detectedExamType === 'GCC') {
+      console.log('📌 GCC Exam Type - Skipping QR and Customization modals');
+      setSelectedQRType('both'); // Set default QR type for GCC
+      proceedToGeneration(null); // Direct navigation without modals
+    } else if (detectedExamType === 'SKILL') {
+      console.log('📌 SKILL Exam Type - Showing QR modal');
+      setShowQRModal(true); // Show QR modal only for SKILL
+    }
   };
 
-  // Show QR Modal for Database Generation
+
+  // ✅ UPDATED: Show QR Modal for Database Generation with Exam Type Check
   const handleGenerateFromDatabase = () => {
     if (!selectedDepartment || !detectedExamType) {
       alert('Please select a valid department first');
@@ -95,18 +110,36 @@ function HallticketsDepartmentSelection() {
     }
 
     setPendingNavigation({ type: 'database', examType: detectedExamType, departmentId: selectedDepartment });
-    setShowQRModal(true);
+    
+    // ✅ NEW: Check exam type - skip modals for GCC
+    if (detectedExamType === 'GCC') {
+      console.log('📌 GCC Exam Type - Skipping QR and Customization modals');
+      setSelectedQRType('both'); // Set default QR type for GCC
+      proceedToGeneration(null); // Direct navigation without modals
+    } else if (detectedExamType === 'SKILL') {
+      console.log('📌 SKILL Exam Type - Showing QR modal');
+      setShowQRModal(true); // Show QR modal only for SKILL
+    }
   };
 
-  // ✅ UPDATED: Handle QR Type Selection Confirmation
+
+  // ✅ UPDATED: Handle QR Type Selection Confirmation with Exam Type Check
   const handleQRModalConfirm = () => {
     if (!pendingNavigation) return;
 
     setShowQRModal(false); // Close QR modal
     
-    // ✅ Show customization choice modal instead of direct navigation
-    setShowCustomizationChoiceModal(true);
+    // ✅ NEW: Check exam type - skip customization modal for GCC (already bypassed at button level)
+    // This condition is redundant here since GCC won't reach this, but kept for safety
+    if (detectedExamType === 'GCC') {
+      console.log('📌 GCC - Proceeding without customization');
+      proceedToGeneration(null);
+    } else if (detectedExamType === 'SKILL') {
+      console.log('📌 SKILL - Showing customization choice modal');
+      setShowCustomizationChoiceModal(true); // Open customization choice modal only for SKILL
+    }
   };
+
 
   // Handle Modal Close
   const handleQRModalClose = () => {
@@ -115,17 +148,20 @@ function HallticketsDepartmentSelection() {
     setSelectedQRType('both');
   };
 
+
   // ✅ NEW: Handle Customization Choice
   const handleCustomizeChoice = () => {
     setShowCustomizationChoiceModal(false);
     setShowCustomizationModal(true); // Open customization modal
   };
 
+
   // ✅ NEW: Handle Use Default Choice
   const handleUseDefaultChoice = () => {
     setShowCustomizationChoiceModal(false);
     proceedToGeneration(null); // Proceed without customization
   };
+
 
   // ✅ NEW: Handle Apply Customization
   const handleApplyCustomization = (customization) => {
@@ -135,33 +171,55 @@ function HallticketsDepartmentSelection() {
     proceedToGeneration(customization); // Proceed with customization
   };
 
-  // ✅ NEW: Proceed to Hall Ticket Generation
+
+  // ✅ UPDATED: Proceed to Hall Ticket Generation with Exam Type Routing
   const proceedToGeneration = (customization) => {
     if (!pendingNavigation) return;
 
     setRedirecting(true);
 
     setTimeout(() => {
-      const customizationParam = customization 
-        ? `&customization=${encodeURIComponent(JSON.stringify(customization))}`
-        : '';
+      // ✅ Route based on exam type
+      if (pendingNavigation.examType === 'GCC') {
+        console.log('🎨 Routing to GCC TBC - No customization, default QR');
+        
+        // ✅ For GCC: Always use 'both' as default QR type, no customization
+        if (pendingNavigation.type === 'database') {
+          navigate(
+            `/super-admin/generate-halltickets-db?departmentId=${pendingNavigation.departmentId}&qrType=both`
+          );
+        } else {
+          navigate(
+            `/super-admin/halltickets-generation/gcc-tbc?departmentId=${pendingNavigation.departmentId}&qrType=both`
+          );
+        }
+      } else if (pendingNavigation.examType === 'SKILL') {
+        console.log('🎨 Routing to SKILL Test - With customization and selected QR');
+        
+        // ✅ For SKILL: Use selected QR type and customization
+        const customizationParam = customization 
+          ? `&customization=${encodeURIComponent(JSON.stringify(customization))}`
+          : '';
 
-      if (pendingNavigation.type === 'database') {
-        navigate(
-          `/super-admin/generate-halltickets-db?departmentId=${pendingNavigation.departmentId}&qrType=${selectedQRType}${customizationParam}`
-        );
-      } else {
-        redirectToHallTicketForm(
-          pendingNavigation.examType, 
-          pendingNavigation.departmentId, 
-          selectedQRType,
-          customization
-        );
+        if (pendingNavigation.type === 'database') {
+          navigate(
+            `/super-admin/generate-halltickets-db?departmentId=${pendingNavigation.departmentId}&qrType=${selectedQRType}${customizationParam}`
+          );
+        } else {
+          redirectToHallTicketForm(
+            pendingNavigation.examType, 
+            pendingNavigation.departmentId, 
+            selectedQRType,
+            customization
+          );
+        }
       }
+      
       setRedirecting(false);
       setPendingNavigation(null);
     }, 500);
   };
+
 
   const redirectToHallTicketForm = (examType, departmentId, qrType, customization) => {
     const examTypeParam = examType.toLowerCase() === 'gcc' ? 'gcc-tbc' : 'skill-test';
@@ -170,29 +228,34 @@ function HallticketsDepartmentSelection() {
       : '';
 
     if (examTypeParam === 'gcc-tbc') {
-      navigate(`/super-admin/halltickets-generation/gcc-tbc?departmentId=${departmentId}&qrType=${qrType}${customizationParam}`);
+      navigate(`/super-admin/halltickets-generation/gcc-tbc?departmentId=${departmentId}&qrType=both`);
     } else if (examTypeParam === 'skill-test') {
       navigate(`/super-admin/halltickets-generation/skill-test?departmentId=${departmentId}&qrType=${qrType}${customizationParam}`);
     }
   };
 
+
   const handleCustomizationChoiceClose = () => {
     setShowCustomizationChoiceModal(false);
   };
+
 
   const handleCustomizationModalClose = () => {
     setShowCustomizationModal(false);
     setShowCustomizationChoiceModal(true); // Go back to choice modal
   };
 
+
   const getSelectedDepartmentName = () => {
     const dept = departments.find(dept => dept.departmentId.toString() === selectedDepartment);
     return dept ? dept.departmentName : '';
   };
 
+
   const getExamTypeDisplayName = (examType) => {
     return examType === 'GCC' ? 'GCC TBC' : 'Skill Test';
   };
+
 
   if (loading) {
     return (
@@ -204,6 +267,7 @@ function HallticketsDepartmentSelection() {
       </Container>
     );
   }
+
 
   return (
     <Container fluid className="mt-4">
@@ -341,7 +405,10 @@ function HallticketsDepartmentSelection() {
                           </div>
 
                           <p className="text-muted mt-3 mb-0">
-                            Click either button to select QR code type and proceed
+                            {detectedExamType === 'GCC' 
+                              ? '⚡ GCC exam detected - will proceed directly to generation'
+                              : '🎨 Skill Test detected - select QR codes and customization options'
+                            }
                           </p>
                         </div>
                       </Card.Body>
@@ -360,11 +427,11 @@ function HallticketsDepartmentSelection() {
                         How It Works
                       </h6>
                       <ul className="text-muted mb-0 text-start">
-                        <li>Select a department from the dropdown above</li>
-                        <li>The system automatically detects the exam type (GCC TBC or Skill Test) from the database</li>
+                        <li><strong>GCC Exam:</strong> Select department → Proceed directly to generation (no QR/customization choice)</li>
+                        <li><strong>Skill Test Exam:</strong> Select department → Choose QR codes → Choose customization → Generate</li>
+                        <li>The system automatically detects the exam type from the database</li>
                         <li>Choose generation method (Excel Upload or Database)</li>
-                        <li>Select QR code type (Shorthand, Typewriting, or Both)</li>
-                        <li>Hall tickets will be generated with your selected QR codes</li>
+                        <li>Hall tickets will be generated with your selected options</li>
                       </ul>
                     </Card.Body>
                   </Card>
@@ -375,111 +442,117 @@ function HallticketsDepartmentSelection() {
         </Col>
       </Row>
 
-      {/* ========== QR Code Selection Modal ========== */}
-      <Modal 
-        show={showQRModal} 
-        onHide={handleQRModalClose}
-        centered
-        backdrop="static"
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>
-            <FaQrcode className="me-2" />
-            Select QR Code Type
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p className="text-muted mb-3">
-            Choose which QR code(s) you want to include in the hall tickets:
-          </p>
+      {/* ========== QR Code Selection Modal - Only for SKILL ========== */}
+      {detectedExamType === 'SKILL' && (
+        <Modal 
+          show={showQRModal} 
+          onHide={handleQRModalClose}
+          centered
+          backdrop="static"
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>
+              <FaQrcode className="me-2" />
+              Select QR Code Type
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <p className="text-muted mb-3">
+              Choose which QR code(s) you want to include in the hall tickets:
+            </p>
 
-          <Form>
-            <div className="mb-3">
-              <Form.Check
-                type="radio"
-                id="qr-sh"
-                name="qrType"
-                value="sh"
-                checked={selectedQRType === 'sh'}
-                onChange={(e) => setSelectedQRType(e.target.value)}
-                label={
-                  <div>
-                    <strong>लघुलेखन (Shorthand)</strong>
-                    <div className="text-muted small">Only Shorthand QR code</div>
-                  </div>
-                }
-              />
-            </div>
+            <Form>
+              <div className="mb-3">
+                <Form.Check
+                  type="radio"
+                  id="qr-sh"
+                  name="qrType"
+                  value="sh"
+                  checked={selectedQRType === 'sh'}
+                  onChange={(e) => setSelectedQRType(e.target.value)}
+                  label={
+                    <div>
+                      <strong>लघुलेखन (Shorthand)</strong>
+                      <div className="text-muted small">Only Shorthand QR code</div>
+                    </div>
+                  }
+                />
+              </div>
 
-            <div className="mb-3">
-              <Form.Check
-                type="radio"
-                id="qr-tw"
-                name="qrType"
-                value="tw"
-                checked={selectedQRType === 'tw'}
-                onChange={(e) => setSelectedQRType(e.target.value)}
-                label={
-                  <div>
-                    <strong>टंकलेखन (Typewriting)</strong>
-                    <div className="text-muted small">Only Typewriting QR code</div>
-                  </div>
-                }
-              />
-            </div>
+              <div className="mb-3">
+                <Form.Check
+                  type="radio"
+                  id="qr-tw"
+                  name="qrType"
+                  value="tw"
+                  checked={selectedQRType === 'tw'}
+                  onChange={(e) => setSelectedQRType(e.target.value)}
+                  label={
+                    <div>
+                      <strong>टंकलेखन (Typewriting)</strong>
+                      <div className="text-muted small">Only Typewriting QR code</div>
+                    </div>
+                  }
+                />
+              </div>
 
-            <div className="mb-3">
-              <Form.Check
-                type="radio"
-                id="qr-both"
-                name="qrType"
-                value="both"
-                checked={selectedQRType === 'both'}
-                onChange={(e) => setSelectedQRType(e.target.value)}
-                label={
-                  <div>
-                    <strong>Both QR Codes</strong>
-                    <div className="text-muted small">Include both Shorthand and Typewriting QR codes</div>
-                  </div>
-                }
-              />
-            </div>
-          </Form>
+              <div className="mb-3">
+                <Form.Check
+                  type="radio"
+                  id="qr-both"
+                  name="qrType"
+                  value="both"
+                  checked={selectedQRType === 'both'}
+                  onChange={(e) => setSelectedQRType(e.target.value)}
+                  label={
+                    <div>
+                      <strong>Both QR Codes</strong>
+                      <div className="text-muted small">Include both Shorthand and Typewriting QR codes</div>
+                    </div>
+                  }
+                />
+              </div>
+            </Form>
 
-          <Alert variant="info" className="mt-3 mb-0">
-            <small>
-              <strong>Note:</strong> Selected QR code(s) will appear at the bottom of the hall ticket.
-            </small>
-          </Alert>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleQRModalClose}>
-            Cancel
-          </Button>
-          <Button 
-            variant={detectedExamType === 'GCC' ? 'primary' : 'success'} 
-            onClick={handleQRModalConfirm}
-          >
-            <FaCheckCircle className="me-2" />
-            Confirm & Continue
-          </Button>
-        </Modal.Footer>
-      </Modal>
+            <Alert variant="info" className="mt-3 mb-0">
+              <small>
+                <strong>Note:</strong> Selected QR code(s) will appear at the bottom of the hall ticket.
+              </small>
+            </Alert>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleQRModalClose}>
+              Cancel
+            </Button>
+            <Button 
+              variant="success" 
+              onClick={handleQRModalConfirm}
+            >
+              <FaCheckCircle className="me-2" />
+              Confirm & Continue
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      )}
 
-      {/* ========== ✅ NEW: Customization Choice Modal ========== */}
-      <CustomizationChoiceModal
-        show={showCustomizationChoiceModal}
-        onHide={handleCustomizationChoiceClose}
-        onCustomize={handleCustomizeChoice}
-        onUseDefault={handleUseDefaultChoice}
-      />
+      {/* ========== ✅ Customization Choice Modal - Only for SKILL ========== */}
+      {detectedExamType === 'SKILL' && (
+        <CustomizationChoiceModal
+          show={showCustomizationChoiceModal}
+          onHide={handleCustomizationChoiceClose}
+          onCustomize={handleCustomizeChoice}
+          onUseDefault={handleUseDefaultChoice}
+        />
+      )}
 
-      {/* ========== ✅ NEW: Customization Modal ========== */}
-      <HallTicketCustomizationModal
-        show={showCustomizationModal}
-        onHide={handleCustomizationModalClose}
-        onApplyCustomization={handleApplyCustomization}
-      />
+      {/* ========== ✅ Customization Modal - Only for SKILL ========== */}
+      {detectedExamType === 'SKILL' && (
+        <HallTicketCustomizationModal
+          show={showCustomizationModal}
+          onHide={handleCustomizationModalClose}
+          onApplyCustomization={handleApplyCustomization}
+        />
+      )}
     </Container>
   );
 }
