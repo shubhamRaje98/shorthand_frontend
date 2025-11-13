@@ -293,11 +293,7 @@ const SuperAdminNavbar = () => {
                       Add Department
                     </Link>
                   </li>
-                  <li>
-                    <Link to="/super-admin/add-controller" onClick={closeDropdowns}>
-                      Add Controller
-                    </Link>
-                  </li>
+                  
                 </ul>
               </li>
 

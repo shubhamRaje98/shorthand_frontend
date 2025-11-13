@@ -212,6 +212,7 @@ import HallticketsDepartmentSelection from './components/super-admin/Halltickets
 import GenerateGccTbcHallTickets from './components/super-admin/GenerateGccTbcHallTickets';
 import GenerateSkillTestHallTickets from './components/super-admin/GenerateSkillTestHallTickets';
 import GenerateSkillTestHallTicketsFromDB from './components/super-admin/GenerateSkillTestHallTicketsFromDB';
+import LandingPage from './components/LandingPage/LandingPage';
 
 
 axios.defaults.withCredentials = true;
@@ -222,7 +223,8 @@ const App = () => {
             <Router>
                 <ToastContainer />
                 <Routes>
-                    <Route path="/" element={<Login />} />
+                    <Route path="/" element={<LandingPage />} />
+                    <Route path="/login" element={<Login />} />
                     <Route path="/expert-login" element={<ExpertLogin />} />
                     <Route path="/expertAdmin" element={<ExpertAdmin />} />
                     <Route path="/student-table" element={<StudentTable />} />
@@ -291,7 +293,6 @@ const App = () => {
                         <Route path="mock-students" element={<MockStudentPage />} />
                         <Route path="evaluation-dashboard" element={<EvaluationDashboard />} />
                         <Route path="add-new-exam-center" element={<AddNewExamCenter />} />
-                        {/* <Route path="add-controller" element={<AddController />} /> */}
                         <Route path="halltickets-department-selection" element={<HallticketsDepartmentSelection />} />
                         <Route path="halltickets-generation/gcc-tbc" element={<GenerateGccTbcHallTickets />} />
                         <Route path="halltickets-generation/skill-test" element={<GenerateSkillTestHallTickets />} />
@@ -299,7 +300,7 @@ const App = () => {
                             path="/super-admin/generate-halltickets-db"
                             element={<GenerateSkillTestHallTicketsFromDB />}
                         />
-
+                        
 
                     </Route>
                 </Routes>

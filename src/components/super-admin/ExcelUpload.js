@@ -1,353 +1,3 @@
-// // // // src/components/super-admin/ExcelUpload.js
-// // // import React, { useState, useEffect } from 'react';
-// // // import axios from 'axios';
-// // // import { 
-// // //   Button, 
-// // //   Card, 
-// // //   Container, 
-// // //   Row, 
-// // //   Col, 
-// // //   Form, 
-// // //   Spinner,
-// // //   Alert,
-// // //   ListGroup
-// // // } from 'react-bootstrap';
-// // // import { 
-// // //   FaFileExcel, 
-// // //   FaUpload, 
-// // //   FaCheck, 
-// // //   FaInfoCircle,
-// // //   FaDatabase,
-// // //   FaExclamationTriangle
-// // // } from 'react-icons/fa';
-// // // import * as XLSX from 'xlsx';
-
-// // // function ExcelUpload() {
-// // //   const [loading, setLoading] = useState(false);
-// // //   const [error, setError] = useState(null);
-// // //   const [success, setSuccess] = useState(null);
-// // //   const [excelFile, setExcelFile] = useState(null);
-// // //   const [availableTables, setAvailableTables] = useState([]);
-// // //   const [selectedTable, setSelectedTable] = useState('');
-// // //   const [previewData, setPreviewData] = useState([]);
-
-// // //   // Fetch available tables on component mount
-// // //   useEffect(() => {
-// // //     fetchAvailableTables();
-// // //   }, []);
-
-// // //   const fetchAvailableTables = async () => {
-// // //     try {
-// // //       setLoading(true);
-// // //       const response = await axios.get('http://localhost:3000/api/excel/available-tables');
-      
-// // //       if (response.data.success) {
-// // //         setAvailableTables(response.data.tables);
-// // //       } else {
-// // //         setError('Failed to load tables: ' + response.data.error);
-// // //       }
-// // //     } catch (error) {
-// // //       console.error('Error fetching tables:', error);
-// // //       setError('Failed to load available tables. Please check if the server is running.');
-// // //     } finally {
-// // //       setLoading(false);
-// // //     }
-// // //   };
-
-// // //   // Function to handle file upload and preview
-// // //   const handleFileUpload = (event) => {
-// // //     const file = event.target.files[0];
-// // //     if (!file) return;
-
-// // //     // Validate file type
-// // //     if (!file.name.match(/\.(xlsx|xls)$/)) {
-// // //       setError('Please select a valid Excel file (.xlsx or .xls)');
-// // //       return;
-// // //     }
-
-// // //     setExcelFile(file);
-// // //     setError(null);
-// // //     setSuccess(null);
-
-// // //     // Read Excel file to show preview
-// // //     const reader = new FileReader();
-// // //     reader.onload = (e) => {
-// // //       try {
-// // //         const data = new Uint8Array(e.target.result);
-// // //         const workbook = XLSX.read(data, { type: 'array' });
-// // //         const firstSheet = workbook.SheetNames[0];
-        
-// // //         // Show preview of first 5 rows
-// // //         const worksheet = workbook.Sheets[firstSheet];
-// // //         const excelData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-// // //         setPreviewData(excelData.slice(0, 6)); // Header + 5 data rows
-// // //       } catch (error) {
-// // //         console.error('Error reading Excel file:', error);
-// // //         setError('Failed to read Excel file. Please check the file format.');
-// // //       }
-// // //     };
-// // //     reader.readAsArrayBuffer(file);
-// // //   };
-
-// // //   // Upload Excel data to server
-// // //   const uploadExcelData = async () => {
-// // //     if (!excelFile) {
-// // //       setError('Please select an Excel file first');
-// // //       return;
-// // //     }
-
-// // //     if (!selectedTable) {
-// // //       setError('Please select a target table');
-// // //       return;
-// // //     }
-
-// // //     try {
-// // //       setLoading(true);
-// // //       setError(null);
-
-// // //       const formData = new FormData();
-// // //       formData.append('excelFile', excelFile);
-// // //       formData.append('targetTable', selectedTable);
-
-// // //       const response = await axios.post('http://localhost:3000/api/excel/upload-excel-data', formData, {
-// // //         headers: {
-// // //           'Content-Type': 'multipart/form-data'
-// // //         }
-// // //       });
-
-// // //       if (response.data.success) {
-// // //         setSuccess(`✅ Excel data uploaded successfully! ${response.data.insertedCount} records inserted into ${selectedTable} table.`);
-        
-// // //         // Reset form
-// // //         setExcelFile(null);
-// // //         setSelectedTable('');
-// // //         setPreviewData([]);
-// // //       } else {
-// // //         setError(`Upload failed: ${response.data.error}`);
-// // //       }
-      
-// // //     } catch (error) {
-// // //       console.error('Error uploading file:', error);
-      
-// // //       const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Upload failed';
-      
-// // //       // Handle duplicate errors specifically
-// // //       if (error.response?.data?.duplicates) {
-// // //         const duplicateInfo = error.response.data.duplicates.map(dup => 
-// // //           `${dup.column}: ${dup.duplicateValues.join(', ')}`
-// // //         ).join('; ');
-// // //         setError(`❌ Duplicate entries found: ${duplicateInfo}`);
-// // //       } else {
-// // //         setError(`❌ Upload failed: ${errorMessage}`);
-// // //       }
-// // //     } finally {
-// // //       setLoading(false);
-// // //     }
-// // //   };
-
-// // //   // Clear alerts after some time
-// // //   useEffect(() => {
-// // //     if (success || error) {
-// // //       const timer = setTimeout(() => {
-// // //         setSuccess(null);
-// // //         setError(null);
-// // //       }, 8000);
-      
-// // //       return () => clearTimeout(timer);
-// // //     }
-// // //   }, [success, error]);
-
-// // //   return (
-// // //     <Container fluid className="mt-4">
-// // //       <h2 className="mb-4">
-// // //         <FaFileExcel className="me-2" />
-// // //         Excel Data Upload
-// // //       </h2>
-
-// // //       {error && (
-// // //         <Alert variant="danger" className="d-flex align-items-center">
-// // //           <FaExclamationTriangle className="me-2" />
-// // //           {error}
-// // //         </Alert>
-// // //       )}
-// // //       {success && (
-// // //         <Alert variant="success" className="d-flex align-items-center">
-// // //           <FaCheck className="me-2" />
-// // //           {success}
-// // //         </Alert>
-// // //       )}
-
-// // //       <Row>
-// // //         <Col md={8}>
-// // //           <Card className="mb-4 shadow-sm">
-// // //             <Card.Header className="bg-primary text-white">
-// // //               <FaUpload className="me-2" />
-// // //               Upload Excel File to Database
-// // //             </Card.Header>
-// // //             <Card.Body>
-// // //               <Form.Group controlId="formFile" className="mb-3">
-// // //                 <Form.Label><strong>Select Excel File</strong></Form.Label>
-// // //                 <Form.Control 
-// // //                   type="file" 
-// // //                   accept=".xlsx, .xls" 
-// // //                   onChange={handleFileUpload}
-// // //                   disabled={loading}
-// // //                 />
-// // //                 <Form.Text className="text-muted">
-// // //                   Supported formats: .xlsx, .xls (Max 10MB)
-// // //                 </Form.Text>
-// // //               </Form.Group>
-
-// // //               {excelFile && (
-// // //                 <Alert variant="info" className="py-2">
-// // //                   <FaCheck className="me-2" />
-// // //                   <strong>File selected:</strong> {excelFile.name} ({(excelFile.size / 1024 / 1024).toFixed(2)} MB)
-// // //                 </Alert>
-// // //               )}
-
-// // //               <Form.Group className="mb-3">
-// // //                 <Form.Label><strong>Select Target Database Table</strong></Form.Label>
-// // //                 <Form.Select 
-// // //                   value={selectedTable}
-// // //                   onChange={(e) => setSelectedTable(e.target.value)}
-// // //                   disabled={loading || availableTables.length === 0}
-// // //                 >
-// // //                   <option value="">Choose database table...</option>
-// // //                   {availableTables.map((table, index) => (
-// // //                     <option key={index} value={table}>
-// // //                       {table}
-// // //                     </option>
-// // //                   ))}
-// // //                 </Form.Select>
-// // //                 <Form.Text className="text-muted">
-// // //                   Select the table where you want to insert the Excel data
-// // //                 </Form.Text>
-// // //               </Form.Group>
-
-// // //               <div className="d-grid gap-2">
-// // //                 <Button 
-// // //                   variant="primary" 
-// // //                   onClick={uploadExcelData}
-// // //                   disabled={loading || !excelFile || !selectedTable}
-// // //                   size="lg"
-// // //                   className="fw-bold"
-// // //                 >
-// // //                   {loading ? (
-// // //                     <>
-// // //                       <Spinner animation="border" size="sm" className="me-2" />
-// // //                       Uploading...
-// // //                     </>
-// // //                   ) : (
-// // //                     <>
-// // //                       <FaUpload className="me-2" />
-// // //                       Upload to Database
-// // //                     </>
-// // //                   )}
-// // //                 </Button>
-// // //               </div>
-// // //             </Card.Body>
-// // //           </Card>
-
-// // //           {previewData.length > 0 && (
-// // //             <Card className="mb-4 shadow-sm">
-// // //               <Card.Header className="bg-info text-white">
-// // //                 <FaInfoCircle className="me-2" />
-// // //                 Data Preview (First 5 rows)
-// // //               </Card.Header>
-// // //               <Card.Body>
-// // //                 <div style={{ maxHeight: '400px', overflow: 'auto' }}>
-// // //                   <table className="table table-bordered table-sm table-hover">
-// // //                     <thead className="table-light">
-// // //                       <tr>
-// // //                         {previewData[0]?.map((header, index) => (
-// // //                           <th key={index} className="text-nowrap">{header || `Column ${index + 1}`}</th>
-// // //                         ))}
-// // //                       </tr>
-// // //                     </thead>
-// // //                     <tbody>
-// // //                       {previewData.slice(1).map((row, rowIndex) => (
-// // //                         <tr key={rowIndex}>
-// // //                           {row.map((cell, cellIndex) => (
-// // //                             <td key={cellIndex} className="text-nowrap">
-// // //                               {cell || <span className="text-muted">-</span>}
-// // //                             </td>
-// // //                           ))}
-// // //                         </tr>
-// // //                       ))}
-// // //                     </tbody>
-// // //                   </table>
-// // //                 </div>
-// // //                 <div className="text-muted small mt-2">
-// // //                   Showing {previewData.length - 1} of {previewData.length > 0 ? 'many' : '0'} rows
-// // //                 </div>
-// // //               </Card.Body>
-// // //             </Card>
-// // //           )}
-// // //         </Col>
-
-// // //         <Col md={4}>
-// // //           <Card className="shadow-sm">
-// // //             <Card.Header className="bg-warning text-dark">
-// // //               <FaInfoCircle className="me-2" />
-// // //               How It Works
-// // //             </Card.Header>
-// // //             <Card.Body>
-// // //               <ListGroup variant="flush">
-// // //                 <ListGroup.Item className="d-flex align-items-center">
-// // //                   <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style={{width: '25px', height: '25px', fontSize: '12px'}}>1</div>
-// // //                   <div>
-// // //                     <strong>Select Excel File</strong><br/>
-// // //                     Choose your .xlsx or .xls file containing data
-// // //                   </div>
-// // //                 </ListGroup.Item>
-                
-// // //                 <ListGroup.Item className="d-flex align-items-center">
-// // //                   <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style={{width: '25px', height: '25px', fontSize: '12px'}}>2</div>
-// // //                   <div>
-// // //                     <strong>Choose Target Table</strong><br/>
-// // //                     Select which database table should receive the data
-// // //                   </div>
-// // //                 </ListGroup.Item>
-                
-// // //                 <ListGroup.Item className="d-flex align-items-center">
-// // //                   <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style={{width: '25px', height: '25px', fontSize: '12px'}}>3</div>
-// // //                   <div>
-// // //                     <strong>Preview Data</strong><br/>
-// // //                     Review first 5 rows before uploading
-// // //                   </div>
-// // //                 </ListGroup.Item>
-                
-// // //                 <ListGroup.Item className="d-flex align-items-center">
-// // //                   <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style={{width: '25px', height: '25px', fontSize: '12px'}}>4</div>
-// // //                   <div>
-// // //                     <strong>Upload & Validate</strong><br/>
-// // //                     System checks for duplicates and validates data
-// // //                   </div>
-// // //                 </ListGroup.Item>
-
-// // //                 <ListGroup.Item className="d-flex align-items-center">
-// // //                   <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style={{width: '25px', height: '25px', fontSize: '12px'}}>5</div>
-// // //                   <div>
-// // //                     <strong>Insert Data</strong><br/>
-// // //                     Valid data is inserted into the selected table
-// // //                   </div>
-// // //                 </ListGroup.Item>
-// // //               </ListGroup>
-// // //             </Card.Body>
-// // //           </Card>
-// // //         </Col>
-// // //       </Row>
-// // //     </Container>
-// // //   );
-// // // }
-
-// // // export default ExcelUpload;
-
-
-
-
-
-
 // // src/components/super-admin/ExcelUpload.js
 // import React, { useState, useEffect, useCallback } from 'react';
 // import axios from 'axios';
@@ -383,7 +33,11 @@
 //   FaTimesCircle,
 //   FaExclamationCircle,
 //   FaCopy,
-//   FaChartBar
+//   FaChartBar,
+//   FaColumns,
+//   FaKey,
+//   FaAsterisk,
+//   FaQuestionCircle
 // } from 'react-icons/fa';
 // import * as XLSX from 'xlsx';
 
@@ -404,6 +58,11 @@
 //   const [validationDetails, setValidationDetails] = useState(null);
 //   const [duplicateDetails, setDuplicateDetails] = useState(null);
 //   const [showValidationModal, setShowValidationModal] = useState(false);
+
+//   // NEW STATE for table schema
+//   const [tableSchema, setTableSchema] = useState(null);
+//   const [loadingSchema, setLoadingSchema] = useState(false);
+//   const [showSchemaModal, setShowSchemaModal] = useState(false);
 
 //   // Error codes mapping for better UX
 //   const ERROR_MESSAGES = {
@@ -441,6 +100,34 @@
 //     } finally {
 //       setLoading(false);
 //       setProcessingStep('');
+//     }
+//   }, []);
+
+//   // NEW FUNCTION: Fetch table schema fields
+//   const fetchTableSchema = useCallback(async (tableName) => {
+//     if (!tableName) {
+//       setTableSchema(null);
+//       return;
+//     }
+
+//     try {
+//       setLoadingSchema(true);
+//       console.log(`[INFO] Fetching schema for table: ${tableName}`);
+      
+//       const response = await axios.get(`http://localhost:3000/api/excel/table-schema/${tableName}`);
+      
+//       if (response.data.success) {
+//         setTableSchema(response.data);
+//         console.log(`[INFO] Schema loaded for ${tableName}:`, response.data.summary);
+//       } else {
+//         console.warn(`[WARN] Failed to load schema for ${tableName}:`, response.data.error);
+//         setTableSchema(null);
+//       }
+//     } catch (error) {
+//       console.error('Error fetching table schema:', error);
+//       setTableSchema(null);
+//     } finally {
+//       setLoadingSchema(false);
 //     }
 //   }, []);
 
@@ -557,6 +244,16 @@
 //     reader.readAsArrayBuffer(file);
 //   };
 
+//   // Enhanced table selection handler
+//   const handleTableSelection = (tableName) => {
+//     setSelectedTable(tableName);
+//     if (tableName) {
+//       fetchTableSchema(tableName);
+//     } else {
+//       setTableSchema(null);
+//     }
+//   };
+
 //   // Enhanced upload function with detailed error handling
 //   const uploadExcelData = async () => {
 //     if (!excelFile) {
@@ -626,6 +323,7 @@
 //           setPreviewData([]);
 //           setFileValidation(null);
 //           setUploadProgress(0);
+//           setTableSchema(null);
 //           const fileInput = document.querySelector('input[type="file"]');
 //           if (fileInput) fileInput.value = '';
 //         }, 2000);
@@ -682,6 +380,320 @@
 //     }
 //     return `${table.tableName}${table.tableComment ? ` (${table.tableComment})` : ''}`;
 //   };
+
+//   // NEW COMPONENT: Table Schema Display
+//   const TableSchemaDisplay = () => {
+//     if (!tableSchema || loadingSchema) {
+//       return (
+//         <Card className="mb-4 shadow">
+//           <Card.Header className="bg-secondary text-white">
+//             <FaColumns className="me-2" />
+//             Table Fields Information
+//           </Card.Header>
+//           <Card.Body className="text-center py-4">
+//             {loadingSchema ? (
+//               <>
+//                 <Spinner animation="border" size="sm" className="me-2" />
+//                 Loading table fields...
+//               </>
+//             ) : (
+//               <div className="text-muted">
+//                 <FaInfoCircle className="me-2" />
+//                 Select a table to see its required fields
+//               </div>
+//             )}
+//           </Card.Body>
+//         </Card>
+//       );
+//     }
+
+//     const { categorized, summary } = tableSchema;
+
+//     return (
+//       <Card className="mb-4 shadow">
+//         <Card.Header className="bg-success text-white d-flex justify-content-between align-items-center">
+//           <div>
+//             <FaColumns className="me-2" />
+//             Table Fields: {tableSchema.tableName}
+//           </div>
+//           <div>
+//             <Badge bg="light" text="dark" className="me-2">
+//               {summary.totalFields} total
+//             </Badge>
+//             <Button 
+//               variant="outline-light" 
+//               size="sm" 
+//               onClick={() => setShowSchemaModal(true)}
+//             >
+//               <FaEye className="me-1" /> View All
+//             </Button>
+//           </div>
+//         </Card.Header>
+//         <Card.Body>
+//           <Row>
+//             {/* Required Fields */}
+//             <Col md={6}>
+//               <h6 className="text-danger">
+//                 <FaAsterisk className="me-2" />
+//                 Required Fields ({categorized.required.length})
+//               </h6>
+//               {categorized.required.length > 0 ? (
+//                 <ListGroup variant="flush">
+//                   {categorized.required.slice(0, 5).map((field, index) => (
+//                     <ListGroup.Item key={index} className="py-1 px-0 border-0">
+//                       <Badge bg="danger" className="me-2">
+//                         <FaAsterisk className="me-1" style={{fontSize: '8px'}} />
+//                         Required
+//                       </Badge>
+//                       <code>{field.name}</code>
+//                       <small className="text-muted ms-2">({field.dataType})</small>
+//                       {field.maxLength && (
+//                         <small className="text-muted"> max: {field.maxLength}</small>
+//                       )}
+//                     </ListGroup.Item>
+//                   ))}
+//                   {categorized.required.length > 5 && (
+//                     <ListGroup.Item className="py-1 px-0 border-0">
+//                       <small className="text-muted">
+//                         +{categorized.required.length - 5} more required fields...
+//                       </small>
+//                     </ListGroup.Item>
+//                   )}
+//                 </ListGroup>
+//               ) : (
+//                 <Alert variant="success" className="py-2 mb-0">
+//                   <small>No required fields found</small>
+//                 </Alert>
+//               )}
+//             </Col>
+
+//             {/* Optional Fields */}
+//             <Col md={6}>
+//               <h6 className="text-primary">
+//                 <FaQuestionCircle className="me-2" />
+//                 Optional Fields ({categorized.optional.length})
+//               </h6>
+//               {categorized.optional.length > 0 ? (
+//                 <ListGroup variant="flush">
+//                   {categorized.optional.slice(0, 5).map((field, index) => (
+//                     <ListGroup.Item key={index} className="py-1 px-0 border-0">
+//                       <Badge bg="primary" className="me-2">Optional</Badge>
+//                       <code>{field.name}</code>
+//                       <small className="text-muted ms-2">({field.dataType})</small>
+//                       {field.hasDefault && (
+//                         <Badge bg="secondary" className="ms-2" style={{fontSize: '10px'}}>
+//                           Default
+//                         </Badge>
+//                       )}
+//                     </ListGroup.Item>
+//                   ))}
+//                   {categorized.optional.length > 5 && (
+//                     <ListGroup.Item className="py-1 px-0 border-0">
+//                       <small className="text-muted">
+//                         +{categorized.optional.length - 5} more optional fields...
+//                       </small>
+//                     </ListGroup.Item>
+//                   )}
+//                 </ListGroup>
+//               ) : (
+//                 <Alert variant="info" className="py-2 mb-0">
+//                   <small>No optional fields found</small>
+//                 </Alert>
+//               )}
+//             </Col>
+//           </Row>
+
+//           {/* Summary Statistics */}
+//           <div className="mt-3 pt-3 border-top">
+//             <Row className="text-center">
+//               <Col>
+//                 <div className="text-danger">
+//                   <strong>{summary.requiredFields}</strong>
+//                   <div><small>Required</small></div>
+//                 </div>
+//               </Col>
+//               <Col>
+//                 <div className="text-primary">
+//                   <strong>{summary.optionalFields}</strong>
+//                   <div><small>Optional</small></div>
+//                 </div>
+//               </Col>
+//               <Col>
+//                 <div className="text-secondary">
+//                   <strong>{summary.systemFields}</strong>
+//                   <div><small>System</small></div>
+//                 </div>
+//               </Col>
+//               <Col>
+//                 <div className="text-success">
+//                   <strong>{summary.totalFields}</strong>
+//                   <div><small>Total</small></div>
+//                 </div>
+//               </Col>
+//             </Row>
+//           </div>
+
+//           <Alert variant="info" className="mt-3 mb-0">
+//             <FaInfoCircle className="me-2" />
+//             <strong>Excel Tip:</strong> Your Excel file should include columns with these exact field names. 
+//             Required fields must have data in every row.
+//           </Alert>
+//         </Card.Body>
+//       </Card>
+//     );
+//   };
+
+//   // NEW COMPONENT: Complete Schema Modal
+//   const TableSchemaModal = () => (
+//     <Modal show={showSchemaModal} onHide={() => setShowSchemaModal(false)} size="xl">
+//       <Modal.Header closeButton>
+//         <Modal.Title>
+//           <FaColumns className="me-2" />
+//           Complete Table Schema: {tableSchema?.tableName}
+//         </Modal.Title>
+//       </Modal.Header>
+//       <Modal.Body style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+//         {tableSchema && (
+//           <Tabs defaultActiveKey="all" className="mb-3">
+//             <Tab eventKey="all" title={`All Fields (${tableSchema.summary.totalFields})`}>
+//               <Table striped hover size="sm">
+//                 <thead>
+//                   <tr>
+//                     <th>Field Name</th>
+//                     <th>Type</th>
+//                     <th>Required</th>
+//                     <th>Default</th>
+//                     <th>Notes</th>
+//                   </tr>
+//                 </thead>
+//                 <tbody>
+//                   {tableSchema.fields.map((field, index) => (
+//                     <tr key={index}>
+//                       <td>
+//                         <code>{field.name}</code>
+//                         {field.isPrimary && (
+//                           <Badge bg="warning" className="ms-2" style={{fontSize: '10px'}}>
+//                             <FaKey className="me-1" />PK
+//                           </Badge>
+//                         )}
+//                       </td>
+//                       <td>
+//                         <Badge bg="secondary">
+//                           {field.dataType}
+//                           {field.maxLength && ` (${field.maxLength})`}
+//                         </Badge>
+//                       </td>
+//                       <td>
+//                         {field.required ? (
+//                           <Badge bg="danger">
+//                             <FaAsterisk className="me-1" />Required
+//                           </Badge>
+//                         ) : (
+//                           <Badge bg="success">Optional</Badge>
+//                         )}
+//                       </td>
+//                       <td>
+//                         {field.hasDefault ? (
+//                           <Badge bg="info">Yes</Badge>
+//                         ) : (
+//                           <span className="text-muted">None</span>
+//                         )}
+//                       </td>
+//                       <td>
+//                         <small className="text-muted">
+//                           {field.references && 
+//                             `References ${field.references.table}(${field.references.column})`
+//                           }
+//                           {field.isAutoIncrement && ' Auto-increment'}
+//                         </small>
+//                       </td>
+//                     </tr>
+//                   ))}
+//                 </tbody>
+//               </Table>
+//             </Tab>
+
+//             <Tab eventKey="required" title={`Required (${tableSchema.categorized.required.length})`}>
+//               <Alert variant="danger">
+//                 <strong>These fields are mandatory</strong> and must be included in your Excel file with valid data.
+//               </Alert>
+//               <Table striped hover size="sm">
+//                 <thead>
+//                   <tr>
+//                     <th>Field Name</th>
+//                     <th>Type</th>
+//                     <th>Max Length</th>
+//                     <th>Description</th>
+//                   </tr>
+//                 </thead>
+//                 <tbody>
+//                   {tableSchema.categorized.required.map((field, index) => (
+//                     <tr key={index}>
+//                       <td><code>{field.name}</code></td>
+//                       <td><Badge bg="danger">{field.dataType}</Badge></td>
+//                       <td>{field.maxLength || 'N/A'}</td>
+//                       <td>
+//                         <small>
+//                           {field.references ? 
+//                             `Must reference ${field.references.table}.${field.references.column}` :
+//                             'Required field'
+//                           }
+//                         </small>
+//                       </td>
+//                     </tr>
+//                   ))}
+//                 </tbody>
+//               </Table>
+//             </Tab>
+
+//             <Tab eventKey="optional" title={`Optional (${tableSchema.categorized.optional.length})`}>
+//               <Alert variant="info">
+//                 <strong>These fields are optional</strong> and can be left empty in your Excel file.
+//               </Alert>
+//               <Table striped hover size="sm">
+//                 <thead>
+//                   <tr>
+//                     <th>Field Name</th>
+//                     <th>Type</th>
+//                     <th>Has Default</th>
+//                     <th>Description</th>
+//                   </tr>
+//                 </thead>
+//                 <tbody>
+//                   {tableSchema.categorized.optional.map((field, index) => (
+//                     <tr key={index}>
+//                       <td><code>{field.name}</code></td>
+//                       <td><Badge bg="primary">{field.dataType}</Badge></td>
+//                       <td>
+//                         {field.hasDefault ? (
+//                           <Badge bg="success">Yes</Badge>
+//                         ) : (
+//                           <Badge bg="secondary">No</Badge>
+//                         )}
+//                       </td>
+//                       <td>
+//                         <small>
+//                           {field.references ? 
+//                             `Can reference ${field.references.table}.${field.references.column}` :
+//                             'Optional field'
+//                           }
+//                         </small>
+//                       </td>
+//                     </tr>
+//                   ))}
+//                 </tbody>
+//               </Table>
+//             </Tab>
+//           </Tabs>
+//         )}
+//       </Modal.Body>
+//       <Modal.Footer>
+//         <Button variant="secondary" onClick={() => setShowSchemaModal(false)}>
+//           Close
+//         </Button>
+//       </Modal.Footer>
+//     </Modal>
+//   );
 
 //   // Component to display validation errors in detail
 //   const ValidationErrorsModal = () => (
@@ -894,7 +906,7 @@
 
 //   return (
 //     <Container fluid className="mt-4">
-//       <h2 className="mb-4 ju">
+//       <h2 className="mb-4">
 //         <FaFileExcel className="me-2 text-success" />
 //         Excel Data Upload
 //         {availableTables.length > 0 && (
@@ -1022,7 +1034,7 @@
 //                 <Form.Label><strong>Select Target Database Table</strong></Form.Label>
 //                 <Form.Select 
 //                   value={selectedTable}
-//                   onChange={(e) => setSelectedTable(e.target.value)}
+//                   onChange={(e) => handleTableSelection(e.target.value)}
 //                   disabled={loading || availableTables.length === 0}
 //                   className="form-select-lg"
 //                 >
@@ -1065,10 +1077,13 @@
 //             </Card.Body>
 //           </Card>
 
+//           {/* NEW: Table Schema Display */}
+//           <TableSchemaDisplay />
+
 //           {/* Enhanced Preview Section */}
 //           {previewData.length > 0 && (
 //             <Card className="mb-4 shadow">
-//               <Card.Header className="bg-info text-black d-flex justify-content-between align-items-center">
+//               <Card.Header className="bg-info text-white d-flex justify-content-between align-items-center">
 //                 <div>
 //                   <FaEye className="me-2" />
 //                   Data Preview
@@ -1080,12 +1095,16 @@
 //               <Card.Body className="p-0">
 //                 <div style={{ maxHeight: '400px', overflow: 'auto' }}>
 //                   <Table striped bordered hover size="sm" className="mb-0">
-//                     <thead className="color black">
+//                     <thead className="table-dark sticky-top">
 //                       <tr>
 //                         <th style={{width: '50px'}}>#</th>
 //                         {previewData[0]?.map((header, index) => (
 //                           <th key={index} className="text-nowrap">
 //                             {header || `Column ${index + 1}`}
+//                             {/* Show field requirements based on schema */}
+//                             {tableSchema && tableSchema.categorized.required.some(field => field.name === header) && (
+//                               <FaAsterisk className="text-danger ms-1" style={{fontSize: '8px'}} title="Required field" />
+//                             )}
 //                           </th>
 //                         ))}
 //                       </tr>
@@ -1114,6 +1133,9 @@
 //                   <small className="text-muted">
 //                     <FaInfoCircle className="me-1" />
 //                     Preview shows first 5 rows. All data will be processed during upload.
+//                     {tableSchema && (
+//                       <> Fields marked with <FaAsterisk className="text-danger" style={{fontSize: '8px'}} /> are required.</>
+//                     )}
 //                   </small>
 //                 </div>
 //               </Card.Body>
@@ -1141,16 +1163,16 @@
 //                 <ListGroup.Item className="d-flex align-items-start">
 //                   <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style={{width: '30px', height: '30px', fontSize: '14px'}}>2</div>
 //                   <div>
-//                     <strong>Data Validation</strong><br/>
-//                     <small className="text-muted">System validates file format and content</small>
+//                     <strong>Table Selection</strong><br/>
+//                     <small className="text-muted">Choose table and review required fields</small>
 //                   </div>
 //                 </ListGroup.Item>
                 
 //                 <ListGroup.Item className="d-flex align-items-start">
 //                   <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style={{width: '30px', height: '30px', fontSize: '14px'}}>3</div>
 //                   <div>
-//                     <strong>Table Selection</strong><br/>
-//                     <small className="text-muted">Choose destination database table</small>
+//                     <strong>Field Mapping</strong><br/>
+//                     <small className="text-muted">Ensure Excel columns match table fields</small>
 //                   </div>
 //                 </ListGroup.Item>
                 
@@ -1186,10 +1208,22 @@
 //                   {availableTables.length > 0 ? 'Connected' : 'Disconnected'}
 //                 </Badge>
 //               </div>
-//               <div className="d-flex justify-content-between align-items-center">
+//               <div className="d-flex justify-content-between align-items-center mb-1">
 //                 <small>Available Tables</small>
 //                 <Badge bg="info">{availableTables.length}</Badge>
 //               </div>
+//               <div className="d-flex justify-content-between align-items-center">
+//                 <small>Selected Table</small>
+//                 <Badge bg={selectedTable ? 'success' : 'secondary'}>
+//                   {selectedTable || 'None'}
+//                 </Badge>
+//               </div>
+//               {tableSchema && (
+//                 <div className="d-flex justify-content-between align-items-center mt-1">
+//                   <small>Required Fields</small>
+//                   <Badge bg="danger">{tableSchema.summary.requiredFields}</Badge>
+//                 </div>
+//               )}
 //             </Card.Body>
 //           </Card>
 //         </Col>
@@ -1197,6 +1231,9 @@
 
 //       {/* Validation Details Modal */}
 //       <ValidationErrorsModal />
+      
+//       {/* NEW: Complete Table Schema Modal */}
+//       <TableSchemaModal />
 
 //       {/* Upload Summary Modal */}
 //       <Modal show={showDetailsModal} onHide={() => setShowDetailsModal(false)} size="lg">
@@ -1282,7 +1319,6 @@
 // export default ExcelUpload;
 
 
-
 // src/components/super-admin/ExcelUpload.js
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
@@ -1325,6 +1361,7 @@ import {
   FaQuestionCircle
 } from 'react-icons/fa';
 import * as XLSX from 'xlsx';
+import ExcelValidationModal from '../../utils/ExcelValidationModal'; // ✅ IMPORT VALIDATION MODAL
 
 function ExcelUpload() {
   // Enhanced state management
@@ -1348,6 +1385,10 @@ function ExcelUpload() {
   const [tableSchema, setTableSchema] = useState(null);
   const [loadingSchema, setLoadingSchema] = useState(false);
   const [showSchemaModal, setShowSchemaModal] = useState(false);
+
+  // ✅ NEW STATE for frontend Excel validation
+  const [frontendValidationData, setFrontendValidationData] = useState(null);
+  const [showFrontendValidationModal, setShowFrontendValidationModal] = useState(false);
 
   // Error codes mapping for better UX
   const ERROR_MESSAGES = {
@@ -1420,6 +1461,110 @@ function ExcelUpload() {
     fetchAvailableTables();
   }, [fetchAvailableTables]);
 
+  // ✅ NEW: Frontend Excel Data Validation Function
+  const validateExcelDataFrontend = (excelData, requiredFields) => {
+    const errors = [];
+    const fieldErrors = {};
+    
+    // Initialize field error counters
+    requiredFields.forEach(field => {
+      fieldErrors[field] = 0;
+    });
+
+    console.log('🔍 Starting frontend Excel validation on', excelData?.length || 0, 'rows');
+
+    if (!excelData || excelData.length === 0) {
+      return {
+        errors: [],
+        summary: {
+          totalRows: 0,
+          errorCount: 0,
+          successCount: 0,
+          fieldErrors: []
+        },
+        isValid: false
+      };
+    }
+
+    // Get headers from first row
+    const headers = excelData[0];
+    const dataRows = excelData.slice(1);
+
+    dataRows.forEach((row, index) => {
+      const rowNumber = index + 2; // Excel row number (accounting for header)
+      const missingFields = [];
+      
+      // Check if entire row is empty
+      const isRowEmpty = row.every(cell => 
+        cell === null || cell === undefined || cell === '' || 
+        (typeof cell === 'string' && cell.trim() === '')
+      );
+
+      if (isRowEmpty) {
+        return; // Skip completely empty rows
+      }
+      
+      // Check each required field
+      requiredFields.forEach(fieldName => {
+        const columnIndex = headers.findIndex(h => 
+          h && h.toString().toLowerCase() === fieldName.toLowerCase()
+        );
+        
+        if (columnIndex !== -1) {
+          const cellValue = row[columnIndex];
+          
+          // Check if cell is empty or contains only whitespace
+          if (cellValue === null || cellValue === undefined || cellValue === '' || 
+              (typeof cellValue === 'string' && cellValue.trim() === '')) {
+            missingFields.push(fieldName);
+            fieldErrors[fieldName]++;
+          }
+        } else {
+          // Column not found in Excel
+          missingFields.push(fieldName);
+          fieldErrors[fieldName]++;
+        }
+      });
+
+      // If row has missing required fields, add error
+      if (missingFields.length > 0) {
+        // Create an identifier from available data
+        const identifier = row[0] || row[1] || 'N/A';
+        const name = row[1] || row[2] || 'Unknown';
+        
+        errors.push({
+          rowNumber,
+          identifier: String(identifier).substring(0, 30), // Truncate long IDs
+          name: String(name).substring(0, 50),
+          missingFields
+        });
+      }
+    });
+    
+    // Calculate summary
+    const summary = {
+      totalRows: dataRows.length,
+      errorCount: errors.length,
+      successCount: dataRows.length - errors.length,
+      fieldErrors: Object.entries(fieldErrors)
+        .filter(([_, count]) => count > 0)
+        .map(([field, count]) => ({
+          field: field,
+          count,
+          percentage: ((count / dataRows.length) * 100).toFixed(1)
+        }))
+        .sort((a, b) => b.count - a.count)
+    };
+    
+    console.log('✅ Frontend validation complete:', summary);
+    
+    return { 
+      errors, 
+      summary, 
+      isValid: errors.length === 0 
+    };
+  };
+
   // Enhanced file validation
   const validateFile = (file) => {
     const validation = {
@@ -1452,13 +1597,14 @@ function ExcelUpload() {
     return validation;
   };
 
-  // Enhanced file upload handler with better preview
+  // ✅ UPDATED: Enhanced file upload handler with frontend validation
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
     if (!file) {
       setExcelFile(null);
       setPreviewData([]);
       setFileValidation(null);
+      setFrontendValidationData(null);
       return;
     }
 
@@ -1477,6 +1623,7 @@ function ExcelUpload() {
     setUploadSummary(null);
     setValidationDetails(null);
     setDuplicateDetails(null);
+    setFrontendValidationData(null);
     setProcessingStep('Reading Excel file...');
 
     // Read Excel file for preview with better error handling
@@ -1498,7 +1645,8 @@ function ExcelUpload() {
         const excelData = XLSX.utils.sheet_to_json(worksheet, { 
           header: 1,
           defval: '',
-          raw: false 
+          raw: false,
+          blankrows: false // Skip completely blank rows
         });
 
         if (excelData.length === 0) {
@@ -1511,6 +1659,31 @@ function ExcelUpload() {
         setPreviewData(previewRows);
         
         console.log(`[INFO] Excel preview loaded: ${excelData.length} total rows, showing ${previewRows.length}`);
+        
+        // ✅ NEW: Validate data if table schema is available
+        if (tableSchema && tableSchema.categorized) {
+          const requiredFields = tableSchema.categorized.required || [];
+          const requiredFieldNames = requiredFields.map(f => f.name);
+          
+          if (requiredFieldNames.length > 0) {
+            console.log('🔍 Validating Excel data for required fields:', requiredFieldNames);
+            
+            const frontendValidation = validateExcelDataFrontend(excelData, requiredFieldNames);
+            setFrontendValidationData(frontendValidation);
+            
+            if (!frontendValidation.isValid) {
+              setShowFrontendValidationModal(true);
+              setError(
+                `❌ Validation Failed: ${frontendValidation.errors.length} rows have missing required fields. ` +
+                `Click "View Details" to see error report.`
+              );
+            } else {
+              setSuccess(
+                `✅ Validation passed! All ${frontendValidation.summary.totalRows} rows are valid and ready for upload.`
+              );
+            }
+          }
+        }
         
       } catch (error) {
         console.error('Error reading Excel file:', error);
@@ -1532,6 +1705,10 @@ function ExcelUpload() {
   // Enhanced table selection handler
   const handleTableSelection = (tableName) => {
     setSelectedTable(tableName);
+    // Reset validation when changing tables
+    setFrontendValidationData(null);
+    setShowFrontendValidationModal(false);
+    
     if (tableName) {
       fetchTableSchema(tableName);
     } else {
@@ -1539,7 +1716,7 @@ function ExcelUpload() {
     }
   };
 
-  // Enhanced upload function with detailed error handling
+  // ✅ UPDATED: Enhanced upload function with frontend validation check
   const uploadExcelData = async () => {
     if (!excelFile) {
       setError(ERROR_MESSAGES.NO_FILE);
@@ -1548,6 +1725,13 @@ function ExcelUpload() {
 
     if (!selectedTable) {
       setError(ERROR_MESSAGES.NO_TARGET_TABLE);
+      return;
+    }
+
+    // ✅ NEW: Check frontend validation before upload
+    if (frontendValidationData && !frontendValidationData.isValid) {
+      setError('Please fix validation errors before uploading. Click "View Details" to see error report.');
+      setShowFrontendValidationModal(true);
       return;
     }
 
@@ -1609,6 +1793,7 @@ function ExcelUpload() {
           setFileValidation(null);
           setUploadProgress(0);
           setTableSchema(null);
+          setFrontendValidationData(null);
           const fileInput = document.querySelector('input[type="file"]');
           if (fileInput) fileInput.value = '';
         }, 2000);
@@ -2206,11 +2391,17 @@ function ExcelUpload() {
             <FaTimesCircle className="me-2 flex-shrink-0" />
             <div>{error}</div>
           </div>
-          {(validationDetails || duplicateDetails) && (
+          {(validationDetails || duplicateDetails || frontendValidationData) && (
             <Button 
               variant="outline-danger" 
               size="sm" 
-              onClick={() => setShowValidationModal(true)}
+              onClick={() => {
+                if (frontendValidationData && !frontendValidationData.isValid) {
+                  setShowFrontendValidationModal(true);
+                } else {
+                  setShowValidationModal(true);
+                }
+              }}
               className="ms-2 flex-shrink-0"
             >
               <FaEye className="me-1" /> View Details
@@ -2342,7 +2533,7 @@ function ExcelUpload() {
                 <Button 
                   variant="primary" 
                   onClick={uploadExcelData}
-                  disabled={loading || !excelFile || !selectedTable || !fileValidation?.valid}
+                  disabled={loading || !excelFile || !selectedTable || !fileValidation?.valid || (frontendValidationData && !frontendValidationData.isValid)}
                   size="lg"
                   className="fw-bold shadow"
                 >
@@ -2514,7 +2705,16 @@ function ExcelUpload() {
         </Col>
       </Row>
 
-      {/* Validation Details Modal */}
+      {/* ✅ NEW: Frontend Validation Modal using ExcelValidationModal component */}
+      <ExcelValidationModal
+        show={showFrontendValidationModal}
+        onHide={() => setShowFrontendValidationModal(false)}
+        errors={frontendValidationData?.errors || []}
+        summary={frontendValidationData?.summary || {}}
+        title="Excel Data Validation Report"
+      />
+
+      {/* Backend Validation Details Modal */}
       <ValidationErrorsModal />
       
       {/* NEW: Complete Table Schema Modal */}
