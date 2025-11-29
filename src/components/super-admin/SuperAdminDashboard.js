@@ -1,4 +1,3 @@
-
 // SuperAdminDashboard.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
@@ -28,6 +27,8 @@ const SuperAdminDashboard = () => {
   const [filteredData, setFilteredData] = useState([]);
   const [editingKey, setEditingKey] = useState('');
   const [editedValues, setEditedValues] = useState({});
+  const [tablePrimaryKey, setTablePrimaryKey] = useState(null);
+
   
   // Enhanced pending changes structure
   const [pendingChanges, setPendingChanges] = useState({
@@ -168,43 +169,52 @@ const SuperAdminDashboard = () => {
   };
 
   const fetchTableData = async (tableName) => {
-    setLoading(true);
-    try {
-      const response = await axios.post('http://localhost:3000/fetch-table-data', {
-        tableName
-      }, {
-        withCredentials: true
-      });
-      
-      const dataWithTempIds = response.data.map((item, index) => ({ 
-        ...item, 
-        _temp_id: `temp_${Date.now()}_${index}`,
-        key: index.toString() 
-      }));
-      
-      setTableData(dataWithTempIds);
-      setOriginalData(JSON.parse(JSON.stringify(dataWithTempIds)));
-      setFilteredData(dataWithTempIds);
-      
-      if (dataWithTempIds.length > 0) {
-        const tableColumns = Object.keys(dataWithTempIds[0])
-          .filter(key => key !== '_temp_id')
-          .map(key => ({
-            title: key,
-            dataIndex: key,
-            key: key,
-          }));
-        setColumns(tableColumns);
-        initializeFilters(dataWithTempIds, tableColumns);
-      }
-      setCurrentPage(0);
-      setPendingChanges({ updates: {}, additions: [], deletions: [] });
-    } catch (error) {
-      console.error('Error fetching table data:', error);
-      showSnackbar('Error fetching table data', 'error');
+  setLoading(true);
+  try {
+    const response = await axios.post('http://localhost:3000/fetch-table-data', {
+      tableName
+    }, {
+      withCredentials: true
+    });
+    
+    // ✅ CHANGED: Extract data and primary key from response
+    const responseData = response.data;
+    const rows = responseData.data || responseData; // Handle both formats
+    const primaryKey = responseData.primaryKey || null;
+    
+    console.log('Primary key for table:', primaryKey);
+    setTablePrimaryKey(primaryKey); // ✅ NEW: Store primary key
+    
+    const dataWithTempIds = rows.map((item, index) => ({ 
+      ...item, 
+      _temp_id: `temp_${Date.now()}_${index}`,
+      key: index.toString() 
+    }));
+    
+    setTableData(dataWithTempIds);
+    setOriginalData(JSON.parse(JSON.stringify(dataWithTempIds)));
+    setFilteredData(dataWithTempIds);
+    
+    if (dataWithTempIds.length > 0) {
+      const tableColumns = Object.keys(dataWithTempIds[0])
+        .filter(key => key !== '_temp_id')
+        .map(key => ({
+          title: key,
+          dataIndex: key,
+          key: key,
+        }));
+      setColumns(tableColumns);
+      initializeFilters(dataWithTempIds, tableColumns);
     }
-    setLoading(false);
-  };
+    setCurrentPage(0);
+    setPendingChanges({ updates: {}, additions: [], deletions: [] });
+  } catch (error) {
+    console.error('Error fetching table data:', error);
+    showSnackbar('Error fetching table data', 'error');
+  }
+  setLoading(false);
+};
+
 
   const initializeFilters = (data, columns) => {
     const newFilters = {};
@@ -243,36 +253,43 @@ const SuperAdminDashboard = () => {
   };
 
   const prepareDataForSubmission = () => {
-    console.log('=== prepareDataForSubmission DEBUG ===');
-    console.log('pendingChanges:', pendingChanges);
-    console.log('originalData:', originalData);
+  console.log('=== prepareDataForSubmission DEBUG ===');
+  console.log('pendingChanges:', pendingChanges);
+  console.log('originalData:', originalData);
+  console.log('Table Primary Key:', tablePrimaryKey); // ✅ NEW
+  
+  const changes = {
+    updates: [],
+    additions: [],
+    deletions: []
+  };
+
+  Object.entries(pendingChanges.updates).forEach(([tempId, updatedRow]) => {
+    console.log(`Processing update for tempId: ${tempId}`, updatedRow);
     
-    const changes = {
-      updates: [],
-      additions: [],
-      deletions: []
-    };
+    const originalRow = originalData.find(row => row._temp_id === tempId);
+    if (!originalRow) {
+      console.warn(`Original row not found for tempId: ${tempId}`);
+      return;
+    }
 
-    Object.entries(pendingChanges.updates).forEach(([tempId, updatedRow]) => {
-      console.log(`Processing update for tempId: ${tempId}`, updatedRow);
-      
-      const originalRow = originalData.find(row => row._temp_id === tempId);
-      if (!originalRow) {
-        console.warn(`Original row not found for tempId: ${tempId}`);
-        return;
-      }
+    console.log('Original row:', originalRow);
 
-      console.log('Original row:', originalRow);
+    // ✅ CHANGED: Use primary key from backend
+    let primaryKey = tablePrimaryKey;
+    let primaryKeyValue = null;
 
+    if (primaryKey && originalRow[primaryKey] !== undefined) {
+      primaryKeyValue = originalRow[primaryKey];
+    } else {
+      // Fallback to old detection if primary key not available
       const possiblePrimaryKeys = [
         'id', 'ID', 'Id', 
         'adminid', 'Admin_ID', 'admin_id',
         `${selectedTable.toLowerCase()}_id`,
         'user_id', 'userId', 'UserID'
       ];
-      let primaryKey = null;
-      let primaryKeyValue = null;
-
+      
       for (const key of possiblePrimaryKeys) {
         if (originalRow[key] !== undefined && originalRow[key] !== null) {
           primaryKey = key;
@@ -280,89 +297,85 @@ const SuperAdminDashboard = () => {
           break;
         }
       }
+    }
 
-      if (!primaryKey) {
-        const validKeys = Object.keys(originalRow).filter(k => k !== '_temp_id' && k !== 'key');
-        if (validKeys.length > 0) {
-          primaryKey = validKeys[0];
-          primaryKeyValue = originalRow[primaryKey];
+    if (!primaryKey || (primaryKeyValue === null || primaryKeyValue === undefined)) {
+      console.error('Could not find primary key for row:', originalRow);
+      showSnackbar('Cannot update: Primary key not found', 'error');
+      return;
+    }
+
+    console.log(`Using primary key: ${primaryKey} = ${primaryKeyValue}`);
+
+    const changedFields = {};
+    Object.keys(updatedRow).forEach(key => {
+      if (key !== '_temp_id' && key !== 'key') {
+        const originalValue = originalRow[key];
+        const updatedValue = updatedRow[key];
+        
+        const originalStr = originalValue === null || originalValue === undefined ? '' : String(originalValue);
+        const updatedStr = updatedValue === null || updatedValue === undefined ? '' : String(updatedValue);
+        
+        if (originalStr !== updatedStr) {
+          changedFields[key] = updatedValue;
+          console.log(`Field changed - ${key}: "${originalValue}" -> "${updatedValue}"`);
         }
       }
+    });
 
-      if (!primaryKey) {
-        console.error('Could not find primary key for row:', originalRow);
-        return;
+    console.log('Changed fields:', changedFields);
+
+    if (Object.keys(changedFields).length > 0) {
+      const updateRecord = {
+        ...changedFields,
+        [primaryKey]: primaryKeyValue
+      };
+      changes.updates.push(updateRecord);
+      console.log('Added to updates:', updateRecord);
+    } else {
+      console.log('No changes detected for this row');
+    }
+  });
+
+  // Rest of your code for additions and deletions remains the same
+  changes.additions = pendingChanges.additions.map(record => {
+    const cleanRecord = { ...record };
+    delete cleanRecord._temp_id;
+    delete cleanRecord.key;
+    return cleanRecord;
+  });
+
+  changes.deletions = pendingChanges.deletions.map(record => {
+    const cleanRecord = {};
+    
+    const possibleKeys = [
+      'id', 'ID', 'Id', 
+      'adminid', 'Admin_ID', 'admin_id',
+      `${selectedTable.toLowerCase()}_id`,
+      'user_id', 'userId', 'UserID'
+    ];
+    for (const key of possibleKeys) {
+      if (record[key] !== undefined && record[key] !== null) {
+        cleanRecord[key] = record[key];
+        break;
       }
+    }
 
-      console.log(`Using primary key: ${primaryKey} = ${primaryKeyValue}`);
-
-      const changedFields = {};
-      Object.keys(updatedRow).forEach(key => {
+    if (Object.keys(cleanRecord).length === 0) {
+      Object.keys(record).forEach(key => {
         if (key !== '_temp_id' && key !== 'key') {
-          const originalValue = originalRow[key];
-          const updatedValue = updatedRow[key];
-          
-          const originalStr = originalValue === null || originalValue === undefined ? '' : String(originalValue);
-          const updatedStr = updatedValue === null || updatedValue === undefined ? '' : String(updatedValue);
-          
-          if (originalStr !== updatedStr) {
-            changedFields[key] = updatedValue;
-            console.log(`Field changed - ${key}: "${originalValue}" -> "${updatedValue}"`);
-          }
+          cleanRecord[key] = record[key];
         }
       });
+    }
 
-      console.log('Changed fields:', changedFields);
+    return cleanRecord;
+  });
 
-      if (Object.keys(changedFields).length > 0) {
-        const updateRecord = {
-          ...changedFields,
-          [primaryKey]: primaryKeyValue
-        };
-        changes.updates.push(updateRecord);
-        console.log('Added to updates:', updateRecord);
-      } else {
-        console.log('No changes detected for this row');
-      }
-    });
+  console.log('Final prepared changes:', changes);
+  return changes;
+};
 
-    changes.additions = pendingChanges.additions.map(record => {
-      const cleanRecord = { ...record };
-      delete cleanRecord._temp_id;
-      delete cleanRecord.key;
-      return cleanRecord;
-    });
-
-    changes.deletions = pendingChanges.deletions.map(record => {
-      const cleanRecord = {};
-      
-      const possibleKeys = [
-        'id', 'ID', 'Id', 
-        'adminid', 'Admin_ID', 'admin_id',
-        `${selectedTable.toLowerCase()}_id`,
-        'user_id', 'userId', 'UserID'
-      ];
-      for (const key of possibleKeys) {
-        if (record[key] !== undefined && record[key] !== null) {
-          cleanRecord[key] = record[key];
-          break;
-        }
-      }
-
-      if (Object.keys(cleanRecord).length === 0) {
-        Object.keys(record).forEach(key => {
-          if (key !== '_temp_id' && key !== 'key') {
-            cleanRecord[key] = record[key];
-          }
-        });
-      }
-
-      return cleanRecord;
-    });
-
-    console.log('Final prepared changes:', changes);
-    return changes;
-  };
 
   const submitChangesToDatabase = async () => {
     const changes = prepareDataForSubmission();
@@ -538,34 +551,43 @@ const SuperAdminDashboard = () => {
   };
 
   const handleSave = (key) => {
-    const row = tableData.find(item => item.key === key);
-    if (!row) return;
-    
-    const tempId = row._temp_id;
-    
-    console.log('Saving changes for tempId:', tempId);
-    console.log('Edited values:', editedValues);
-    
-    setPendingChanges(prev => {
-      const newPendingChanges = {
-        ...prev,
-        updates: {
-          ...prev.updates,
-          [tempId]: { ...editedValues }
-        }
-      };
-      console.log('New pending changes:', newPendingChanges);
-      return newPendingChanges;
-    });
-    
-    setTableData(prevData => prevData.map(item => item.key === key ? editedValues : item));
-    setFilteredData(prevData => prevData.map(item => item.key === key ? editedValues : item));
-    
-    setEditingKey('');
-    setEditedValues({});
-    
-    showSnackbar('Changes staged successfully', 'success');
+  const row = tableData.find(item => item.key === key);
+  if (!row) return;
+  
+  const tempId = row._temp_id;
+  
+  console.log('Saving changes for tempId:', tempId);
+  console.log('Edited values:', editedValues);
+  
+  // ✅ FIX: Preserve _temp_id and key in the updated row
+  const updatedRow = {
+    ...editedValues,
+    _temp_id: tempId,
+    key: key
   };
+  
+  setPendingChanges(prev => {
+    const newPendingChanges = {
+      ...prev,
+      updates: {
+        ...prev.updates,
+        [tempId]: updatedRow  // Now includes _temp_id and key
+      }
+    };
+    console.log('New pending changes:', newPendingChanges);
+    return newPendingChanges;
+  });
+  
+  // ✅ Also update tableData and filteredData with the complete row
+  setTableData(prevData => prevData.map(item => item.key === key ? updatedRow : item));
+  setFilteredData(prevData => prevData.map(item => item.key === key ? updatedRow : item));
+  
+  setEditingKey('');
+  setEditedValues({});
+  
+  showSnackbar('Changes staged successfully', 'success');
+};
+
 
   const handleCancel = () => {
     setEditingKey('');
