@@ -29,7 +29,7 @@
 
 //     const fetchDepartments = async () => {
 //         try {
-//             const response = await axios.get('http://localhost:3000/departments', { withCredentials: true });
+//             const response = await axios.get('https://www.shorthandonlineexam.in/departments', { withCredentials: true });
 //             if (response.data && Array.isArray(response.data.departments)) {
 //                 setDepartments(response.data.departments);
 //             }
@@ -43,7 +43,7 @@
 //         setLoading(true);
 //         setError('');
 //         try {
-//             let url = 'http://localhost:3000/center-batches';
+//             let url = 'https://www.shorthandonlineexam.in/center-batches';
 //             if (departmentId) {
 //                 url += `?departmentId=${departmentId}`;
 //             }
@@ -69,7 +69,7 @@
 //         setLoading(true);
 //         setError('');
 //         try {
-//             let url = `http://localhost:3000/get-current-student-details`;
+//             let url = `https://www.shorthandonlineexam.in/get-current-student-details`;
 //             const params = new URLSearchParams();
             
 //             if (batchNo) {
@@ -642,7 +642,7 @@ const CurrentStudentDetails = () => {
 
   const fetchDepartments = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/departments', { withCredentials: true });
+      const response = await axios.get('https://www.shorthandonlineexam.in/departments', { withCredentials: true });
       if (response.data && Array.isArray(response.data.departments)) {
         setDepartments(response.data.departments);
       }
@@ -656,7 +656,7 @@ const CurrentStudentDetails = () => {
     setLoading(true);
     setError('');
     try {
-      let url = 'http://localhost:3000/center-batches';
+      let url = 'https://www.shorthandonlineexam.in/center-batches';
       if (departmentId) {
         url += `?departmentId=${departmentId}`;
       }
@@ -682,7 +682,7 @@ const CurrentStudentDetails = () => {
     setLoading(true);
     setError('');
     try {
-      let url = `http://localhost:3000/get-current-student-details`;
+      let url = `https://www.shorthandonlineexam.in/get-current-student-details`;
       const params = new URLSearchParams();
       
       if (batchNo) {

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { ProgressBar } from 'react-bootstrap';
 
 const MockStudentPage = () => {
   const [examDate, setExamDate] = useState('');
@@ -16,13 +17,14 @@ const MockStudentPage = () => {
     setLoading(true);
 
     try {
-      const res = await fetch(`http://localhost:3000/api/${mode}`, {
+      const res = await fetch(`https://www.shorthandonlineexam.in/api/${mode}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          batchdate: examDate, 
-          batch_year: year, 
-          studentsPerSubject: parseInt(studentsCount) || 100 
+        body: JSON.stringify({
+          batchdate: examDate,
+          batch_year: year,
+          studentsPerSubject: parseInt(studentsCount) || 100,
+          previewData: mode !== 'preview' ? preview : [] // Add this line
         })
       });
       const data = await res.json();
@@ -79,9 +81,9 @@ const MockStudentPage = () => {
           onChange={(e) => setYear(e.target.value)}
           style={styles.inputSmall}
         />
-        <select 
-          value={studentsCount} 
-          onChange={(e) => setStudentsCount(e.target.value)} 
+        <select
+          value={studentsCount}
+          onChange={(e) => setStudentsCount(e.target.value)}
           style={styles.select}
         >
           <option value="">Default 100</option>
@@ -115,7 +117,11 @@ const MockStudentPage = () => {
         </button>
       </div>
 
-      {loading && <p style={styles.loading}>Processing...</p>}
+      {loading && (
+        <div style={{ marginTop: '20px', marginBottom: '20px' }}>
+          <ProgressBar animated now={100} label="Processing..." />
+        </div>
+      )}
 
       {/* Preview Table */}
       {preview.length > 0 && (

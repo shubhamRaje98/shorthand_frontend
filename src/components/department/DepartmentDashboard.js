@@ -199,7 +199,7 @@ const DepartmentDashboard = () => {
     try {
       console.log("🔍 Fetching filter options...");
       const response = await axios.post(
-        "http://localhost:3000/track-students-on-department-code",
+        "https://www.shorthandonlineexam.in/track-students-on-department-code",
         {},
         { withCredentials: true }
       );
@@ -332,7 +332,7 @@ const DepartmentDashboard = () => {
 
   const fetchSubjects = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/subjects");
+      const response = await axios.get("https://www.shorthandonlineexam.in/subjects");
       if (response.data.subjects) {
         setAllSubjects(response.data.subjects);
       }
@@ -392,7 +392,7 @@ const DepartmentDashboard = () => {
       );
 
       const response = await axios.post(
-        "http://localhost:3000/total-login-count",
+        "https://www.shorthandonlineexam.in/total-login-count",
         requestBody,
         { withCredentials: true }
       );
@@ -500,7 +500,7 @@ const DepartmentDashboard = () => {
       console.log("🚀 Sending request body:", requestBody);
 
       const response = await axios.post(
-        "http://localhost:3000/track-students-on-department-code",
+        "https://www.shorthandonlineexam.in/track-students-on-department-code",
         requestBody,
         { withCredentials: true }
       );

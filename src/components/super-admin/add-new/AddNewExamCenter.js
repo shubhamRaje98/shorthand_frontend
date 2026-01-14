@@ -54,7 +54,7 @@
 // //     setMessage('');
 
 // //     try {
-// //       const response = await axios.post('http://localhost:3000/api/new-department/exam-centers', {
+// //       const response = await axios.post('https://www.shorthandonlineexam.in/api/new-department/exam-centers', {
 // //         ...manualFormData,
 // //         pc_count: parseInt(manualFormData.pc_count),
 // //         max_pc: parseInt(manualFormData.max_pc)
@@ -120,7 +120,7 @@
 // //     try {
 // //         console.log('Starting bulk upload...');
 // //         const response = await axios.post(
-// //             'http://localhost:3000/api/new-department/exam-centers-new/bulk-upload', 
+// //             'https://www.shorthandonlineexam.in/api/new-department/exam-centers-new/bulk-upload', 
 // //             formData, 
 // //             {
 // //                 headers: {
@@ -173,7 +173,7 @@
 
 // //   const handleDownloadTemplate = async () => {
 // //     try {
-// //       const response = await axios.get('http://localhost:3000/api/new-department/exam-centers-new/download-template', {
+// //       const response = await axios.get('https://www.shorthandonlineexam.in/api/new-department/exam-centers-new/download-template', {
 // //         responseType: 'blob'
 // //       });
 
@@ -540,7 +540,7 @@
 //     setMessageType('');
 
 //     try {
-//       const response = await axios.post('http://localhost:3000/api/new-department/exam-centers', {
+//       const response = await axios.post('https://www.shorthandonlineexam.in/api/new-department/exam-centers', {
 //         ...manualFormData,
 //         pc_count: parseInt(manualFormData.pc_count),
 //         max_pc: parseInt(manualFormData.max_pc)
@@ -612,7 +612,7 @@
 //     try {
 //         console.log('Starting bulk upload...');
 //         const response = await axios.post(
-//             'http://localhost:3000/api/new-department/exam-centers-new/bulk-upload', 
+//             'https://www.shorthandonlineexam.in/api/new-department/exam-centers-new/bulk-upload', 
 //             formData, 
 //             {
 //                 headers: {
@@ -668,7 +668,7 @@
 
 //   const handleDownloadTemplate = async () => {
 //     try {
-//       const response = await axios.get('http://localhost:3000/api/new-department/exam-centers-new/download-template', {
+//       const response = await axios.get('https://www.shorthandonlineexam.in/api/new-department/exam-centers-new/download-template', {
 //         responseType: 'blob'
 //       });
 
@@ -1056,7 +1056,7 @@ const AddNewExamCenter = () => {
     
     try {
       console.log('Fetching exam centers...');
-      const response = await axios.get('http://localhost:3000/api/new-department/exam-centers');
+      const response = await axios.get('https://www.shorthandonlineexam.in/api/new-department/exam-centers');
       console.log('API Response:', response.data);
       
       // Handle different response structures
@@ -1119,7 +1119,7 @@ const AddNewExamCenter = () => {
     setMessageType('');
 
     try {
-      const response = await axios.post('http://localhost:3000/api/new-department/exam-centers', {
+      const response = await axios.post('https://www.shorthandonlineexam.in/api/new-department/exam-centers', {
         ...manualFormData,
         pc_count: parseInt(manualFormData.pc_count),
         max_pc: parseInt(manualFormData.max_pc)
@@ -1204,7 +1204,7 @@ const AddNewExamCenter = () => {
     try {
         console.log('Starting bulk upload...');
         const response = await axios.post(
-            'http://localhost:3000/api/new-department/exam-centers-new/bulk-upload', 
+            'https://www.shorthandonlineexam.in/api/new-department/exam-centers-new/bulk-upload', 
             formData, 
             {
                 headers: {
@@ -1272,7 +1272,7 @@ const AddNewExamCenter = () => {
 
   const handleDownloadTemplate = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/api/new-department/exam-centers-new/download-template', {
+      const response = await axios.get('https://www.shorthandonlineexam.in/api/new-department/exam-centers-new/download-template', {
         responseType: 'blob'
       });
 

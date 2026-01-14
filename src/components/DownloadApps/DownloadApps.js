@@ -11,7 +11,7 @@
 //         link.href = fileUrl;
 //         link.download = "pc_registration.exe"; // Optional: specify the downloaded file name
 //         link.click();
-    
+
 //     };
 
 //     const handleExamAppDownload = () => {
@@ -24,9 +24,9 @@
 
 
 //     };
-    
+
 //     const handleRuskDeskDownload = () => {
-        
+
 //         const fileUrl = "https://github.com/rustdesk/rustdesk/releases/download/1.3.5/rustdesk-1.3.5-x86_64.exe";
 //         const link = document.createElement("a");
 //         link.href = fileUrl;
@@ -45,7 +45,7 @@
 //     return (
 //        <>
 //       <NavBar/>
-      
+
 //         <div className="da-container">
 //             <h1 className="da-title">Download Software</h1>
 //             <div className="da-button-container">
@@ -61,7 +61,7 @@
 //                 <button className="da-button da-ism-app" onClick={handleIsmDownload}>
 //                     Download ISM v6.2
 //                 </button>
-                
+
 //             </div>
 //         </div>
 //         </>
@@ -168,16 +168,16 @@ const lightTheme = createTheme({
   }
 });
 
-const SoftwareCard = ({ 
-  title, 
+const SoftwareCard = ({
+  title,
   description,
-  icon: Icon, 
-  color, 
+  icon: Icon,
+  color,
   onClick,
   version
 }) => {
   const theme = useTheme();
-  
+
   return (
     <Card
       sx={{
@@ -207,12 +207,12 @@ const SoftwareCard = ({
         >
           <Icon sx={{ fontSize: 32 }} />
         </Avatar>
-        
-        <Typography 
-          variant="h5" 
-          sx={{ 
-            fontWeight: 600, 
-            mb: 2, 
+
+        <Typography
+          variant="h5"
+          sx={{
+            fontWeight: 600,
+            mb: 2,
             color: 'text.primary',
             flexGrow: 1,
             display: 'flex',
@@ -222,12 +222,12 @@ const SoftwareCard = ({
         >
           {title}
         </Typography>
-        
+
         {description && (
-          <Typography 
-            variant="body2" 
-            sx={{ 
-              color: 'text.secondary', 
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
               mb: 3,
               lineHeight: 1.6
             }}
@@ -235,11 +235,11 @@ const SoftwareCard = ({
             {description}
           </Typography>
         )}
-        
+
         {version && (
-          <Typography 
-            variant="caption" 
-            sx={{ 
+          <Typography
+            variant="caption"
+            sx={{
               color: theme.palette[color].contrastText,
               backgroundColor: alpha(theme.palette[color].main, 0.1),
               px: 2,
@@ -252,7 +252,7 @@ const SoftwareCard = ({
             {version}
           </Typography>
         )}
-        
+
         <Button
           variant="contained"
           onClick={onClick}
@@ -282,21 +282,21 @@ const DownloadApps = () => {
   const theme = useTheme();
 
   const handlePcRegistrationDownload = () => {
-    const fileUrl = "https://shorthandexam2024.s3.ap-south-1.amazonaws.com/Dec24/setup/GCC-SH-JUNE25-PC-REGISTRATION.exe";
+    const fileUrl = "https://shorthand2026.s3.ap-south-1.amazonaws.com/exam_app/publish/PcRegistration.application";
     const link = document.createElement("a");
     link.href = fileUrl;
-    link.download = "pc_registration.exe";
+    link.download = "PcRegistration.application";
     link.click();
   };
 
   const handleExamAppDownload = () => {
-    const fileUrl = "https://shorthandexam2024.s3.ap-south-1.amazonaws.com/Dec24/setup/GCC-SH-JUNE25-EXAM-CLIENT.exe";
+    const fileUrl = "https://shorthand2026.s3.ap-south-1.amazonaws.com/exam_app_og/publish/ShorthandExamApp.application";
     const link = document.createElement("a");
     link.href = fileUrl;
-    link.download = "software.exe";
+    link.download = "ShorthandExamApp.application";
     link.click();
   };
-  
+
   const handleRuskDeskDownload = () => {
     const fileUrl = "https://github.com/rustdesk/rustdesk/releases/download/1.3.5/rustdesk-1.3.5-x86_64.exe";
     const link = document.createElement("a");
@@ -350,19 +350,19 @@ const DownloadApps = () => {
 
   return (
     <ThemeProvider theme={lightTheme}>
-      <Box sx={{ 
-        flexGrow: 1, 
-        backgroundColor: 'background.default', 
-        minHeight: '100vh' 
+      <Box sx={{
+        flexGrow: 1,
+        backgroundColor: 'background.default',
+        minHeight: '100vh'
       }}>
         <NavBar />
-        
+
         <Container maxWidth="xl" sx={{ py: 4 }}>
           <Fade in timeout={800}>
             <Box>
               {/* Header Section - Centered */}
-              <Box 
-                sx={{ 
+              <Box
+                sx={{
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
@@ -371,10 +371,10 @@ const DownloadApps = () => {
                   mb: 6
                 }}
               >
-                <Typography 
-                  variant="h3" 
-                  sx={{ 
-                    fontWeight: 700, 
+                <Typography
+                  variant="h3"
+                  sx={{
+                    fontWeight: 700,
                     color: 'text.primary',
                     mb: 2,
                     textAlign: 'center'
@@ -382,7 +382,7 @@ const DownloadApps = () => {
                 >
                   Download Software
                 </Typography>
-                
+
 
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 2 }}>
                   <DownloadIcon sx={{ color: 'primary.main' }} />
@@ -393,19 +393,19 @@ const DownloadApps = () => {
               </Box>
 
               {/* Software Cards Grid */}
-              <Paper sx={{ 
-                p: 4, 
-                borderRadius: 3, 
+              <Paper sx={{
+                p: 4,
+                borderRadius: 3,
                 boxShadow: 1,
                 border: `1px solid ${theme.palette.grey[200]}`
               }}>
                 <Box sx={{ textAlign: 'center', mb: 4 }}>
-        
-                  <Typography 
-                    variant="body1" 
-                    sx={{ 
-                      color: 'text.secondary', 
-                      maxWidth: '600px', 
+
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      color: 'text.secondary',
+                      maxWidth: '600px',
                       mx: 'auto',
                       fontSize: '1.1rem',
                       lineHeight: 1.6
@@ -414,8 +414,8 @@ const DownloadApps = () => {
                     Professional tools for examination center administration and operations
                   </Typography>
                 </Box>
-                
-                <Grid container spacing={4}justifyContent={"center"}>
+
+                <Grid container spacing={4} justifyContent={"center"}>
                   {softwareList.map((software, index) => (
                     <Grid item xs={12} sm={6} md={6} lg={3} key={index}>
                       <SoftwareCard
@@ -431,7 +431,7 @@ const DownloadApps = () => {
                 </Grid>
               </Paper>
 
-              
+
             </Box>
           </Fade>
         </Container>
