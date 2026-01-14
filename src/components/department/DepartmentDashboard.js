@@ -7,50 +7,48 @@ import moment from "moment-timezone";
 
 // Importing the utility functions
 const isValidData = (value) => {
-    // Check for obviously invalid values first
-    if (!value || value === "invalid date" || value === "0" || value === "" || value === null || value === undefined) {
-        return false;
-    }
-    
-    // If it's already a formatted string with time, consider it valid
-    // Pattern: DD/MM/YYYY HH:MM AM/PM
-    const formattedPattern = /^\d{1,2}\/\d{1,2}\/\d{4}\s\d{1,2}:\d{2}\s(AM|PM)$/;
-    if (formattedPattern.test(value)) {
-        return true;
-    }
-    
-    // For other formats, try to parse as date
-    try {
-        const date = new Date(value);
-        return !isNaN(date.getTime());
-    } catch (error) {
-        return false;
-    }
+  // Check for obviously invalid values first
+  if (!value || value === "invalid date" || value === "0" || value === "" || value === null || value === undefined) {
+    return false;
+  }
+
+  // If it's already a formatted string with time, consider it valid
+  // Pattern: DD/MM/YYYY HH:MM AM/PM
+  const formattedPattern = /^\d{1,2}\/\d{1,2}\/\d{4}\s\d{1,2}:\d{2}\s(AM|PM)$/;
+  if (formattedPattern.test(value)) {
+    return true;
+  }
+
+  // For other formats, try to parse as date
+  try {
+    const date = new Date(value);
+    return !isNaN(date.getTime());
+  } catch (error) {
+    return false;
+  }
 };
 
 const getCellClass = (item, field, exam_type) => {
   let stages;
-  if (exam_type === "shorthand") {
+  // Treat '' (All) and 'shorthand' as GCC
+  if (exam_type === "shorthand" || exam_type === "") {
     stages = [
       "loginTime",
       "trial_time",
       "audio1_time",
       "passage1_time",
+      "audio2_time",
+      "passage2_time",
       "feedback_time",
     ];
-  } else if (exam_type === "typewriting") {
+  } else { // 'typewriting', 'both' -> SKILL
     stages = [
       "loginTime",
+      "trial_time",
+      "audio1_time",
+      "passage1_time",
       "trial_passage_time",
       "typing_passage_time",
-      "feedback_time",
-    ];
-  } else {
-    stages = [
-      "loginTime",
-      "trial_time",
-      "audio1_time",
-      "passage1_time",
       "feedback_time",
     ];
   }
@@ -343,19 +341,19 @@ const DepartmentDashboard = () => {
       setError("Failed to fetch subjects");
     }
   };
-  
+
   // Update fetchData to use the new function
   const fetchData = async (preserveFilters = false) => {
     const filters = preserveFilters
       ? currentFilters
       : {
-          batchNo,
-          subject,
-          loginStatus,
-          center,
-          exam_type,
-          batchDate,
-        };
+        batchNo,
+        subject,
+        loginStatus,
+        center,
+        exam_type,
+        batchDate,
+      };
 
     if (!preserveFilters) {
       setCurrentFilters(filters);
@@ -648,9 +646,8 @@ const DepartmentDashboard = () => {
       <button
         key={index}
         onClick={() => page !== "..." && handlePageChange(page)}
-        className={`dept-btn ${
-          currentPage === page ? "dept-btn-primary" : "dept-btn-secondary"
-        }`}
+        className={`dept-btn ${currentPage === page ? "dept-btn-primary" : "dept-btn-secondary"
+          }`}
         disabled={page === "..."}
       >
         {page}
@@ -718,20 +715,17 @@ const DepartmentDashboard = () => {
               </select>
             </div>
             <div className="dept-col-md-3 dept-col-sm-6 mb-2">
-              <label htmlFor="examStatus" className="dept-form-label">
-                Exam Status:
-              </label>
+              <label htmlFor="examStatus" className="dept-form-label">Exam Type:</label>
               <select
                 className="dept-form-select"
                 id="examStatus"
                 value={exam_type}
-                onChange={(e) =>
-                  handleFilterChange("exam_type", e.target.value)
-                }
+                onChange={(e) => handleFilterChange('exam_type', e.target.value)}
               >
-                <option value="shorthand">Short Hand</option>
-                <option value="typewriting">Type Writing</option>
-                <option value="both">Both</option>
+                <option value="">GCC (Default)</option>
+                <option value="shorthand">GCC</option>
+                <option value="typewriting">SKILL</option>
+                <option value="both">Both (Legacy)</option>
               </select>
             </div>
           </div>
@@ -845,14 +839,21 @@ const DepartmentDashboard = () => {
                     <th style={{ width: "8%" }}>Center</th>
                     <th style={{ width: "12%" }}>Seat No</th>
                     <th>Login</th>
-                    {exam_type !== "typewriting" && <th>Trial</th>}
-                    {exam_type !== "typewriting" && (
+                    {/* Always show Trial, Audio A, Passage A as they are common now (Trial Typing replaces Trial in SKILL?)
+                        Wait, User said "SKILL" has: Login, Trial, AudioA, PassageA, TrialTyping, TypingTest
+                        And GCC has: Login, Trial, AudioA, PassageA, AudioB, PassageB
+                        So Trial, AudioA, PassageA are COMMON.
+                    */}
+                    <th>Trial</th>
+                    <th>Audio Track A</th>
+                    <th>Passage A</th>
+                    {(exam_type === "shorthand" || exam_type === "") && (
                       <>
-                        <th>Audio Track A</th>
-                        <th>Passage A</th>
+                        <th>Audio Track B</th>
+                        <th>Passage B</th>
                       </>
                     )}
-                    {exam_type !== "shorthand" && (
+                    {(exam_type === "typewriting" || exam_type === "both") && (
                       <>
                         <th>Trial Typing</th>
                         <th>Typing Test</th>
@@ -872,40 +873,56 @@ const DepartmentDashboard = () => {
                       >
                         {formatDate(item.loginTime)}
                       </td>
-                      {exam_type !== "typewriting" && (
-                        <td
-                          className={getCellClass(
-                            item,
-                            "trial_time",
-                            exam_type
-                          )}
-                        >
-                          {formatDate(item.trial_time)}
-                        </td>
-                      )}
-                      {exam_type !== "typewriting" && (
+                      <td
+                        className={getCellClass(
+                          item,
+                          "trial_time",
+                          exam_type
+                        )}
+                      >
+                        {formatDate(item.trial_time)}
+                      </td>
+                      <td
+                        className={getCellClass(
+                          item,
+                          "audio1_time",
+                          exam_type
+                        )}
+                      >
+                        {formatDate(item.audio1_time)}
+                      </td>
+                      <td
+                        className={getCellClass(
+                          item,
+                          "passage1_time",
+                          exam_type
+                        )}
+                      >
+                        {formatDate(item.passage1_time)}
+                      </td>
+                      {(exam_type === "shorthand" || exam_type === "") && (
                         <>
                           <td
                             className={getCellClass(
                               item,
-                              "audio1_time",
+                              "audio2_time",
                               exam_type
                             )}
                           >
-                            {formatDate(item.audio1_time)}
+                            {formatDate(item.audio2_time)}
                           </td>
                           <td
                             className={getCellClass(
                               item,
-                              "passage1_time",
+                              "passage2_time",
                               exam_type
                             )}
                           >
-                            {formatDate(item.passage1_time)}
+                            {formatDate(item.passage2_time)}
                           </td>
                         </>
                       )}
-                      {exam_type !== "shorthand" && (
+                      {(exam_type === "typewriting" || exam_type === "both") && (
                         <>
                           <td
                             className={getCellClass(

@@ -2,20 +2,21 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
-import { 
-  Table, 
-  ChevronLeft, 
-  ChevronRight, 
-  Edit, 
-  Save, 
-  X, 
-  Download, 
-  Plus, 
-  Trash2, 
-  Search, 
+import {
+  Table,
+  ChevronLeft,
+  ChevronRight,
+  Edit,
+  Save,
+  X,
+  Download,
+  Plus,
+  Trash2,
+  Search,
   XCircle,
   Database,
-  FileText
+  FileText,
+  Upload
 } from 'lucide-react';
 
 const SuperAdminDashboard = () => {
@@ -29,14 +30,14 @@ const SuperAdminDashboard = () => {
   const [editedValues, setEditedValues] = useState({});
   const [tablePrimaryKey, setTablePrimaryKey] = useState(null);
 
-  
+
   // Enhanced pending changes structure
   const [pendingChanges, setPendingChanges] = useState({
     updates: {},
     additions: [],
     deletions: []
   });
-  
+
   const [currentPage, setCurrentPage] = useState(0);
   const [filters, setFilters] = useState({});
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -50,7 +51,7 @@ const SuperAdminDashboard = () => {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [recordToDelete, setRecordToDelete] = useState(null);
   const [fileInputKey, setFileInputKey] = useState(Date.now());
-  
+
   // Snackbar state
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -61,7 +62,7 @@ const SuperAdminDashboard = () => {
   // TABLE SEARCH FUNCTIONALITY - NEW STATE
   const [tableSearchQuery, setTableSearchQuery] = useState('');
   const [filteredTableNames, setFilteredTableNames] = useState([]);
-  
+
   const MAX_IMAGE_SIZE = 50 * 1024; // 50KB
 
   // Responsive check
@@ -74,11 +75,11 @@ const SuperAdminDashboard = () => {
 
   useEffect(() => {
     fetchTableNames();
-    
+
     const handleResize = () => {
       setIsSmallScreen(window.innerWidth < 768);
     };
-    
+
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -99,17 +100,17 @@ const SuperAdminDashboard = () => {
   // FIXED: Apply filters with useCallback
   const applyFilters = useCallback(() => {
     let newFilteredData = [...tableData];
-    
+
     Object.keys(filters).forEach(columnName => {
       const filter = filters[columnName];
-      
+
       if (filter.type === 'dropdown' && filter.selected !== '' && filter.selected !== null && filter.selected !== undefined) {
         newFilteredData = newFilteredData.filter(row => {
           const cellValue = row[columnName];
           if (cellValue === null || cellValue === undefined) return false;
           return cellValue.toString() === filter.selected.toString();
         });
-      } 
+      }
       else if (filter.type === 'search' && filter.value && filter.value.trim() !== '') {
         newFilteredData = newFilteredData.filter(row => {
           const cellValue = row[columnName];
@@ -118,7 +119,7 @@ const SuperAdminDashboard = () => {
         });
       }
     });
-    
+
     setFilteredData(newFilteredData);
     setCurrentPage(0);
   }, [tableData, filters]);
@@ -169,51 +170,51 @@ const SuperAdminDashboard = () => {
   };
 
   const fetchTableData = async (tableName) => {
-  setLoading(true);
-  try {
-    const response = await axios.post('http://localhost:3000/fetch-table-data', {
-      tableName
-    }, {
-      withCredentials: true
-    });
-    
-    // ✅ CHANGED: Extract data and primary key from response
-    const responseData = response.data;
-    const rows = responseData.data || responseData; // Handle both formats
-    const primaryKey = responseData.primaryKey || null;
-    
-    console.log('Primary key for table:', primaryKey);
-    setTablePrimaryKey(primaryKey); // ✅ NEW: Store primary key
-    
-    const dataWithTempIds = rows.map((item, index) => ({ 
-      ...item, 
-      _temp_id: `temp_${Date.now()}_${index}`,
-      key: index.toString() 
-    }));
-    
-    setTableData(dataWithTempIds);
-    setOriginalData(JSON.parse(JSON.stringify(dataWithTempIds)));
-    setFilteredData(dataWithTempIds);
-    
-    if (dataWithTempIds.length > 0) {
-      const tableColumns = Object.keys(dataWithTempIds[0])
-        .filter(key => key !== '_temp_id')
-        .map(key => ({
-          title: key,
-          dataIndex: key,
-          key: key,
-        }));
-      setColumns(tableColumns);
-      initializeFilters(dataWithTempIds, tableColumns);
+    setLoading(true);
+    try {
+      const response = await axios.post('http://localhost:3000/fetch-table-data', {
+        tableName
+      }, {
+        withCredentials: true
+      });
+
+      // ✅ CHANGED: Extract data and primary key from response
+      const responseData = response.data;
+      const rows = responseData.data || responseData; // Handle both formats
+      const primaryKey = responseData.primaryKey || null;
+
+      console.log('Primary key for table:', primaryKey);
+      setTablePrimaryKey(primaryKey); // ✅ NEW: Store primary key
+
+      const dataWithTempIds = rows.map((item, index) => ({
+        ...item,
+        _temp_id: `temp_${Date.now()}_${index}`,
+        key: index.toString()
+      }));
+
+      setTableData(dataWithTempIds);
+      setOriginalData(JSON.parse(JSON.stringify(dataWithTempIds)));
+      setFilteredData(dataWithTempIds);
+
+      if (dataWithTempIds.length > 0) {
+        const tableColumns = Object.keys(dataWithTempIds[0])
+          .filter(key => key !== '_temp_id')
+          .map(key => ({
+            title: key,
+            dataIndex: key,
+            key: key,
+          }));
+        setColumns(tableColumns);
+        initializeFilters(dataWithTempIds, tableColumns);
+      }
+      setCurrentPage(0);
+      setPendingChanges({ updates: {}, additions: [], deletions: [] });
+    } catch (error) {
+      console.error('Error fetching table data:', error);
+      showSnackbar('Error fetching table data', 'error');
     }
-    setCurrentPage(0);
-    setPendingChanges({ updates: {}, additions: [], deletions: [] });
-  } catch (error) {
-    console.error('Error fetching table data:', error);
-    showSnackbar('Error fetching table data', 'error');
-  }
-  setLoading(false);
-};
+    setLoading(false);
+  };
 
 
   const initializeFilters = (data, columns) => {
@@ -253,133 +254,133 @@ const SuperAdminDashboard = () => {
   };
 
   const prepareDataForSubmission = () => {
-  console.log('=== prepareDataForSubmission DEBUG ===');
-  console.log('pendingChanges:', pendingChanges);
-  console.log('originalData:', originalData);
-  console.log('Table Primary Key:', tablePrimaryKey); // ✅ NEW
-  
-  const changes = {
-    updates: [],
-    additions: [],
-    deletions: []
-  };
+    console.log('=== prepareDataForSubmission DEBUG ===');
+    console.log('pendingChanges:', pendingChanges);
+    console.log('originalData:', originalData);
+    console.log('Table Primary Key:', tablePrimaryKey); // ✅ NEW
 
-  Object.entries(pendingChanges.updates).forEach(([tempId, updatedRow]) => {
-    console.log(`Processing update for tempId: ${tempId}`, updatedRow);
-    
-    const originalRow = originalData.find(row => row._temp_id === tempId);
-    if (!originalRow) {
-      console.warn(`Original row not found for tempId: ${tempId}`);
-      return;
-    }
+    const changes = {
+      updates: [],
+      additions: [],
+      deletions: []
+    };
 
-    console.log('Original row:', originalRow);
+    Object.entries(pendingChanges.updates).forEach(([tempId, updatedRow]) => {
+      console.log(`Processing update for tempId: ${tempId}`, updatedRow);
 
-    // ✅ CHANGED: Use primary key from backend
-    let primaryKey = tablePrimaryKey;
-    let primaryKeyValue = null;
+      const originalRow = originalData.find(row => row._temp_id === tempId);
+      if (!originalRow) {
+        console.warn(`Original row not found for tempId: ${tempId}`);
+        return;
+      }
 
-    if (primaryKey && originalRow[primaryKey] !== undefined) {
-      primaryKeyValue = originalRow[primaryKey];
-    } else {
-      // Fallback to old detection if primary key not available
-      const possiblePrimaryKeys = [
-        'id', 'ID', 'Id', 
+      console.log('Original row:', originalRow);
+
+      // ✅ CHANGED: Use primary key from backend
+      let primaryKey = tablePrimaryKey;
+      let primaryKeyValue = null;
+
+      if (primaryKey && originalRow[primaryKey] !== undefined) {
+        primaryKeyValue = originalRow[primaryKey];
+      } else {
+        // Fallback to old detection if primary key not available
+        const possiblePrimaryKeys = [
+          'id', 'ID', 'Id',
+          'adminid', 'Admin_ID', 'admin_id',
+          `${selectedTable.toLowerCase()}_id`,
+          'user_id', 'userId', 'UserID'
+        ];
+
+        for (const key of possiblePrimaryKeys) {
+          if (originalRow[key] !== undefined && originalRow[key] !== null) {
+            primaryKey = key;
+            primaryKeyValue = originalRow[key];
+            break;
+          }
+        }
+      }
+
+      if (!primaryKey || (primaryKeyValue === null || primaryKeyValue === undefined)) {
+        console.error('Could not find primary key for row:', originalRow);
+        showSnackbar('Cannot update: Primary key not found', 'error');
+        return;
+      }
+
+      console.log(`Using primary key: ${primaryKey} = ${primaryKeyValue}`);
+
+      const changedFields = {};
+      Object.keys(updatedRow).forEach(key => {
+        if (key !== '_temp_id' && key !== 'key') {
+          const originalValue = originalRow[key];
+          const updatedValue = updatedRow[key];
+
+          const originalStr = originalValue === null || originalValue === undefined ? '' : String(originalValue);
+          const updatedStr = updatedValue === null || updatedValue === undefined ? '' : String(updatedValue);
+
+          if (originalStr !== updatedStr) {
+            changedFields[key] = updatedValue;
+            console.log(`Field changed - ${key}: "${originalValue}" -> "${updatedValue}"`);
+          }
+        }
+      });
+
+      console.log('Changed fields:', changedFields);
+
+      if (Object.keys(changedFields).length > 0) {
+        const updateRecord = {
+          ...changedFields,
+          [primaryKey]: primaryKeyValue
+        };
+        changes.updates.push(updateRecord);
+        console.log('Added to updates:', updateRecord);
+      } else {
+        console.log('No changes detected for this row');
+      }
+    });
+
+    // Rest of your code for additions and deletions remains the same
+    changes.additions = pendingChanges.additions.map(record => {
+      const cleanRecord = { ...record };
+      delete cleanRecord._temp_id;
+      delete cleanRecord.key;
+      return cleanRecord;
+    });
+
+    changes.deletions = pendingChanges.deletions.map(record => {
+      const cleanRecord = {};
+
+      const possibleKeys = [
+        'id', 'ID', 'Id',
         'adminid', 'Admin_ID', 'admin_id',
         `${selectedTable.toLowerCase()}_id`,
         'user_id', 'userId', 'UserID'
       ];
-      
-      for (const key of possiblePrimaryKeys) {
-        if (originalRow[key] !== undefined && originalRow[key] !== null) {
-          primaryKey = key;
-          primaryKeyValue = originalRow[key];
+      for (const key of possibleKeys) {
+        if (record[key] !== undefined && record[key] !== null) {
+          cleanRecord[key] = record[key];
           break;
         }
       }
-    }
 
-    if (!primaryKey || (primaryKeyValue === null || primaryKeyValue === undefined)) {
-      console.error('Could not find primary key for row:', originalRow);
-      showSnackbar('Cannot update: Primary key not found', 'error');
-      return;
-    }
-
-    console.log(`Using primary key: ${primaryKey} = ${primaryKeyValue}`);
-
-    const changedFields = {};
-    Object.keys(updatedRow).forEach(key => {
-      if (key !== '_temp_id' && key !== 'key') {
-        const originalValue = originalRow[key];
-        const updatedValue = updatedRow[key];
-        
-        const originalStr = originalValue === null || originalValue === undefined ? '' : String(originalValue);
-        const updatedStr = updatedValue === null || updatedValue === undefined ? '' : String(updatedValue);
-        
-        if (originalStr !== updatedStr) {
-          changedFields[key] = updatedValue;
-          console.log(`Field changed - ${key}: "${originalValue}" -> "${updatedValue}"`);
-        }
+      if (Object.keys(cleanRecord).length === 0) {
+        Object.keys(record).forEach(key => {
+          if (key !== '_temp_id' && key !== 'key') {
+            cleanRecord[key] = record[key];
+          }
+        });
       }
+
+      return cleanRecord;
     });
 
-    console.log('Changed fields:', changedFields);
-
-    if (Object.keys(changedFields).length > 0) {
-      const updateRecord = {
-        ...changedFields,
-        [primaryKey]: primaryKeyValue
-      };
-      changes.updates.push(updateRecord);
-      console.log('Added to updates:', updateRecord);
-    } else {
-      console.log('No changes detected for this row');
-    }
-  });
-
-  // Rest of your code for additions and deletions remains the same
-  changes.additions = pendingChanges.additions.map(record => {
-    const cleanRecord = { ...record };
-    delete cleanRecord._temp_id;
-    delete cleanRecord.key;
-    return cleanRecord;
-  });
-
-  changes.deletions = pendingChanges.deletions.map(record => {
-    const cleanRecord = {};
-    
-    const possibleKeys = [
-      'id', 'ID', 'Id', 
-      'adminid', 'Admin_ID', 'admin_id',
-      `${selectedTable.toLowerCase()}_id`,
-      'user_id', 'userId', 'UserID'
-    ];
-    for (const key of possibleKeys) {
-      if (record[key] !== undefined && record[key] !== null) {
-        cleanRecord[key] = record[key];
-        break;
-      }
-    }
-
-    if (Object.keys(cleanRecord).length === 0) {
-      Object.keys(record).forEach(key => {
-        if (key !== '_temp_id' && key !== 'key') {
-          cleanRecord[key] = record[key];
-        }
-      });
-    }
-
-    return cleanRecord;
-  });
-
-  console.log('Final prepared changes:', changes);
-  return changes;
-};
+    console.log('Final prepared changes:', changes);
+    return changes;
+  };
 
 
   const submitChangesToDatabase = async () => {
     const changes = prepareDataForSubmission();
-    
+
     if (changes.updates.length === 0 && changes.additions.length === 0 && changes.deletions.length === 0) {
       showSnackbar('No changes to submit', 'info');
       return;
@@ -397,7 +398,7 @@ const SuperAdminDashboard = () => {
           const updateResponse = await axios.put('http://localhost:3000/enhanced-update-table-data', {
             tableName: selectedTable,
             updates: changes.updates
-          }, { 
+          }, {
             withCredentials: true,
             headers: {
               'Content-Type': 'application/json'
@@ -496,12 +497,12 @@ const SuperAdminDashboard = () => {
       }
 
       await fetchTableData(selectedTable);
-      
+
       if (successfulOperations === totalOperations) {
         showSnackbar(`All ${totalOperations} changes submitted successfully!`, 'success');
       } else if (successfulOperations > 0) {
         showSnackbar(
-          `${successfulOperations} of ${totalOperations} changes submitted successfully. Some operations failed.`, 
+          `${successfulOperations} of ${totalOperations} changes submitted successfully. Some operations failed.`,
           'warning'
         );
         console.log('Operation results:', operationResults);
@@ -509,7 +510,7 @@ const SuperAdminDashboard = () => {
         showSnackbar('All operations failed. Check console for details.', 'error');
         console.log('All failed. Results:', operationResults);
       }
-      
+
     } catch (error) {
       console.error('Error in submitChangesToDatabase:', error);
       showSnackbar('Error submitting changes: ' + (error.response?.data?.message || error.message), 'error');
@@ -538,12 +539,188 @@ const SuperAdminDashboard = () => {
     XLSX.writeFile(workbook, `${selectedTable}.xlsx`);
   };
 
+  const handleArchiveDownload = async () => {
+    const departmentId = prompt("Enter Department ID to Archive:");
+    if (!departmentId) return;
+
+    try {
+      // Use window.open to trigger the download directly from the browser
+      window.open(`http://localhost:3000/api/departments/${departmentId}/archive/download`, '_blank');
+      showSnackbar('Archive download started...', 'success');
+    } catch (error) {
+      console.error('Archive error:', error);
+      showSnackbar('Error downloading archive', 'error');
+    }
+  };
+
+  const handleArchiveDelete = async () => {
+    const departmentId = prompt("Enter Department ID to DELETE ALL DATA:");
+    if (!departmentId) return;
+
+    // Safety check
+    const confirm1 = window.confirm(`WARNING: This will PERMANENTLY DELETE ALL logs, students, and batches for Department ${departmentId}. Are you sure?`);
+    if (!confirm1) return;
+
+    // Double safety check
+    const confirm2 = window.prompt(`Type "DELETE ${departmentId}" to confirm:`);
+    if (confirm2 !== `DELETE ${departmentId}`) return;
+
+    try {
+      const response = await axios.post('http://localhost:3000/api/departments/archive/delete', {
+        departmentId: departmentId
+      });
+
+      if (response.data.success) {
+        showSnackbar(`Department ${departmentId} data deleted successfully`, 'success');
+        fetchTableData(selectedTable);
+      } else {
+        showSnackbar('Failed to delete: ' + response.data.message, 'error');
+      }
+    } catch (error) {
+      console.error('Delete error:', error);
+      showSnackbar('Error deleting department data', 'error');
+    }
+  };
+
+  const handleRowArchiveDownload = async (row) => {
+    const departmentId = row.departmentId || row.departmentid;
+    if (!departmentId) {
+      showSnackbar('Error: Could not find Department ID in row', 'error');
+      return;
+    }
+
+    // Show loading state
+    showSnackbar(`Generating Archive for Department ${departmentId}... This may take a while.`, 'info');
+
+    try {
+      // Use axios to fetch the blob instead of window.open
+      // UPDATED URL: Added /new-department prefix to match app.js mounting
+      const response = await axios.get(`http://localhost:3000/api/new-department/departments/${departmentId}/archive/download`, {
+        responseType: 'blob', // Important for files
+        withCredentials: true,
+        onDownloadProgress: (progressEvent) => {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          // Optional: Update progress UI if you have one, or just keep the "Generating..." snackbar
+          if (percentCompleted % 20 === 0) console.log(`Download progress: ${percentCompleted}%`);
+        }
+      });
+
+      // Create a URL for the blob
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+
+      // Try to get filename from content-disposition header
+      const contentDisposition = response.headers['content-disposition'];
+      let fileName = `department_${departmentId}_archive.json`;
+      if (contentDisposition) {
+        const fileNameMatch = contentDisposition.match(/filename=(.+)/);
+        if (fileNameMatch && fileNameMatch.length === 2) fileName = fileNameMatch[1];
+      }
+
+      link.setAttribute('download', fileName);
+      document.body.appendChild(link);
+      link.click();
+
+      // Cleanup
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      showSnackbar(`Archive downloaded successfully!`, 'success');
+
+    } catch (error) {
+      console.error('Archive error:', error);
+      showSnackbar('Error downloading archive. Check console for details.', 'error');
+    }
+  };
+
+  /* ARCHIVE RESTORE LOGIC */
+  const fileInputRef = React.useRef(null);
+
+  const handleRestoreClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Reset value so same file can be selected again
+    event.target.value = '';
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const jsonData = JSON.parse(e.target.result);
+
+        // Basic validation
+        if (!jsonData.metadata || !jsonData.department) {
+          showSnackbar('Invalid archive file. Missing metadata.', 'error');
+          return;
+        }
+
+        const deptId = jsonData.metadata.departmentId;
+        showSnackbar(`Restoring Department ${deptId}... Please wait.`, 'info');
+
+        const response = await axios.post('http://localhost:3000/api/new-department/departments/archive/restore', jsonData);
+
+        if (response.data.success) {
+          showSnackbar(`Department ${deptId} restored successfully!`, 'success');
+          // Refresh table
+          fetchTableData(selectedTable);
+        } else {
+          showSnackbar('Restore failed: ' + response.data.message, 'error');
+        }
+
+      } catch (error) {
+        console.error('Restore error:', error);
+        showSnackbar('Error processing archive file: ' + error.message, 'error');
+      }
+    };
+    reader.readAsText(file);
+  };
+  /* END ARCHIVE RESTORE LOGIC */
+
+  const handleRowArchiveDelete = async (row) => {
+    const departmentId = row.departmentId || row.departmentid;
+    if (!departmentId) {
+      showSnackbar('Error: Could not find Department ID in row', 'error');
+      return;
+    }
+
+    // Safety check
+    const confirm1 = window.confirm(`WARNING: This will PERMANENTLY DELETE ALL logs, students, and batches for Department ${departmentId} (${row.departmentName || 'Unknown Name'}). Are you sure?`);
+    if (!confirm1) return;
+
+    // Double safety check
+    const confirm2 = window.prompt(`Type "DELETE ${departmentId}" to confirm:`);
+    if (confirm2 !== `DELETE ${departmentId}`) return;
+
+    try {
+      const response = await axios.post('http://localhost:3000/api/new-department/departments/archive/delete', {
+        departmentId: departmentId
+      });
+
+      if (response.data.success) {
+        showSnackbar(`Department ${departmentId} data deleted successfully`, 'success');
+        fetchTableData(selectedTable);
+      } else {
+        showSnackbar('Failed to delete: ' + response.data.message, 'error');
+      }
+    } catch (error) {
+      console.error('Delete error:', error);
+      showSnackbar('Error deleting department data', 'error');
+    }
+  };
+
   // EDIT FUNCTIONS
   const handleEdit = (key) => {
     setEditingKey(key);
     const row = tableData.find(item => item.key === key);
     if (!row) return;
-    
+
     const tempId = row._temp_id;
     const pendingRow = pendingChanges.updates[tempId];
     const rowToEdit = pendingRow || row;
@@ -551,42 +728,42 @@ const SuperAdminDashboard = () => {
   };
 
   const handleSave = (key) => {
-  const row = tableData.find(item => item.key === key);
-  if (!row) return;
-  
-  const tempId = row._temp_id;
-  
-  console.log('Saving changes for tempId:', tempId);
-  console.log('Edited values:', editedValues);
-  
-  // ✅ FIX: Preserve _temp_id and key in the updated row
-  const updatedRow = {
-    ...editedValues,
-    _temp_id: tempId,
-    key: key
-  };
-  
-  setPendingChanges(prev => {
-    const newPendingChanges = {
-      ...prev,
-      updates: {
-        ...prev.updates,
-        [tempId]: updatedRow  // Now includes _temp_id and key
-      }
+    const row = tableData.find(item => item.key === key);
+    if (!row) return;
+
+    const tempId = row._temp_id;
+
+    console.log('Saving changes for tempId:', tempId);
+    console.log('Edited values:', editedValues);
+
+    // ✅ FIX: Preserve _temp_id and key in the updated row
+    const updatedRow = {
+      ...editedValues,
+      _temp_id: tempId,
+      key: key
     };
-    console.log('New pending changes:', newPendingChanges);
-    return newPendingChanges;
-  });
-  
-  // ✅ Also update tableData and filteredData with the complete row
-  setTableData(prevData => prevData.map(item => item.key === key ? updatedRow : item));
-  setFilteredData(prevData => prevData.map(item => item.key === key ? updatedRow : item));
-  
-  setEditingKey('');
-  setEditedValues({});
-  
-  showSnackbar('Changes staged successfully', 'success');
-};
+
+    setPendingChanges(prev => {
+      const newPendingChanges = {
+        ...prev,
+        updates: {
+          ...prev.updates,
+          [tempId]: updatedRow  // Now includes _temp_id and key
+        }
+      };
+      console.log('New pending changes:', newPendingChanges);
+      return newPendingChanges;
+    });
+
+    // ✅ Also update tableData and filteredData with the complete row
+    setTableData(prevData => prevData.map(item => item.key === key ? updatedRow : item));
+    setFilteredData(prevData => prevData.map(item => item.key === key ? updatedRow : item));
+
+    setEditingKey('');
+    setEditedValues({});
+
+    showSnackbar('Changes staged successfully', 'success');
+  };
 
 
   const handleCancel = () => {
@@ -648,8 +825,8 @@ const SuperAdminDashboard = () => {
   const validateNewRecord = () => {
     let errors = {};
     columns.forEach(column => {
-      if (column.dataIndex !== 'key' && column.dataIndex !== '_temp_id' && 
-          (!newRecord[column.dataIndex] && newRecord[column.dataIndex] !== 0)) {
+      if (column.dataIndex !== 'key' && column.dataIndex !== '_temp_id' &&
+        (!newRecord[column.dataIndex] && newRecord[column.dataIndex] !== 0)) {
         errors[column.dataIndex] = "Required";
       }
     });
@@ -750,21 +927,21 @@ const SuperAdminDashboard = () => {
   const isRowPending = (row) => {
     const tempId = row._temp_id;
     return pendingChanges.updates.hasOwnProperty(tempId) ||
-           pendingChanges.additions.some(add => add._temp_id === tempId) ||
-           pendingChanges.deletions.some(del => del._temp_id === tempId);
+      pendingChanges.additions.some(add => add._temp_id === tempId) ||
+      pendingChanges.deletions.some(del => del._temp_id === tempId);
   };
 
   const getPendingChangesCount = () => {
-    return Object.keys(pendingChanges.updates).length + 
-           pendingChanges.additions.length + 
-           pendingChanges.deletions.length;
+    return Object.keys(pendingChanges.updates).length +
+      pendingChanges.additions.length +
+      pendingChanges.deletions.length;
   };
 
   // DIALOG COMPONENTS
   const renderAddRecordDialog = () => (
-    <div className={`modal fade ${addDialogOpen ? 'show' : ''}`} 
-         style={{ display: addDialogOpen ? 'block' : 'none' }}
-         tabIndex="-1">
+    <div className={`modal fade ${addDialogOpen ? 'show' : ''}`}
+      style={{ display: addDialogOpen ? 'block' : 'none' }}
+      tabIndex="-1">
       <div className="modal-dialog modal-lg modal-dialog-scrollable">
         <div className="modal-content">
           <div className="modal-header border-0 pb-0">
@@ -792,7 +969,7 @@ const SuperAdminDashboard = () => {
                       )}
                       {newRecord[column.dataIndex] && (
                         <div className="mt-2">
-                          <img 
+                          <img
                             src={formatBase64Image(newRecord[column.dataIndex])}
                             alt="Preview"
                             style={{ maxWidth: '100px', maxHeight: '100px', cursor: 'pointer', borderRadius: '8px', border: '2px solid #e9ecef' }}
@@ -835,9 +1012,9 @@ const SuperAdminDashboard = () => {
   );
 
   const renderDeleteConfirmation = () => (
-    <div className={`modal fade ${deleteConfirmOpen ? 'show' : ''}`} 
-         style={{ display: deleteConfirmOpen ? 'block' : 'none' }}
-         tabIndex="-1">
+    <div className={`modal fade ${deleteConfirmOpen ? 'show' : ''}`}
+      style={{ display: deleteConfirmOpen ? 'block' : 'none' }}
+      tabIndex="-1">
       <div className="modal-dialog">
         <div className="modal-content">
           <div className="modal-header border-0 pb-0">
@@ -878,9 +1055,9 @@ const SuperAdminDashboard = () => {
             {/* Search Bar */}
             <div className="mb-5 d-flex justify-content-center">
               <div className="position-relative" style={{ maxWidth: '500px', width: '100%' }}>
-                <Search 
-                  size={20} 
-                  className="position-absolute text-muted" 
+                <Search
+                  size={20}
+                  className="position-absolute text-muted"
                   style={{ left: '16px', top: '50%', transform: 'translateY(-50%)', zIndex: 10 }}
                 />
                 <input
@@ -900,8 +1077,8 @@ const SuperAdminDashboard = () => {
                   onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
                 />
                 {tableSearchQuery && (
-                  <button 
-                    className="btn position-absolute" 
+                  <button
+                    className="btn position-absolute"
                     type="button"
                     onClick={handleClearTableSearch}
                     style={{ right: '8px', top: '50%', transform: 'translateY(-50%)', padding: '4px 8px' }}
@@ -930,7 +1107,7 @@ const SuperAdminDashboard = () => {
                   {tableSearchQuery ? 'No tables match your search' : 'No tables available'}
                 </h6>
                 {tableSearchQuery && (
-                  <button 
+                  <button
                     className="btn btn-outline-primary"
                     onClick={handleClearTableSearch}
                     style={{ borderRadius: '8px' }}
@@ -978,16 +1155,16 @@ const SuperAdminDashboard = () => {
                           e.currentTarget.style.backgroundColor = '#f0f4ff';
                         }}
                       >
-                        <div 
-                          className="position-absolute top-0 start-0 w-100 table-card-top-bar" 
-                          style={{ 
-                            height: '4px', 
+                        <div
+                          className="position-absolute top-0 start-0 w-100 table-card-top-bar"
+                          style={{
+                            height: '4px',
                             background: 'linear-gradient(90deg, #2C3E50 0%, #764ba2 100%)',
                             transition: 'height 0.3s ease'
                           }}
                         />
                         <div className="card-body d-flex align-items-center p-3">
-                          <div 
+                          <div
                             className="d-flex align-items-center justify-content-center me-3"
                             style={{
                               width: '40px',
@@ -1001,9 +1178,9 @@ const SuperAdminDashboard = () => {
                             <Table size={20} style={{ color: '#2C3E50' }} />
                           </div>
                           <div className="flex-grow-1" style={{ minWidth: 0 }}>
-                            <h6 
-                              className="mb-0 fw-semibold text-truncate" 
-                              style={{ 
+                            <h6
+                              className="mb-0 fw-semibold text-truncate"
+                              style={{
                                 fontSize: '0.9rem',
                                 color: '#2d3748',
                                 transition: 'color 0.3s ease'
@@ -1022,11 +1199,11 @@ const SuperAdminDashboard = () => {
                 {/* IMPROVED Pagination Controls */}
                 {totalTablePages > 1 && (
                   <div className="d-flex justify-content-between align-items-center pt-4 border-top">
-                    <button 
+                    <button
                       className="btn btn-outline-primary d-flex align-items-center gap-2"
                       onClick={handlePreviousTablePage}
                       disabled={currentTablePage === 0}
-                      style={{ 
+                      style={{
                         borderRadius: '10px',
                         padding: '8px 20px',
                         fontWeight: '500',
@@ -1074,11 +1251,11 @@ const SuperAdminDashboard = () => {
                       })}
                     </div>
 
-                    <button 
+                    <button
                       className="btn btn-outline-primary d-flex align-items-center gap-2"
                       onClick={handleNextTablePage}
                       disabled={currentTablePage === totalTablePages - 1}
-                      style={{ 
+                      style={{
                         borderRadius: '10px',
                         padding: '8px 20px',
                         fontWeight: '500',
@@ -1157,7 +1334,7 @@ const SuperAdminDashboard = () => {
               Manage your database tables with ease
             </p>
           </div>
-          
+
           {tableNames.length === 0 ? (
             <div className="card mt-4 text-center p-5 border-0 shadow-sm" style={{ borderRadius: '16px' }}>
               <h6 className="text-muted">No tables found</h6>
@@ -1175,7 +1352,7 @@ const SuperAdminDashboard = () => {
               <p className="text-muted small mb-0">Manage table records</p>
             </div>
             <div className="d-flex gap-2 flex-wrap">
-              <button 
+              <button
                 className="btn btn-primary d-flex align-items-center gap-2 shadow-sm"
                 onClick={handleAddRecord}
                 style={{ borderRadius: '8px', padding: '8px 20px' }}
@@ -1183,7 +1360,7 @@ const SuperAdminDashboard = () => {
                 <Plus size={18} />
                 Add Record
               </button>
-              <button 
+              <button
                 className="btn btn-success d-flex align-items-center gap-2 shadow-sm"
                 onClick={handleDownloadExcel}
                 style={{ borderRadius: '8px', padding: '8px 20px' }}
@@ -1191,22 +1368,56 @@ const SuperAdminDashboard = () => {
                 <Download size={18} />
                 Export Excel
               </button>
-              <button 
+              <button
                 className="btn btn-warning text-white d-flex align-items-center gap-2 shadow-sm"
-                onClick={submitChangesToDatabase} 
+                onClick={submitChangesToDatabase}
                 disabled={getPendingChangesCount() === 0}
                 style={{ borderRadius: '8px', padding: '8px 20px', fontWeight: '500' }}
               >
                 Submit Changes ({getPendingChangesCount()})
               </button>
+              {/* Archive Actions - Visible specifically for departmentdb */
+                (selectedTable && selectedTable.toLowerCase() === 'departmentdb') && (
+                  <div className="d-flex gap-2 ms-2">
+                    <button
+                      className="btn btn-outline-info d-flex align-items-center gap-2 shadow-sm"
+                      onClick={() => handleArchiveDownload()}
+                      title="Download Archive"
+                      style={{ borderRadius: '8px', padding: '8px 16px' }}
+                    >
+                      <Download size={18} />
+                      <span className="d-none d-md-inline">Download</span>
+                    </button>
+
+                    <button
+                      className="btn btn-outline-primary d-flex align-items-center gap-2 shadow-sm"
+                      onClick={handleRestoreClick}
+                      title="Restore / Import Archive"
+                      style={{ borderRadius: '8px', padding: '8px 16px' }}
+                    >
+                      <Upload size={18} />
+                      <span className="d-none d-md-inline">Restore</span>
+                    </button>
+
+                    <button
+                      className="btn btn-outline-danger d-flex align-items-center gap-2 shadow-sm"
+                      onClick={() => handleArchiveDelete()}
+                      title="Delete Department Data"
+                      style={{ borderRadius: '8px', padding: '8px 16px' }}
+                    >
+                      <Trash2 size={18} />
+                      <span className="d-none d-md-inline">Clean Data</span>
+                    </button>
+                  </div>
+                )}
             </div>
           </div>
 
           {/* TABLE WITH IMPROVED STYLING */}
           <div className="card shadow-sm border-0" style={{ borderRadius: '12px', overflow: 'hidden' }}>
-            <div 
-              className="table-responsive" 
-              style={{ 
+            <div
+              className="table-responsive"
+              style={{
                 maxHeight: 'calc(100vh - 250px)',
                 overflowX: 'auto',
                 overflowY: 'auto'
@@ -1217,10 +1428,10 @@ const SuperAdminDashboard = () => {
                 <thead className="sticky-top" style={{ backgroundColor: '#2C3E50', zIndex: 10 }}>
                   <tr style={{ borderBottom: '2px solid #2C3E50' }}>
                     {columns.map((col) => (
-                      <th 
-                        key={col.key} 
-                        className="fw-semibold text-nowrap py-3 px-3" 
-                        style={{ 
+                      <th
+                        key={col.key}
+                        className="fw-semibold text-nowrap py-3 px-3"
+                        style={{
                           color: '#ffffff',
                           fontSize: '0.875rem',
                           minWidth: '150px',
@@ -1231,9 +1442,9 @@ const SuperAdminDashboard = () => {
                         {col.title}
                       </th>
                     ))}
-                    <th 
-                      className="fw-semibold py-3 px-3" 
-                      style={{ 
+                    <th
+                      className="fw-semibold py-3 px-3"
+                      style={{
                         width: '150px',
                         color: '#ffffff',
                         fontSize: '0.875rem',
@@ -1282,8 +1493,8 @@ const SuperAdminDashboard = () => {
                               )
                             ) : (
                               isImageColumn(col.dataIndex) ? (
-                                <img 
-                                  src={formatBase64Image(row[col.dataIndex])} 
+                                <img
+                                  src={formatBase64Image(row[col.dataIndex])}
                                   alt={col.dataIndex}
                                   style={{
                                     maxWidth: '50px',
@@ -1347,6 +1558,7 @@ const SuperAdminDashboard = () => {
                                   className="btn btn-sm btn-outline-primary d-flex align-items-center"
                                   onClick={() => handleEdit(row.key)}
                                   style={{ padding: '4px 8px' }}
+                                  title="Edit"
                                 >
                                   <Edit size={14} />
                                 </button>
@@ -1354,9 +1566,30 @@ const SuperAdminDashboard = () => {
                                   className="btn btn-sm btn-outline-danger d-flex align-items-center"
                                   onClick={() => handleDeleteClick(row)}
                                   style={{ padding: '4px 8px' }}
+                                  title="Delete Record"
                                 >
                                   <Trash2 size={14} />
                                 </button>
+                                {selectedTable === 'departmentdb' && (
+                                  <>
+                                    <button
+                                      className="btn btn-sm btn-outline-info d-flex align-items-center"
+                                      onClick={() => handleRowArchiveDownload(row)}
+                                      title="Download Department Archive"
+                                      style={{ padding: '4px 8px' }}
+                                    >
+                                      <Download size={14} />
+                                    </button>
+                                    <button
+                                      className="btn btn-sm btn-outline-dark d-flex align-items-center"
+                                      onClick={() => handleRowArchiveDelete(row)}
+                                      title="Delete ALL Department Data (Deep Delete)"
+                                      style={{ padding: '4px 8px' }}
+                                    >
+                                      <Database size={14} />
+                                    </button>
+                                  </>
+                                )}
                               </>
                             )}
                           </div>
@@ -1366,13 +1599,13 @@ const SuperAdminDashboard = () => {
                 </tbody>
               </table>
             </div>
-            
+
             {/* IMPROVED Pagination Footer */}
             <div className="card-footer bg-white border-top d-flex justify-content-between align-items-center py-3">
               <div className="d-flex align-items-center gap-2">
                 <span className="small text-muted">Rows per page:</span>
-                <select 
-                  className="form-select form-select-sm" 
+                <select
+                  className="form-select form-select-sm"
                   style={{ width: 'auto', fontSize: '0.875rem' }}
                   value={rowsPerPage}
                   onChange={handleChangeRowsPerPage}
@@ -1383,20 +1616,20 @@ const SuperAdminDashboard = () => {
                   <option value={100}>100</option>
                 </select>
               </div>
-              
+
               <span className="small text-muted fw-medium">
                 {currentPage * rowsPerPage + 1}-{Math.min((currentPage + 1) * rowsPerPage, filteredData.length)} of {filteredData.length}
               </span>
-              
+
               {/* IMPROVED PAGINATION BUTTONS - Better centering and hover effects */}
               <nav>
                 <ul className="pagination pagination-sm mb-0">
                   <li className={`page-item ${currentPage === 0 ? 'disabled' : ''}`}>
-                    <button 
-                      className="page-link d-flex align-items-center justify-content-center" 
+                    <button
+                      className="page-link d-flex align-items-center justify-content-center"
                       onClick={() => handleChangePage(currentPage - 1)}
                       disabled={currentPage === 0}
-                      style={{ 
+                      style={{
                         borderRadius: '6px 0 0 6px',
                         width: '36px',
                         height: '36px',
@@ -1407,11 +1640,11 @@ const SuperAdminDashboard = () => {
                     </button>
                   </li>
                   <li className={`page-item ${currentPage === Math.ceil(filteredData.length / rowsPerPage) - 1 ? 'disabled' : ''}`}>
-                    <button 
-                      className="page-link d-flex align-items-center justify-content-center" 
+                    <button
+                      className="page-link d-flex align-items-center justify-content-center"
                       onClick={() => handleChangePage(currentPage + 1)}
                       disabled={currentPage === Math.ceil(filteredData.length / rowsPerPage) - 1}
-                      style={{ 
+                      style={{
                         borderRadius: '0 6px 6px 0',
                         width: '36px',
                         height: '36px',
@@ -1435,27 +1668,34 @@ const SuperAdminDashboard = () => {
       {/* Bootstrap Toast for notifications */}
       {snackbar.open && (
         <div className="position-fixed bottom-0 end-0 p-3" style={{ zIndex: 9999 }}>
-          <div className={`toast show align-items-center text-white bg-${snackbar.severity === 'success' ? 'success' : snackbar.severity === 'error' ? 'danger' : snackbar.severity === 'warning' ? 'warning' : 'info'} border-0`} 
-               role="alert"
-               style={{ borderRadius: '12px', minWidth: '300px' }}>
+          <div className={`toast show align-items-center text-white bg-${snackbar.severity === 'success' ? 'success' : snackbar.severity === 'error' ? 'danger' : snackbar.severity === 'warning' ? 'warning' : 'info'} border-0`}
+            role="alert"
+            style={{ borderRadius: '12px', minWidth: '300px' }}>
             <div className="d-flex">
               <div className="toast-body fw-medium">
                 {snackbar.message}
               </div>
-              <button 
-                type="button" 
-                className="btn-close btn-close-white me-2 m-auto" 
+              <button
+                type="button"
+                className="btn-close btn-close-white me-2 m-auto"
                 onClick={() => setSnackbar(prev => ({ ...prev, open: false }))}
               ></button>
             </div>
           </div>
         </div>
       )}
-      
+
       {/* Modal Backdrop */}
       {(addDialogOpen || deleteConfirmOpen) && (
         <div className="modal-backdrop fade show" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}></div>
       )}
+      <input
+        type="file"
+        ref={fileInputRef}
+        style={{ display: 'none' }}
+        accept=".json"
+        onChange={handleFileChange}
+      />
     </div>
   );
 };

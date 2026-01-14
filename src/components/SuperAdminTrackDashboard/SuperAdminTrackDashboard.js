@@ -9,14 +9,14 @@ const isValidData = (value) => {
     if (!value || value === "invalid date" || value === "0" || value === "" || value === null || value === undefined) {
         return false;
     }
-    
+
     // If it's already a formatted string with time, consider it valid
     // Pattern: DD/MM/YYYY HH:MM AM/PM
     const formattedPattern = /^\d{1,2}\/\d{1,2}\/\d{4}\s\d{1,2}:\d{2}\s(AM|PM)$/;
     if (formattedPattern.test(value)) {
         return true;
     }
-    
+
     // For other formats, try to parse as date
     try {
         const date = new Date(value);
@@ -26,18 +26,18 @@ const isValidData = (value) => {
     }
 };
 const getCellClass = (item, field, exam_type) => {
-    let stages; 
-    if (exam_type === 'shorthand') {
+    let stages;
+    if (exam_type === 'shorthand') { // GCC
         stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time', 'audio2_time', 'passage2_time', 'feedback_time'];
     } else if (exam_type === 'typewriting') {
         stages = ['loginTime', 'trial_passage_time', 'typing_passage_time', 'feedback_time'];
-    }else {
-       stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time', 'audio2_time', 'passage2_time', 'feedback_time'];
+    } else { // SKILL
+        stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time', 'trial_passage_time', 'typing_passage_time', 'feedback_time'];
     }
     const currentStageIndex = stages.indexOf(field);
-    
+
     if (currentStageIndex === -1) return '';
-    
+
     if (field === 'loginTime') {
         return isValidData(item[field]) ? 'dept-cell-green dept-text-white' : 'dept-cell-red dept-text-white';
     }
@@ -56,7 +56,7 @@ const getCellClass = (item, field, exam_type) => {
         } else if (currentStageIndex > 0 && currentStageIndex < stages.length - 1) {
             const prevCellGreen = isValidData(item[stages[currentStageIndex - 1]]);
             const nextCellRed = !isValidData(item[stages[currentStageIndex + 1]]);
-            if (prevCellGreen && nextCellRed ) {
+            if (prevCellGreen && nextCellRed) {
                 return 'dept-cell-yellow dept-text-black';
             } else {
                 return 'dept-cell-green dept-text-white';
@@ -103,28 +103,28 @@ const SuperAdminTrackDashboard = () => {
         if (!dateString || dateString === "invalid date" || dateString === "0") {
             return "";
         }
-        
+
         const dateStr = String(dateString);
         const dateTimeMatch = dateStr.match(/(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}):(\d{2}):?(\d{2})?/);
-        
+
         if (dateTimeMatch) {
             const [, year, month, day, hours, minutes, seconds] = dateTimeMatch;
             const formattedDate = `${day}/${month}/${year}`;
-            
+
             let hour = parseInt(hours, 10);
             const minute = minutes;
             const ampm = hour >= 12 ? 'PM' : 'AM';
-            
+
             if (hour === 0) {
                 hour = 12;
             } else if (hour > 12) {
                 hour = hour - 12;
             }
-            
+
             const formattedTime = `${hour.toString().padStart(2, '0')}:${minute} ${ampm}`;
             return `${formattedDate} ${formattedTime}`;
         }
-        
+
         return dateStr;
     };
 
@@ -132,7 +132,7 @@ const SuperAdminTrackDashboard = () => {
         if (!dateString || dateString === "invalid date" || dateString === "0") {
             return dateString;
         }
-        
+
         try {
             const dateStr = String(dateString);
             const datePart = dateStr.split('T')[0] || dateStr.split(' ')[0];
@@ -156,29 +156,29 @@ const SuperAdminTrackDashboard = () => {
         try {
             console.log("🔍 Fetching filter options...");
             const response = await axios.post(
-                'http://localhost:3000/super-admin-student-track-dashboard', 
+                'http://localhost:3000/super-admin-student-track-dashboard',
                 {}, // Empty request body to get all data
                 { withCredentials: true }
             );
-            
+
             if (response.data && response.data.length > 0) {
                 console.log("📊 Total records received:", response.data.length);
-                
+
                 // Process dates WITHOUT timezone conversion
                 const processedDates = response.data
                     .filter(item => {
                         const date = item.batchdate;
-                        const isValid = date && 
-                                    date !== "invalid date" && 
-                                    date !== "0" && 
-                                    date !== "" &&
-                                    date !== null &&
-                                    date !== undefined;
+                        const isValid = date &&
+                            date !== "invalid date" &&
+                            date !== "0" &&
+                            date !== "" &&
+                            date !== null &&
+                            date !== undefined;
                         return isValid;
                     })
                     .map(item => {
                         const date = item.batchdate;
-                        
+
                         // Handle string dates
                         if (typeof date === 'string') {
                             // If it's already in YYYY-MM-DD format
@@ -191,7 +191,7 @@ const SuperAdminTrackDashboard = () => {
                                 return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
                             }
                         }
-                        
+
                         // Handle Date objects
                         if (date instanceof Date) {
                             const year = date.getFullYear();
@@ -199,7 +199,7 @@ const SuperAdminTrackDashboard = () => {
                             const day = String(date.getDate()).padStart(2, '0');
                             return `${year}-${month}-${day}`;
                         }
-                        
+
                         // Try to parse as date but avoid timezone issues
                         try {
                             const parsed = new Date(date);
@@ -212,14 +212,14 @@ const SuperAdminTrackDashboard = () => {
                         } catch (e) {
                             console.error('Error parsing date:', date, e);
                         }
-                        
+
                         return null;
                     })
                     .filter(date => date !== null);
 
                 const uniqueBatchDates = [...new Set(processedDates)].sort().reverse();
                 setBatchDates(uniqueBatchDates);
-                
+
                 const uniqueBatches = [...new Set(response.data
                     .map(item => item.batchNo)
                     .filter(batch => batch && batch !== "" && batch !== null && batch !== undefined)
@@ -291,7 +291,7 @@ const SuperAdminTrackDashboard = () => {
             console.log('🔢 Fetching login count with filters:', requestBody);
 
             const response = await axios.post('http://localhost:3000/total-login-count', requestBody, { withCredentials: true });
-            
+
             if (response.data) {
                 console.log('🔢 Login count response:', response.data);
                 setTotal_login_count(response.data.total_count);
@@ -306,13 +306,13 @@ const SuperAdminTrackDashboard = () => {
     const fetchDataWithFilters = async (filters) => {
         setLoading(true);
         setError('');
-        
+
         console.log("🔍 fetchDataWithFilters called with:", filters);
 
         try {
             // Build request body
             const requestBody = {};
-            
+
             if (filters.subject && filters.subject.trim()) {
                 requestBody.subject_name = filters.subject.trim();
             }
@@ -341,20 +341,20 @@ const SuperAdminTrackDashboard = () => {
                 trimmed: filters.batchNo ? filters.batchNo.trim() : 'undefined',
                 inRequestBody: requestBody.batchNo
             });
-            
+
             const response = await axios.post(
                 'http://localhost:3000/super-admin-student-track-dashboard',
                 requestBody,
-                { 
+                {
                     withCredentials: true,
                     headers: {
                         'Content-Type': 'application/json'
                     }
                 }
             );
-            
+
             console.log("📨 Response:", response.data.length, "records");
-            
+
             setData(response.data);
             setTotalPages(Math.ceil(response.data.length / rowsPerPage));
 
@@ -409,7 +409,7 @@ const SuperAdminTrackDashboard = () => {
     // Filter change handlers
     const handleFilterChange = (filterName, value) => {
         console.log(`🔍 Filter changed: ${filterName} = ${value}`);
-        
+
         // Update individual state immediately
         switch (filterName) {
             case 'batchNo': setBatchNo(value); break;
@@ -420,20 +420,20 @@ const SuperAdminTrackDashboard = () => {
             case 'center': setCenter(value); break;
             case 'departmentId': setDepartmentId(value); break;
         }
-        
+
         // Create new filters object with the updated value
         const newFilters = {
             ...currentFilters,
             [filterName]: value
         };
-        
+
         console.log(`🔍 New filters object:`, newFilters);
-        
+
         setCurrentFilters(newFilters);
-        
+
         // Reset to first page when filters change
         setCurrentPage(1);
-        
+
         // Use the new filters directly instead of state
         setTimeout(() => {
             fetchDataWithFilters(newFilters); // Pass filters directly
@@ -450,7 +450,7 @@ const SuperAdminTrackDashboard = () => {
         setBatchDate('');
         setCenter('');
         setDepartmentId('');
-        
+
         const emptyFilters = {
             batchNo: '',
             subject: '',
@@ -460,10 +460,10 @@ const SuperAdminTrackDashboard = () => {
             center: '',
             departmentId: ''
         };
-        
+
         setCurrentFilters(emptyFilters);
         setCurrentPage(1);
-        
+
         // Fetch data without any filters
         setTimeout(() => {
             fetchDataWithFilters(emptyFilters);
@@ -630,17 +630,17 @@ const SuperAdminTrackDashboard = () => {
                             </select>
                         </div>
                         <div className="dept-col-md-3 dept-col-sm-6 mb-2">
-                            <label htmlFor="examStatus" className="dept-form-label">Exam Status:</label>
+                            <label htmlFor="examStatus" className="dept-form-label">Exam Type:</label>
                             <select
                                 className="dept-form-select"
                                 id="examStatus"
                                 value={exam_type}
                                 onChange={(e) => handleFilterChange('exam_type', e.target.value)}
                             >
-                                <option value="">All</option>
-                                <option value="shorthand">Short Hand</option>
-                                <option value="typewriting">Type Writing</option>
-                                <option value="both">Both</option>
+                                <option value="">GCC (Default)</option>
+                                <option value="shorthand">GCC</option>
+                                <option value="typewriting">SKILL</option>
+                                <option value="both">Both (Legacy)</option>
                             </select>
                         </div>
                     </div>
@@ -743,16 +743,16 @@ const SuperAdminTrackDashboard = () => {
                                         <th style={{ width: '8%' }}>Center</th>
                                         <th style={{ width: '12%' }}>Seat No</th>
                                         <th>Login</th>
-                                        {exam_type !== 'typewriting' && <th>Trial</th>}
-                                        {exam_type !== 'typewriting' && (
+                                        <th>Trial</th>
+                                        <th>Audio Track A</th>
+                                        <th>Passage A</th>
+                                        {(exam_type === 'shorthand' || exam_type === '') && (
                                             <>
-                                                <th>Audio Track A</th>
-                                                <th>Passage A</th>
                                                 <th>Audio Track B</th>
                                                 <th>Passage B</th>
                                             </>
                                         )}
-                                        {exam_type !== 'shorthand' && (
+                                        {(exam_type === 'typewriting' || exam_type === 'both') && (
                                             <>
                                                 <th>Trial Typing</th>
                                                 <th>Typing Test</th>
@@ -773,8 +773,12 @@ const SuperAdminTrackDashboard = () => {
                                                 <>
                                                     <td className={getCellClass(item, 'audio1_time', exam_type)}>{formatDate(item.audio1_time)}</td>
                                                     <td className={getCellClass(item, 'passage1_time', exam_type)}>{formatDate(item.passage1_time)}</td>
-                                                    <td className={getCellClass(item, 'audio2_time', exam_type)}>{formatDate(item.audio2_time)}</td>
-                                                    <td className={getCellClass(item, 'passage2_time', exam_type)}>{formatDate(item.passage2_time)}</td>
+                                                    {exam_type === 'shorthand' && (
+                                                        <>
+                                                            <td className={getCellClass(item, 'audio2_time', exam_type)}>{formatDate(item.audio2_time)}</td>
+                                                            <td className={getCellClass(item, 'passage2_time', exam_type)}>{formatDate(item.passage2_time)}</td>
+                                                        </>
+                                                    )}
                                                 </>
                                             )}
                                             {exam_type !== 'shorthand' && (

@@ -10,14 +10,14 @@
 //     if (!value || value === "invalid date" || value === "0" || value === "" || value === null || value === undefined) {
 //         return false;
 //     }
-    
+
 //     // If it's already a formatted string with time, consider it valid
 //     // Pattern: DD/MM/YYYY HH:MM AM/PM
 //     const formattedPattern = /^\d{1,2}\/\d{1,2}\/\d{4}\s\d{1,2}:\d{2}\s(AM|PM)$/;
 //     if (formattedPattern.test(value)) {
 //         return true;
 //     }
-    
+
 //     // For other formats, try to parse as date
 //     try {
 //         const date = new Date(value);
@@ -331,7 +331,7 @@
 //     try {
 //       // FIXED: Always use the student tracking endpoint with proper batch handling
 //       let url = "http://localhost:3000/track-students-on-exam-center-code/";
-      
+
 //       // If batchNo is selected, use it; otherwise, use "all" to get all batches
 //       if (filters.batchNo && filters.batchNo.trim() !== "") {
 //         url += filters.batchNo;
@@ -344,7 +344,7 @@
 //       if (filters.loginStatus) params.append("loginStatus", filters.loginStatus);
 //       if (filters.exam_type) params.append("exam_type", filters.exam_type);
 //       if (filters.departmentId) params.append("departmentId", filters.departmentId);
-      
+
 //       if (filters.batchDate) {
 //         const dateParts = filters.batchDate.split("-");
 //         const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
@@ -363,7 +363,7 @@
 
 //       setData(response.data);
 //       setTotalPages(Math.ceil(response.data.length / (rowsPerPage === "all" ? response.data.length : rowsPerPage)));
-      
+
 //       calculateTotalLoginCount(response.data);
 
 //       if (!preserveFilters) {
@@ -427,7 +427,7 @@
 //       departmentId: filterName === "departmentId" ? value : departmentId,
 //       batchDate: filterName === "batchDate" ? value : batchDate,
 //     };
-    
+
 //     setCurrentFilters(newFilters);
 
 //     setTimeout(() => {
@@ -443,7 +443,7 @@
 //     try {
 //       // FIXED: Use the same URL construction logic as fetchData
 //       let url = "http://localhost:3000/track-students-on-exam-center-code/";
-      
+
 //       // If batchNo is selected, use it; otherwise, use "all"
 //       if (filters.batchNo && filters.batchNo.trim() !== "") {
 //         url += filters.batchNo;
@@ -456,7 +456,7 @@
 //       if (filters.loginStatus) params.append("loginStatus", filters.loginStatus);
 //       if (filters.exam_type) params.append("exam_type", filters.exam_type);
 //       if (filters.departmentId) params.append("departmentId", filters.departmentId);
-      
+
 //       if (filters.batchDate) {
 //         const dateParts = filters.batchDate.split("-");
 //         const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
@@ -474,7 +474,7 @@
 
 //       setData(response.data);
 //       setTotalPages(Math.ceil(response.data.length / (rowsPerPage === "all" ? response.data.length : rowsPerPage)));
-      
+
 //       calculateTotalLoginCount(response.data);
 
 //     } catch (error) {
@@ -582,7 +582,7 @@
 
 //     const totalPagesCount = Math.ceil(data.length / parseInt(rowsPerPage));
 //     const pageNumbers = [];
-    
+
 //     if (totalPagesCount <= 5) {
 //       for (let i = 1; i <= totalPagesCount; i++) {
 //         pageNumbers.push(i);
@@ -701,7 +701,7 @@
 //                   handleFilterChange("exam_type", e.target.value)
 //                 }
 //               >
-                
+
 //                 <option value="shorthand">Short Hand</option>
 //                 <option value="typewriting">Type Writing</option>
 //                 <option value="both">Both</option>
@@ -1141,12 +1141,12 @@ const isValidData = (value) => {
 
 const getCellClass = (item, field, exam_type, classes) => {
   let stages;
-  if (exam_type === "shorthand") {
-    stages = ["loginTime", "trial_time", "audio1_time", "passage1_time", "feedback_time"];
+  if (exam_type === "shorthand") { // GCC
+    stages = ["loginTime", "trial_time", "audio1_time", "passage1_time", "audio2_time", "passage2_time", "feedback_time"];
   } else if (exam_type === "typewriting") {
     stages = ["loginTime", "trial_passage_time", "typing_passage_time", "feedback_time"];
-  } else {
-    stages = ["loginTime", "trial_time", "audio1_time", "passage1_time", "feedback_time"];
+  } else { // SKILL
+    stages = ["loginTime", "trial_time", "audio1_time", "passage1_time", "trial_passage_time", "typing_passage_time", "feedback_time"];
   }
   const currentStageIndex = stages.indexOf(field);
 
@@ -1697,9 +1697,10 @@ const StudentTable = () => {
                     onChange={(e) => handleFilterChange("exam_type", e.target.value)}
                     label="Exam Type"
                   >
-                    <MenuItem value="shorthand">Short Hand</MenuItem>
-                    <MenuItem value="typewriting">Type Writing</MenuItem>
-                    <MenuItem value="both">Both</MenuItem>
+                    <MenuItem value="">GCC (Default)</MenuItem>
+                    <MenuItem value="shorthand">GCC</MenuItem>
+                    <MenuItem value="typewriting">SKILL</MenuItem>
+                    <MenuItem value="both">Both (Legacy)</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
@@ -1843,16 +1844,20 @@ const StudentTable = () => {
                     <TableCell className={classes.tableHeader}>Department</TableCell>
                     <TableCell className={classes.tableHeader}>Seat No</TableCell>
                     <TableCell className={classes.tableHeader}>Login</TableCell>
-                    {filters.exam_type !== "typewriting" && (
-                      <TableCell className={classes.tableHeader}>Trial</TableCell>
-                    )}
-                    {filters.exam_type !== "typewriting" && (
+                    {/* Always show Trial, Audio A, Passage A as they are common now (Trial Typing replaces Trial in SKILL? No, User said SKILL has Trial + TrialTyping?)
+                        Step 85: SKILL: Login,Trial,AudioTrackA,PassageA,TrialTyping,TypingTest,Feedback
+                        GCC: Login,Trial,AudioTrackA,PassageA,AudioTrackB,PassageB,Feedback
+                    */}
+                    <TableCell className={classes.tableHeader}>Trial</TableCell>
+                    <TableCell className={classes.tableHeader}>Audio Track A</TableCell>
+                    <TableCell className={classes.tableHeader}>Passage A</TableCell>
+                    {(filters.exam_type === "shorthand" || filters.exam_type === "") && (
                       <>
-                        <TableCell className={classes.tableHeader}>Audio Track A</TableCell>
-                        <TableCell className={classes.tableHeader}>Passage A</TableCell>
+                        <TableCell className={classes.tableHeader}>Audio Track B</TableCell>
+                        <TableCell className={classes.tableHeader}>Passage B</TableCell>
                       </>
                     )}
-                    {filters.exam_type !== "shorthand" && (
+                    {(filters.exam_type === "typewriting" || filters.exam_type === "both") && (
                       <>
                         <TableCell className={classes.tableHeader}>Trial Typing</TableCell>
                         <TableCell className={classes.tableHeader}>Typing Test</TableCell>
@@ -1884,6 +1889,16 @@ const StudentTable = () => {
                           <TableCell className={getCellClass(item, "passage1_time", filters.exam_type, classes)}>
                             {formatDate(item.passage1_time)}
                           </TableCell>
+                          {filters.exam_type === "shorthand" && (
+                            <>
+                              <TableCell className={getCellClass(item, "audio2_time", filters.exam_type, classes)}>
+                                {formatDate(item.audio2_time)}
+                              </TableCell>
+                              <TableCell className={getCellClass(item, "passage2_time", filters.exam_type, classes)}>
+                                {formatDate(item.passage2_time)}
+                              </TableCell>
+                            </>
+                          )}
                         </>
                       )}
                       {filters.exam_type !== "shorthand" && (

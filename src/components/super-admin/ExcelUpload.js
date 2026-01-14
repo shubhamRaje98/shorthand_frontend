@@ -84,9 +84,9 @@
 //     try {
 //       setLoading(true);
 //       setProcessingStep('Loading available tables...');
-      
+
 //       const response = await axios.get('http://localhost:3000/api/excel/available-tables');
-      
+
 //       if (response.data.success) {
 //         setAvailableTables(response.data.tables);
 //         console.log(`[INFO] Loaded ${response.data.count} tables`);
@@ -113,9 +113,9 @@
 //     try {
 //       setLoadingSchema(true);
 //       console.log(`[INFO] Fetching schema for table: ${tableName}`);
-      
+
 //       const response = await axios.get(`http://localhost:3000/api/excel/table-schema/${tableName}`);
-      
+
 //       if (response.data.success) {
 //         setTableSchema(response.data);
 //         console.log(`[INFO] Schema loaded for ${tableName}:`, response.data.summary);
@@ -146,7 +146,7 @@
 //     // File type validation
 //     const allowedTypes = ['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
 //     const fileExtension = file.name.split('.').pop().toLowerCase();
-    
+
 //     if (!allowedTypes.includes(file.type) && !['xlsx', 'xls'].includes(fileExtension)) {
 //       validation.valid = false;
 //       validation.errors.push('Invalid file type. Only Excel files (.xlsx, .xls) are allowed.');
@@ -200,7 +200,7 @@
 //       try {
 //         const data = new Uint8Array(e.target.result);
 //         const workbook = XLSX.read(data, { type: 'array' });
-        
+
 //         if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
 //           setError('Excel file contains no sheets');
 //           return;
@@ -208,7 +208,7 @@
 
 //         const firstSheet = workbook.SheetNames[0];
 //         const worksheet = workbook.Sheets[firstSheet];
-        
+
 //         // Enhanced preview with better data handling
 //         const excelData = XLSX.utils.sheet_to_json(worksheet, { 
 //           header: 1,
@@ -224,9 +224,9 @@
 //         // Show preview of first 6 rows (header + 5 data rows)
 //         const previewRows = excelData.slice(0, 6);
 //         setPreviewData(previewRows);
-        
+
 //         console.log(`[INFO] Excel preview loaded: ${excelData.length} total rows, showing ${previewRows.length}`);
-        
+
 //       } catch (error) {
 //         console.error('Error reading Excel file:', error);
 //         setError('Failed to read Excel file. Please ensure it\'s a valid Excel format.');
@@ -303,9 +303,9 @@
 //         setUploadProgress(100);
 //         const summary = response.data.summary;
 //         setUploadSummary(summary);
-        
+
 //         let successMessage = `✅ Excel data uploaded successfully! ${summary.insertedRecords} records inserted into "${summary.targetTable}" table.`;
-        
+
 //         // Add warnings about empty rows or incomplete data
 //         if (summary.emptyRowsSkipped > 0) {
 //           successMessage += ` (${summary.emptyRowsSkipped} empty rows were skipped)`;
@@ -313,9 +313,9 @@
 //         if (summary.incompleteDataRows > 0) {
 //           successMessage += ` (${summary.incompleteDataRows} rows had incomplete data but were processed)`;
 //         }
-        
+
 //         setSuccess(successMessage);
-        
+
 //         // Reset form after successful upload
 //         setTimeout(() => {
 //           setExcelFile(null);
@@ -327,15 +327,15 @@
 //           const fileInput = document.querySelector('input[type="file"]');
 //           if (fileInput) fileInput.value = '';
 //         }, 2000);
-        
+
 //       } else {
 //         setError(ERROR_MESSAGES[response.data.code] || `Upload failed: ${response.data.error}`);
 //       }
-      
+
 //     } catch (error) {
 //       console.error('Error uploading file:', error);
 //       setUploadProgress(0);
-      
+
 //       const errorData = error.response?.data;
 //       const errorCode = errorData?.code;
 
@@ -368,7 +368,7 @@
 //         if (success) setSuccess(null);
 //         if (error) setError(null);
 //       }, success ? 10000 : 8000); // Success messages stay longer
-      
+
 //       return () => clearTimeout(timer);
 //     }
 //   }, [success, error]);
@@ -860,7 +860,7 @@
 //         {duplicateDetails && (
 //           <div className="mt-4">
 //             <h5><FaCopy className="me-2" />Duplicate Entry Details</h5>
-            
+
 //             {duplicateDetails.databaseDuplicates.length > 0 && (
 //               <Card className="mb-3">
 //                 <Card.Header className="bg-danger text-white">
@@ -933,7 +933,7 @@
 //           )}
 //         </Alert>
 //       )}
-      
+
 //       {success && (
 //         <Alert variant="success" className="d-flex align-items-center shadow-sm">
 //           <FaCheckCircle className="me-2 flex-shrink-0" />
@@ -1007,7 +1007,7 @@
 //                       </ul>
 //                     </Alert>
 //                   )}
-                  
+
 //                   {fileValidation.warnings.length > 0 && (
 //                     <Alert variant="warning" className="py-2">
 //                       <FaExclamationTriangle className="me-2" />
@@ -1159,7 +1159,7 @@
 //                     <small className="text-muted">Choose Excel file (.xlsx/.xls, max 10MB)</small>
 //                   </div>
 //                 </ListGroup.Item>
-                
+
 //                 <ListGroup.Item className="d-flex align-items-start">
 //                   <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style={{width: '30px', height: '30px', fontSize: '14px'}}>2</div>
 //                   <div>
@@ -1167,7 +1167,7 @@
 //                     <small className="text-muted">Choose table and review required fields</small>
 //                   </div>
 //                 </ListGroup.Item>
-                
+
 //                 <ListGroup.Item className="d-flex align-items-start">
 //                   <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style={{width: '30px', height: '30px', fontSize: '14px'}}>3</div>
 //                   <div>
@@ -1175,7 +1175,7 @@
 //                     <small className="text-muted">Ensure Excel columns match table fields</small>
 //                   </div>
 //                 </ListGroup.Item>
-                
+
 //                 <ListGroup.Item className="d-flex align-items-start">
 //                   <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style={{width: '30px', height: '30px', fontSize: '14px'}}>4</div>
 //                   <div>
@@ -1231,7 +1231,7 @@
 
 //       {/* Validation Details Modal */}
 //       <ValidationErrorsModal />
-      
+
 //       {/* NEW: Complete Table Schema Modal */}
 //       <TableSchemaModal />
 
@@ -1322,13 +1322,13 @@
 // src/components/super-admin/ExcelUpload.js
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { 
-  Button, 
-  Card, 
-  Container, 
-  Row, 
-  Col, 
-  Form, 
+import {
+  Button,
+  Card,
+  Container,
+  Row,
+  Col,
+  Form,
   Spinner,
   Alert,
   ListGroup,
@@ -1340,10 +1340,10 @@ import {
   Tab,
   Accordion
 } from 'react-bootstrap';
-import { 
-  FaFileExcel, 
-  FaUpload, 
-  FaCheck, 
+import {
+  FaFileExcel,
+  FaUpload,
+  FaCheck,
   FaInfoCircle,
   FaDatabase,
   FaExclamationTriangle,
@@ -1410,9 +1410,9 @@ function ExcelUpload() {
     try {
       setLoading(true);
       setProcessingStep('Loading available tables...');
-      
+
       const response = await axios.get('http://localhost:3000/api/excel/available-tables');
-      
+
       if (response.data.success) {
         setAvailableTables(response.data.tables);
         console.log(`[INFO] Loaded ${response.data.count} tables`);
@@ -1439,9 +1439,9 @@ function ExcelUpload() {
     try {
       setLoadingSchema(true);
       console.log(`[INFO] Fetching schema for table: ${tableName}`);
-      
+
       const response = await axios.get(`http://localhost:3000/api/excel/table-schema/${tableName}`);
-      
+
       if (response.data.success) {
         setTableSchema(response.data);
         console.log(`[INFO] Schema loaded for ${tableName}:`, response.data.summary);
@@ -1465,7 +1465,7 @@ function ExcelUpload() {
   const validateExcelDataFrontend = (excelData, requiredFields) => {
     const errors = [];
     const fieldErrors = {};
-    
+
     // Initialize field error counters
     requiredFields.forEach(field => {
       fieldErrors[field] = 0;
@@ -1493,29 +1493,29 @@ function ExcelUpload() {
     dataRows.forEach((row, index) => {
       const rowNumber = index + 2; // Excel row number (accounting for header)
       const missingFields = [];
-      
+
       // Check if entire row is empty
-      const isRowEmpty = row.every(cell => 
-        cell === null || cell === undefined || cell === '' || 
+      const isRowEmpty = row.every(cell =>
+        cell === null || cell === undefined || cell === '' ||
         (typeof cell === 'string' && cell.trim() === '')
       );
 
       if (isRowEmpty) {
         return; // Skip completely empty rows
       }
-      
+
       // Check each required field
       requiredFields.forEach(fieldName => {
-        const columnIndex = headers.findIndex(h => 
+        const columnIndex = headers.findIndex(h =>
           h && h.toString().toLowerCase() === fieldName.toLowerCase()
         );
-        
+
         if (columnIndex !== -1) {
           const cellValue = row[columnIndex];
-          
+
           // Check if cell is empty or contains only whitespace
-          if (cellValue === null || cellValue === undefined || cellValue === '' || 
-              (typeof cellValue === 'string' && cellValue.trim() === '')) {
+          if (cellValue === null || cellValue === undefined || cellValue === '' ||
+            (typeof cellValue === 'string' && cellValue.trim() === '')) {
             missingFields.push(fieldName);
             fieldErrors[fieldName]++;
           }
@@ -1531,7 +1531,7 @@ function ExcelUpload() {
         // Create an identifier from available data
         const identifier = row[0] || row[1] || 'N/A';
         const name = row[1] || row[2] || 'Unknown';
-        
+
         errors.push({
           rowNumber,
           identifier: String(identifier).substring(0, 30), // Truncate long IDs
@@ -1540,7 +1540,7 @@ function ExcelUpload() {
         });
       }
     });
-    
+
     // Calculate summary
     const summary = {
       totalRows: dataRows.length,
@@ -1555,13 +1555,13 @@ function ExcelUpload() {
         }))
         .sort((a, b) => b.count - a.count)
     };
-    
+
     console.log('✅ Frontend validation complete:', summary);
-    
-    return { 
-      errors, 
-      summary, 
-      isValid: errors.length === 0 
+
+    return {
+      errors,
+      summary,
+      isValid: errors.length === 0
     };
   };
 
@@ -1576,7 +1576,7 @@ function ExcelUpload() {
     // File type validation
     const allowedTypes = ['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
     const fileExtension = file.name.split('.').pop().toLowerCase();
-    
+
     if (!allowedTypes.includes(file.type) && !['xlsx', 'xls'].includes(fileExtension)) {
       validation.valid = false;
       validation.errors.push('Invalid file type. Only Excel files (.xlsx, .xls) are allowed.');
@@ -1632,7 +1632,7 @@ function ExcelUpload() {
       try {
         const data = new Uint8Array(e.target.result);
         const workbook = XLSX.read(data, { type: 'array' });
-        
+
         if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
           setError('Excel file contains no sheets');
           return;
@@ -1640,9 +1640,32 @@ function ExcelUpload() {
 
         const firstSheet = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheet];
-        
+
+        console.log('[DEBUG] Auto-Select Check: Sheet Name =', firstSheet);
+        console.log('[DEBUG] Available Tables:', availableTables.map(t => typeof t === 'string' ? t : t.tableName));
+
+        // AUTO-SELECT TABLE based on Sheet Name (User Request)
+        if (availableTables && availableTables.length > 0) {
+          const matchingTable = availableTables.find(t => {
+            const tName = typeof t === 'string' ? t : t.tableName;
+            // Normalize names: lowercase and remove all spaces
+            const normalizedTName = tName.toLowerCase().replace(/\s+/g, '');
+            const normalizedSheetName = firstSheet.toLowerCase().replace(/\s+/g, '');
+
+            return normalizedTName === normalizedSheetName;
+          });
+
+          if (matchingTable) {
+            const tableName = typeof matchingTable === 'string' ? matchingTable : matchingTable.tableName;
+            console.log(`[INFO] Auto-selecting table '${tableName}' from sheet name '${firstSheet}'`);
+            handleTableSelection(tableName);
+          } else {
+            console.log(`[INFO] No matching table found for sheet '${firstSheet}'`);
+          }
+        }
+
         // Enhanced preview with better data handling
-        const excelData = XLSX.utils.sheet_to_json(worksheet, { 
+        const excelData = XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
           defval: '',
           raw: false,
@@ -1657,20 +1680,20 @@ function ExcelUpload() {
         // Show preview of first 6 rows (header + 5 data rows)
         const previewRows = excelData.slice(0, 6);
         setPreviewData(previewRows);
-        
+
         console.log(`[INFO] Excel preview loaded: ${excelData.length} total rows, showing ${previewRows.length}`);
-        
+
         // ✅ NEW: Validate data if table schema is available
         if (tableSchema && tableSchema.categorized) {
           const requiredFields = tableSchema.categorized.required || [];
           const requiredFieldNames = requiredFields.map(f => f.name);
-          
+
           if (requiredFieldNames.length > 0) {
             console.log('🔍 Validating Excel data for required fields:', requiredFieldNames);
-            
+
             const frontendValidation = validateExcelDataFrontend(excelData, requiredFieldNames);
             setFrontendValidationData(frontendValidation);
-            
+
             if (!frontendValidation.isValid) {
               setShowFrontendValidationModal(true);
               setError(
@@ -1684,7 +1707,7 @@ function ExcelUpload() {
             }
           }
         }
-        
+
       } catch (error) {
         console.error('Error reading Excel file:', error);
         setError('Failed to read Excel file. Please ensure it\'s a valid Excel format.');
@@ -1708,7 +1731,7 @@ function ExcelUpload() {
     // Reset validation when changing tables
     setFrontendValidationData(null);
     setShowFrontendValidationModal(false);
-    
+
     if (tableName) {
       fetchTableSchema(tableName);
     } else {
@@ -1752,8 +1775,8 @@ function ExcelUpload() {
       setUploadProgress(25);
 
       const response = await axios.post(
-        'http://localhost:3000/api/excel/upload-excel-data', 
-        formData, 
+        'http://localhost:3000/api/excel/upload-excel-data',
+        formData,
         {
           headers: {
             'Content-Type': 'multipart/form-data'
@@ -1772,9 +1795,9 @@ function ExcelUpload() {
         setUploadProgress(100);
         const summary = response.data.summary;
         setUploadSummary(summary);
-        
+
         let successMessage = `✅ Excel data uploaded successfully! ${summary.insertedRecords} records inserted into "${summary.targetTable}" table.`;
-        
+
         // Add warnings about empty rows or incomplete data
         if (summary.emptyRowsSkipped > 0) {
           successMessage += ` (${summary.emptyRowsSkipped} empty rows were skipped)`;
@@ -1782,9 +1805,9 @@ function ExcelUpload() {
         if (summary.incompleteDataRows > 0) {
           successMessage += ` (${summary.incompleteDataRows} rows had incomplete data but were processed)`;
         }
-        
+
         setSuccess(successMessage);
-        
+
         // Reset form after successful upload
         setTimeout(() => {
           setExcelFile(null);
@@ -1797,15 +1820,15 @@ function ExcelUpload() {
           const fileInput = document.querySelector('input[type="file"]');
           if (fileInput) fileInput.value = '';
         }, 2000);
-        
+
       } else {
         setError(ERROR_MESSAGES[response.data.code] || `Upload failed: ${response.data.error}`);
       }
-      
+
     } catch (error) {
       console.error('Error uploading file:', error);
       setUploadProgress(0);
-      
+
       const errorData = error.response?.data;
       const errorCode = errorData?.code;
 
@@ -1838,7 +1861,7 @@ function ExcelUpload() {
         if (success) setSuccess(null);
         if (error) setError(null);
       }, success ? 10000 : 8000); // Success messages stay longer
-      
+
       return () => clearTimeout(timer);
     }
   }, [success, error]);
@@ -1890,9 +1913,9 @@ function ExcelUpload() {
             <Badge bg="light" text="dark" className="me-2">
               {summary.totalFields} total
             </Badge>
-            <Button 
-              variant="outline-light" 
-              size="sm" 
+            <Button
+              variant="outline-light"
+              size="sm"
               onClick={() => setShowSchemaModal(true)}
             >
               <FaEye className="me-1" /> View All
@@ -1912,7 +1935,7 @@ function ExcelUpload() {
                   {categorized.required.slice(0, 5).map((field, index) => (
                     <ListGroup.Item key={index} className="py-1 px-0 border-0">
                       <Badge bg="danger" className="me-2">
-                        <FaAsterisk className="me-1" style={{fontSize: '8px'}} />
+                        <FaAsterisk className="me-1" style={{ fontSize: '8px' }} />
                         Required
                       </Badge>
                       <code>{field.name}</code>
@@ -1951,7 +1974,7 @@ function ExcelUpload() {
                       <code>{field.name}</code>
                       <small className="text-muted ms-2">({field.dataType})</small>
                       {field.hasDefault && (
-                        <Badge bg="secondary" className="ms-2" style={{fontSize: '10px'}}>
+                        <Badge bg="secondary" className="ms-2" style={{ fontSize: '10px' }}>
                           Default
                         </Badge>
                       )}
@@ -2005,7 +2028,7 @@ function ExcelUpload() {
 
           <Alert variant="info" className="mt-3 mb-0">
             <FaInfoCircle className="me-2" />
-            <strong>Excel Tip:</strong> Your Excel file should include columns with these exact field names. 
+            <strong>Excel Tip:</strong> Your Excel file should include columns with these exact field names.
             Required fields must have data in every row.
           </Alert>
         </Card.Body>
@@ -2042,7 +2065,7 @@ function ExcelUpload() {
                       <td>
                         <code>{field.name}</code>
                         {field.isPrimary && (
-                          <Badge bg="warning" className="ms-2" style={{fontSize: '10px'}}>
+                          <Badge bg="warning" className="ms-2" style={{ fontSize: '10px' }}>
                             <FaKey className="me-1" />PK
                           </Badge>
                         )}
@@ -2071,7 +2094,7 @@ function ExcelUpload() {
                       </td>
                       <td>
                         <small className="text-muted">
-                          {field.references && 
+                          {field.references &&
                             `References ${field.references.table}(${field.references.column})`
                           }
                           {field.isAutoIncrement && ' Auto-increment'}
@@ -2104,7 +2127,7 @@ function ExcelUpload() {
                       <td>{field.maxLength || 'N/A'}</td>
                       <td>
                         <small>
-                          {field.references ? 
+                          {field.references ?
                             `Must reference ${field.references.table}.${field.references.column}` :
                             'Required field'
                           }
@@ -2143,7 +2166,7 @@ function ExcelUpload() {
                       </td>
                       <td>
                         <small>
-                          {field.references ? 
+                          {field.references ?
                             `Can reference ${field.references.table}.${field.references.column}` :
                             'Optional field'
                           }
@@ -2230,13 +2253,13 @@ function ExcelUpload() {
                     <tr key={index}>
                       <td><strong>{missing.rowNumber}</strong></td>
                       <td>
-                        <div className="text-wrap" style={{maxWidth: '300px'}}>
+                        <div className="text-wrap" style={{ maxWidth: '300px' }}>
                           {missing.missingFields.join(', ')}
                         </div>
                       </td>
                       <td>
-                        <ProgressBar 
-                          now={missing.completenessPercentage} 
+                        <ProgressBar
+                          now={missing.completenessPercentage}
                           label={`${missing.completenessPercentage}%`}
                           variant={missing.completenessPercentage > 70 ? 'success' : 'warning'}
                           size="sm"
@@ -2305,16 +2328,16 @@ function ExcelUpload() {
                     <Card.Body>
                       <div className="mb-2">
                         <small>Success Rate:</small>
-                        <ProgressBar 
-                          now={(validationDetails.summary.validRows / validationDetails.summary.totalRows) * 100} 
+                        <ProgressBar
+                          now={(validationDetails.summary.validRows / validationDetails.summary.totalRows) * 100}
                           label={`${Math.round((validationDetails.summary.validRows / validationDetails.summary.totalRows) * 100)}%`}
                           variant="success"
                         />
                       </div>
                       <div>
                         <small>Error Rate:</small>
-                        <ProgressBar 
-                          now={(validationDetails.summary.errorRows / validationDetails.summary.totalRows) * 100} 
+                        <ProgressBar
+                          now={(validationDetails.summary.errorRows / validationDetails.summary.totalRows) * 100}
                           label={`${Math.round((validationDetails.summary.errorRows / validationDetails.summary.totalRows) * 100)}%`}
                           variant="danger"
                         />
@@ -2330,7 +2353,7 @@ function ExcelUpload() {
         {duplicateDetails && (
           <div className="mt-4">
             <h5><FaCopy className="me-2" />Duplicate Entry Details</h5>
-            
+
             {duplicateDetails.databaseDuplicates.length > 0 && (
               <Card className="mb-3">
                 <Card.Header className="bg-danger text-white">
@@ -2392,9 +2415,9 @@ function ExcelUpload() {
             <div>{error}</div>
           </div>
           {(validationDetails || duplicateDetails || frontendValidationData) && (
-            <Button 
-              variant="outline-danger" 
-              size="sm" 
+            <Button
+              variant="outline-danger"
+              size="sm"
               onClick={() => {
                 if (frontendValidationData && !frontendValidationData.isValid) {
                   setShowFrontendValidationModal(true);
@@ -2409,15 +2432,15 @@ function ExcelUpload() {
           )}
         </Alert>
       )}
-      
+
       {success && (
         <Alert variant="success" className="d-flex align-items-center shadow-sm">
           <FaCheckCircle className="me-2 flex-shrink-0" />
           <div className="flex-grow-1">{success}</div>
           {uploadSummary && (
-            <Button 
-              variant="outline-success" 
-              size="sm" 
+            <Button
+              variant="outline-success"
+              size="sm"
               onClick={() => setShowDetailsModal(true)}
               className="ms-2"
             >
@@ -2437,12 +2460,12 @@ function ExcelUpload() {
 
       {/* Upload Progress */}
       {loading && uploadProgress > 0 && (
-        <ProgressBar 
-          now={uploadProgress} 
+        <ProgressBar
+          now={uploadProgress}
           label={`${uploadProgress}%`}
           className="mb-3"
-          striped 
-          animated 
+          striped
+          animated
         />
       )}
 
@@ -2450,16 +2473,16 @@ function ExcelUpload() {
         <Col lg={8}>
           {/* Main Upload Card */}
           <Card className="mb-4 shadow">
-            <Card.Header className="bg-gradient" style={{background: 'linear-gradient(135deg, #007bff 0%, #0056b3 100%)', color: 'black'}}>
+            <Card.Header className="bg-gradient" style={{ background: 'linear-gradient(135deg, #007bff 0%, #0056b3 100%)', color: 'black' }}>
               <FaCloudUploadAlt className="me-2" />
               Upload Excel File to Database
             </Card.Header>
             <Card.Body>
               <Form.Group controlId="formFile" className="mb-3">
                 <Form.Label><strong>Select Excel File</strong></Form.Label>
-                <Form.Control 
-                  type="file" 
-                  accept=".xlsx,.xls" 
+                <Form.Control
+                  type="file"
+                  accept=".xlsx,.xls"
                   onChange={handleFileUpload}
                   disabled={loading}
                   className="form-control-lg"
@@ -2483,7 +2506,7 @@ function ExcelUpload() {
                       </ul>
                     </Alert>
                   )}
-                  
+
                   {fileValidation.warnings.length > 0 && (
                     <Alert variant="warning" className="py-2">
                       <FaExclamationTriangle className="me-2" />
@@ -2508,7 +2531,7 @@ function ExcelUpload() {
 
               <Form.Group className="mb-4">
                 <Form.Label><strong>Select Target Database Table</strong></Form.Label>
-                <Form.Select 
+                <Form.Select
                   value={selectedTable}
                   onChange={(e) => handleTableSelection(e.target.value)}
                   disabled={loading || availableTables.length === 0}
@@ -2516,8 +2539,8 @@ function ExcelUpload() {
                 >
                   <option value="">Choose database table...</option>
                   {availableTables.map((table, index) => (
-                    <option 
-                      key={index} 
+                    <option
+                      key={index}
                       value={typeof table === 'string' ? table : table.tableName}
                     >
                       {renderTableOption(table)}
@@ -2530,8 +2553,8 @@ function ExcelUpload() {
               </Form.Group>
 
               <div className="d-grid gap-2">
-                <Button 
-                  variant="primary" 
+                <Button
+                  variant="primary"
                   onClick={uploadExcelData}
                   disabled={loading || !excelFile || !selectedTable || !fileValidation?.valid || (frontendValidationData && !frontendValidationData.isValid)}
                   size="lg"
@@ -2573,13 +2596,13 @@ function ExcelUpload() {
                   <Table striped bordered hover size="sm" className="mb-0">
                     <thead className="table-dark sticky-top">
                       <tr>
-                        <th style={{width: '50px'}}>#</th>
+                        <th style={{ width: '50px' }}>#</th>
                         {previewData[0]?.map((header, index) => (
                           <th key={index} className="text-nowrap">
                             {header || `Column ${index + 1}`}
                             {/* Show field requirements based on schema */}
                             {tableSchema && tableSchema.categorized.required.some(field => field.name === header) && (
-                              <FaAsterisk className="text-danger ms-1" style={{fontSize: '8px'}} title="Required field" />
+                              <FaAsterisk className="text-danger ms-1" style={{ fontSize: '8px' }} title="Required field" />
                             )}
                           </th>
                         ))}
@@ -2592,8 +2615,8 @@ function ExcelUpload() {
                           {row.map((cell, cellIndex) => (
                             <td key={cellIndex} className="text-nowrap">
                               {cell ? (
-                                String(cell).length > 50 ? 
-                                  `${String(cell).substring(0, 50)}...` : 
+                                String(cell).length > 50 ?
+                                  `${String(cell).substring(0, 50)}...` :
                                   String(cell)
                               ) : (
                                 <span className="text-muted fst-italic">empty</span>
@@ -2610,7 +2633,7 @@ function ExcelUpload() {
                     <FaInfoCircle className="me-1" />
                     Preview shows first 5 rows. All data will be processed during upload.
                     {tableSchema && (
-                      <> Fields marked with <FaAsterisk className="text-danger" style={{fontSize: '8px'}} /> are required.</>
+                      <> Fields marked with <FaAsterisk className="text-danger" style={{ fontSize: '8px' }} /> are required.</>
                     )}
                   </small>
                 </div>
@@ -2621,7 +2644,7 @@ function ExcelUpload() {
 
         <Col lg={4}>
           {/* Enhanced Instructions */}
-          <Card className="shadow sticky-top" style={{top: '20px'}}>
+          <Card className="shadow sticky-top" style={{ top: '20px' }}>
             <Card.Header className="bg-warning text-dark">
               <FaInfoCircle className="me-2" />
               Upload Process
@@ -2629,41 +2652,41 @@ function ExcelUpload() {
             <Card.Body className="p-0">
               <ListGroup variant="flush">
                 <ListGroup.Item className="d-flex align-items-start">
-                  <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style={{width: '30px', height: '30px', fontSize: '14px'}}>1</div>
+                  <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style={{ width: '30px', height: '30px', fontSize: '14px' }}>1</div>
                   <div>
-                    <strong>File Selection</strong><br/>
+                    <strong>File Selection</strong><br />
                     <small className="text-muted">Choose Excel file (.xlsx/.xls, max 10MB)</small>
                   </div>
                 </ListGroup.Item>
-                
+
                 <ListGroup.Item className="d-flex align-items-start">
-                  <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style={{width: '30px', height: '30px', fontSize: '14px'}}>2</div>
+                  <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style={{ width: '30px', height: '30px', fontSize: '14px' }}>2</div>
                   <div>
-                    <strong>Table Selection</strong><br/>
+                    <strong>Table Selection</strong><br />
                     <small className="text-muted">Choose table and review required fields</small>
                   </div>
                 </ListGroup.Item>
-                
+
                 <ListGroup.Item className="d-flex align-items-start">
-                  <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style={{width: '30px', height: '30px', fontSize: '14px'}}>3</div>
+                  <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style={{ width: '30px', height: '30px', fontSize: '14px' }}>3</div>
                   <div>
-                    <strong>Field Mapping</strong><br/>
+                    <strong>Field Mapping</strong><br />
                     <small className="text-muted">Ensure Excel columns match table fields</small>
                   </div>
                 </ListGroup.Item>
-                
+
                 <ListGroup.Item className="d-flex align-items-start">
-                  <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style={{width: '30px', height: '30px', fontSize: '14px'}}>4</div>
+                  <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style={{ width: '30px', height: '30px', fontSize: '14px' }}>4</div>
                   <div>
-                    <strong>Data Processing</strong><br/>
+                    <strong>Data Processing</strong><br />
                     <small className="text-muted">Duplicate check and type validation</small>
                   </div>
                 </ListGroup.Item>
 
                 <ListGroup.Item className="d-flex align-items-start">
-                  <div className="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style={{width: '30px', height: '30px', fontSize: '14px'}}>5</div>
+                  <div className="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style={{ width: '30px', height: '30px', fontSize: '14px' }}>5</div>
                   <div>
-                    <strong>Database Insert</strong><br/>
+                    <strong>Database Insert</strong><br />
                     <small className="text-muted">Bulk insert with progress tracking</small>
                   </div>
                 </ListGroup.Item>
@@ -2716,7 +2739,7 @@ function ExcelUpload() {
 
       {/* Backend Validation Details Modal */}
       <ValidationErrorsModal />
-      
+
       {/* NEW: Complete Table Schema Modal */}
       <TableSchemaModal />
 
