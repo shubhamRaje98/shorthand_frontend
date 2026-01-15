@@ -76,7 +76,7 @@ function GenerateGccTbcHallTickets() {
       formData.append('excelFile', excelFile);
       
       // Upload file to server directly to localhost:3000
-      const response = await axios.post('https://www.shorthandonlineexam.in/upload-student-data', formData, {
+      const response = await axios.post('http://localhost:3000/upload-student-data', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -201,7 +201,7 @@ function GenerateGccTbcHallTickets() {
       setLoading(true);
       setError(null);
       
-      const url = `https://www.shorthandonlineexam.in/download-student-hall-ticket/${student.seatNo}`;
+      const url = `http://localhost:3000/download-student-hall-ticket/${student.seatNo}`;
       console.log('Generated download URL:', url);
 
       // Open the download URL in a new tab
@@ -238,7 +238,7 @@ function GenerateGccTbcHallTickets() {
       }, 500);
 
       // Open direct download link to localhost:3000
-      window.open('https://www.shorthandonlineexam.in/download-all-hall-tickets', '_blank');
+      window.open('http://localhost:3000/download-all-hall-tickets', '_blank');
       
       // Finish progress after a delay
       setTimeout(() => {

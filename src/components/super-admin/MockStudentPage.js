@@ -17,7 +17,7 @@ const MockStudentPage = () => {
     setLoading(true);
 
     try {
-      const res = await fetch(`https://www.shorthandonlineexam.in/api/${mode}`, {
+      const res = await fetch(`http://localhost:3000/api/${mode}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

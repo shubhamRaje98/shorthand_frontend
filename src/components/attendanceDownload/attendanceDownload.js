@@ -46,8 +46,8 @@ const AttendanceDownload = () => {
   const fetchDepartments = async () => {
     console.log('fetchDepartments called');
     try {
-      console.log('Making request to:', 'https://www.shorthandonlineexam.in/get-active-departments');
-      const response = await axios.get('https://www.shorthandonlineexam.in/get-active-departments');
+      console.log('Making request to:', 'http://localhost:3000/get-active-departments');
+      const response = await axios.get('http://localhost:3000/get-active-departments');
       console.log('Departments response received:', response.data);
       setDepartments(response.data);
     } catch (error) {
@@ -59,7 +59,7 @@ const AttendanceDownload = () => {
 
   const fetchController = async () => {
     try {
-      const response = await axios.post('https://www.shorthandonlineexam.in/get-batch-controller-password', {
+      const response = await axios.post('http://localhost:3000/get-batch-controller-password', {
         batchNo,
         departmentId
       });
@@ -79,7 +79,7 @@ const AttendanceDownload = () => {
     console.log('fetchBatches function called with departmentId:', departmentId);
     try {
       console.log('Making POST request to get batches...');
-      const response = await axios.post('https://www.shorthandonlineexam.in/track-students-on-exam-center-code', {
+      const response = await axios.post('http://localhost:3000/track-students-on-exam-center-code', {
         departmentId
       });
       console.log('Batches response:', response.data);
@@ -104,7 +104,7 @@ const AttendanceDownload = () => {
 
     try {
       const response = await axios({
-        url: `https://www.shorthandonlineexam.in/center/${reportType}-pdf-download`,
+        url: `http://localhost:3000/center/${reportType}-pdf-download`,
         method: 'POST',
         data: { batchNo, departmentId },
         responseType: 'blob',
@@ -142,7 +142,7 @@ const AttendanceDownload = () => {
 
     try {
       const response = await axios({
-        url: 'https://www.shorthandonlineexam.in/center/studentId-password',
+        url: 'http://localhost:3000/center/studentId-password',
         method: 'POST',
         data: { batchNo, departmentId },
         responseType: 'blob',
