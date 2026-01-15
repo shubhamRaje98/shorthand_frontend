@@ -1282,35 +1282,61 @@ const SuperAdminDashboard = () => {
                               )
                             ) : (
                               isImageColumn(col.dataIndex) ? (
-                                <img 
-                                  src={formatBase64Image(row[col.dataIndex])} 
-                                  alt={col.dataIndex}
-                                  style={{
-                                    maxWidth: '50px',
-                                    maxHeight: '50px',
-                                    objectFit: 'cover',
-                                    borderRadius: '6px',
-                                    cursor: 'pointer',
-                                    border: '1px solid #e2e8f0'
-                                  }}
-                                  onClick={() => handleImagePreview(row[col.dataIndex])}
-                                />
+                                row[col.dataIndex] === null || row[col.dataIndex] === undefined || row[col.dataIndex] === '' ? (
+                                  <span style={{
+                                    fontSize: '0.875rem',
+                                    color: '#94a3b8',
+                                    fontStyle: 'italic',
+                                    fontWeight: '500'
+                                  }}>
+                                    NULL
+                                  </span>
+                                ) : (
+                                  <img 
+                                    src={formatBase64Image(row[col.dataIndex])} 
+                                    alt={col.dataIndex}
+                                    style={{
+                                      maxWidth: '50px',
+                                      maxHeight: '50px',
+                                      objectFit: 'cover',
+                                      borderRadius: '6px',
+                                      cursor: 'pointer',
+                                      border: '1px solid #e2e8f0'
+                                    }}
+                                    onClick={() => handleImagePreview(row[col.dataIndex])}
+                                    onError={(e) => {
+                                      e.target.style.display = 'none';
+                                      e.target.parentElement.innerHTML = '<span style="font-size: 0.875rem; color: #ef4444; font-style: italic; font-weight: 500;">No Image</span>';
+                                    }}
+                                  />
+                                )
                               ) : (
                                 <div className="d-flex align-items-center gap-2">
-                                  <span style={{
-                                    maxWidth: '250px',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    whiteSpace: 'nowrap',
-                                    display: 'inline-block',
-                                    fontSize: '0.875rem',
-                                    color: '#1a202c',
-                                    fontWeight: '400'
-                                  }}>
-                                    {typeof row[col.dataIndex] === 'string' && row[col.dataIndex].length > 100
-                                      ? `${row[col.dataIndex].substring(0, 100)}...`
-                                      : row[col.dataIndex]}
-                                  </span>
+                                  {row[col.dataIndex] === null || row[col.dataIndex] === undefined || row[col.dataIndex] === '' ? (
+                                    <span style={{
+                                      fontSize: '0.875rem',
+                                      color: '#94a3b8',
+                                      fontStyle: 'italic',
+                                      fontWeight: '500'
+                                    }}>
+                                      NULL
+                                    </span>
+                                  ) : (
+                                    <span style={{
+                                      maxWidth: '250px',
+                                      overflow: 'hidden',
+                                      textOverflow: 'ellipsis',
+                                      whiteSpace: 'nowrap',
+                                      display: 'inline-block',
+                                      fontSize: '0.875rem',
+                                      color: '#1a202c',
+                                      fontWeight: '400'
+                                    }}>
+                                      {typeof row[col.dataIndex] === 'string' && row[col.dataIndex].length > 100
+                                        ? `${row[col.dataIndex].substring(0, 100)}...`
+                                        : row[col.dataIndex]}
+                                    </span>
+                                  )}
                                   {isRowPending(row) && col.dataIndex === columns[0].dataIndex && (
                                     <span className="badge bg-warning text-dark" style={{ fontSize: '9px', padding: '2px 6px' }}>
                                       PENDING
