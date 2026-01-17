@@ -14,7 +14,7 @@ const ExpertDashboard = () => {
     useEffect(() => {
         const fetchExpertDetails = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/expert-details', { withCredentials: true });
+                const response = await axios.get('https://www.shorthandonlineexam.in/expert-details', { withCredentials: true });
                 if (response.status === 200) {
                     setExpertDetails(response.data);
                 }
@@ -39,7 +39,7 @@ const ExpertDashboard = () => {
 
     const handleLogout = async () => {
         try {
-            await axios.post('http://localhost:3000/expert-logout', {}, { withCredentials: true });
+            await axios.post('https://www.shorthandonlineexam.in/expert-logout', {}, { withCredentials: true });
             navigate('/expert-login', {replace: true});
         } catch (error) {
             console.error('Error logging out:', error);

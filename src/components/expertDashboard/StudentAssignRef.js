@@ -10,7 +10,7 @@ const StudentAssignmentReport = () => {
   useEffect(() => {
     const fetchStudentData = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/student-passages/${subjectId}/${qset}/${studentId}`, { withCredentials: true });
+        const response = await axios.get(`https://www.shorthandonlineexam.in/student-passages/${subjectId}/${qset}/${studentId}`, { withCredentials: true });
         if (response.status === 200) {
           setStudentData(response.data);
         }
