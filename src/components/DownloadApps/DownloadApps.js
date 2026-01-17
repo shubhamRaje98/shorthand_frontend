@@ -306,7 +306,7 @@ const DownloadApps = () => {
   };
 
   const handleIsmDownload = () => {
-    const fileUrl = "https://drive.google.com/file/d/17KkbCZQZE_mvR51VBBXVVfYOoQmOtoii/view?usp=drive_link";
+    const fileUrl = "https://drive.google.com/file/d/0B8549fKEDyVLcTRDbjNVZ1o0Skk/view?usp=sharing&resourcekey=0-6K4M4ankUUy_VnCiDAzUGQ";
     const link = document.createElement("a");
     link.href = fileUrl;
     link.download = "ISM_v6.2.zip";

@@ -196,7 +196,7 @@ const DepartmentDashboard = () => {
     try {
       console.log("🔍 Fetching filter options...");
       const response = await axios.post(
-        "https://www.shorthandonlineexam.in/track-students-on-department-code",
+        "http://localhost:3000/track-students-on-department-code",
         {},
         { withCredentials: true }
       );
@@ -329,7 +329,7 @@ const DepartmentDashboard = () => {
 
   const fetchSubjects = async () => {
     try {
-      const response = await axios.get("https://www.shorthandonlineexam.in/subjects");
+      const response = await axios.get("http://localhost:3000/subjects");
       if (response.data.subjects) {
         setAllSubjects(response.data.subjects);
       }
@@ -389,7 +389,7 @@ const DepartmentDashboard = () => {
       );
 
       const response = await axios.post(
-        "https://www.shorthandonlineexam.in/total-login-count",
+        "http://localhost:3000/total-login-count",
         requestBody,
         { withCredentials: true }
       );
@@ -491,13 +491,19 @@ const DepartmentDashboard = () => {
         requestBody.exam_type = filters.exam_type.trim();
       }
       if (filters.batchDate && filters.batchDate.trim()) {
-        requestBody.batchDate = filters.batchDate.trim();
+        const dateParts = filters.batchDate.trim().split("-");
+        if (dateParts.length === 3) {
+          const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+          requestBody.batchDate = formattedDate;
+        } else {
+          requestBody.batchDate = filters.batchDate.trim();
+        }
       }
 
       console.log("🚀 Sending request body:", requestBody);
 
       const response = await axios.post(
-        "https://www.shorthandonlineexam.in/track-students-on-department-code",
+        "http://localhost:3000/track-students-on-department-code",
         requestBody,
         { withCredentials: true }
       );
@@ -687,9 +693,14 @@ const DepartmentDashboard = () => {
                 onChange={(e) => handleFilterChange("subject", e.target.value)}
               >
                 <option value="">All Subjects</option>
-                {allSubjects.map((subj) => (
+                {allSubjects.filter(subj => {
+                  if (!exam_type) return true;
+                  if (exam_type === 'shorthand') return subj.examType === 'GCC';
+                  if (exam_type === 'typewriting') return subj.examType === 'SKILL';
+                  return true;
+                }).map((subj) => (
                   <option key={subj.subjectId} value={subj.subject_name}>
-                    {subj.subject_name}
+                    {subj.subject_name} {(!exam_type || exam_type === 'both') ? `(${subj.examType})` : ''}
                   </option>
                 ))}
               </select>

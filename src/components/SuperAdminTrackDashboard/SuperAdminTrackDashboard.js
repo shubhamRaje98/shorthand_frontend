@@ -156,7 +156,7 @@ const SuperAdminTrackDashboard = () => {
         try {
             console.log("🔍 Fetching filter options...");
             const response = await axios.post(
-                'https://www.shorthandonlineexam.in/super-admin-student-track-dashboard',
+                'http://localhost:3000/super-admin-student-track-dashboard',
                 {}, // Empty request body to get all data
                 { withCredentials: true }
             );
@@ -251,7 +251,7 @@ const SuperAdminTrackDashboard = () => {
 
     const fetchSubjects = async () => {
         try {
-            const response = await axios.get('https://www.shorthandonlineexam.in/subjects');
+            const response = await axios.get('http://localhost:3000/subjects');
             if (response.data.subjects) {
                 setAllSubjects(response.data.subjects);
             }
@@ -290,7 +290,7 @@ const SuperAdminTrackDashboard = () => {
 
             console.log('🔢 Fetching login count with filters:', requestBody);
 
-            const response = await axios.post('https://www.shorthandonlineexam.in/total-login-count', requestBody, { withCredentials: true });
+            const response = await axios.post('http://localhost:3000/total-login-count', requestBody, { withCredentials: true });
 
             if (response.data) {
                 console.log('🔢 Login count response:', response.data);
@@ -332,7 +332,13 @@ const SuperAdminTrackDashboard = () => {
                 requestBody.departmentId = filters.departmentId.trim();
             }
             if (filters.batchDate && filters.batchDate.trim()) {
-                requestBody.batchDate = filters.batchDate.trim();
+                const dateParts = filters.batchDate.trim().split("-");
+                if (dateParts.length === 3) {
+                    const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+                    requestBody.batchDate = formattedDate;
+                } else {
+                    requestBody.batchDate = filters.batchDate.trim();
+                }
             }
 
             console.log("🚀 Sending request body:", requestBody);
@@ -343,7 +349,7 @@ const SuperAdminTrackDashboard = () => {
             });
 
             const response = await axios.post(
-                'https://www.shorthandonlineexam.in/super-admin-student-track-dashboard',
+                'http://localhost:3000/super-admin-student-track-dashboard',
                 requestBody,
                 {
                     withCredentials: true,
@@ -609,9 +615,14 @@ const SuperAdminTrackDashboard = () => {
                                 onChange={(e) => handleFilterChange('subject', e.target.value)}
                             >
                                 <option value="">All Subjects</option>
-                                {allSubjects.map((subj) => (
+                                {allSubjects.filter(subj => {
+                                    if (!exam_type) return true;
+                                    if (exam_type === 'shorthand') return subj.examType === 'GCC';
+                                    if (exam_type === 'typewriting') return subj.examType === 'SKILL';
+                                    return true;
+                                }).map((subj) => (
                                     <option key={subj.subjectId} value={subj.subject_name}>
-                                        {subj.subject_name}
+                                        {subj.subject_name} {(!exam_type || exam_type === 'both') ? `(${subj.examType})` : ''}
                                     </option>
                                 ))}
                             </select>

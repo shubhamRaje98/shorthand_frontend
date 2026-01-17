@@ -21,7 +21,7 @@ const AttendancePage = () => {
         try {
             // Use the working endpoint with "all" parameter
             const response = await axios.post(
-                'https://www.shorthandonlineexam.in/track-students-on-exam-center-code/all',
+                'http://localhost:3000/track-students-on-exam-center-code/all',
                 {},
                 { withCredentials: true }
             );
@@ -39,7 +39,7 @@ const AttendancePage = () => {
 
     const fetchDepartments = async () => {
         try {
-            const response = await axios.get('https://www.shorthandonlineexam.in/get-active-departments');
+            const response = await axios.get('http://localhost:3000/get-active-departments');
             setDepartments(response.data || []);
         } catch (error) {
             setError("Failed to fetch departments. Please try again later.");
@@ -48,7 +48,7 @@ const AttendancePage = () => {
 
     const fetchReports = async () => {
         try {
-            const response = await axios.get('https://www.shorthandonlineexam.in/get-attendance-report');
+            const response = await axios.get('http://localhost:3000/get-attendance-report');
             setReports(response.data.Reports || []);
         } catch (error) {
             console.error("Error fetching reports:", error);
@@ -76,7 +76,7 @@ const AttendancePage = () => {
         try {
             console.log(`Attempting to delete report for batch: ${batchNo}, department: ${departmentId}`);
             
-            const response = await axios.post('https://www.shorthandonlineexam.in/delete-atttendance', { 
+            const response = await axios.post('http://localhost:3000/delete-atttendance', { 
                 batchNo, 
                 departmentId 
             }, { withCredentials: true });
@@ -171,7 +171,7 @@ const AttendanceUploadForm = ({ batches, departments, onUploadSuccess }) => {
         try {
             // Get students for the specific department to find available batches
             const response = await axios.post(
-                'https://www.shorthandonlineexam.in/track-students-on-exam-center-code/all',
+                'http://localhost:3000/track-students-on-exam-center-code/all',
                 {},
                 { 
                     withCredentials: true,
@@ -228,7 +228,7 @@ const AttendanceUploadForm = ({ batches, departments, onUploadSuccess }) => {
         data.append('attendance', formData.file);
 
         try {
-            const response = await axios.post('https://www.shorthandonlineexam.in/upload-attendance', data, {
+            const response = await axios.post('http://localhost:3000/upload-attendance', data, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             alert(response.data.message);

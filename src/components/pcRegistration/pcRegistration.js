@@ -22,7 +22,7 @@ const PCRegistration = () => {
     setLoading(true);
     setError('');
     try {
-      const response = await axios.get(`https://www.shorthandonlineexam.in/get-pcregistration`);
+      const response = await axios.get(`http://localhost:3000/get-pcregistration`);
       setData(response.data);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -40,10 +40,8 @@ const PCRegistration = () => {
     }
 
     try {
-      const response = await axios.post('https://www.shorthandonlineexam.in/delete-pcregistration', {
-        ip_address: item.ip_address,
-        disk_id: item.disk_id,
-        mac_address: item.mac_address
+      const response = await axios.post('http://localhost:3000/delete-pcregistration', {
+        id: item.id
       });
 
       if (response.status === 200) {
@@ -82,7 +80,7 @@ const PCRegistration = () => {
           {error && <div className="alert alert-danger" role="alert">{error}</div>}
           {successMessage && <div className="alert alert-success" role="alert">{successMessage}</div>}
           {!loading && !error && Array.isArray(data) && (
-            <div className="table-responsive">
+            <div className="table-responsive" style={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}>
               <table className="table table-bordered table-hover">
                 <thead className="thead-dark">
                   <tr>

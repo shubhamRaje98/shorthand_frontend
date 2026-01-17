@@ -19,7 +19,7 @@
 // // //     setShowTable(false);
     
 // // //     try {
-// // //       const response = await axios.post('https://www.shorthandonlineexam.in/api/new-department/generate-controllers');
+// // //       const response = await axios.post('http://localhost:3000/api/new-department/generate-controllers');
       
 // // //       if (response.data.success) {
 // // //         setControllers(response.data.data);
@@ -42,7 +42,7 @@
 // // //     setMessageType('');
     
 // // //     try {
-// // //       const response = await axios.post('https://www.shorthandonlineexam.in/api/new-department/generate-save-controllers');
+// // //       const response = await axios.post('http://localhost:3000/api/new-department/generate-save-controllers');
       
 // // //       if (response.data.success) {
 // // //         setMessage(`✅ Successfully saved ${response.data.count} controllers to database!`);
@@ -275,7 +275,7 @@
 // //     clearFilters();
     
 // //     try {
-// //       const response = await axios.post('https://www.shorthandonlineexam.in/api/new-department/generate-controllers');
+// //       const response = await axios.post('http://localhost:3000/api/new-department/generate-controllers');
       
 // //       if (response.data.success) {
 // //         setControllers(response.data.data);
@@ -297,7 +297,7 @@
 // //     setMessageType('');
     
 // //     try {
-// //       const response = await axios.post('https://www.shorthandonlineexam.in/api/new-department/generate-save-controllers');
+// //       const response = await axios.post('http://localhost:3000/api/new-department/generate-save-controllers');
       
 // //       if (response.data.success) {
 // //         setMessage(`Successfully saved ${response.data.count} controllers to database!`);
@@ -689,7 +689,7 @@ function AddController() {
     clearFilters();
     
     try {
-      const response = await axios.post('https://www.shorthandonlineexam.in/api/new-department/generate-controllers');
+      const response = await axios.post('http://localhost:3000/api/new-department/generate-controllers');
       
       if (response.data.success) {
         setControllers(response.data.data);
@@ -711,7 +711,7 @@ function AddController() {
     setMessageType('');
     
     try {
-      const response = await axios.post('https://www.shorthandonlineexam.in/api/new-department/generate-save-controllers');
+      const response = await axios.post('http://localhost:3000/api/new-department/generate-save-controllers');
       
       if (response.data.success) {
         setMessage(`Successfully saved ${response.data.count} controllers to database!`);
@@ -1173,7 +1173,7 @@ export default AddController;
 //     clearFilters();
     
 //     try {
-//       const response = await axios.post('https://www.shorthandonlineexam.in/api/new-department/generate-controllers');
+//       const response = await axios.post('http://localhost:3000/api/new-department/generate-controllers');
       
 //       if (response.data.success) {
 //         setControllers(response.data.data);
@@ -1243,7 +1243,7 @@ export default AddController;
 //   // Final Save (Insert Data to Database) - ORIGINAL BACKEND CALL
 //   const handleFinalSave = async () => {
 //     try {
-//       const response = await axios.post('https://www.shorthandonlineexam.in/api/new-department/generate-save-controllers');
+//       const response = await axios.post('http://localhost:3000/api/new-department/generate-save-controllers');
       
 //       if (response.data.success) {
 //         // Store inserted data for preview

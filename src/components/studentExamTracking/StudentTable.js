@@ -205,7 +205,7 @@ const StudentTable = () => {
     try {
       console.log("Fetching filter options from super admin API...");
       const response = await axios.post(
-        'https://www.shorthandonlineexam.in/super-admin-student-track-dashboard',
+        'http://localhost:3000/super-admin-student-track-dashboard',
         {},
         { withCredentials: true }
       );
@@ -249,7 +249,7 @@ const StudentTable = () => {
     try {
       console.log("Fetching local filter options...");
       // FIXED: Use the correct endpoint with "all" parameter to get all data for filter options
-      const url = "https://www.shorthandonlineexam.in/track-students-on-exam-center-code/all";
+      const url = "http://localhost:3000/track-students-on-exam-center-code/all";
       const response = await axios.post(url, { withCredentials: true });
 
       if (response.data && response.data.length > 0) {
@@ -293,7 +293,7 @@ const StudentTable = () => {
 
   const fetchSubjects = async () => {
     try {
-      const response = await axios.get("https://www.shorthandonlineexam.in/subjects");
+      const response = await axios.get("http://localhost:3000/subjects");
       if (response.data.subjects) {
         setAllSubjects(response.data.subjects);
       }
@@ -332,7 +332,7 @@ const StudentTable = () => {
 
     try {
       // FIXED: Always use the student tracking endpoint with proper batch handling
-      let url = "https://www.shorthandonlineexam.in/track-students-on-exam-center-code/";
+      let url = "http://localhost:3000/track-students-on-exam-center-code/";
 
       // If batchNo is selected, use it; otherwise, use "all" to get all batches
       if (filters.batchNo && filters.batchNo.trim() !== "") {
@@ -444,7 +444,7 @@ const StudentTable = () => {
 
     try {
       // FIXED: Use the same URL construction logic as fetchData
-      let url = "https://www.shorthandonlineexam.in/track-students-on-exam-center-code/";
+      let url = "http://localhost:3000/track-students-on-exam-center-code/";
 
       // If batchNo is selected, use it; otherwise, use "all"
       if (filters.batchNo && filters.batchNo.trim() !== "") {
@@ -666,9 +666,14 @@ const StudentTable = () => {
                 onChange={(e) => handleFilterChange("subject", e.target.value)}
               >
                 <option value="">All Subjects</option>
-                {allSubjects.map((subj) => (
+                {allSubjects.filter(subj => {
+                  if (!exam_type) return true;
+                  if (exam_type === 'shorthand') return subj.examType === 'GCC';
+                  if (exam_type === 'typewriting') return subj.examType === 'SKILL';
+                  return true;
+                }).map((subj) => (
                   <option key={subj.subjectId} value={subj.subject_name}>
-                    {subj.subject_name}
+                    {subj.subject_name} {(!exam_type || exam_type === 'both') ? `(${subj.examType})` : ''}
                   </option>
                 ))}
               </select>
