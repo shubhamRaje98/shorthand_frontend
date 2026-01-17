@@ -282,18 +282,18 @@ const DownloadApps = () => {
   const theme = useTheme();
 
   const handlePcRegistrationDownload = () => {
-    const fileUrl = "https://shorthand2026.s3.ap-south-1.amazonaws.com/exam_app/publish/PcRegistration.application";
+    const fileUrl = "https://shorthand2026.s3.ap-south-1.amazonaws.com/PcRegistration.exe";
     const link = document.createElement("a");
     link.href = fileUrl;
-    link.download = "PcRegistration.application";
+    link.download = "PcRegistration.exe";
     link.click();
   };
 
   const handleExamAppDownload = () => {
-    const fileUrl = "https://shorthand2026.s3.ap-south-1.amazonaws.com/exam_app_og/publish/ShorthandExamApp.application";
+    const fileUrl = "https://shorthand2026.s3.ap-south-1.amazonaws.com/ShorthandExamJan26.exe";
     const link = document.createElement("a");
     link.href = fileUrl;
-    link.download = "ShorthandExamApp.application";
+    link.download = "ShorthandExamJan26.exe";
     link.click();
   };
 
@@ -320,7 +320,7 @@ const DownloadApps = () => {
       icon: ComputerIcon,
       color: "primary",
       onClick: handlePcRegistrationDownload,
-      version: "June 2025"
+      version: "JAN 2026"
     },
     {
       title: "Exam Software",
@@ -328,7 +328,7 @@ const DownloadApps = () => {
       icon: SchoolIcon,
       color: "success",
       onClick: handleExamAppDownload,
-      version: "June 2025"
+      version: "JAN 2026"
     },
     {
       title: "RustDesk Remote Access",

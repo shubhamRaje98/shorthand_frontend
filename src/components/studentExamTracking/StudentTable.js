@@ -6,25 +6,25 @@ import * as XLSX from "xlsx";
 import moment from "moment-timezone";
 
 const isValidData = (value) => {
-    // Check for obviously invalid values first
-    if (!value || value === "invalid date" || value === "0" || value === "" || value === null || value === undefined) {
-        return false;
-    }
+  // Check for obviously invalid values first
+  if (!value || value === "invalid date" || value === "0" || value === "" || value === null || value === undefined) {
+    return false;
+  }
 
-    // If it's already a formatted string with time, consider it valid
-    // Pattern: DD/MM/YYYY HH:MM AM/PM
-    const formattedPattern = /^\d{1,2}\/\d{1,2}\/\d{4}\s\d{1,2}:\d{2}\s(AM|PM)$/;
-    if (formattedPattern.test(value)) {
-        return true;
-    }
+  // If it's already a formatted string with time, consider it valid
+  // Pattern: DD/MM/YYYY HH:MM AM/PM
+  const formattedPattern = /^\d{1,2}\/\d{1,2}\/\d{4}\s\d{1,2}:\d{2}\s(AM|PM)$/;
+  if (formattedPattern.test(value)) {
+    return true;
+  }
 
-    // For other formats, try to parse as date
-    try {
-        const date = new Date(value);
-        return !isNaN(date.getTime());
-    } catch (error) {
-        return false;
-    }
+  // For other formats, try to parse as date
+  try {
+    const date = new Date(value);
+    return !isNaN(date.getTime());
+  } catch (error) {
+    return false;
+  }
 };
 
 const getCellClass = (item, field, exam_type) => {
@@ -35,6 +35,8 @@ const getCellClass = (item, field, exam_type) => {
       "trial_time",
       "audio1_time",
       "passage1_time",
+      "audio2_time",
+      "passage2_time",
       "feedback_time",
     ];
   } else if (exam_type === "typewriting") {
@@ -203,7 +205,7 @@ const StudentTable = () => {
     try {
       console.log("Fetching filter options from super admin API...");
       const response = await axios.post(
-        'http://localhost:3000/super-admin-student-track-dashboard',
+        'https://www.shorthandonlineexam.in/super-admin-student-track-dashboard',
         {},
         { withCredentials: true }
       );
@@ -247,7 +249,7 @@ const StudentTable = () => {
     try {
       console.log("Fetching local filter options...");
       // FIXED: Use the correct endpoint with "all" parameter to get all data for filter options
-      const url = "http://localhost:3000/track-students-on-exam-center-code/all";
+      const url = "https://www.shorthandonlineexam.in/track-students-on-exam-center-code/all";
       const response = await axios.post(url, { withCredentials: true });
 
       if (response.data && response.data.length > 0) {
@@ -274,9 +276,9 @@ const StudentTable = () => {
 
         const uniqueBatchDates = [...new Set(
           response.data
-            .filter((item) => 
-              item.batchdate && 
-              item.batchdate !== "invalid date" && 
+            .filter((item) =>
+              item.batchdate &&
+              item.batchdate !== "invalid date" &&
               item.batchdate !== "0"
             )
             .map((item) => normalizeDateForFilter(item.batchdate))
@@ -291,7 +293,7 @@ const StudentTable = () => {
 
   const fetchSubjects = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/subjects");
+      const response = await axios.get("https://www.shorthandonlineexam.in/subjects");
       if (response.data.subjects) {
         setAllSubjects(response.data.subjects);
       }
@@ -303,9 +305,9 @@ const StudentTable = () => {
 
   // Calculate total login count from current data
   const calculateTotalLoginCount = (dataSet) => {
-    const loginCount = dataSet.filter((item) => 
-      item.loginTime && 
-      item.loginTime !== "invalid date" && 
+    const loginCount = dataSet.filter((item) =>
+      item.loginTime &&
+      item.loginTime !== "invalid date" &&
       item.loginTime !== "0" &&
       isValidData(item.loginTime)
     ).length;
@@ -320,17 +322,17 @@ const StudentTable = () => {
     const filters = preserveFilters
       ? currentFilters
       : {
-          subject,
-          loginStatus,
-          batchNo,
-          exam_type,
-          departmentId,
-          batchDate
-        };
+        subject,
+        loginStatus,
+        batchNo,
+        exam_type,
+        departmentId,
+        batchDate
+      };
 
     try {
       // FIXED: Always use the student tracking endpoint with proper batch handling
-      let url = "http://localhost:3000/track-students-on-exam-center-code/";
+      let url = "https://www.shorthandonlineexam.in/track-students-on-exam-center-code/";
 
       // If batchNo is selected, use it; otherwise, use "all" to get all batches
       if (filters.batchNo && filters.batchNo.trim() !== "") {
@@ -419,7 +421,7 @@ const StudentTable = () => {
 
     setCurrentPage(1);
 
-    const newFilters = { 
+    const newFilters = {
       subject: filterName === "subject" ? value : subject,
       loginStatus: filterName === "loginStatus" ? value : loginStatus,
       batchNo: filterName === "batchNo" ? value : batchNo,
@@ -442,7 +444,7 @@ const StudentTable = () => {
 
     try {
       // FIXED: Use the same URL construction logic as fetchData
-      let url = "http://localhost:3000/track-students-on-exam-center-code/";
+      let url = "https://www.shorthandonlineexam.in/track-students-on-exam-center-code/";
 
       // If batchNo is selected, use it; otherwise, use "all"
       if (filters.batchNo && filters.batchNo.trim() !== "") {
@@ -617,9 +619,8 @@ const StudentTable = () => {
           <button
             key={index}
             onClick={() => page !== "..." && handlePageChange(page)}
-            className={`btn ${
-              currentPage === page ? "btn-primary" : "btn-secondary"
-            } me-1`}
+            className={`btn ${currentPage === page ? "btn-primary" : "btn-secondary"
+              } me-1`}
             disabled={page === "..."}
             style={{ margin: "0 2px" }}
           >
@@ -826,6 +827,12 @@ const StudentTable = () => {
                         <>
                           <th>Audio Track A</th>
                           <th>Passage A</th>
+                          {exam_type === "shorthand" && (
+                            <>
+                              <th>Audio Track B</th>
+                              <th>Passage B</th>
+                            </>
+                          )}
                         </>
                       )}
                       {exam_type !== "shorthand" && (
@@ -874,6 +881,28 @@ const StudentTable = () => {
                             >
                               {formatDate(item.passage1_time)}
                             </td>
+                            {exam_type === "shorthand" && (
+                              <>
+                                <td
+                                  className={getCellClass(
+                                    item,
+                                    "audio2_time",
+                                    exam_type
+                                  )}
+                                >
+                                  {formatDate(item.audio2_time)}
+                                </td>
+                                <td
+                                  className={getCellClass(
+                                    item,
+                                    "passage2_time",
+                                    exam_type
+                                  )}
+                                >
+                                  {formatDate(item.passage2_time)}
+                                </td>
+                              </>
+                            )}
                           </>
                         )}
                         {exam_type !== "shorthand" && (

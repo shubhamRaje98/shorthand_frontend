@@ -16,10 +16,10 @@ const NavBar = () => {
     useEffect(() => {
         const fetchCenterDetails = async () => {
             try {
-                const response = await axios.get(`http://localhost:3000/get-center-details`);
+                const response = await axios.get(`https://www.shorthandonlineexam.in/get-center-details`);
                 if (response.data && response.data.examCenterDTO && response.data.examCenterDTO.length > 0) {
                     setCenterDetails(response.data.examCenterDTO[0]);
-                    localStorage.setItem("center",response.data.examCenterDTO[0].center);
+                    localStorage.setItem("center", response.data.examCenterDTO[0].center);
                 } else {
                     setCenterDetails(null);
                     console.log("No center details found");
@@ -66,7 +66,7 @@ const NavBar = () => {
                 <div className="ca-navbar__logo-section">
                     <img src={logo} alt="Logo" className="ca-navbar__logo" />
                     <div className="ca-navbar__logo-text">
-                        <strong>MSCE PUNE COMPUTER SKILLTEST</strong><br />
+                        <strong>MSCE PUNE COMPUTER SHORTHAND EXAM</strong><br />
                         <span>{centerDetails.center} - {centerDetails.center_name}</span>
                     </div>
                 </div>
@@ -74,7 +74,7 @@ const NavBar = () => {
                     <span className="ca-navbar__toggler-icon"></span>
                 </button>
                 <div className={`ca-navbar__menu ${isMenuOpen ? 'is-active' : ''}`}>
-               
+
                     <Link to="/home" className="ca-navbar__item">Home</Link>
                     <div className="ca-navbar__item ca-navbar__has-dropdown">
                         <button className="ca-navbar__link" onClick={() => handleDropdownClick('downloads')}>

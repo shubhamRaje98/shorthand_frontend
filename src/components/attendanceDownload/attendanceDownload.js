@@ -3,6 +3,7 @@ import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import NavBar from '../navBar/navBar';
 import './AttendanceDownload.css';
+import moment from 'moment';
 
 const AttendanceDownload = () => {
   const [departmentId, setDepartmentId] = useState('');
@@ -11,12 +12,15 @@ const AttendanceDownload = () => {
   const [error, setError] = useState('');
   const [departments, setDepartments] = useState([]);
   const [batches, setBatches] = useState([]);
+  const [batchDetails, setBatchDetails] = useState({}); // { batchNo: batchDate }
   const [controller, setController] = useState('');
   const [isControllerPasswordVisible, setIsControllerPasswordVisible] = useState(false);
   const [center, setCenter] = useState();
+  const [settings, setSettings] = useState({});
 
   useEffect(() => {
     fetchDepartments();
+    fetchSettings();
     setCenter(localStorage.getItem('center'));
   }, []);
 
@@ -43,11 +47,20 @@ const AttendanceDownload = () => {
     }
   }, [batchNo, departmentId]);
 
+  const fetchSettings = async () => {
+    try {
+      const response = await axios.get('https://www.shorthandonlineexam.in/report-settings', { withCredentials: true });
+      setSettings(response.data);
+    } catch (err) {
+      console.error("Error fetching settings:", err);
+    }
+  };
+
   const fetchDepartments = async () => {
     console.log('fetchDepartments called');
     try {
-      console.log('Making request to:', 'http://localhost:3000/get-active-departments');
-      const response = await axios.get('http://localhost:3000/get-active-departments');
+      console.log('Making request to:', 'https://www.shorthandonlineexam.in/get-active-departments');
+      const response = await axios.get('https://www.shorthandonlineexam.in/get-active-departments');
       console.log('Departments response received:', response.data);
       setDepartments(response.data);
     } catch (error) {
@@ -59,7 +72,7 @@ const AttendanceDownload = () => {
 
   const fetchController = async () => {
     try {
-      const response = await axios.post('http://localhost:3000/get-batch-controller-password', {
+      const response = await axios.post('https://www.shorthandonlineexam.in/get-batch-controller-password', {
         batchNo,
         departmentId
       });
@@ -79,14 +92,24 @@ const AttendanceDownload = () => {
     console.log('fetchBatches function called with departmentId:', departmentId);
     try {
       console.log('Making POST request to get batches...');
-      const response = await axios.post('http://localhost:3000/track-students-on-exam-center-code', {
+      const response = await axios.post('https://www.shorthandonlineexam.in/track-students-on-exam-center-code', {
         departmentId
       });
       console.log('Batches response:', response.data);
 
       // Extract batch numbers from the array of objects if needed
       const batchData = Array.isArray(response.data) ? response.data : [];
-      const batchNumbers = batchData.map(item => (typeof item === 'object' && item.batchNo) ? item.batchNo : item);
+
+      const details = {};
+      const batchNumbers = batchData.map(item => {
+        if (typeof item === 'object' && item.batchNo) {
+          details[item.batchNo] = item.batchdate;
+          return item.batchNo;
+        }
+        return item;
+      });
+
+      setBatchDetails(details);
       const distinctBatches = [...new Set(batchNumbers)].sort((a, b) => a - b);
       setBatches(distinctBatches);
       console.log('Processed batches:', distinctBatches);
@@ -98,13 +121,67 @@ const AttendanceDownload = () => {
     }
   };
 
+  const checkRestriction = (reportKey) => {
+    const setting = settings[reportKey];
+    if (!setting || !setting.enabled) return { allowed: true };
+    if (!batchNo) return { allowed: true }; // Should not happen if button enabled
+
+    const batchDate = batchDetails[batchNo];
+    if (!batchDate) {
+      // If date is missing, maybe default to allow or block? 
+      // Proceeding with allow but logging
+      console.warn("Batch date missing for restriction check");
+      return { allowed: true };
+    }
+
+    const examDate = moment(batchDate);
+    const now = moment();
+
+    if (setting.type === 'days_before') {
+      // Exam Date - X days
+      const allowedDate = examDate.clone().subtract(setting.value, 'days').startOf('day');
+      // allow if now >= allowedDate
+      if (now.isBefore(allowedDate)) {
+        return { allowed: false, message: `This report is available from ${allowedDate.format('DD/MM/YYYY')}` };
+      }
+    } else if (setting.type === 'minutes_before') {
+      // Minutes check usually requires exam TIME which we might not have in batchDate alone.
+      // Assuming strict check not possible with just date.
+      // If we really need minutes, we'd need start time.
+      // For now, if same day, allow? Or just skip minutes check?
+      // Fallback: Check if it's the exam day at least.
+      const allowedDate = examDate.clone().startOf('day');
+      if (now.isBefore(allowedDate)) {
+        return { allowed: false, message: `This report is available on exam day` };
+      }
+    }
+
+    return { allowed: true };
+  };
+
   const handleDownload = async (reportType) => {
+    // Check restrictions
+    let restrictionKey = null;
+    if (reportType === 'attendance') restrictionKey = 'REPORT_ATTENDANCE';
+    else if (reportType === 'studnetId-password') restrictionKey = 'REPORT_PASSWORD_PDF';
+    else if (reportType === 'absentee') restrictionKey = 'REPORT_ABSENTEE';
+    else if (reportType === 'answer-sheet') restrictionKey = 'REPORT_ANSWER_SHEET';
+    else if (reportType === 'seating-arrangement') restrictionKey = 'REPORT_SEATING';
+
+    if (restrictionKey) {
+      const check = checkRestriction(restrictionKey);
+      if (!check.allowed) {
+        setError(check.message);
+        return;
+      }
+    }
+
     setLoadingButton(reportType);
     setError('');
 
     try {
       const response = await axios({
-        url: `http://localhost:3000/center/${reportType}-pdf-download`,
+        url: `https://www.shorthandonlineexam.in/center/${reportType}-pdf-download`,
         method: 'POST',
         data: { batchNo, departmentId },
         responseType: 'blob',
@@ -137,12 +214,19 @@ const AttendanceDownload = () => {
   };
 
   const handleExcelDownload = async () => {
+    // Check restrictions for Excel Password
+    const check = checkRestriction('REPORT_PASSWORD_PDF'); // Using same key as PDF
+    if (!check.allowed) {
+      setError(check.message);
+      return;
+    }
+
     setLoadingButton('excel');
     setError('');
 
     try {
       const response = await axios({
-        url: 'http://localhost:3000/center/studentId-password',
+        url: 'https://www.shorthandonlineexam.in/center/studentId-password',
         method: 'POST',
         data: { batchNo, departmentId },
         responseType: 'blob',

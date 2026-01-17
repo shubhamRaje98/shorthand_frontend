@@ -58,6 +58,7 @@ import DownloadBackup from './components/super-admin/DownloadBackup';
 // import DownloadZip from './components/super-admin/DownloadZip';
 import DownloadRegister from './components/super-admin/DownloadRegister';
 import ExcelUpload from './components/super-admin/ExcelUpload';
+import ReportControl from './components/ReportControl/ReportControl';
 
 // Import new Department Setup Components
 import DepartmentSetup from './components/super-admin/department-setup/DepartmentSetup';
@@ -68,7 +69,7 @@ import AssignController from './components/super-admin/department-setup/AssignCo
 import RegisterStudents from './components/super-admin/department-setup/RegisterStudents';
 import AddController from './components/super-admin/add-new/AddController';
 import MockStudentPage from './components/super-admin/MockStudentPage';
-import EvaluationDashboard from './components/super-admin/EvaluationDashboard'; 
+import EvaluationDashboard from './components/super-admin/EvaluationDashboard';
 import AddNewExamCenter from './components/super-admin/add-new/AddNewExamCenter';
 // import AddController from './components/super-admin/add-new/AddController';
 import HallticketsDepartmentSelection from './components/super-admin/HallticketsDepartmentSelection';
@@ -116,6 +117,7 @@ const App = () => {
                     <Route path='/camera-upload' element={<CameraCapture />} />
                     <Route path='/download-apps' element={<DownloadApps />} />
                     <Route path='/current-student-details' element={<CurrentStudentDetails />} />
+                    <Route path='/report-control' element={<ReportControl />} />
                     <Route path='/pc-registration-count' element={<PcRegistrationCount />} />
                     <Route path='/reset-center-admin' element={<ResetCenterAdmin />} />
                     <Route path='/department-student-count' element={<DepartmentStudentCount />} />
@@ -161,7 +163,7 @@ const App = () => {
                             path="/super-admin/generate-halltickets-db"
                             element={<GenerateSkillTestHallTicketsFromDB />}
                         />
-                        
+
 
                     </Route>
                 </Routes>

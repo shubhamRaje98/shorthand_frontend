@@ -293,7 +293,7 @@ const SuperAdminNavbar = () => {
                       Add Department
                     </Link>
                   </li>
-                  
+
                 </ul>
               </li>
 
@@ -318,11 +318,11 @@ const SuperAdminNavbar = () => {
                     </Link>
                   </li>
                   {/* New Mock Students link */}
-    <li>
-      <Link to="/super-admin/mock-students" onClick={closeDropdowns}>
-        Mock Students
-      </Link>
-    </li>
+                  <li>
+                    <Link to="/super-admin/mock-students" onClick={closeDropdowns}>
+                      Mock Students
+                    </Link>
+                  </li>
                 </ul>
               </li>
 
@@ -412,6 +412,9 @@ const SuperAdminNavbar = () => {
                   </li>
                   <li>
                     <Link to="/super-admin/track-dashboard" onClick={closeDropdowns}>Track Dashboard</Link>
+                  </li>
+                  <li>
+                    <Link to="/report-control" onClick={closeDropdowns}>Report Control</Link>
                   </li>
                 </ul>
               </li>

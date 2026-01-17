@@ -94,6 +94,7 @@
 
 .ca-navbar__dropdown.is-active {
     display: block;
+    z-index: 1000;
 }
 
 .ca-navbar__dropdown-item {

@@ -44,9 +44,6 @@ const getCellClass = (item, field, exam_type) => {
   } else { // 'typewriting', 'both' -> SKILL
     stages = [
       "loginTime",
-      "trial_time",
-      "audio1_time",
-      "passage1_time",
       "trial_passage_time",
       "typing_passage_time",
       "feedback_time",
@@ -199,7 +196,7 @@ const DepartmentDashboard = () => {
     try {
       console.log("🔍 Fetching filter options...");
       const response = await axios.post(
-        "http://localhost:3000/track-students-on-department-code",
+        "https://www.shorthandonlineexam.in/track-students-on-department-code",
         {},
         { withCredentials: true }
       );
@@ -332,7 +329,7 @@ const DepartmentDashboard = () => {
 
   const fetchSubjects = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/subjects");
+      const response = await axios.get("https://www.shorthandonlineexam.in/subjects");
       if (response.data.subjects) {
         setAllSubjects(response.data.subjects);
       }
@@ -392,7 +389,7 @@ const DepartmentDashboard = () => {
       );
 
       const response = await axios.post(
-        "http://localhost:3000/total-login-count",
+        "https://www.shorthandonlineexam.in/total-login-count",
         requestBody,
         { withCredentials: true }
       );
@@ -500,7 +497,7 @@ const DepartmentDashboard = () => {
       console.log("🚀 Sending request body:", requestBody);
 
       const response = await axios.post(
-        "http://localhost:3000/track-students-on-department-code",
+        "https://www.shorthandonlineexam.in/track-students-on-department-code",
         requestBody,
         { withCredentials: true }
       );
@@ -844,9 +841,13 @@ const DepartmentDashboard = () => {
                         And GCC has: Login, Trial, AudioA, PassageA, AudioB, PassageB
                         So Trial, AudioA, PassageA are COMMON.
                     */}
-                    <th>Trial</th>
-                    <th>Audio Track A</th>
-                    <th>Passage A</th>
+                    {exam_type !== "typewriting" && <th>Trial</th>}
+                    {exam_type !== "typewriting" && (
+                      <>
+                        <th>Audio Track A</th>
+                        <th>Passage A</th>
+                      </>
+                    )}
                     {(exam_type === "shorthand" || exam_type === "") && (
                       <>
                         <th>Audio Track B</th>
@@ -873,33 +874,39 @@ const DepartmentDashboard = () => {
                       >
                         {formatDate(item.loginTime)}
                       </td>
-                      <td
-                        className={getCellClass(
-                          item,
-                          "trial_time",
-                          exam_type
-                        )}
-                      >
-                        {formatDate(item.trial_time)}
-                      </td>
-                      <td
-                        className={getCellClass(
-                          item,
-                          "audio1_time",
-                          exam_type
-                        )}
-                      >
-                        {formatDate(item.audio1_time)}
-                      </td>
-                      <td
-                        className={getCellClass(
-                          item,
-                          "passage1_time",
-                          exam_type
-                        )}
-                      >
-                        {formatDate(item.passage1_time)}
-                      </td>
+                      {exam_type !== "typewriting" && (
+                        <td
+                          className={getCellClass(
+                            item,
+                            "trial_time",
+                            exam_type
+                          )}
+                        >
+                          {formatDate(item.trial_time)}
+                        </td>
+                      )}
+                      {exam_type !== "typewriting" && (
+                        <>
+                          <td
+                            className={getCellClass(
+                              item,
+                              "audio1_time",
+                              exam_type
+                            )}
+                          >
+                            {formatDate(item.audio1_time)}
+                          </td>
+                          <td
+                            className={getCellClass(
+                              item,
+                              "passage1_time",
+                              exam_type
+                            )}
+                          >
+                            {formatDate(item.passage1_time)}
+                          </td>
+                        </>
+                      )}
                       {(exam_type === "shorthand" || exam_type === "") && (
                         <>
                           <td
