@@ -25,7 +25,7 @@ const MockStudentPage = () => {
     setLoading(true);
 
     try {
-      const res = await fetch(`https://www.shorthandonlineexam.in/api/${mode}`, {
+      const res = await fetch(`http://localhost:3000/api/${mode}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -67,7 +67,7 @@ const MockStudentPage = () => {
 
     try {
       // 1. Generate expected student list (starting from 1)
-      const resPreview = await fetch(`https://www.shorthandonlineexam.in/api/preview`, {
+      const resPreview = await fetch(`http://localhost:3000/api/preview`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -96,7 +96,7 @@ const MockStudentPage = () => {
       }
 
       // 2. Send to Append (which uses INSERT IGNORE to skip existing)
-      const resAppend = await fetch(`https://www.shorthandonlineexam.in/api/append`, {
+      const resAppend = await fetch(`http://localhost:3000/api/append`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

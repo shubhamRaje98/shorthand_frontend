@@ -1,0 +1,118 @@
+.admin-blank-submissions-container {
+    padding: 20px;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+.header-section {
+    margin-bottom: 25px;
+}
+
+.header-section h2 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.stats-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    border-left: 4px solid #ccc;
+}
+
+.stat-card.total {
+    border-left-color: #007bff;
+}
+
+.stat-card.commented {
+    border-left-color: #28a745;
+}
+
+.stat-card.uncommented {
+    border-left-color: #ffc107;
+}
+
+.stat-card.viewed {
+    border-left-color: #17a2b8;
+}
+
+.stat-card h4 {
+    font-size: 32px;
+    font-weight: bold;
+    margin: 0 0 5px 0;
+    color: #333;
+}
+
+.stat-card p {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+}
+
+.filters-section {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    min-width: 180px;
+}
+
+.filter-group label {
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #555;
+}
+
+.uncommented-row {
+    background-color: #fff9e6 !important;
+}
+
+.unviewed-row {
+    background-color: #e8f4f8 !important;
+}
+
+.comment-text {
+    max-width: 300px;
+}
+
+.comment-meta {
+    font-size: 11px;
+    color: #999;
+    margin-top: 5px;
+}
+
+.bg-info {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.bg-warning {
+    background-color: #ffc107;
+    color: #333;
+}
+
+.btn-outline-primary {
+    background-color: transparent;
+    color: #007bff;
+    border: 1px solid #007bff;
+}
+
+.btn-outline-primary:hover {
+    background-color: #007bff;
+    color: white;
+}

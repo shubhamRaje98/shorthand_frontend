@@ -16,7 +16,7 @@ const NavBar = () => {
     useEffect(() => {
         const fetchCenterDetails = async () => {
             try {
-                const response = await axios.get(`https://www.shorthandonlineexam.in/get-center-details`);
+                const response = await axios.get(`http://localhost:3000/get-center-details`);
                 if (response.data && response.data.examCenterDTO && response.data.examCenterDTO.length > 0) {
                     setCenterDetails(response.data.examCenterDTO[0]);
                     localStorage.setItem("center", response.data.examCenterDTO[0].center);
@@ -95,6 +95,7 @@ const NavBar = () => {
                     </div>
                     <Link to="/controller-password" className="ca-navbar__item">Controller-Password</Link>
                     <Link to="/fetch-pc-registration" className="ca-navbar__item">PC Registrations</Link>
+                    <Link to="/blank-submissions" className="ca-navbar__item">Blank Submissions</Link>
                     <Link to="/current-student-details" className="ca-navbar__item">Student-Details</Link>
                     <Link to="/attendance-upload" className="ca-navbar__item">Attendance</Link>
                     <Link to="/reset-center-admin" className="ca-navbar__item">Reset</Link>

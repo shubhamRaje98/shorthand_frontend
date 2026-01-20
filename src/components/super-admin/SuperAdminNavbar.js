@@ -419,6 +419,9 @@ const SuperAdminNavbar = () => {
                   <li>
                     <Link to="/super-admin/attendance-reports" onClick={closeDropdowns}>Attendance Reports</Link>
                   </li>
+                  <li>
+                    <Link to="/super-admin/blank-submissions" onClick={closeDropdowns}>Blank Submissions</Link>
+                  </li>
                 </ul>
               </li>
             </>

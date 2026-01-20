@@ -76,6 +76,8 @@ import HallticketsDepartmentSelection from './components/super-admin/Halltickets
 import GenerateGccTbcHallTickets from './components/super-admin/GenerateGccTbcHallTickets';
 import GenerateSkillTestHallTickets from './components/super-admin/GenerateSkillTestHallTickets';
 import GenerateSkillTestHallTicketsFromDB from './components/super-admin/GenerateSkillTestHallTicketsFromDB';
+import BlankSubmissionsView from './components/centerAdmin/BlankSubmissionsView';
+import AdminBlankSubmissionsView from './components/super-admin/AdminBlankSubmissionsView';
 
 
 axios.defaults.withCredentials = true;
@@ -123,6 +125,7 @@ const App = () => {
                     <Route path='/department-student-count' element={<DepartmentStudentCount />} />
                     <Route path='/superadmin-student-count' element={<SuperAdminCount />} />
                     <Route path='/superadmin-pc' element={<SuperAdminPc />} />
+                    <Route path='/blank-submissions' element={<BlankSubmissionsView />} />
 
                     {/* SuperAdmin Routes */}
                     <Route path="/admin-login" element={<SuperAdminLogin />} />
@@ -163,6 +166,7 @@ const App = () => {
                             path="/super-admin/generate-halltickets-db"
                             element={<GenerateSkillTestHallTicketsFromDB />}
                         />
+                        <Route path="blank-submissions" element={<AdminBlankSubmissionsView />} />
 
 
                     </Route>
