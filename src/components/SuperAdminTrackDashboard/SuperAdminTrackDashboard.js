@@ -90,6 +90,7 @@ const SuperAdminTrackDashboard = () => {
     const [allSubjects, setAllSubjects] = useState([]);
     const [batchDates, setBatchDates] = useState([]);
     const [total_login_count, setTotal_login_count] = useState(0);
+    const [stageCounts, setStageCounts] = useState({});
 
     // Pagination states
     const [currentPage, setCurrentPage] = useState(1);
@@ -302,6 +303,47 @@ const SuperAdminTrackDashboard = () => {
         }
     };
 
+    const fetchStageCounts = async (filters = currentFilters) => {
+        try {
+            const requestBody = {};
+
+            if (filters.center && filters.center.trim()) {
+                requestBody.center = filters.center.trim();
+            }
+            if (filters.batchNo && filters.batchNo.trim()) {
+                requestBody.batchNo = filters.batchNo.trim();
+            }
+            if (filters.departmentId && filters.departmentId.trim()) {
+                requestBody.departmentId = filters.departmentId.trim();
+            }
+            if (filters.subject && filters.subject.trim()) {
+                requestBody.subject_name = filters.subject.trim();
+            }
+            if (filters.loginStatus && filters.loginStatus.trim()) {
+                requestBody.loginStatus = filters.loginStatus.trim();
+            }
+            if (filters.exam_type && filters.exam_type.trim()) {
+                requestBody.exam_type = filters.exam_type.trim();
+            }
+            if (filters.batchDate && filters.batchDate.trim()) {
+                requestBody.batchDate = filters.batchDate.trim();
+            }
+
+            const response = await axios.post(
+                "https://www.shorthandonlineexam.in/super-admin-get-stage-counts",
+                requestBody,
+                { withCredentials: true }
+            );
+
+            if (response.data) {
+                setStageCounts(response.data);
+            }
+        } catch (error) {
+            console.log("❌ Error fetching stage counts:", error);
+            setStageCounts({});
+        }
+    };
+
     // Create a separate function that accepts filters directly
     const fetchDataWithFilters = async (filters) => {
         setLoading(true);
@@ -410,6 +452,7 @@ const SuperAdminTrackDashboard = () => {
         console.log("Refreshing data with current filters:", currentFilters);
         fetchData(true); // Preserve current filters
         fetchTotalLoginCount(currentFilters);
+        fetchStageCounts(currentFilters);
     }, [currentFilters]);
 
     // Filter change handlers
@@ -444,6 +487,7 @@ const SuperAdminTrackDashboard = () => {
         setTimeout(() => {
             fetchDataWithFilters(newFilters); // Pass filters directly
             fetchTotalLoginCount(newFilters);
+            fetchStageCounts(newFilters);
         }, 100);
     };
 
@@ -474,6 +518,7 @@ const SuperAdminTrackDashboard = () => {
         setTimeout(() => {
             fetchDataWithFilters(emptyFilters);
             fetchTotalLoginCount(emptyFilters);
+            fetchStageCounts(emptyFilters);
         }, 100);
     };
 
@@ -483,6 +528,7 @@ const SuperAdminTrackDashboard = () => {
         setTimeout(() => {
             fetchData(false);
             fetchTotalLoginCount();
+            fetchStageCounts();
         }, 500);
     }, []);
 
@@ -727,10 +773,58 @@ const SuperAdminTrackDashboard = () => {
                             <button onClick={clearAllFilters} className="dept-btn dept-btn-outline-secondary me-3 mb-2">
                                 Clear All Filters
                             </button>
-                            <div className="dept-total-count-container ms-3 mb-2">
-                                <span className="dept-total-count-label">Total students: {data.length} | </span>
-                                <span className="dept-total-count-label">Total logged in: </span>
-                                <span className="dept-total-count-value">{total_login_count}</span>
+                            <div className="dept-total-count-container ms-3 mb-2 d-flex flex-wrap gap-3">
+                                <div className="dept-count-item">
+                                    <span className="dept-total-count-label">Total students: {data.length}</span>
+                                </div>
+                                <div className="dept-count-item">
+                                    <span className="dept-total-count-label">Total logged in: {total_login_count}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {/* Stage Counts Summary */}
+                    <div className="dept-row mb-3">
+                        <div className="dept-col-12">
+                            <div className="dept-stage-counts-container p-3 border rounded bg-white shadow-sm d-flex flex-wrap justify-content-between align-items-center">
+                                <div className="text-center px-2">
+                                    <div className="text-muted small fw-bold">Login</div>
+                                    <div className="h5 mb-0 text-primary">{stageCounts.login_count || 0}</div>
+                                </div>
+                                {exam_type !== "typewriting" && (
+                                    <div className="text-center px-2 border-start">
+                                        <div className="text-muted small fw-bold">Trial</div>
+                                        <div className="h5 mb-0 text-info">{stageCounts.trial_count || 0}</div>
+                                    </div>
+                                )}
+                                {exam_type !== "typewriting" && (
+                                    <>
+                                        <div className="text-center px-2 border-start">
+                                            <div className="text-muted small fw-bold">Audio Track A</div>
+                                            <div className="h5 mb-0 text-success">{stageCounts.audio1_count || 0}</div>
+                                        </div>
+                                        <div className="text-center px-2 border-start">
+                                            <div className="text-muted small fw-bold">Passage A</div>
+                                            <div className="h5 mb-0 text-success">{stageCounts.passage1_count || 0}</div>
+                                        </div>
+                                    </>
+                                )}
+                                {(exam_type === "shorthand" || exam_type === "" || exam_type === "both") && (
+                                    <>
+                                        <div className="text-center px-2 border-start">
+                                            <div className="text-muted small fw-bold">Audio Track B</div>
+                                            <div className="h5 mb-0 text-success">{stageCounts.audio2_count || 0}</div>
+                                        </div>
+                                        <div className="text-center px-2 border-start">
+                                            <div className="text-muted small fw-bold">Passage B</div>
+                                            <div className="h5 mb-0 text-success">{stageCounts.passage2_count || 0}</div>
+                                        </div>
+                                    </>
+                                )}
+                                <div className="text-center px-2 border-start">
+                                    <div className="text-muted small fw-bold">Feedback</div>
+                                    <div className="h5 mb-0 text-warning">{stageCounts.feedback_count || 0}</div>
+                                </div>
                             </div>
                         </div>
                     </div>

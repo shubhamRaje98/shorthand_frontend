@@ -25,7 +25,7 @@ const AttendancePage = () => {
                 {},
                 { withCredentials: true }
             );
-            
+
             if (response.data && response.data.length > 0) {
                 const distinctBatches = [...new Set(response.data.map(item => item.batchNo))];
                 setBatches(distinctBatches.filter(batch => batch).sort((a, b) => a - b));
@@ -75,10 +75,10 @@ const AttendancePage = () => {
 
         try {
             console.log(`Attempting to delete report for batch: ${batchNo}, department: ${departmentId}`);
-            
-            const response = await axios.post('https://www.shorthandonlineexam.in/delete-atttendance', { 
-                batchNo, 
-                departmentId 
+
+            const response = await axios.post('https://www.shorthandonlineexam.in/delete-atttendance', {
+                batchNo,
+                departmentId
             }, { withCredentials: true });
 
             console.log("Delete response:", response);
@@ -86,14 +86,14 @@ const AttendancePage = () => {
             // Check for successful deletion (might be 200 or 201)
             if (response.status === 200 || response.status === 201) {
                 alert(response.data.message || "Report deleted successfully!");
-                
+
                 // Update state by removing the deleted report
-                setReports(prevReports => 
-                    prevReports.filter(report => 
+                setReports(prevReports =>
+                    prevReports.filter(report =>
                         !(report.batchNo == batchNo && report.departmentId == departmentId)
                     )
                 );
-                
+
                 // Also refresh the reports from server to ensure consistency
                 setTimeout(() => {
                     fetchReports();
@@ -103,11 +103,11 @@ const AttendancePage = () => {
             }
         } catch (error) {
             console.error("Error deleting report:", error);
-            
+
             if (error.response) {
                 // Server responded with error status
-                const errorMessage = error.response.data?.message || 
-                                   `Server error: ${error.response.status}`;
+                const errorMessage = error.response.data?.message ||
+                    `Server error: ${error.response.status}`;
                 alert(`Failed to delete report: ${errorMessage}`);
             } else if (error.request) {
                 // Network error
@@ -134,8 +134,8 @@ const AttendancePage = () => {
             <div className="ap-attendance-page">
                 <h1 className="ap-main-title">Attendance Management</h1>
                 {error && <div className="ap-error-message">{error}</div>}
-                <AttendanceUploadForm 
-                    batches={batches} 
+                <AttendanceUploadForm
+                    batches={batches}
                     departments={departments}
                     onUploadSuccess={handleUploadSuccess}
                 />
@@ -173,15 +173,15 @@ const AttendanceUploadForm = ({ batches, departments, onUploadSuccess }) => {
             const response = await axios.post(
                 'https://www.shorthandonlineexam.in/track-students-on-exam-center-code/all',
                 {},
-                { 
+                {
                     withCredentials: true,
                     params: { departmentId: formData.departmentId }
                 }
             );
-            
+
             if (response.data && response.data.length > 0) {
                 // Filter data by department ID and get unique batches
-                const deptStudents = response.data.filter(student => 
+                const deptStudents = response.data.filter(student =>
                     student.departmentId == formData.departmentId
                 );
                 const deptBatches = [...new Set(deptStudents.map(item => item.batchNo))];
@@ -199,7 +199,7 @@ const AttendanceUploadForm = ({ batches, departments, onUploadSuccess }) => {
 
     const handleChange = (e) => {
         const { name, value, files } = e.target;
-        
+
         if (name === 'departmentId') {
             // Reset batch selection when department changes
             setFormData(prevState => ({
@@ -247,7 +247,7 @@ const AttendanceUploadForm = ({ batches, departments, onUploadSuccess }) => {
             <form onSubmit={handleSubmit} className="ap-attendance-upload-form">
                 <h2 className="ap-form-title">Upload Attendance Report</h2>
                 {uploadError && <div className="ap-error-message">{uploadError}</div>}
-                
+
                 <div className="ap-form-row">
                     <div className="ap-form-group">
                         <label htmlFor="departmentId" className="ap-form-label">Department:</label>
@@ -357,7 +357,7 @@ const AttendanceReportList = ({ reports, onDeleteReport }) => {
     const handleDelete = async (batchNo, departmentId) => {
         const reportKey = `${batchNo}-${departmentId}`;
         setDeletingReports(prev => new Set([...prev, reportKey]));
-        
+
         try {
             await onDeleteReport(batchNo, departmentId);
         } finally {
@@ -393,7 +393,7 @@ const AttendanceReportList = ({ reports, onDeleteReport }) => {
                             {reports.map(report => {
                                 const reportKey = `${report.batchNo}-${report.departmentId}`;
                                 const isDeleting = deletingReports.has(reportKey);
-                                
+
                                 return (
                                     <tr key={`${report.id}-${report.departmentId}`} className="ap-table-row">
                                         <td className="ap-table-cell">{report.departmentName}</td>
@@ -406,7 +406,7 @@ const AttendanceReportList = ({ reports, onDeleteReport }) => {
                                         <td className="ap-table-cell ap-actions-cell">
                                             <div className="ap-action-buttons">
                                                 <a
-                                                    href={`http://checking.shorthandonlineexam.in${report.attendance_pdf}`}
+                                                    href={`https://www.shorthandonlineexam.in${report.attendance_pdf}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="ap-view-button"

@@ -87,6 +87,9 @@ const PCRegistration = () => {
                     <th scope="col">Center</th>
                     <th scope="col">IP Address</th>
                     <th scope="col">Disk ID</th>
+                    <th scope="col">Processor</th>
+                    <th scope="col">OS</th>
+                    <th scope="col">RAM</th>
                     <th scope="col">MAC Address</th>
                     <th scope="col">Action</th>
                   </tr>
@@ -97,6 +100,9 @@ const PCRegistration = () => {
                       <td>{item.center}</td>
                       <td>{item.ip_address}</td>
                       <td>{item.disk_id}</td>
+                      <td>{item.processor}</td>
+                      <td>{item.os}</td>
+                      <td>{item.ram}</td>
                       <td>{item.mac_address}</td>
                       <td>
                         <button className="red" onClick={() => {

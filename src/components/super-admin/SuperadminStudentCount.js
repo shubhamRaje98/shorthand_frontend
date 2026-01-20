@@ -13,6 +13,7 @@ const SuperAdminCount = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [departmentId, setDepartmentId] = useState("");
+  const [studentType, setStudentType] = useState("");
   const [departments, setDepartments] = useState([]);
   const [aggregatedSubjects, setAggregatedSubjects] = useState([]);
   const [batchTotals, setBatchTotals] = useState({});
@@ -30,7 +31,7 @@ const SuperAdminCount = () => {
     }, 30000);
 
     return () => clearInterval(intervalId);
-  }, [batchNo, center, departmentId]); // Fetch data when filters change
+  }, [batchNo, center, departmentId, studentType]); // Fetch data when filters change
 
   useEffect(() => {
     // Only aggregate when allData changes
@@ -84,6 +85,7 @@ const SuperAdminCount = () => {
       if (batchNo) params.append("batchNo", batchNo);
       if (center) params.append("center", center);
       if (departmentId) params.append("departmentId", departmentId);
+      if (studentType) params.append("studentType", studentType);
 
       if (params.toString()) {
         url += `?${params.toString()}`;
@@ -300,6 +302,23 @@ const SuperAdminCount = () => {
                   {department}
                 </option>
               ))}
+            </select>
+          </div>
+
+
+          <div className="sac-select-wrapper">
+            <label htmlFor="studentType" className="sac-label">
+              Student Type:
+            </label>
+            <select
+              id="studentType"
+              className="sac-select"
+              value={studentType}
+              onChange={(e) => setStudentType(e.target.value)}
+            >
+              <option value="">All</option>
+              <option value="mock">Mock</option>
+              <option value="regular">Regular</option>
             </select>
           </div>
         </div>
@@ -557,7 +576,7 @@ const SuperAdminCount = () => {
           </div>
         )}
       </div>
-    </div>
+    </div >
   );
 };
 

@@ -13,6 +13,22 @@ const ControllerPassword = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [departmentLoading, setDepartmentLoading] = useState(false);
+    const [timerSettings, setTimerSettings] = useState(null);
+
+    // Fetch timer settings on component mount
+    useEffect(() => {
+        const fetchTimerSettings = async () => {
+            try {
+                const response = await axios.get('https://www.shorthandonlineexam.in/report-settings', { withCredentials: true });
+                if (response.data.CONTROLLER_PASSWORD_TIMER) {
+                    setTimerSettings(response.data.CONTROLLER_PASSWORD_TIMER);
+                }
+            } catch (error) {
+                console.error("Error fetching timer settings:", error);
+            }
+        };
+        fetchTimerSettings();
+    }, []);
 
     // Fetch departments on component mount
     useEffect(() => {
@@ -39,21 +55,24 @@ const ControllerPassword = () => {
             setError('');
             try {
                 let url = 'https://www.shorthandonlineexam.in/get-controller-pass';
-                
+
                 // Add department filter if not 'all'
                 if (selectedDepartment && selectedDepartment !== 'all') {
                     url += `?departmentId=${selectedDepartment}`;
                 }
-                
+
                 const response = await axios.get(url);
                 console.log('Controller passwords response:', response.data);
-                
+
                 if (response.data.controllerPassDto) {
                     setInfo(response.data.controllerPassDto);
-                    
+
                     // Show message if no data but request was successful
                     if (response.data.controllerPassDto.length === 0) {
-                        setError(response.data.message || 'No Controller passwords available at this time (passwords are shown 30 minutes before batch start)');
+                        const timerValue = timerSettings?.enabled && timerSettings?.value
+                            ? timerSettings.value
+                            : 30;
+                        setError(response.data.message || `No Controller passwords available at this time (passwords are shown ${timerValue} minutes before batch start)`);
                     }
                 } else {
                     setInfo([]);
@@ -88,16 +107,16 @@ const ControllerPassword = () => {
                 <NavBar />
                 <main role="main" className="col-md-9 ml-sm-auto col-lg-10 px-md-4">
                     <h2 className="mt-3">Controller Password Table</h2>
-                    
+
                     {/* Department Filter Dropdown */}
                     <div className="mb-3">
                         <label htmlFor="departmentSelect" className="form-label">
                             <strong>Filter by Department:</strong>
                         </label>
-                        <select 
+                        <select
                             id="departmentSelect"
-                            className="form-select" 
-                            value={selectedDepartment} 
+                            className="form-select"
+                            value={selectedDepartment}
                             onChange={handleDepartmentChange}
                             disabled={departmentLoading}
                         >
@@ -114,7 +133,7 @@ const ControllerPassword = () => {
                     {/* Loading and Error States */}
                     {loading && <div className="alert alert-info">Loading controller passwords...</div>}
                     {error && <div className="alert alert-warning">{error}</div>}
-                    
+
                     {/* Controller Password Table */}
                     {!loading && !error && Array.isArray(info) && info.length > 0 && (
                         <div className="table-responsive">
@@ -161,7 +180,9 @@ const ControllerPassword = () => {
                     {!loading && !error && (!info || info.length === 0) && (
                         <div className="alert alert-info">
                             <h5>No Controller Passwords Available</h5>
-                            <p>Controller passwords are only displayed 30 minutes before the batch start time.</p>
+                            <p>
+                                Controller passwords are only displayed {timerSettings?.enabled && timerSettings?.value ? timerSettings.value : 30} minutes before the batch start time.
+                            </p>
                             <small>Please check back closer to your batch start time.</small>
                         </div>
                     )}
