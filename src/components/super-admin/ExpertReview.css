@@ -70,11 +70,34 @@
 .er-success-message {
     color: #28a745;
     text-align: center;
+    padding: 10px;
+    margin: 10px 0;
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    border-radius: 4px;
 }
 
 .er-error-message {
     color: #dc3545;
     text-align: center;
+    padding: 10px;
+    margin: 10px 0;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+}
+
+.er-loading-message {
+    text-align: center;
+    padding: 20px;
+    color: #6c757d;
+    font-style: italic;
+}
+
+.er-no-data-message {
+    text-align: center;
+    padding: 20px;
+    color: #6c757d;
 }
 
 .er-review-logs {
@@ -162,21 +185,35 @@
 .er-pagination {
     display: flex;
     justify-content: center;
+    align-items: center;
     margin-top: 20px;
+    gap: 5px;
 }
 
 .er-pagination button {
-    margin: 0 5px;
-    padding: 5px 10px;
+    margin: 0;
+    padding: 8px 12px;
     font-size: 14px;
     background-color: #f8f9fa;
     border: 1px solid #dee2e6;
+    border-radius: 4px;
     cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.er-pagination button:hover:not(.er-active) {
+    background-color: #e9ecef;
 }
 
 .er-pagination button.er-active {
     background-color: #007bff;
     color: #fff;
+    border-color: #007bff;
+}
+
+.er-pagination-ellipsis {
+    padding: 8px;
+    color: #6c757d;
 }
 
 @media (max-width: 1200px) {

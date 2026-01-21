@@ -255,7 +255,7 @@ const FinalPassageTextlog = () => {
   useEffect(() => {
     const fetchAudio = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/get-subject-qset-audio/${subjectId}/${qset}`, { withCredentials: true });
+        const response = await axios.get(`http://localhost:3000/get-subject-qset-audio/${subjectId}/${qset}/${departmentId}`, { withCredentials: true });
         if (response.status === 200) {
           setAudioUrl(response.data.passage1);
           setAudioBUrl(response.data.passage2); // Assuming 'passage2' is the audio URL for passageB

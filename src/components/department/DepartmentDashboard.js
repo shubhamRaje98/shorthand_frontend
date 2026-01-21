@@ -331,6 +331,7 @@ const DepartmentDashboard = () => {
   const fetchSubjects = async () => {
     try {
       const response = await axios.get("http://localhost:3000/subjects");
+      console.log("📚 Subjects fetched:", response.data);
       if (response.data.subjects) {
         setAllSubjects(response.data.subjects);
       }
