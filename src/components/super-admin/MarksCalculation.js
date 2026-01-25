@@ -419,28 +419,207 @@ const MarksCalculation = () => {
     });
   };
 
-  // Calculate mistakes for all rows
+  // Process batch results and calculate marks
+  const processBatchResults = (row, mistakesA, mistakesB) => {
+    if (!mistakesA || !mistakesB) return null;
+
+    // Calculate mistakes for Passage A
+    const spellingA = mistakesA.spelling?.length || 0;
+    const missedA = mistakesA.missed?.length || 0;
+    const addedA = mistakesA.added?.length || 0;
+    const grammarA = mistakesA.grammar?.length || 0;
+    const totalA = spellingA + missedA + addedA + grammarA;
+
+    // Calculate mistakes for Passage B
+    const spellingB = mistakesB.spelling?.length || 0;
+    const missedB = mistakesB.missed?.length || 0;
+    const addedB = mistakesB.added?.length || 0;
+    const grammarB = mistakesB.grammar?.length || 0;
+    const totalB = spellingB + missedB + addedB + grammarB;
+
+    // Calculate total mistakes from both passages
+    const totalSpelling = spellingA + spellingB;
+    const totalMissed = missedA + missedB;
+    const totalAdded = addedA + addedB;
+    const totalGrammar = grammarA + grammarB;
+    const totalMistakes = totalSpelling + totalMissed + totalAdded + totalGrammar;
+
+    // Calculate marks for Passage A
+    let marksA;
+    if (row.examType === 'SKILL') {
+      marksA = 80 - (totalA / 2);
+    } else {
+      marksA = 50 - (totalA / 2);
+    }
+    marksA = Math.max(0, marksA);
+
+    // Calculate marks for Passage B
+    let marksB;
+    if (row.examType === 'SKILL') {
+      marksB = 80 - (totalB / 2);
+    } else {
+      marksB = 50 - (totalB / 2);
+    }
+    marksB = Math.max(0, marksB);
+
+    // Calculate total marks
+    const totalMarks = marksA + marksB;
+
+    // Calculate result and grade
+    const resultData = calculateResultAndGrade(marksA.toFixed(2), marksB.toFixed(2), totalMarks.toFixed(2));
+
+    return {
+      spelling: totalSpelling,
+      missed: totalMissed,
+      added: totalAdded,
+      grammar: totalGrammar,
+      total: totalMistakes,
+      marks: totalMarks.toFixed(2),
+      spellingA,
+      missedA,
+      addedA,
+      grammarA,
+      totalA,
+      marksA: marksA.toFixed(2),
+      spellingB,
+      missedB,
+      addedB,
+      grammarB,
+      totalB,
+      marksB: marksB.toFixed(2),
+      result: resultData.result,
+      grade: resultData.grade,
+      roundedA: resultData.roundedA,
+      roundedB: resultData.roundedB,
+      roundedTotal: resultData.roundedTotal,
+      graceMarksA: resultData.graceMarksA,
+      graceMarksB: resultData.graceMarksB,
+      totalGrace: resultData.totalGrace,
+      finalMarks: resultData.finalMarks,
+      mistakesA,
+      mistakesB
+    };
+  };
+
+  // Calculate mistakes for all rows using batch processing
   const handleCalculateAllMistakes = async () => {
     setLoading(true);
     const filterDesc = getFilterDescription();
-    showSnackbar(`Calculating results for ${filteredData.length} record(s) [${filterDesc}]...`, 'info');
-    
-    const updatedData = [];
-    for (let i = 0; i < filteredData.length; i++) {
-      const row = filteredData[i];
-      const mistakeData = await comparePassagesForRow(row);
-      
-      if (mistakeData) {
-        updatedData.push({ ...row, ...mistakeData });
-      } else {
-        updatedData.push(row);
-      }
+    const totalRecords = filteredData.length;
+    showSnackbar(`Calculating results for ${totalRecords} record(s) [${filterDesc}] using parallel processing...`, 'info');
+
+    // Prepare batch items for both passages
+    const validRows = filteredData.filter(
+      row => row.passageA && row.passageB && row.ansPassageA && row.ansPassageB
+    );
+    const invalidRows = filteredData.filter(
+      row => !row.passageA || !row.passageB || !row.ansPassageA || !row.ansPassageB
+    );
+
+    if (validRows.length === 0) {
+      setLoading(false);
+      showSnackbar('No valid records to process (missing passage data)', 'warning');
+      return;
     }
-    
-    setFilteredData(updatedData);
-    setTableData(updatedData);
-    setLoading(false);
-    showSnackbar(`Finished calculating results for ${updatedData.length} record(s) [${filterDesc}]`, 'success');
+
+    // Create batch items for Passage A and Passage B
+    const batchItemsA = validRows.map((row, index) => {
+      const ignoreListA = row.QPA
+        ? row.QPA.split(',').map(word => word.trim()).filter(word => word.length > 0)
+        : [];
+      return {
+        id: `${row.id}_A`,
+        rowIndex: index,
+        text1: row.ansPassageA,
+        text2: row.passageA,
+        ignore_list: ignoreListA
+      };
+    });
+
+    const batchItemsB = validRows.map((row, index) => {
+      const ignoreListB = row.QPB
+        ? row.QPB.split(',').map(word => word.trim()).filter(word => word.length > 0)
+        : [];
+      return {
+        id: `${row.id}_B`,
+        rowIndex: index,
+        text1: row.ansPassageB,
+        text2: row.passageB,
+        ignore_list: ignoreListB
+      };
+    });
+
+    // Combine all items for batch processing
+    const allBatchItems = [...batchItemsA, ...batchItemsB];
+
+    try {
+      // Send batch request to the parallel processing endpoint
+      const response = await axios.post('http://localhost:5002/compare-batch', {
+        items: allBatchItems,
+        max_workers: 16
+      });
+
+      if (response.data.success) {
+        // Create a map of results by id
+        const resultsMap = {};
+        response.data.results.forEach(result => {
+          if (result.success) {
+            resultsMap[result.id] = result.result;
+          }
+        });
+
+        // Process results and update data
+        const updatedData = validRows.map((row) => {
+          const mistakesA = resultsMap[`${row.id}_A`];
+          const mistakesB = resultsMap[`${row.id}_B`];
+
+          if (mistakesA && mistakesB) {
+            const processedData = processBatchResults(row, mistakesA, mistakesB);
+            if (processedData) {
+              return { ...row, ...processedData };
+            }
+          }
+          return row;
+        });
+
+        // Combine with invalid rows (rows without passage data)
+        const finalData = [...updatedData, ...invalidRows];
+        
+        // Sort by original order (by id)
+        finalData.sort((a, b) => a.id - b.id);
+
+        setFilteredData(finalData);
+        setTableData(finalData);
+        showSnackbar(
+          `Finished calculating results for ${validRows.length} record(s) [${filterDesc}] using 16 parallel workers`,
+          'success'
+        );
+      } else {
+        throw new Error('Batch processing failed');
+      }
+    } catch (error) {
+      console.error('Batch processing error:', error);
+      showSnackbar(`Error during parallel processing: ${error.message}. Falling back to sequential processing...`, 'warning');
+      
+      // Fallback to sequential processing
+      const updatedData = [];
+      for (let i = 0; i < filteredData.length; i++) {
+        const row = filteredData[i];
+        const mistakeData = await comparePassagesForRow(row);
+
+        if (mistakeData) {
+          updatedData.push({ ...row, ...mistakeData });
+        } else {
+          updatedData.push(row);
+        }
+      }
+
+      setFilteredData(updatedData);
+      setTableData(updatedData);
+      showSnackbar(`Finished calculating results for ${updatedData.length} record(s) [${filterDesc}] (sequential fallback)`, 'success');
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Initial data fetch

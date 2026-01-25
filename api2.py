@@ -8,6 +8,8 @@ import nltk
 from nltk.tokenize import word_tokenize
 from langdetect import detect
 from difflib import SequenceMatcher
+from concurrent.futures import ProcessPoolExecutor, as_completed
+import multiprocessing
 
 # Download the necessary resources
 nltk.download('punkt')
@@ -501,6 +503,73 @@ def compare():
 
     result = compare_texts(text1, text2, ignore_list)
     return jsonify(result)
+
+def process_single_comparison(item):
+    """
+    Process a single comparison item for parallel execution.
+    Each item contains: id, text1, text2, ignore_list
+    """
+    try:
+        item_id = item.get('id')
+        text1 = item.get('text1')
+        text2 = item.get('text2')
+        ignore_list = item.get('ignore_list', [])
+        
+        result = compare_texts(text1, text2, ignore_list)
+        return {
+            'id': item_id,
+            'success': True,
+            'result': result
+        }
+    except Exception as e:
+        return {
+            'id': item.get('id'),
+            'success': False,
+            'error': str(e)
+        }
+
+@app.route('/compare-batch', methods=['POST'])
+def compare_batch():
+    """
+    Batch comparison endpoint that processes multiple text comparisons in parallel.
+    Expects JSON: { "items": [...], "max_workers": 16 }
+    Each item: { "id": "unique_id", "text1": "...", "text2": "...", "ignore_list": [...] }
+    """
+    data = request.json
+    items = data.get('items', [])
+    max_workers = min(data.get('max_workers', 16), multiprocessing.cpu_count())
+    
+    if not items:
+        return jsonify({'success': True, 'results': []})
+    
+    results = []
+    
+    # Use ProcessPoolExecutor for CPU-bound parallel processing
+    with ProcessPoolExecutor(max_workers=max_workers) as executor:
+        # Submit all tasks
+        future_to_item = {executor.submit(process_single_comparison, item): item for item in items}
+        
+        # Collect results as they complete
+        for future in as_completed(future_to_item):
+            try:
+                result = future.result()
+                results.append(result)
+            except Exception as e:
+                item = future_to_item[future]
+                results.append({
+                    'id': item.get('id'),
+                    'success': False,
+                    'error': str(e)
+                })
+    
+    # Sort results by id to maintain order
+    results.sort(key=lambda x: str(x.get('id', '')))
+    
+    return jsonify({
+        'success': True,
+        'results': results,
+        'total_processed': len(results)
+    })
 
 if __name__ == '__main__':
     app.run(host='localhost', port=5002, debug=True)
