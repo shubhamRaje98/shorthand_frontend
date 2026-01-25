@@ -323,7 +323,7 @@ const FinalPassageTextlog = () => {
     if (examType === 'SKILL'){
       average = 80 - (total / 2); // for skilltest
     }else{
-      average = 50 - (total / 2); // for skilltest
+      average = 50 - (total / 2); // for gcc
     }
     if (average < 0) {
       average = 0;
@@ -336,9 +336,21 @@ const FinalPassageTextlog = () => {
       average: average.toFixed(2) // Rounds to 2 decimal places
     });
 
+    console.log('=== MISTAKE ANALYSIS ===');
     console.log('Mistake category counts:', counts);
     console.log('Total mistakes:', total);
-    console.log('Average mistakes:', average.toFixed(2));
+    console.log('Calculated marks:', average.toFixed(2));
+    console.log('\n=== DETAILED MISTAKES BY CATEGORY ===');
+    
+    // Log each category with its mistakes
+    orderedCategories.forEach(category => {
+      if (mistakes[category] && mistakes[category].length > 0) {
+        console.log(`\n${category.toUpperCase()} (Count: ${counts[category]}):`);
+        console.log(mistakes[category]);
+      }
+    });
+    
+    console.log('\n======================\n');
 
     // Send total mistakes, marks, and individual mistake counts to server
     // const sendMarksToServer = async () => {
@@ -358,7 +370,7 @@ const FinalPassageTextlog = () => {
     // };
     
     // sendMarksToServer();
-  }, [mistakes, subjectId, qset]);
+  }, [mistakes, subjectId, qset, examType]);
 
   // Improved useEffect to populate wordCorrections when mistakes data changes
   useEffect(() => {

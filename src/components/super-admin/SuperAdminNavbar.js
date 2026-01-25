@@ -177,6 +177,9 @@ const SuperAdminNavbar = () => {
                   <li>
                     <Link to="/super-admin/expert-summary" onClick={closeDropdowns}>Expert Summary</Link>
                   </li>
+                  <li>
+                    <Link to="/super-admin/marks-calculation" onClick={closeDropdowns}>Marks Calculation</Link>
+                  </li>
                 </ul>
               </li>
 

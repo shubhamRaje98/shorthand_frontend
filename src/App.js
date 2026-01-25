@@ -59,6 +59,7 @@ import DownloadBackup from './components/super-admin/DownloadBackup';
 import DownloadRegister from './components/super-admin/DownloadRegister';
 import ExcelUpload from './components/super-admin/ExcelUpload';
 import ReportControl from './components/ReportControl/ReportControl';
+import MarksCalculation from './components/super-admin/MarksCalculation';
 
 // Import new Department Setup Components
 import DepartmentSetup from './components/super-admin/department-setup/DepartmentSetup';
@@ -138,6 +139,7 @@ const App = () => {
                         <Route path="expert-management" element={<ExpertManagement />} />
                         <Route path="expert-assign" element={<ExpertAssign />} />
                         <Route path="expert-summary" element={<ExpertSummary />} />
+                        <Route path="marks-calculation" element={<MarksCalculation />} />
                         <Route path="batch-management" element={<BatchManagement />} />
                         <Route path='student-info' element={<Student_info />} />
                         <Route path='attendance-reports' element={<AttendanceReports />} />
