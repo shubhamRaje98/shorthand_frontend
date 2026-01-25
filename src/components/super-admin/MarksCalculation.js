@@ -33,11 +33,26 @@ const MarksCalculation = () => {
     departmentId: [],
     expertId: []
   });
+  const [modalContent, setModalContent] = useState({
+    open: false,
+    title: '',
+    content: ''
+  });
 
   // Show snackbar message
   const showSnackbar = (message, severity = 'info') => {
     setSnackbar({ open: true, message, severity });
     setTimeout(() => setSnackbar({ open: false, message: '', severity: 'info' }), 3000);
+  };
+
+  // Open modal to view full content
+  const openModal = (title, content) => {
+    setModalContent({ open: true, title, content });
+  };
+
+  // Close modal
+  const closeModal = () => {
+    setModalContent({ open: false, title: '', content: '' });
   };
 
   // Extract unique values for filter dropdowns
@@ -759,6 +774,8 @@ const MarksCalculation = () => {
               <th className="col-mistakes">Missed</th>
               <th className="col-mistakes">Added</th>
               <th className="col-mistakes">Grammar</th>
+              <th className="col-ignored">Ignored A</th>
+              <th className="col-ignored">Ignored B</th>
               <th className="col-mistakes">Total</th>
               <th className="col-mistakes">Marks</th>
               <th className="col-result">Result</th>
@@ -792,7 +809,11 @@ const MarksCalculation = () => {
                       <td>
                         <div className="marks-calc-passage">
                           {row.ansPassageA ? (
-                            <span className="marks-calc-passage-preview marks-calc-passage-model">
+                            <span 
+                              className="marks-calc-passage-preview marks-calc-passage-model clickable-text"
+                              onClick={() => openModal('Model Answer A - Student ID: ' + row.student_id, row.ansPassageA)}
+                              title="Click to view full text"
+                            >
                               {row.ansPassageA.substring(0, 50)}
                               {row.ansPassageA.length > 50 && '...'}
                             </span>
@@ -804,7 +825,11 @@ const MarksCalculation = () => {
                       <td>
                         <div className="marks-calc-passage">
                           {row.ansPassageB ? (
-                            <span className="marks-calc-passage-preview marks-calc-passage-model">
+                            <span 
+                              className="marks-calc-passage-preview marks-calc-passage-model clickable-text"
+                              onClick={() => openModal('Model Answer B - Student ID: ' + row.student_id, row.ansPassageB)}
+                              title="Click to view full text"
+                            >
                               {row.ansPassageB.substring(0, 50)}
                               {row.ansPassageB.length > 50 && '...'}
                             </span>
@@ -816,7 +841,11 @@ const MarksCalculation = () => {
                       <td>
                         <div className="marks-calc-passage">
                           {row.passageA ? (
-                            <span className="marks-calc-passage-preview">
+                            <span 
+                              className="marks-calc-passage-preview clickable-text"
+                              onClick={() => openModal('User Passage A - Student ID: ' + row.student_id, row.passageA)}
+                              title="Click to view full text"
+                            >
                               {row.passageA.substring(0, 50)}
                               {row.passageA.length > 50 && '...'}
                             </span>
@@ -828,7 +857,11 @@ const MarksCalculation = () => {
                       <td>
                         <div className="marks-calc-passage">
                           {row.passageB ? (
-                            <span className="marks-calc-passage-preview">
+                            <span 
+                              className="marks-calc-passage-preview clickable-text"
+                              onClick={() => openModal('User Passage B - Student ID: ' + row.student_id, row.passageB)}
+                              title="Click to view full text"
+                            >
                               {row.passageB.substring(0, 50)}
                               {row.passageB.length > 50 && '...'}
                             </span>
@@ -861,6 +894,32 @@ const MarksCalculation = () => {
                       <td className="col-mistakes">
                         {row.grammar !== undefined ? (
                           <span className="mistake-count">{row.grammar}</span>
+                        ) : (
+                          <span className="text-muted">—</span>
+                        )}
+                      </td>
+                      <td className="col-ignored">
+                        {row.QPA ? (
+                          <span 
+                            className="ignored-words clickable-text" 
+                            title="Click to view full list"
+                            onClick={() => openModal('Ignored Words (Passage A) - Student ID: ' + row.student_id, row.QPA)}
+                          >
+                            {row.QPA.length > 30 ? row.QPA.substring(0, 30) + '...' : row.QPA}
+                          </span>
+                        ) : (
+                          <span className="text-muted">—</span>
+                        )}
+                      </td>
+                      <td className="col-ignored">
+                        {row.QPB ? (
+                          <span 
+                            className="ignored-words clickable-text" 
+                            title="Click to view full list"
+                            onClick={() => openModal('Ignored Words (Passage B) - Student ID: ' + row.student_id, row.QPB)}
+                          >
+                            {row.QPB.length > 30 ? row.QPB.substring(0, 30) + '...' : row.QPB}
+                          </span>
                         ) : (
                           <span className="text-muted">—</span>
                         )}
@@ -936,6 +995,14 @@ const MarksCalculation = () => {
                           <td className="col-mistakes">
                             <span className="mistake-count mistake-count-detail">{row.grammarA}</span>
                           </td>
+                          <td className="col-ignored">
+                            {row.QPA ? (
+                              <span className="ignored-words-detail" title={row.QPA}>{row.QPA}</span>
+                            ) : (
+                              <span className="text-muted">—</span>
+                            )}
+                          </td>
+                          <td className="col-ignored"></td>
                           <td className="col-mistakes">
                             <span className="mistake-count total-mistakes mistake-count-detail">{row.totalA}</span>
                           </td>
@@ -959,6 +1026,14 @@ const MarksCalculation = () => {
                           <td className="col-mistakes">
                             <span className="mistake-count mistake-count-detail">{row.grammarB}</span>
                           </td>
+                          <td className="col-ignored"></td>
+                          <td className="col-ignored">
+                            {row.QPB ? (
+                              <span className="ignored-words-detail" title={row.QPB}>{row.QPB}</span>
+                            ) : (
+                              <span className="text-muted">—</span>
+                            )}
+                          </td>
                           <td className="col-mistakes">
                             <span className="mistake-count total-mistakes mistake-count-detail">{row.totalB}</span>
                           </td>
@@ -974,7 +1049,7 @@ const MarksCalculation = () => {
               })
             ) : (
               <tr>
-                <td colSpan="19" className="text-center">
+                <td colSpan="21" className="text-center">
                   No records found
                 </td>
               </tr>
@@ -1036,6 +1111,24 @@ const MarksCalculation = () => {
             >
               Last
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal for viewing full content */}
+      {modalContent.open && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3 className="modal-title">{modalContent.title}</h3>
+              <button className="modal-close" onClick={closeModal}>&times;</button>
+            </div>
+            <div className="modal-body">
+              <pre className="modal-text">{modalContent.content}</pre>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={closeModal}>Close</button>
+            </div>
           </div>
         </div>
       )}
