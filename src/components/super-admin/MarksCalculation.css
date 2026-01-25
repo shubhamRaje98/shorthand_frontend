@@ -4,6 +4,8 @@
   padding: 24px;
   background-color: #f8f9fa;
   min-height: 100vh;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 /* Header Styles */
@@ -134,15 +136,47 @@
   background: white;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: visible;
   margin-bottom: 24px;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+  max-width: 100%;
+  display: block;
 }
 
 /* Table Styles */
 .marks-calc-table {
-  width: 100%;
+  width: max-content;
+  min-width: 100%;
   border-collapse: collapse;
   font-size: 14px;
+  table-layout: auto;
+}
+
+/* Ensure all table cells don't wrap and have minimum widths */
+.marks-calc-table th,
+.marks-calc-table td {
+  white-space: nowrap;
+}
+
+.marks-calc-table th {
+  min-width: 80px;
+}
+
+/* Passage columns need more space */
+.marks-calc-table th:nth-child(9),
+.marks-calc-table th:nth-child(10),
+.marks-calc-table th:nth-child(11),
+.marks-calc-table th:nth-child(12),
+.marks-calc-table td:nth-child(9),
+.marks-calc-table td:nth-child(10),
+.marks-calc-table td:nth-child(11),
+.marks-calc-table td:nth-child(12) {
+  min-width: 150px;
+  max-width: 200px;
+  white-space: normal;
+  word-wrap: break-word;
 }
 
 .marks-calc-table thead {
@@ -456,10 +490,12 @@
 
   .marks-calc-table-container {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .marks-calc-table {
-    min-width: 1000px;
+    width: max-content;
+    min-width: 1200px;
   }
 
   .marks-calc-pagination {
@@ -664,4 +700,520 @@
   border-color: #545b62;
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================
+   MOBILE RESPONSIVE STYLES
+   ============================================ */
+
+/* Tablet and below (max-width: 1024px) */
+@media screen and (max-width: 1024px) {
+  .marks-calc-container {
+    padding: 16px;
+  }
+
+  .marks-calc-title {
+    font-size: 24px;
+  }
+
+  .marks-calc-subtitle {
+    font-size: 13px;
+  }
+
+  .marks-calc-filters {
+    padding: 16px;
+  }
+
+  .marks-calc-filters-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .marks-calc-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+    max-width: 100%;
+  }
+
+  .marks-calc-table {
+    width: max-content;
+    min-width: 1400px;
+  }
+
+  .marks-calc-pagination {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .marks-calc-pagination-info,
+  .marks-calc-pagination-controls,
+  .marks-calc-pagination-buttons {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .marks-calc-pagination-buttons {
+    flex-wrap: wrap;
+  }
+}
+
+/* Mobile landscape and below (max-width: 768px) */
+@media screen and (max-width: 768px) {
+  .marks-calc-container {
+    padding: 12px;
+  }
+
+  .marks-calc-title {
+    font-size: 20px;
+  }
+
+  .marks-calc-subtitle {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .marks-calc-filters {
+    padding: 12px;
+    border-radius: 8px;
+  }
+
+  .marks-calc-filters-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .marks-calc-filter-item label {
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
+
+  .marks-calc-filter-item .form-control,
+  .marks-calc-filter-item .form-select {
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+
+  .marks-calc-table-toggle {
+    margin-top: 16px !important;
+    padding: 10px !important;
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+
+  .marks-calc-table-toggle label {
+    margin-bottom: 8px !important;
+    margin-right: 0 !important;
+  }
+
+  .marks-calc-table-toggle .btn-group {
+    width: 100%;
+  }
+
+  .marks-calc-table-toggle .btn-group .btn {
+    flex: 1;
+    min-width: auto !important;
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+
+  .marks-calc-table-toggle span {
+    margin-left: 0 !important;
+    margin-top: 8px;
+    font-size: 12px;
+  }
+
+  .marks-calc-filter-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .marks-calc-filter-actions .btn {
+    width: 100%;
+    font-size: 14px;
+    padding: 10px 16px;
+  }
+
+  .marks-calc-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .marks-calc-info .btn {
+    width: 100%;
+    margin-left: 0 !important;
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+
+  .marks-calc-info-text {
+    font-size: 13px;
+  }
+
+  /* Table container with horizontal scroll */
+  .marks-calc-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -12px;
+    padding: 0 12px;
+    border-radius: 0;
+    max-width: calc(100% + 24px);
+  }
+
+  .marks-calc-table {
+    width: max-content;
+    min-width: 1400px;
+    font-size: 12px;
+  }
+
+  .marks-calc-table th,
+  .marks-calc-table td {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  .marks-calc-table th {
+    font-size: 11px;
+  }
+
+  .col-id {
+    min-width: 50px;
+  }
+
+  .col-mistakes {
+    min-width: 60px;
+  }
+
+  .col-ignored {
+    min-width: 100px;
+  }
+
+  .col-result {
+    min-width: 70px;
+  }
+
+  .col-grade {
+    min-width: 60px;
+  }
+
+  .col-action {
+    min-width: 100px;
+  }
+
+  .marks-calc-passage-preview {
+    font-size: 11px;
+  }
+
+  .mistake-count {
+    font-size: 11px;
+    padding: 2px 6px;
+  }
+
+  .marks-calc-badge {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+
+  .result-badge,
+  .grade-badge {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+
+  .btn-sm {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+
+  .passage-detail-row td {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+
+  .passage-label {
+    font-size: 11px;
+  }
+
+  /* Pagination for mobile */
+  .marks-calc-pagination {
+    padding: 12px;
+    gap: 10px;
+    margin: 4px 4px 4px 4px;
+  }
+
+  .marks-calc-pagination-info {
+    font-size: 12px;
+    text-align: center;
+  }
+
+  .marks-calc-pagination-controls {
+    justify-content: center;
+  }
+
+  .marks-calc-pagination-controls label {
+    font-size: 12px;
+  }
+
+  .marks-calc-pagination-controls .form-select {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  .marks-calc-pagination-buttons {
+    gap: 6px;
+    justify-content: center;
+  }
+
+  .marks-calc-pagination-buttons .btn {
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+
+  .marks-calc-page-number {
+    font-size: 12px;
+    padding: 0 8px;
+  }
+
+  /* Snackbar for mobile */
+  .marks-calc-snackbar {
+    left: 12px;
+    right: 12px;
+    min-width: auto;
+    max-width: calc(100vw - 24px);
+    padding: 12px 16px;
+    font-size: 13px;
+  }
+
+  /* Modal for mobile */
+  .modal-content {
+    width: 95%;
+    max-width: 95%;
+    max-height: 85vh;
+    margin: 0 10px;
+  }
+
+  .modal-header {
+    padding: 16px;
+  }
+
+  .modal-header h3 {
+    font-size: 16px;
+  }
+
+  .modal-close-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 24px;
+  }
+
+  .modal-body {
+    padding: 16px;
+    min-height: 150px;
+  }
+
+  .modal-body pre {
+    font-size: 13px;
+    padding: 12px;
+  }
+
+  .modal-footer {
+    padding: 12px 16px;
+  }
+
+  .modal-footer .btn {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+}
+
+/* Small mobile (max-width: 480px) */
+@media screen and (max-width: 480px) {
+  .marks-calc-container {
+    padding: 8px;
+  }
+
+  .marks-calc-title {
+    font-size: 18px;
+  }
+
+  .marks-calc-subtitle {
+    font-size: 11px;
+  }
+
+  .marks-calc-filters {
+    padding: 10px;
+  }
+
+  .marks-calc-filter-item label {
+    font-size: 11px;
+  }
+
+  .marks-calc-filter-item .form-control,
+  .marks-calc-filter-item .form-select {
+    font-size: 13px;
+    padding: 6px 10px;
+  }
+
+  .marks-calc-table-toggle {
+    padding: 8px !important;
+  }
+
+  .marks-calc-table-toggle .btn-group .btn {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  .marks-calc-table-toggle span {
+    font-size: 11px;
+  }
+
+  .marks-calc-filter-actions .btn {
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+
+  .marks-calc-info .btn {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  .marks-calc-info-text {
+    font-size: 12px;
+  }
+
+  .marks-calc-table-container {
+    margin: 0 -8px;
+    padding: 0 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    max-width: calc(100% + 16px);
+  }
+
+  .marks-calc-table {
+    width: max-content;
+    min-width: 1400px;
+    font-size: 11px;
+  }
+
+  .marks-calc-table th,
+  .marks-calc-table td {
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+
+  .marks-calc-table th {
+    font-size: 10px;
+  }
+
+  .marks-calc-passage-preview {
+    font-size: 10px;
+  }
+
+  .mistake-count {
+    font-size: 10px;
+    padding: 2px 5px;
+  }
+
+  .marks-calc-badge {
+    font-size: 9px;
+    padding: 2px 6px;
+  }
+
+  .result-badge,
+  .grade-badge {
+    font-size: 9px;
+    padding: 2px 6px;
+  }
+
+  .btn-sm {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+
+  .passage-detail-row td {
+    padding: 5px 8px;
+    font-size: 10px;
+  }
+
+  .marks-calc-pagination {
+    padding: 10px;
+  }
+
+  .marks-calc-pagination-info {
+    font-size: 11px;
+  }
+
+  .marks-calc-pagination-buttons .btn {
+    font-size: 10px;
+    padding: 5px 8px;
+  }
+
+  .marks-calc-page-number {
+    font-size: 11px;
+  }
+
+  .marks-calc-snackbar {
+    left: 8px;
+    right: 8px;
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+
+  .modal-content {
+    width: 98%;
+    max-width: 98%;
+    max-height: 90vh;
+  }
+
+  .modal-header {
+    padding: 12px;
+  }
+
+  .modal-header h3 {
+    font-size: 14px;
+  }
+
+  .modal-body {
+    padding: 12px;
+  }
+
+  .modal-body pre {
+    font-size: 12px;
+    padding: 10px;
+  }
+
+  .modal-footer {
+    padding: 10px 12px;
+  }
+
+  .modal-footer .btn {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+}
+
+/* Ensure horizontal scroll indicator is visible */
+.marks-calc-table-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.marks-calc-table-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.marks-calc-table-container::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.marks-calc-table-container::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Firefox scrollbar */
+.marks-calc-table-container {
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f1f1f1;
 }

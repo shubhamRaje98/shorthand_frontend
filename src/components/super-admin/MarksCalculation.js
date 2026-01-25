@@ -229,19 +229,27 @@ const MarksCalculation = () => {
     }
 
     try {
+      // Parse ignored words for each passage
+      const ignoreListA = row.QPA 
+        ? row.QPA.split(',').map(word => word.trim()).filter(word => word.length > 0)
+        : [];
+      const ignoreListB = row.QPB 
+        ? row.QPB.split(',').map(word => word.trim()).filter(word => word.length > 0)
+        : [];
+
       // Compare Passage A
-      const responseA = await axios.post('http://103.17.193.168:5002/compare', {
+      const responseA = await axios.post('http://localhost:5002/compare', {
         text1: row.ansPassageA,
         text2: row.passageA,
-        ignore_list: [],
+        ignore_list: ignoreListA,
         ignore_case: true
       });
 
       // Compare Passage B
-      const responseB = await axios.post('http://103.17.193.168:5002/compare', {
+      const responseB = await axios.post('http://localhost:5002/compare', {
         text1: row.ansPassageB,
         text2: row.passageB,
-        ignore_list: [],
+        ignore_list: ignoreListB,
         ignore_case: true
       });
 
