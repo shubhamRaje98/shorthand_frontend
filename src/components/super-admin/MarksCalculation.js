@@ -18,6 +18,7 @@ const MarksCalculation = () => {
     expertId: '',
     subm_done: ''
   });
+  const [selectedTable, setSelectedTable] = useState('expertreviewlog');
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [snackbar, setSnackbar] = useState({
@@ -327,6 +328,10 @@ const MarksCalculation = () => {
     try {
       // Build query parameters
       const queryParams = new URLSearchParams();
+      
+      // Always include the table parameter
+      queryParams.append('table', selectedTable);
+      
       Object.keys(filters).forEach(key => {
         if (filters[key] && filters[key] !== '') {
           queryParams.append(key, filters[key]);
@@ -342,7 +347,8 @@ const MarksCalculation = () => {
         setTableData(dataWithMistakes);
         setFilteredData(dataWithMistakes);
         extractFilterOptions(dataWithMistakes);
-        showSnackbar(`Successfully fetched ${response.data.count} records`, 'success');
+        const tableName = selectedTable === 'expertreviewlog' ? 'Expert Review' : 'Mod Review';
+        showSnackbar(`Successfully fetched ${response.data.count} records from ${tableName}`, 'success');
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -418,6 +424,14 @@ const MarksCalculation = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  // Fetch data when table selection changes
+  useEffect(() => {
+    if (tableData.length > 0 || filteredData.length > 0) {
+      // Only fetch if we've already loaded data once
+      fetchData();
+    }
+  }, [selectedTable]);
 
   // Apply filters locally
   const applyFilters = useCallback(() => {
@@ -530,7 +544,9 @@ const MarksCalculation = () => {
       <div className="marks-calc-header">
         <h2 className="marks-calc-title">Marks Calculation</h2>
         <p className="marks-calc-subtitle">
-          View and analyze student passages with filters
+          View and analyze student passages with filters • <span style={{ fontWeight: '600', color: '#0d6efd' }}>
+            {selectedTable === 'expertreviewlog' ? 'Expert Review Log' : 'Mod Review Log'}
+          </span>
         </p>
       </div>
 
@@ -640,6 +656,55 @@ const MarksCalculation = () => {
               <option value="1">Yes</option>
             </select>
           </div>
+        </div>
+
+        {/* Table Selection Toggle */}
+        <div className="marks-calc-table-toggle" style={{ 
+          marginTop: '20px', 
+          padding: '12px', 
+          backgroundColor: '#f8f9fa', 
+          borderRadius: '8px',
+          border: '2px solid #dee2e6'
+        }}>
+          <label style={{ 
+            fontWeight: '600', 
+            marginRight: '15px',
+            color: '#495057'
+          }}>Data Source:</label>
+          <div className="btn-group" role="group">
+            <button
+              type="button"
+              className={`btn ${
+                selectedTable === 'expertreviewlog' 
+                  ? 'btn-primary' 
+                  : 'btn-outline-secondary'
+              }`}
+              onClick={() => setSelectedTable('expertreviewlog')}
+              style={{ minWidth: '150px' }}
+            >
+              Expert Review Log
+            </button>
+            <button
+              type="button"
+              className={`btn ${
+                selectedTable === 'modreviewlog' 
+                  ? 'btn-primary' 
+                  : 'btn-outline-secondary'
+              }`}
+              onClick={() => setSelectedTable('modreviewlog')}
+              style={{ minWidth: '150px' }}
+            >
+              Mod Review Log
+            </button>
+          </div>
+          <span style={{ 
+            marginLeft: '15px', 
+            fontSize: '0.9em', 
+            color: '#6c757d',
+            fontStyle: 'italic'
+          }}>
+            Currently viewing: <strong>{selectedTable === 'expertreviewlog' ? 'Expert Review Log' : 'Mod Review Log'}</strong>
+          </span>
         </div>
 
         <div className="marks-calc-filter-actions">
