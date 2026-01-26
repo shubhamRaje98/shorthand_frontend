@@ -168,20 +168,18 @@ const MarksCalculation = () => {
       // A student is "present" if they have a calculated result (PASS/FAIL)
       // This is derived from the data array, NOT from subject_wise_count
       // Count every record as present
-      subject.presentStudents++;
+      if (row.result) {
+        subject.presentStudents++;
 
-      // Only classify pass/fail & grades if result exists
-      if (row.result === 'PASS') {
-        subject.passStudents++;
-
-        if (row.grade === 'A') subject.gradeA++;
-        else if (row.grade === 'B') subject.gradeB++;
-        else if (row.grade === 'C') subject.gradeC++;
-
-      } else if (row.result === 'FAIL') {
-        subject.failStudents++;
+        if (row.result === 'PASS') {
+          subject.passStudents++;
+          if (row.grade === 'A') subject.gradeA++;
+          else if (row.grade === 'B') subject.gradeB++;
+          else if (row.grade === 'C') subject.gradeC++;
+        } else if (row.result === 'FAIL') {
+          subject.failStudents++;
+        }
       }
-
     });
 
     // CALCULATE ABSENT STUDENTS
@@ -512,9 +510,11 @@ const MarksCalculation = () => {
 
   // Compare passages and calculate mistakes
   const comparePassagesForRow = async (row) => {
-    if (!row.passageA || !row.passageB || !row.ansPassageA || !row.ansPassageB) {
-      return null;
-    }
+    // Use single space for empty/null passages to allow calculation
+    const passageA = row.passageA && row.passageA.trim() !== '' ? row.passageA : ' ';
+    const passageB = row.passageB && row.passageB.trim() !== '' ? row.passageB : ' ';
+    const ansPassageA = row.ansPassageA && row.ansPassageA.trim() !== '' ? row.ansPassageA : ' ';
+    const ansPassageB = row.ansPassageB && row.ansPassageB.trim() !== '' ? row.ansPassageB : ' ';
 
     try {
       // Parse ignored words for each passage
@@ -527,16 +527,16 @@ const MarksCalculation = () => {
 
       // Compare Passage A
       const responseA = await axios.post('http://localhost:5002/compare', {
-        text1: row.ansPassageA,
-        text2: row.passageA,
+        text1: ansPassageA,
+        text2: passageA,
         ignore_list: ignoreListA,
         ignore_case: true
       });
 
       // Compare Passage B
       const responseB = await axios.post('http://localhost:5002/compare', {
-        text1: row.ansPassageB,
-        text2: row.passageB,
+        text1: ansPassageB,
+        text2: passageB,
         ignore_list: ignoreListB,
         ignore_case: true
       });
@@ -811,30 +811,28 @@ const MarksCalculation = () => {
     const totalRecords = filteredData.length;
     showSnackbar(`Calculating results for ${totalRecords} record(s) [${filterDesc}] using parallel processing...`, 'info');
 
-    // Prepare batch items for both passages
-    const validRows = filteredData.filter(
-      row => row.passageA && row.passageB && row.ansPassageA && row.ansPassageB
-    );
-    const invalidRows = filteredData.filter(
-      row => !row.passageA || !row.passageB || !row.ansPassageA || !row.ansPassageB
-    );
+    // Process all rows, using single space for empty/null passages
+    const validRows = filteredData;
 
     if (validRows.length === 0) {
       setLoading(false);
-      showSnackbar('No valid records to process (missing passage data)', 'warning');
+      showSnackbar('No records to process', 'warning');
       return;
     }
 
     // Create batch items for Passage A and Passage B
+    // Use single space for empty/null passages to allow calculation
     const batchItemsA = validRows.map((row, index) => {
       const ignoreListA = row.QPA
         ? row.QPA.split(',').map(word => word.trim()).filter(word => word.length > 0)
         : [];
+      const passageA = row.passageA && row.passageA.trim() !== '' ? row.passageA : ' ';
+      const ansPassageA = row.ansPassageA && row.ansPassageA.trim() !== '' ? row.ansPassageA : ' ';
       return {
         id: `${row.id}_A`,
         rowIndex: index,
-        text1: row.ansPassageA,
-        text2: row.passageA,
+        text1: ansPassageA,
+        text2: passageA,
         ignore_list: ignoreListA
       };
     });
@@ -843,11 +841,13 @@ const MarksCalculation = () => {
       const ignoreListB = row.QPB
         ? row.QPB.split(',').map(word => word.trim()).filter(word => word.length > 0)
         : [];
+      const passageB = row.passageB && row.passageB.trim() !== '' ? row.passageB : ' ';
+      const ansPassageB = row.ansPassageB && row.ansPassageB.trim() !== '' ? row.ansPassageB : ' ';
       return {
         id: `${row.id}_B`,
         rowIndex: index,
-        text1: row.ansPassageB,
-        text2: row.passageB,
+        text1: ansPassageB,
+        text2: passageB,
         ignore_list: ignoreListB
       };
     });
@@ -889,8 +889,8 @@ const MarksCalculation = () => {
           return row;
         });
 
-        // Combine with invalid rows (rows without passage data)
-        const finalData = [...updatedData, ...invalidRows];
+        // Use updated data directly (all rows processed)
+        const finalData = updatedData;
         
         // Sort by original order (by id)
         finalData.sort((a, b) => a.id - b.id);
@@ -1452,8 +1452,8 @@ const MarksCalculation = () => {
                           <button
                             className="btn btn-sm btn-outline-primary"
                             onClick={() => handleCalculateMistakes(row, actualIndex)}
-                            disabled={isCalculating || !row.passageA || !row.passageB}
-                            title={!row.passageA || !row.passageB ? 'Missing passage data' : 'Calculate mistakes'}
+                            disabled={isCalculating}
+                            title="Calculate mistakes (empty passages will be treated as single space)"
                           >
                             {isCalculating ? '...' : 'Calc'}
                           </button>
