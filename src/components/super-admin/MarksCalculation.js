@@ -75,17 +75,32 @@ const MarksCalculation = () => {
   };
 
   // Aggregate data by subject for the summary report
-  // Uses subjectWiseCountData from API for Appeared Students
-  // Derives Present Students from the data array (records with calculated results)
+  // ============================================================
+  // DATA SOURCE DISTINCTION:
+  // - Appeared Students: Comes from API's "subject_wise_count" array
+  //   (total students who appeared for the exam per subject)
+  // - Present Students: Derived from "data" array by counting records
+  //   with calculated results (row.result is not null/undefined)
+  // - Absent Students: Calculated as (Appeared - Present)
+  // ============================================================
   const aggregateSubjectWiseSummary = (data, subjectWiseCountData = []) => {
+    console.log('aggregateSubjectWiseSummary called with:', {
+      dataCount: data?.length,
+      subjectWiseCountDataCount: subjectWiseCountData?.length,
+      subjectWiseCountData
+    });
+    
     const subjectSummary = {};
 
-    // Create a map from subject_wise_count for quick lookup of appeared students
+    // Create a map from subject_wise_count (API response) for Appeared Students
+    // This represents the total number of students who appeared for each subject
     const appearedCountMap = {};
     subjectWiseCountData.forEach(item => {
       const subjectId = String(item.subjectId).trim();
       appearedCountMap[subjectId] = item.count || 0;
     });
+    
+    console.log('appearedCountMap:', appearedCountMap);
 
     // Initialize all subjects from mapping
     Object.entries(subjectMapping).forEach(([code, name]) => {
@@ -149,28 +164,29 @@ const MarksCalculation = () => {
 
       const subject = subjectSummary[subjectId];
 
-      // Check if student was present (has result calculated)
-      // Present Students are derived from data array - those with calculated results
-      if (row.result) {
-        subject.presentStudents++;
+      // COUNT PRESENT STUDENTS from data array
+      // A student is "present" if they have a calculated result (PASS/FAIL)
+      // This is derived from the data array, NOT from subject_wise_count
+      // Count every record as present
+      subject.presentStudents++;
 
-        if (row.result === 'PASS') {
-          subject.passStudents++;
-          // Count grades
-          if (row.grade === 'A') {
-            subject.gradeA++;
-          } else if (row.grade === 'B') {
-            subject.gradeB++;
-          } else if (row.grade === 'C') {
-            subject.gradeC++;
-          }
-        } else if (row.result === 'FAIL') {
-          subject.failStudents++;
-        }
+      // Only classify pass/fail & grades if result exists
+      if (row.result === 'PASS') {
+        subject.passStudents++;
+
+        if (row.grade === 'A') subject.gradeA++;
+        else if (row.grade === 'B') subject.gradeB++;
+        else if (row.grade === 'C') subject.gradeC++;
+
+      } else if (row.result === 'FAIL') {
+        subject.failStudents++;
       }
+
     });
 
-    // Calculate Absent Students = Appeared Students - Present Students
+    // CALCULATE ABSENT STUDENTS
+    // Absent = Appeared (from API subject_wise_count) - Present (from data array)
+    // Use Math.max(0, ...) to handle edge cases where data might be inconsistent
     Object.values(subjectSummary).forEach(subject => {
       subject.absentStudents = Math.max(0, subject.appearedStudents - subject.presentStudents);
     });
@@ -185,8 +201,18 @@ const MarksCalculation = () => {
 
   // Generate and download subject-wise result summary Excel
   // Uses subjectWiseCount state for Appeared Students from API
-  const generateSubjectWiseSummaryExcel = (data, subjectWiseCountData = subjectWiseCount) => {
-    const summary = aggregateSubjectWiseSummary(data, subjectWiseCountData);
+  const generateSubjectWiseSummaryExcel = (data, subjectWiseCountData) => {
+    // Use current state value if not provided (avoid closure issue with default params)
+    const actualSubjectWiseCount = subjectWiseCountData !== undefined ? subjectWiseCountData : subjectWiseCount;
+    
+    console.log('generateSubjectWiseSummaryExcel called with:', {
+      dataCount: data?.length,
+      subjectWiseCountData,
+      actualSubjectWiseCount,
+      subjectWiseCountState: subjectWiseCount
+    });
+    
+    const summary = aggregateSubjectWiseSummary(data, actualSubjectWiseCount);
 
     if (summary.length === 0) {
       showSnackbar('No data available to generate subject-wise summary', 'warning');
@@ -632,6 +658,12 @@ const MarksCalculation = () => {
         setTableData(dataWithMistakes);
         setFilteredData(dataWithMistakes);
         extractFilterOptions(dataWithMistakes);
+        
+        console.log('Fetch response:', {
+          count: response.data.count,
+          appeared_students: response.data.appeared_students,
+          subject_wise_count: response.data.subject_wise_count
+        });
         
         // Store subject_wise_count from API response for Appeared Students
         if (response.data.subject_wise_count && Array.isArray(response.data.subject_wise_count)) {
@@ -1468,6 +1500,8 @@ const MarksCalculation = () => {
                           <td className="col-mistakes">
                             <span className="marks-display marks-display-detail">{row.marksA}</span>
                           </td>
+                          <td className="col-result"></td>
+                          <td className="col-grade"></td>
                           <td className="col-action"></td>
                         </tr>
                         <tr className="passage-detail-row passage-b-row">
@@ -1499,6 +1533,8 @@ const MarksCalculation = () => {
                           <td className="col-mistakes">
                             <span className="marks-display marks-display-detail">{row.marksB}</span>
                           </td>
+                          <td className="col-result"></td>
+                          <td className="col-grade"></td>
                           <td className="col-action"></td>
                         </tr>
                       </>
