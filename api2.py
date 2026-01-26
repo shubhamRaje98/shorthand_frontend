@@ -10,17 +10,28 @@ from langdetect import detect
 from difflib import SequenceMatcher
 from concurrent.futures import ProcessPoolExecutor, as_completed
 import multiprocessing
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Download the necessary resources
 nltk.download('punkt')
-from flask_cors import CORS
+
 app = Flask(__name__)
+
+# Configure CORS with no timeout restrictions
 CORS(app, supports_credentials=True, origins='*')
+
+# Disable Flask's default timeout and set unlimited request size
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+app.config['MAX_CONTENT_LENGTH'] = None  # No limit on request size
 
 def preprocess_text(text):
     text = str(text) if pd.notna(text) else ""
     text = re.sub(r'_x[0-9A-Fa-f]{4}_', '', text)
-    text = text.replace('-', '').replace('.', ' ').replace(',','').replace('$','').replace('#','').replace('"','').replace("'","").replace('|','').replace('।','').replace('\u200d','').replace('?','').replace('!','').replace("'","").replace('“','').replace('”','').replace('‘','').replace('’','').replace('—',' ').replace('–',' ').replace('…',' ').replace('(',' ').replace(')',' ').replace('[',' ').replace(']',' ').replace('{',' ').replace('}',' ').replace(':','')
+    text = text.replace('-', '').replace('.', ' ').replace(',','').replace('$','').replace('#','').replace('"','').replace("'","").replace('|','').replace('।','').replace('\u200d','').replace('?','').replace('!','').replace("'","").replace('"','').replace('"','').replace(''','').replace(''','').replace('—',' ').replace('–',' ').replace('…',' ').replace('(',' ').replace(')',' ').replace('[',' ').replace(']',' ').replace('{',' ').replace('}',' ').replace(':','')
     text = re.sub(r'\s{2,}', ' ', text)
     text = text.strip()
     return text
@@ -484,7 +495,6 @@ def compare_texts(text1, text2, ignore_list):
                 added.append(word2)
             elif word2:
                 colored_words.append({'word': word2, 'color': 'black'})
-    print(spelling)
 
     return {
         'colored_words': colored_words,
@@ -496,6 +506,9 @@ def compare_texts(text1, text2, ignore_list):
 
 @app.route('/compare', methods=['POST'])
 def compare():
+    """
+    Single comparison endpoint (deprecated - use /compare-batch instead)
+    """
     data = request.json
     text1 = data.get('text1')
     text2 = data.get('text2')
@@ -522,6 +535,7 @@ def process_single_comparison(item):
             'result': result
         }
     except Exception as e:
+        logger.error(f"Error processing item {item.get('id')}: {str(e)}")
         return {
             'id': item.get('id'),
             'success': False,
@@ -534,42 +548,80 @@ def compare_batch():
     Batch comparison endpoint that processes multiple text comparisons in parallel.
     Expects JSON: { "items": [...], "max_workers": 16 }
     Each item: { "id": "unique_id", "text1": "...", "text2": "...", "ignore_list": [...] }
+    
+    This endpoint has NO TIMEOUT and will process all items regardless of how long it takes.
     """
-    data = request.json
-    items = data.get('items', [])
-    max_workers = min(data.get('max_workers', 16), multiprocessing.cpu_count())
-    
-    if not items:
-        return jsonify({'success': True, 'results': []})
-    
-    results = []
-    
-    # Use ProcessPoolExecutor for CPU-bound parallel processing
-    with ProcessPoolExecutor(max_workers=max_workers) as executor:
-        # Submit all tasks
-        future_to_item = {executor.submit(process_single_comparison, item): item for item in items}
+    try:
+        data = request.json
+        items = data.get('items', [])
+        max_workers = min(data.get('max_workers', 16), multiprocessing.cpu_count())
         
-        # Collect results as they complete
-        for future in as_completed(future_to_item):
-            try:
-                result = future.result()
-                results.append(result)
-            except Exception as e:
-                item = future_to_item[future]
-                results.append({
-                    'id': item.get('id'),
-                    'success': False,
-                    'error': str(e)
-                })
-    
-    # Sort results by id to maintain order
-    results.sort(key=lambda x: str(x.get('id', '')))
-    
-    return jsonify({
-        'success': True,
-        'results': results,
-        'total_processed': len(results)
-    })
+        logger.info(f"Starting batch processing: {len(items)} items with {max_workers} workers")
+        
+        if not items:
+            return jsonify({'success': True, 'results': []})
+        
+        results = []
+        
+        # Use ProcessPoolExecutor for CPU-bound parallel processing
+        # NO TIMEOUT - will run until all items are processed
+        with ProcessPoolExecutor(max_workers=max_workers) as executor:
+            # Submit all tasks
+            future_to_item = {executor.submit(process_single_comparison, item): item for item in items}
+            
+            # Collect results as they complete
+            completed_count = 0
+            total_items = len(future_to_item)
+            
+            for future in as_completed(future_to_item):
+                try:
+                    result = future.result()
+                    results.append(result)
+                    completed_count += 1
+                    
+                    # Log progress every 10% completion
+                    if completed_count % max(1, total_items // 10) == 0:
+                        logger.info(f"Progress: {completed_count}/{total_items} items completed ({(completed_count/total_items)*100:.1f}%)")
+                        
+                except Exception as e:
+                    item = future_to_item[future]
+                    logger.error(f"Future execution error for item {item.get('id')}: {str(e)}")
+                    results.append({
+                        'id': item.get('id'),
+                        'success': False,
+                        'error': str(e)
+                    })
+                    completed_count += 1
+        
+        # Sort results by id to maintain order
+        results.sort(key=lambda x: str(x.get('id', '')))
+        
+        logger.info(f"Batch processing completed: {len(results)} results returned")
+        
+        return jsonify({
+            'success': True,
+            'results': results,
+            'total_processed': len(results)
+        })
+        
+    except Exception as e:
+        logger.error(f"Batch processing endpoint error: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'message': 'Batch processing failed. Check server logs for details.'
+        }), 500
 
 if __name__ == '__main__':
-    app.run(host='localhost', port=5002, debug=True)
+    # Run with threaded=True to handle multiple requests
+    # debug=False in production to avoid timeout issues
+    logger.info("Starting Flask server on localhost:5002")
+    logger.info("Configuration: No timeout, unlimited request size, parallel processing enabled")
+    
+    app.run(
+        host='localhost',
+        port=5002,
+        debug=False,  # Set to False to prevent development server timeouts
+        threaded=True,  # Enable threading for better performance
+        use_reloader=False  # Disable reloader in production
+    )

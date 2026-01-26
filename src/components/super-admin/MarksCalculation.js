@@ -175,9 +175,9 @@ const MarksCalculation = () => {
       subject.absentStudents = Math.max(0, subject.appearedStudents - subject.presentStudents);
     });
 
-    // Convert to array and filter out subjects with no appeared students
+    // Convert to array and filter out subjects with no present students (no calculated results)
     const summaryArray = Object.values(subjectSummary)
-      .filter(s => s.appearedStudents > 0)
+      .filter(s => s.presentStudents > 0)
       .sort((a, b) => parseInt(a.subjectCode) - parseInt(b.subjectCode));
 
     return summaryArray;
@@ -824,10 +824,14 @@ const MarksCalculation = () => {
     const allBatchItems = [...batchItemsA, ...batchItemsB];
 
     try {
-      // Send batch request to the parallel processing endpoint
+      // Send batch request to the parallel processing endpoint with NO TIMEOUT
       const response = await axios.post('http://localhost:5002/compare-batch', {
         items: allBatchItems,
         max_workers: 16
+      }, {
+        timeout: 0, // Disable timeout completely
+        maxContentLength: Infinity,
+        maxBodyLength: Infinity
       });
 
       if (response.data.success) {
@@ -869,35 +873,18 @@ const MarksCalculation = () => {
         // Generate and download subject-wise summary Excel after calculation completes
         generateSubjectWiseSummaryExcel(finalData);
       } else {
-        throw new Error('Batch processing failed');
+        throw new Error('Batch processing failed - server returned unsuccessful response');
       }
     } catch (error) {
       console.error('Batch processing error:', error);
-      showSnackbar(`Error during parallel processing: ${error.message}. Falling back to sequential processing...`, 'warning');
-      
-      // Fallback to sequential processing
-      const updatedData = [];
-      for (let i = 0; i < filteredData.length; i++) {
-        const row = filteredData[i];
-        const mistakeData = await comparePassagesForRow(row);
-
-        if (mistakeData) {
-          updatedData.push({ ...row, ...mistakeData });
-        } else {
-          updatedData.push(row);
-        }
-      }
-
-      setFilteredData(updatedData);
-      setTableData(updatedData);
-      showSnackbar(`Finished calculating results for ${updatedData.length} record(s) [${filterDesc}] (sequential fallback)`, 'success');
-
-      // Generate and download subject-wise summary Excel after sequential fallback completes
-      generateSubjectWiseSummaryExcel(updatedData);
+      const errorMessage = error.response?.data?.message || error.message || 'Unknown error';
+      showSnackbar(`Error during batch processing: ${errorMessage}. Please check server logs and try again.`, 'error');
+      setLoading(false);
     } finally {
       setLoading(false);
     }
   };
+
 
   // Initial data fetch
   useEffect(() => {
