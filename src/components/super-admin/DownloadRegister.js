@@ -37,7 +37,7 @@ const DownloadRegister = () => {
     setError('');
 
     try {
-        const response = await axios.post('http://checking.shorthandonlineexam.in/generate-student-register', formData, {
+        const response = await axios.post('http://localhost:3000/generate-student-register', formData, {
         responseType: 'blob', // Important: The response is a binary PDF file
         headers: {
           'Content-Type': 'multipart/form-data',

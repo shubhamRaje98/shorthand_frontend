@@ -277,7 +277,7 @@ const SubmitAndDone = () => {
     const fetchInitialOptions = async () => {
       try {
         setLoading(true);
-        const res = await axios.get('http://checking.shorthandonlineexam.in/review-logs/filter-options', {
+        const res = await axios.get('http://localhost:3000/review-logs/filter-options', {
           params: { table: 'expertreviewlog' }
         });
         setOptions({
@@ -323,7 +323,7 @@ const SubmitAndDone = () => {
         params.subjectId = customFilters.subjectId;
       }
 
-      const res = await axios.get('http://checking.shorthandonlineexam.in/expert-review-logs', { params });
+      const res = await axios.get('http://localhost:3000/expert-review-logs', { params });
       setLogs(res.data.data || []);
       setCurrentPage(1); // Reset to the first page when filters change
 
@@ -362,7 +362,7 @@ const SubmitAndDone = () => {
         resetType: backendResetType
       };
 
-      const res = await axios.post('http://checking.shorthandonlineexam.in/expert-review-logs/reset', data);
+      const res = await axios.post('http://localhost:3000/expert-review-logs/reset', data);
       setMessage(res.data.message || 'Reset successful');
       fetchLogsWithFilters(filters);
     } catch (err) {

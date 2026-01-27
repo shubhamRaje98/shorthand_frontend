@@ -171,7 +171,7 @@ const FetchPassageById = () => {
     useEffect(() => {
       const fetchPassages = async () => {
           try {
-                const response = await axios.get(`http://checking.shorthandonlineexam.in/student-passages/${subjectId}/${qset}/${studentId}/${departmentId}`, { withCredentials: true });
+                const response = await axios.get(`http://localhost:3000/student-passages/${subjectId}/${qset}/${studentId}/${departmentId}`, { withCredentials: true });
                 if (response.status === 200 && response.data && Object.keys(response.data).length > 0) {
                 console.log("Raw data:", JSON.stringify(response.data));
                 setPassages(response.data);
@@ -189,7 +189,7 @@ const FetchPassageById = () => {
     useEffect(() => {
       const fetchAudio = async () => {
         try {
-          const response = await axios.get(`http://checking.shorthandonlineexam.in/get-student-audio-id/${subjectId}/${qset}/${studentId}/${departmentId}`, { withCredentials: true });
+          const response = await axios.get(`http://localhost:3000/get-student-audio-id/${subjectId}/${qset}/${studentId}/${departmentId}`, { withCredentials: true });
           if (response.status === 200) {
             setAudioUrl(response.data.passage1);
             setAudioBUrl(response.data.passage2);
@@ -207,7 +207,7 @@ const FetchPassageById = () => {
           try {
               console.log(subjectId, qset, activePassage, studentId);
               
-              const response = await axios.post('http://checking.shorthandonlineexam.in/student-active-passage', {
+              const response = await axios.post('http://localhost:3000/student-active-passage', {
                   subjectId,
                   qset,
                   activePassage,
@@ -308,7 +308,7 @@ const FetchPassageById = () => {
       // Send total mistakes, marks, and individual mistake counts to server
       // const sendMarksToServer = async () => {
       //   try {
-      //     const response = await axios.post(`http://checking.shorthandonlineexam.in/update-student-marks/${subjectId}/${qset}`, {
+      //     const response = await axios.post(`http://localhost:3000/update-student-marks/${subjectId}/${qset}`, {
       //       total_mistakes: total,
       //       total_marks: parseFloat(average.toFixed(2)),
       //       spelling: counts.spelling,
@@ -436,7 +436,7 @@ const FetchPassageById = () => {
         }
 
         // Still send only the incorrect word to the backend
-        const response = await axios.post('http://checking.shorthandonlineexam.in/student-add-ignore-word', {
+        const response = await axios.post('http://localhost:3000/student-add-ignore-word', {
           subjectId,
           qset,
           activePassage,
@@ -458,7 +458,7 @@ const FetchPassageById = () => {
     
     const handleUndoWord = useCallback(async (wordToRemove) => {
       try {
-        const response = await axios.post('http://checking.shorthandonlineexam.in/student-undo-word', {
+        const response = await axios.post('http://localhost:3000/student-undo-word', {
           subjectId,
           qset,
           activePassage,
@@ -481,7 +481,7 @@ const FetchPassageById = () => {
 
     const handleClearIgnoreList = useCallback(async () => {
       try {
-        const response = await axios.post('http://checking.shorthandonlineexam.in/student-clear-ignore-list', {
+        const response = await axios.post('http://localhost:3000/student-clear-ignore-list', {
           subjectId,
           qset,
           activePassage,

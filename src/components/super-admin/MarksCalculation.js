@@ -15,7 +15,7 @@ const MarksCalculation = () => {
     subjectId: '',
     examType: '',
     qset: '',
-    departmentId: '',
+    departmentId: '10',
     expertId: '',
     subm_done: ''
   });
@@ -402,6 +402,7 @@ const MarksCalculation = () => {
         const value = filters[key];
         const displayValue = key === 'subm_done' ? (value === '1' ? 'Yes' : 'No') : value;
         activeFilters.push(`${filterLabels[key]} = ${displayValue}`);
+        console.log(`Active Filters: ${activeFilters}`)
       }
     });
 
@@ -658,10 +659,18 @@ const MarksCalculation = () => {
       }
     } catch (error) {
       console.error('Error comparing passages:', error);
-      return null;
+      // Return error information for better error handling
+      return {
+        error: true,
+        message: error.response?.status === 404 
+          ? 'Comparison service not found (404). Please check if the API server is running on port 5002.'
+          : error.code === 'ECONNREFUSED' || error.message.includes('Network Error')
+          ? 'Cannot connect to comparison service. Please ensure the API server is running on http://localhost:5002'
+          : error.response?.data?.message || error.message || 'Failed to connect to comparison service'
+      };
     }
 
-    return null;
+    return { error: true, message: 'No response received from comparison service' };
   };
 
   // Fetch data from backend
@@ -681,7 +690,7 @@ const MarksCalculation = () => {
       });
 
       const response = await axios.get(
-        `http://checking.shorthandonlineexam.in/student-passages-with-filters?${queryParams.toString()}`
+        `http://localhost:3000/student-passages-with-filters?${queryParams.toString()}`
       );
 
       if (response.data.success) {
@@ -690,6 +699,7 @@ const MarksCalculation = () => {
         setFilteredData(dataWithMistakes);
         extractFilterOptions(dataWithMistakes);
         
+        console.log('Subject Wise Count: ', response.data.subject_wise_count);
         console.log('Fetch response:', {
           count: response.data.count,
           appeared_students: response.data.appeared_students,
@@ -732,7 +742,7 @@ const MarksCalculation = () => {
     
     const mistakeData = await comparePassagesForRow(row);
     
-    if (mistakeData) {
+    if (mistakeData && !mistakeData.error) {
       // Update the row with mistake data
       const updatedData = [...filteredData];
       updatedData[index] = {
@@ -754,7 +764,9 @@ const MarksCalculation = () => {
       
       showSnackbar(`Result calculated successfully for Student ID: ${row.student_id}`, 'success');
     } else {
-      showSnackbar('Failed to calculate mistakes - missing passage data', 'error');
+      // Show specific error message if available, otherwise generic message
+      const errorMessage = mistakeData?.message || 'Failed to calculate mistakes - missing passage data';
+      showSnackbar(errorMessage, 'error');
     }
     
     setComparingRows(prev => {
@@ -848,6 +860,12 @@ const MarksCalculation = () => {
 
   // Calculate mistakes for all rows using batch processing
   const handleCalculateAllMistakes = async () => {
+    // Validate that departmentId filter is selected
+    if (!filters.departmentId || filters.departmentId === '') {
+      showSnackbar('Please select a Department ID before calculating results', 'error');
+      return;
+    }
+
     setLoading(true);
     const filterDesc = getFilterDescription();
     const totalRecords = filteredData.length;
@@ -974,6 +992,14 @@ const MarksCalculation = () => {
       fetchData();
     }
   }, [selectedTable]);
+
+  // Auto-fetch data when filters change
+  useEffect(() => {
+    // Skip if no data has been loaded yet (initial mount is handled by the first useEffect)
+    if (tableData.length > 0 || filteredData.length > 0) {
+      fetchData();
+    }
+  }, [filters]);
 
   // Apply filters locally
   const applyFilters = useCallback(() => {
@@ -1284,7 +1310,7 @@ const MarksCalculation = () => {
           disabled={loading || filteredData.length === 0 || !filteredData.some(row => row.result)}
           title="Download subject-wise result summary Excel (requires calculated results)"
         >
-          📊 Download Subject Summary
+          Download Subject-Wise Summary Report
         </button>
       </div>
 

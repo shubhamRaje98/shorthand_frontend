@@ -22,7 +22,7 @@ const PCRegistration = () => {
     setLoading(true);
     setError('');
     try {
-      const response = await axios.get(`http://checking.shorthandonlineexam.in/get-pcregistration`);
+      const response = await axios.get(`http://localhost:3000/get-pcregistration`);
       setData(response.data);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -40,7 +40,7 @@ const PCRegistration = () => {
     }
 
     try {
-      const response = await axios.post('http://checking.shorthandonlineexam.in/delete-pcregistration', {
+      const response = await axios.post('http://localhost:3000/delete-pcregistration', {
         id: item.id
       });
 

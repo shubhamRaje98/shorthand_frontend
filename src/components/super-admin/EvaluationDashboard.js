@@ -24,7 +24,7 @@
 //         setExcelFile(null);
 
 //         try {
-//             const response = await axios.post('http://checking.shorthandonlineexam.in/api/v1/evaluation/evaluate', {
+//             const response = await axios.post('http://localhost:3000/api/v1/evaluation/evaluate', {
 //                 departmentIds: departmentIds
 //             });
 
@@ -40,7 +40,7 @@
 
 //     const handleDownloadExcel = () => {
 //         if (excelFile) {
-//             window.open(`http://checking.shorthandonlineexam.in/api/v1/evaluation/download/${excelFile}`, '_blank');
+//             window.open(`http://localhost:3000/api/v1/evaluation/download/${excelFile}`, '_blank');
 //         }
 //     };
 
@@ -295,7 +295,7 @@ const EvaluationDashboard = () => {
         try {
             // ✅ REMOVED: timeout property - will wait indefinitely
             const response = await axios.post(
-                'http://checking.shorthandonlineexam.in/api/v1/evaluation/evaluate',
+                'http://localhost:3000/api/v1/evaluation/evaluate',
                 {
                     departmentIds: departmentIds
                 },
@@ -324,7 +324,7 @@ const EvaluationDashboard = () => {
 
     const handleDownloadExcel = () => {
         if (excelFile) {
-            window.open(`http://checking.shorthandonlineexam.in/api/v1/evaluation/download/${excelFile}`, '_blank');
+            window.open(`http://localhost:3000/api/v1/evaluation/download/${excelFile}`, '_blank');
         }
     };
 

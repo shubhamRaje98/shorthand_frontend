@@ -37,7 +37,7 @@ const CreateBatch = () => {
 
   const fetchDepartments = async () => {
     try {
-      const response = await axios.get('http://checking.shorthandonlineexam.in/api/new-department/departments');
+      const response = await axios.get('http://localhost:3000/api/new-department/departments');
       setDepartments(response.data.data || []);
     } catch (err) {
       console.error('Error fetching departments:', err);
@@ -68,7 +68,7 @@ const CreateBatch = () => {
     setMessage('');
 
     try {
-      const response = await axios.post('http://checking.shorthandonlineexam.in/api/new-department/batches', formData);
+      const response = await axios.post('http://localhost:3000/api/new-department/batches', formData);
       
       setMessage('Batch created successfully!');
       clearStepData();
