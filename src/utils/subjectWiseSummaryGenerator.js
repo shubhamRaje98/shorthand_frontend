@@ -1,5 +1,6 @@
 // src/utils/subjectWiseSummaryGenerator.js
 import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 
 // Subject code to name mapping based on the reference image
 const subjectMapping = {
@@ -342,4 +343,178 @@ export const generateSubjectWiseSummaryExcel = (data, subjectWiseCountData) => {
   };
 };
 
-export default generateSubjectWiseSummaryExcel;
+/**
+ * Generate subject-wise summary Excel using the pre-existing template
+ * This function reads the template file, preserves all formatting, and populates
+ * data cells (C6:K6 through C19:K19) with calculated values
+ * @param {Array} data - Array of student records with calculated results
+ * @param {Array} subjectWiseCountData - Optional array from API containing appeared students per subject
+ * @returns {Promise<Object>} Result object with success status and message
+ */
+export const generateSubjectWiseSummaryFromTemplate = async (data, subjectWiseCountData) => {
+  console.log('generateSubjectWiseSummaryFromTemplate called with:', {
+    dataCount: data?.length,
+    subjectWiseCountDataCount: subjectWiseCountData?.length,
+    subjectWiseCountData
+  });
+  
+  try {
+    // If no subject_wise_count from backend, derive it from the data array
+    let actualSubjectWiseCount = subjectWiseCountData;
+    
+    if (!actualSubjectWiseCount || actualSubjectWiseCount.length === 0) {
+      actualSubjectWiseCount = deriveSubjectWiseCountFromData(data);
+      
+      if (actualSubjectWiseCount.length === 0) {
+        return {
+          success: false,
+          message: 'Warning: Could not determine appeared students count.'
+        };
+      }
+    }
+    
+    const summary = aggregateSubjectWiseSummary(data, actualSubjectWiseCount);
+
+    if (summary.length === 0) {
+      return {
+        success: false,
+        message: 'No data available to generate subject-wise summary'
+      };
+    }
+
+    // Calculate totals
+    const totals = summary.reduce((acc, row) => ({
+      appearedStudents: acc.appearedStudents + row.appearedStudents,
+      presentStudents: acc.presentStudents + row.presentStudents,
+      absentStudents: acc.absentStudents + row.absentStudents,
+      passStudents: acc.passStudents + row.passStudents,
+      gradeA: acc.gradeA + row.gradeA,
+      gradeB: acc.gradeB + row.gradeB,
+      gradeC: acc.gradeC + row.gradeC,
+      failStudents: acc.failStudents + row.failStudents
+    }), {
+      appearedStudents: 0,
+      presentStudents: 0,
+      absentStudents: 0,
+      passStudents: 0,
+      gradeA: 0,
+      gradeB: 0,
+      gradeC: 0,
+      failStudents: 0
+    });
+
+    // Load the template file
+    const templatePath = `${process.env.PUBLIC_URL || ''}/templates/GCC SH JUNE 25 RESULT SUMMARY FORMAT.xlsx`;
+    const workbook = new ExcelJS.Workbook();
+    
+    // Fetch the template file
+    const response = await fetch(templatePath);
+    if (!response.ok) {
+      throw new Error(`Failed to load template: ${response.statusText}`);
+    }
+    
+    const arrayBuffer = await response.arrayBuffer();
+    await workbook.xlsx.load(arrayBuffer);
+    
+    // Get the first worksheet
+    const worksheet = workbook.worksheets[0];
+    
+    if (!worksheet) {
+      throw new Error('Template worksheet not found');
+    }
+
+    // Populate data rows from C6 to K6, continuing through C19:K19
+    // The template has 14 rows for data (rows 6-19)
+    // Column mapping based on template structure:
+    // B: SR NO (auto-numbered in template, we'll populate it)
+    // C: Subject Code
+    // D: Subject Name
+    // E: Appeared Students
+    // F: Present Students
+    // G: Absent Students
+    // H: Pass Students
+    // I: Grade A
+    // J: Grade B
+    // K: Grade C
+    // L: Fail Students
+    // M: Percentage Result (As per Present)
+    
+    const startRow = 6; // Row 6 in Excel (1-indexed)
+    const maxDataRows = 14; // Rows 6 through 19 = 14 rows
+    
+    summary.forEach((row, index) => {
+      if (index >= maxDataRows) return; // Stop if we exceed template rows
+      
+      const rowNumber = startRow + index;
+      // Calculate percentage as decimal (e.g., 0.1161 for 11.61%)
+      // Excel's percentage formatting will handle the display
+      const percentage = row.presentStudents > 0
+        ? (row.passStudents / row.presentStudents)
+        : 0;
+      
+      // Populate cells A through K
+      worksheet.getCell(`A${rowNumber}`).value = row.subjectCode;
+      worksheet.getCell(`B${rowNumber}`).value = row.subjectName;
+      worksheet.getCell(`C${rowNumber}`).value = row.appearedStudents;
+      worksheet.getCell(`D${rowNumber}`).value = row.presentStudents;
+      worksheet.getCell(`E${rowNumber}`).value = row.absentStudents;
+      worksheet.getCell(`F${rowNumber}`).value = row.passStudents;
+      worksheet.getCell(`G${rowNumber}`).value = row.gradeA;
+      worksheet.getCell(`H${rowNumber}`).value = row.gradeB;
+      worksheet.getCell(`I${rowNumber}`).value = row.gradeC;
+      worksheet.getCell(`J${rowNumber}`).value = row.failStudents;
+      worksheet.getCell(`K${rowNumber}`).value = percentage;
+    });
+    
+    // Populate totals row (row 20 in the template)
+    const totalsRow = 19;
+    // Calculate percentage as decimal (e.g., 0.1161 for 11.61%)
+    const totalPercentage = totals.presentStudents > 0
+      ? (totals.passStudents / totals.presentStudents)
+      : 0;
+    
+    // Align columns with data rows (A-K)
+    // Columns A-B typically have "Total" label in template
+    worksheet.getCell(`C${totalsRow}`).value = totals.appearedStudents;
+    worksheet.getCell(`D${totalsRow}`).value = totals.presentStudents;
+    worksheet.getCell(`E${totalsRow}`).value = totals.absentStudents;
+    worksheet.getCell(`F${totalsRow}`).value = totals.passStudents;
+    worksheet.getCell(`G${totalsRow}`).value = totals.gradeA;
+    worksheet.getCell(`H${totalsRow}`).value = totals.gradeB;
+    worksheet.getCell(`I${totalsRow}`).value = totals.gradeC;
+    worksheet.getCell(`J${totalsRow}`).value = totals.failStudents;
+    worksheet.getCell(`K${totalsRow}`).value = totalPercentage;
+    
+    // Generate filename with date
+    const dateStr = new Date().toISOString().split('T')[0];
+    const filename = `GCC_SH_RESULT_SUMMARY_${dateStr}.xlsx`;
+    
+    // Write to buffer and trigger download
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { 
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+    });
+    
+    // Create download link
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+    
+    return {
+      success: true,
+      message: `Subject-wise result summary downloaded: ${filename}`,
+      filename
+    };
+  } catch (error) {
+    console.error('Error generating subject-wise summary from template:', error);
+    return {
+      success: false,
+      message: `Error generating report: ${error.message}`
+    };
+  }
+};

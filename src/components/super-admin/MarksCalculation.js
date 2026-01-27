@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import './MarksCalculation.css';
-import { generateSubjectWiseSummaryExcel } from '../../utils/subjectWiseSummaryGenerator';
+import { generateSubjectWiseSummaryFromTemplate } from '../../utils/subjectWiseSummaryGenerator';
 import { comparePassagesForRow, processBatchComparison } from '../../services/comparisonService';
 
 const MarksCalculation = () => {
@@ -233,8 +233,8 @@ const MarksCalculation = () => {
 
         // Generate and download subject-wise summary Excel after calculation completes
         // Explicitly pass subjectWiseCount state to ensure appeared students count is available
-        console.log('Calling generateSubjectWiseSummaryExcel with subjectWiseCount:', subjectWiseCount);
-        const summaryResult = generateSubjectWiseSummaryExcel(finalData, subjectWiseCount);
+        console.log('Calling generateSubjectWiseSummaryFromTemplate with subjectWiseCount:', subjectWiseCount);
+        const summaryResult = await generateSubjectWiseSummaryFromTemplate(finalData, subjectWiseCount);
         if (summaryResult.success) {
           console.log('✅ Subject-wise summary generated:', summaryResult.filename);
         } else {
@@ -578,12 +578,12 @@ const MarksCalculation = () => {
         </button>
         <button
           className="btn btn-sm btn-success ms-2"
-          onClick={() => {
-            const result = generateSubjectWiseSummaryExcel(filteredData, subjectWiseCount);
+          onClick={async () => {
+            const result = await generateSubjectWiseSummaryFromTemplate(filteredData, subjectWiseCount);
             showSnackbar(result.message, result.success ? 'success' : 'warning');
           }}
           disabled={loading || filteredData.length === 0 || !filteredData.some(row => row.result)}
-          title="Download subject-wise result summary Excel (requires calculated results)"
+          title="Download subject-wise result summary Excel using template (requires calculated results)"
         >
           Download Subject-Wise Summary Report
         </button>
@@ -596,7 +596,6 @@ const MarksCalculation = () => {
       }}>
         <div style={{
           overflow: 'auto',
-          borderRadius: '8px',
           backgroundColor: '#fff',
         }}>
           <table className="marks-calc-table" style={{

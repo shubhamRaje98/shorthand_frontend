@@ -24,6 +24,7 @@
     "bootstrap": "^5.3.8",
     "cors": "^2.8.5",
     "diff": "^5.2.0",
+    "exceljs": "^4.4.0",
     "file-saver": "^2.0.5",
     "framer-motion": "^12.23.15",
     "jspdf": "^3.0.1",
