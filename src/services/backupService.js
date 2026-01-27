@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export const downloadBackup = async (filename) => {
     try {
-        const response = await axios.get('http://localhost:3000/download-backup', {
+        const response = await axios.get('http://checking.shorthandonlineexam.in/download-backup', {
             params: { filename },
             responseType: 'blob'
         });

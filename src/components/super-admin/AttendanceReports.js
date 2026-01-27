@@ -38,7 +38,7 @@ const AttendanceReports = () => {
         setLoading(true);
         setError('');
         try {
-            let url = 'http://localhost:3000/super-admin-student-track-dashboard';
+            let url = 'http://checking.shorthandonlineexam.in/super-admin-student-track-dashboard';
 
             // console.log("Fetching data from URL:", url);
             const response = await axios.post(url, { withCredentials: true });
@@ -89,7 +89,7 @@ const AttendanceReports = () => {
         setLoading(true);
         setError('');
         try {
-            let url = 'http://localhost:3000/admin/attendance-reports'
+            let url = 'http://checking.shorthandonlineexam.in/admin/attendance-reports'
             const params = [];
             if (batch) params.push(`batch=${batch}`);
             if (centerValue) params.push(`center=${centerValue}`);
@@ -266,7 +266,7 @@ const AttendanceReports = () => {
                                     <td className="ar-table-cell">{report.absent_count}</td>
                                     <td className="ar-table-cell ar-pdf-link">
                                         <a
-                                            href={`http://localhost:3000${report.attendance_pdf}`}
+                                            href={`http://checking.shorthandonlineexam.in${report.attendance_pdf}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="ar-view-link"

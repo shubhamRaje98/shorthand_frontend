@@ -43,7 +43,7 @@ const Stage2 = () => {
     const handleSubmit = async () => {
       try {
           const response = await axios.post(
-              `http://localhost:3000/submit-passage-review/${subjectId}/${qset}`, 
+              `http://checking.shorthandonlineexam.in/submit-passage-review/${subjectId}/${qset}`, 
               {}, 
               { withCredentials: true }
           );
@@ -73,7 +73,7 @@ const Stage2 = () => {
     useEffect(() => {
         const fetchPassages = async () => {
           try {
-            const response = await axios.get(`http://localhost:3000/expert-assigned-passages/${subjectId}/${qset}`, { withCredentials: true });
+            const response = await axios.get(`http://checking.shorthandonlineexam.in/expert-assigned-passages/${subjectId}/${qset}`, { withCredentials: true });
             if (response.status === 200) {
               console.log("Raw data:", JSON.stringify(response.data));
               // Handle potential null values
@@ -102,7 +102,7 @@ const Stage2 = () => {
           try {
               console.log(subjectId, qset, activePassage);
               
-              const response = await axios.post('http://localhost:3000/active-passage', {
+              const response = await axios.post('http://checking.shorthandonlineexam.in/active-passage', {
                   subjectId,
                   qset,
                   activePassage,
@@ -139,7 +139,7 @@ const Stage2 = () => {
 
     const handleAddIgnoreWord = useCallback(async (word) => {
       try {
-        const response = await axios.post('http://localhost:3000/add-ignore-word', {
+        const response = await axios.post('http://checking.shorthandonlineexam.in/add-ignore-word', {
           subjectId,
           qset,
           activePassage,
@@ -159,7 +159,7 @@ const Stage2 = () => {
     
     const handleUndoWord = useCallback(async (wordToRemove) => {
       try {
-        const response = await axios.post('http://localhost:3000/undo-word', {
+        const response = await axios.post('http://checking.shorthandonlineexam.in/undo-word', {
           subjectId,
           qset,
           activePassage,

@@ -176,7 +176,7 @@ function GenerateSkillTestHallTickets() {
       const formData = new FormData();
       formData.append('excelFile', excelFile);
       
-      const response = await axios.post('http://localhost:3000/api/skilltest-halltickets/upload-skilltest-student-data', formData, {
+      const response = await axios.post('http://checking.shorthandonlineexam.in/api/skilltest-halltickets/upload-skilltest-student-data', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -307,7 +307,7 @@ function GenerateSkillTestHallTickets() {
       setError(null);
       
       const response = await axios.post(
-        `http://localhost:3000/api/skilltest-halltickets/download-skilltest-hall-ticket/${student.APPLICATION_NUMBER}?departmentId=${departmentId}&qrType=${qrType}`,
+        `http://checking.shorthandonlineexam.in/api/skilltest-halltickets/download-skilltest-hall-ticket/${student.APPLICATION_NUMBER}?departmentId=${departmentId}&qrType=${qrType}`,
         { customization },
         { 
           responseType: 'blob',
@@ -346,7 +346,7 @@ function GenerateSkillTestHallTickets() {
       }, 500);
 
       const response = await axios.post(
-        `http://localhost:3000/api/skilltest-halltickets/download-all-skilltest-hall-tickets?departmentId=${departmentId}&qrType=${qrType}`,
+        `http://checking.shorthandonlineexam.in/api/skilltest-halltickets/download-all-skilltest-hall-tickets?departmentId=${departmentId}&qrType=${qrType}`,
         { customization },
         { 
           responseType: 'json',

@@ -46,9 +46,9 @@
 // //   const fetchInitialData = async () => {
 // //     try {
 // //       const [deptRes, centerRes, studentsRes] = await Promise.all([
-// //         axios.get('http://localhost:3000/api/new-department/departments'),
-// //         axios.get('http://localhost:3000/api/new-department/exam-centers'),
-// //         axios.get('http://localhost:3000/api/new-department/students')
+// //         axios.get('http://checking.shorthandonlineexam.in/api/new-department/departments'),
+// //         axios.get('http://checking.shorthandonlineexam.in/api/new-department/exam-centers'),
+// //         axios.get('http://checking.shorthandonlineexam.in/api/new-department/students')
 // //       ]);
 
 // //       setDepartments(deptRes.data.data || []);
@@ -69,7 +69,7 @@
 // //     }
 
 // //     try {
-// //       const response = await axios.get(`http://localhost:3000/api/new-department/batches/${departmentId}`);
+// //       const response = await axios.get(`http://checking.shorthandonlineexam.in/api/new-department/batches/${departmentId}`);
 // //       setBatches(response.data.data || []);
 // //     } catch (err) {
 // //       console.error('Error fetching batches:', err);
@@ -131,12 +131,12 @@
 // //     setMessage('');
 
 // //     try {
-// //       const response = await axios.post('http://localhost:3000/api/new-department/students', formData);
+// //       const response = await axios.post('http://checking.shorthandonlineexam.in/api/new-department/students', formData);
       
 // //       setMessage('Student registered successfully!');
       
 // //       // Refresh students list
-// //       const studentsRes = await axios.get('http://localhost:3000/api/new-department/students');
+// //       const studentsRes = await axios.get('http://checking.shorthandonlineexam.in/api/new-department/students');
 // //       setStudents(studentsRes.data.data || []);
       
 // //       // Reset form
@@ -553,9 +553,9 @@
 //   const fetchInitialData = async () => {
 //     try {
 //       const [deptRes, centerRes, studentsRes] = await Promise.all([
-//         axios.get('http://localhost:3000/api/new-department/departments'),
-//         axios.get('http://localhost:3000/api/new-department/exam-centers'),
-//         axios.get('http://localhost:3000/api/new-department/students')
+//         axios.get('http://checking.shorthandonlineexam.in/api/new-department/departments'),
+//         axios.get('http://checking.shorthandonlineexam.in/api/new-department/exam-centers'),
+//         axios.get('http://checking.shorthandonlineexam.in/api/new-department/students')
 //       ]);
 
 //       setDepartments(deptRes.data.data || []);
@@ -576,7 +576,7 @@
 //     }
 
 //     try {
-//       const response = await axios.get(`http://localhost:3000/api/new-department/batches/${departmentId}`);
+//       const response = await axios.get(`http://checking.shorthandonlineexam.in/api/new-department/batches/${departmentId}`);
 //       setBatches(response.data.data || []);
 //     } catch (err) {
 //       console.error('Error fetching batches:', err);
@@ -638,12 +638,12 @@
 //     setMessage('');
 
 //     try {
-//       const response = await axios.post('http://localhost:3000/api/new-department/students', formData);
+//       const response = await axios.post('http://checking.shorthandonlineexam.in/api/new-department/students', formData);
       
 //       setMessage('Student registered successfully!');
       
 //       // Refresh students list
-//       const studentsRes = await axios.get('http://localhost:3000/api/new-department/students');
+//       const studentsRes = await axios.get('http://checking.shorthandonlineexam.in/api/new-department/students');
 //       setStudents(studentsRes.data.data || []);
       
 //       // Reset form but don't clear persisted data (allow multiple student registrations)
@@ -1035,9 +1035,9 @@ const RegisterStudents = () => {
   const fetchInitialData = async () => {
     try {
       const [deptRes, centerRes, studentsRes] = await Promise.all([
-        axios.get('http://localhost:3000/api/new-department/departments'),
-        axios.get('http://localhost:3000/api/new-department/exam-centers'),
-        axios.get('http://localhost:3000/api/new-department/students')
+        axios.get('http://checking.shorthandonlineexam.in/api/new-department/departments'),
+        axios.get('http://checking.shorthandonlineexam.in/api/new-department/exam-centers'),
+        axios.get('http://checking.shorthandonlineexam.in/api/new-department/students')
       ]);
 
       setDepartments(deptRes.data.data || []);
@@ -1058,7 +1058,7 @@ const RegisterStudents = () => {
     }
 
     try {
-      const response = await axios.get(`http://localhost:3000/api/new-department/batches/${departmentId}`);
+      const response = await axios.get(`http://checking.shorthandonlineexam.in/api/new-department/batches/${departmentId}`);
       setBatches(response.data.data || []);
     } catch (err) {
       console.error('Error fetching batches:', err);
@@ -1119,11 +1119,11 @@ const RegisterStudents = () => {
     setMessage('');
 
     try {
-      const response = await axios.post('http://localhost:3000/api/new-department/students', formData);
+      const response = await axios.post('http://checking.shorthandonlineexam.in/api/new-department/students', formData);
       
       setMessage('Student registered successfully!');
       
-      const studentsRes = await axios.get('http://localhost:3000/api/new-department/students');
+      const studentsRes = await axios.get('http://checking.shorthandonlineexam.in/api/new-department/students');
       setStudents(studentsRes.data.data || []);
       
       // Reset form but keep department, center, batch selection

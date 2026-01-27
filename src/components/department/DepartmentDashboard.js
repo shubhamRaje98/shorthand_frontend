@@ -197,7 +197,7 @@ const DepartmentDashboard = () => {
     try {
       console.log("🔍 Fetching filter options...");
       const response = await axios.post(
-        "http://localhost:3000/track-students-on-department-code",
+        "http://checking.shorthandonlineexam.in/track-students-on-department-code",
         {},
         { withCredentials: true }
       );
@@ -330,7 +330,7 @@ const DepartmentDashboard = () => {
 
   const fetchSubjects = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/subjects");
+      const response = await axios.get("http://checking.shorthandonlineexam.in/subjects");
       console.log("📚 Subjects fetched:", response.data);
       if (response.data.subjects) {
         setAllSubjects(response.data.subjects);
@@ -390,7 +390,7 @@ const DepartmentDashboard = () => {
       );
 
       const response = await axios.post(
-        "http://localhost:3000/total-login-count", // This is the total active/loggedin count from studentController
+        "http://checking.shorthandonlineexam.in/total-login-count", // This is the total active/loggedin count from studentController
         // Wait, for this specific function we want to hit the studentController endpoint which we modified earlier?
         // Yes, totalLoginCounts is in studentController.
         requestBody,
@@ -431,7 +431,7 @@ const DepartmentDashboard = () => {
       }
 
       const response = await axios.post(
-        "http://localhost:3000/get-stage-counts",
+        "http://checking.shorthandonlineexam.in/get-stage-counts",
         requestBody,
         { withCredentials: true }
       );
@@ -546,7 +546,7 @@ const DepartmentDashboard = () => {
       console.log("🚀 Sending request body:", requestBody);
 
       const response = await axios.post(
-        "http://localhost:3000/track-students-on-department-code",
+        "http://checking.shorthandonlineexam.in/track-students-on-department-code",
         requestBody,
         { withCredentials: true }
       );

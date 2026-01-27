@@ -201,14 +201,45 @@ const MarksCalculation = () => {
   // Uses subjectWiseCount state for Appeared Students from API
   const generateSubjectWiseSummaryExcel = (data, subjectWiseCountData) => {
     // Use current state value if not provided (avoid closure issue with default params)
-    const actualSubjectWiseCount = subjectWiseCountData !== undefined ? subjectWiseCountData : subjectWiseCount;
+    let actualSubjectWiseCount = subjectWiseCountData !== undefined ? subjectWiseCountData : subjectWiseCount;
     
     console.log('generateSubjectWiseSummaryExcel called with:', {
       dataCount: data?.length,
       subjectWiseCountData,
       actualSubjectWiseCount,
-      subjectWiseCountState: subjectWiseCount
+      subjectWiseCountState: subjectWiseCount,
+      hasDepartmentFilter: filters.departmentId !== ''
     });
+    
+    // If no subject_wise_count from backend, derive it from the data array
+    // Count unique student_ids per subject as "Appeared Students"
+    if (!actualSubjectWiseCount || actualSubjectWiseCount.length === 0) {
+      console.warn('⚠️ No subject_wise_count from backend. Deriving from data array...');
+      
+      // Group by subjectId and count unique student_ids
+      const subjectStudentMap = {};
+      data.forEach(row => {
+        const subjectId = String(row.subjectId).trim();
+        if (!subjectStudentMap[subjectId]) {
+          subjectStudentMap[subjectId] = new Set();
+        }
+        if (row.student_id) {
+          subjectStudentMap[subjectId].add(row.student_id);
+        }
+      });
+      
+      // Convert to array format expected by aggregateSubjectWiseSummary
+      actualSubjectWiseCount = Object.entries(subjectStudentMap).map(([subjectId, studentSet]) => ({
+        subjectId: subjectId,
+        count: studentSet.size
+      }));
+      
+      console.log('✅ Derived subject_wise_count from data:', actualSubjectWiseCount);
+      
+      if (actualSubjectWiseCount.length === 0) {
+        showSnackbar('Warning: Could not determine appeared students count.', 'warning');
+      }
+    }
     
     const summary = aggregateSubjectWiseSummary(data, actualSubjectWiseCount);
 
@@ -650,7 +681,7 @@ const MarksCalculation = () => {
       });
 
       const response = await axios.get(
-        `http://localhost:3000/student-passages-with-filters?${queryParams.toString()}`
+        `http://checking.shorthandonlineexam.in/student-passages-with-filters?${queryParams.toString()}`
       );
 
       if (response.data.success) {
@@ -662,13 +693,24 @@ const MarksCalculation = () => {
         console.log('Fetch response:', {
           count: response.data.count,
           appeared_students: response.data.appeared_students,
-          subject_wise_count: response.data.subject_wise_count
+          subject_wise_count: response.data.subject_wise_count,
+          hasDepartmentFilter: filters.departmentId !== ''
         });
         
         // Store subject_wise_count from API response for Appeared Students
         if (response.data.subject_wise_count && Array.isArray(response.data.subject_wise_count)) {
+          console.log('✅ Storing subject_wise_count:', response.data.subject_wise_count);
           setSubjectWiseCount(response.data.subject_wise_count);
+          
+          // Warn if array is empty (backend returned empty array)
+          if (response.data.subject_wise_count.length === 0) {
+            console.warn('⚠️ subject_wise_count array is empty. Backend may not have found students for this department.');
+            if (filters.departmentId === '') {
+              console.warn('⚠️ This is expected because departmentId filter is not applied.');
+            }
+          }
         } else {
+          console.warn('⚠️ No subject_wise_count in response, setting to empty array');
           setSubjectWiseCount([]);
         }
         
@@ -903,7 +945,9 @@ const MarksCalculation = () => {
         );
 
         // Generate and download subject-wise summary Excel after calculation completes
-        generateSubjectWiseSummaryExcel(finalData);
+        // Explicitly pass subjectWiseCount state to ensure appeared students count is available
+        console.log('Calling generateSubjectWiseSummaryExcel with subjectWiseCount:', subjectWiseCount);
+        generateSubjectWiseSummaryExcel(finalData, subjectWiseCount);
       } else {
         throw new Error('Batch processing failed - server returned unsuccessful response');
       }

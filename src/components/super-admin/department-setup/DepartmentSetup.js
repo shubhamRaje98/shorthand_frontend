@@ -66,11 +66,11 @@ const DepartmentSetup = () => {
       setLoading(true);
       
       const [deptRes, centerRes, batchRes, controllerRes, studentRes] = await Promise.all([
-        axios.get('http://localhost:3000/api/new-department/departments'),
-        axios.get('http://localhost:3000/api/new-department/exam-centers'),
-        axios.get('http://localhost:3000/api/new-department/batches'),
-        axios.get('http://localhost:3000/api/new-department/controllers'),
-        axios.get('http://localhost:3000/api/new-department/students')
+        axios.get('http://checking.shorthandonlineexam.in/api/new-department/departments'),
+        axios.get('http://checking.shorthandonlineexam.in/api/new-department/exam-centers'),
+        axios.get('http://checking.shorthandonlineexam.in/api/new-department/batches'),
+        axios.get('http://checking.shorthandonlineexam.in/api/new-department/controllers'),
+        axios.get('http://checking.shorthandonlineexam.in/api/new-department/students')
       ]);
 
       const completedSteps = [

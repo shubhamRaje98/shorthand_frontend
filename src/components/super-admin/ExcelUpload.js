@@ -85,7 +85,7 @@
 //       setLoading(true);
 //       setProcessingStep('Loading available tables...');
 
-//       const response = await axios.get('http://localhost:3000/api/excel/available-tables');
+//       const response = await axios.get('http://checking.shorthandonlineexam.in/api/excel/available-tables');
 
 //       if (response.data.success) {
 //         setAvailableTables(response.data.tables);
@@ -114,7 +114,7 @@
 //       setLoadingSchema(true);
 //       console.log(`[INFO] Fetching schema for table: ${tableName}`);
 
-//       const response = await axios.get(`http://localhost:3000/api/excel/table-schema/${tableName}`);
+//       const response = await axios.get(`http://checking.shorthandonlineexam.in/api/excel/table-schema/${tableName}`);
 
 //       if (response.data.success) {
 //         setTableSchema(response.data);
@@ -283,7 +283,7 @@
 //       setUploadProgress(25);
 
 //       const response = await axios.post(
-//         'http://localhost:3000/api/excel/upload-excel-data', 
+//         'http://checking.shorthandonlineexam.in/api/excel/upload-excel-data', 
 //         formData, 
 //         {
 //           headers: {
@@ -1411,7 +1411,7 @@ function ExcelUpload() {
       setLoading(true);
       setProcessingStep('Loading available tables...');
 
-      const response = await axios.get('http://localhost:3000/api/excel/available-tables');
+      const response = await axios.get('http://checking.shorthandonlineexam.in/api/excel/available-tables');
 
       if (response.data.success) {
         setAvailableTables(response.data.tables);
@@ -1440,7 +1440,7 @@ function ExcelUpload() {
       setLoadingSchema(true);
       console.log(`[INFO] Fetching schema for table: ${tableName}`);
 
-      const response = await axios.get(`http://localhost:3000/api/excel/table-schema/${tableName}`);
+      const response = await axios.get(`http://checking.shorthandonlineexam.in/api/excel/table-schema/${tableName}`);
 
       if (response.data.success) {
         setTableSchema(response.data);
@@ -1775,7 +1775,7 @@ function ExcelUpload() {
       setUploadProgress(25);
 
       const response = await axios.post(
-        'http://localhost:3000/api/excel/upload-excel-data',
+        'http://checking.shorthandonlineexam.in/api/excel/upload-excel-data',
         formData,
         {
           headers: {
