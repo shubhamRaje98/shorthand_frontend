@@ -1,8 +1,9 @@
 // src/components/super-admin/MarksCalculation.js
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import * as XLSX from 'xlsx';
 import './MarksCalculation.css';
+import { generateSubjectWiseSummaryExcel } from '../../utils/subjectWiseSummaryGenerator';
+import { comparePassagesForRow, processBatchComparison } from '../../services/comparisonService';
 
 const MarksCalculation = () => {
   const [tableData, setTableData] = useState([]);
@@ -57,321 +58,6 @@ const MarksCalculation = () => {
     setModalContent({ open: false, title: '', content: '' });
   };
 
-  // Subject code to name mapping based on the reference image
-  const subjectMapping = {
-    '50': 'Eng SH 60',
-    '51': 'Eng SH 80',
-    '52': 'Eng SH 100',
-    '53': 'Eng SH 120',
-    '54': 'Eng SH 130',
-    '60': 'Mar SH 60',
-    '61': 'Mar SH 80',
-    '62': 'Mar SH 100',
-    '63': 'Mar SH 120',
-    '70': 'Hin SH 60',
-    '71': 'Hin SH 80',
-    '72': 'Hin SH 100',
-    '73': 'Hin SH 120'
-  };
-
-  // Aggregate data by subject for the summary report
-  // ============================================================
-  // DATA SOURCE DISTINCTION:
-  // - Appeared Students: Comes from API's "subject_wise_count" array
-  //   (total students who appeared for the exam per subject)
-  // - Present Students: Derived from "data" array by counting records
-  //   with calculated results (row.result is not null/undefined)
-  // - Absent Students: Calculated as (Appeared - Present)
-  // ============================================================
-  const aggregateSubjectWiseSummary = (data, subjectWiseCountData = []) => {
-    console.log('aggregateSubjectWiseSummary called with:', {
-      dataCount: data?.length,
-      subjectWiseCountDataCount: subjectWiseCountData?.length,
-      subjectWiseCountData
-    });
-    
-    const subjectSummary = {};
-
-    // Create a map from subject_wise_count (API response) for Appeared Students
-    // This represents the total number of students who appeared for each subject
-    const appearedCountMap = {};
-    subjectWiseCountData.forEach(item => {
-      const subjectId = String(item.subjectId).trim();
-      appearedCountMap[subjectId] = item.count || 0;
-    });
-    
-    console.log('appearedCountMap:', appearedCountMap);
-
-    // Initialize all subjects from mapping
-    Object.entries(subjectMapping).forEach(([code, name]) => {
-      subjectSummary[code] = {
-        subjectCode: code,
-        subjectName: name,
-        appearedStudents: appearedCountMap[code] || 0, // Use API count for appeared
-        presentStudents: 0,
-        absentStudents: 0,
-        passStudents: 0,
-        gradeA: 0,
-        gradeB: 0,
-        gradeC: 0,
-        failStudents: 0
-      };
-    });
-
-    // Also initialize subjects from subject_wise_count that may not be in mapping
-    subjectWiseCountData.forEach(item => {
-      const subjectId = String(item.subjectId).trim();
-      if (!subjectSummary[subjectId]) {
-        subjectSummary[subjectId] = {
-          subjectCode: subjectId,
-          subjectName: `Subject ${subjectId}`,
-          appearedStudents: item.count || 0,
-          presentStudents: 0,
-          absentStudents: 0,
-          passStudents: 0,
-          gradeA: 0,
-          gradeB: 0,
-          gradeC: 0,
-          failStudents: 0
-        };
-      }
-    });
-
-    // Process each student record from data array to derive Present Students
-    data.forEach(row => {
-      const subjectId = String(row.subjectId).trim();
-      
-      // Create entry for subjects found in data but not in mapping or subject_wise_count
-      if (!subjectSummary[subjectId]) {
-        subjectSummary[subjectId] = {
-          subjectCode: subjectId,
-          subjectName: row.subject_name || `Subject ${subjectId}`,
-          appearedStudents: appearedCountMap[subjectId] || 0,
-          presentStudents: 0,
-          absentStudents: 0,
-          passStudents: 0,
-          gradeA: 0,
-          gradeB: 0,
-          gradeC: 0,
-          failStudents: 0
-        };
-      }
-
-      // Update subject name if available from data
-      if (row.subject_name && subjectSummary[subjectId].subjectName.startsWith('Subject ')) {
-        subjectSummary[subjectId].subjectName = row.subject_name;
-      }
-
-      const subject = subjectSummary[subjectId];
-
-      // COUNT PRESENT STUDENTS from data array
-      // A student is "present" if they have a calculated result (PASS/FAIL)
-      // This is derived from the data array, NOT from subject_wise_count
-      // Count every record as present
-      if (row.result) {
-        subject.presentStudents++;
-
-        if (row.result === 'PASS') {
-          subject.passStudents++;
-          if (row.grade === 'A') subject.gradeA++;
-          else if (row.grade === 'B') subject.gradeB++;
-          else if (row.grade === 'C') subject.gradeC++;
-        } else if (row.result === 'FAIL') {
-          subject.failStudents++;
-        }
-      }
-    });
-
-    // CALCULATE ABSENT STUDENTS
-    // Absent = Appeared (from API subject_wise_count) - Present (from data array)
-    // Use Math.max(0, ...) to handle edge cases where data might be inconsistent
-    Object.values(subjectSummary).forEach(subject => {
-      subject.absentStudents = Math.max(0, subject.appearedStudents - subject.presentStudents);
-    });
-
-    // Convert to array and filter out subjects with no present students (no calculated results)
-    const summaryArray = Object.values(subjectSummary)
-      .filter(s => s.presentStudents > 0)
-      .sort((a, b) => parseInt(a.subjectCode) - parseInt(b.subjectCode));
-
-    return summaryArray;
-  };
-
-  // Generate and download subject-wise result summary Excel
-  // Uses subjectWiseCount state for Appeared Students from API
-  const generateSubjectWiseSummaryExcel = (data, subjectWiseCountData) => {
-    // Use current state value if not provided (avoid closure issue with default params)
-    let actualSubjectWiseCount = subjectWiseCountData !== undefined ? subjectWiseCountData : subjectWiseCount;
-    
-    console.log('generateSubjectWiseSummaryExcel called with:', {
-      dataCount: data?.length,
-      subjectWiseCountData,
-      actualSubjectWiseCount,
-      subjectWiseCountState: subjectWiseCount,
-      hasDepartmentFilter: filters.departmentId !== ''
-    });
-    
-    // If no subject_wise_count from backend, derive it from the data array
-    // Count unique student_ids per subject as "Appeared Students"
-    if (!actualSubjectWiseCount || actualSubjectWiseCount.length === 0) {
-      console.warn('⚠️ No subject_wise_count from backend. Deriving from data array...');
-      
-      // Group by subjectId and count unique student_ids
-      const subjectStudentMap = {};
-      data.forEach(row => {
-        const subjectId = String(row.subjectId).trim();
-        if (!subjectStudentMap[subjectId]) {
-          subjectStudentMap[subjectId] = new Set();
-        }
-        if (row.student_id) {
-          subjectStudentMap[subjectId].add(row.student_id);
-        }
-      });
-      
-      // Convert to array format expected by aggregateSubjectWiseSummary
-      actualSubjectWiseCount = Object.entries(subjectStudentMap).map(([subjectId, studentSet]) => ({
-        subjectId: subjectId,
-        count: studentSet.size
-      }));
-      
-      console.log('✅ Derived subject_wise_count from data:', actualSubjectWiseCount);
-      
-      if (actualSubjectWiseCount.length === 0) {
-        showSnackbar('Warning: Could not determine appeared students count.', 'warning');
-      }
-    }
-    
-    const summary = aggregateSubjectWiseSummary(data, actualSubjectWiseCount);
-
-    if (summary.length === 0) {
-      showSnackbar('No data available to generate subject-wise summary', 'warning');
-      return;
-    }
-
-    // Calculate totals
-    const totals = summary.reduce((acc, row) => ({
-      appearedStudents: acc.appearedStudents + row.appearedStudents,
-      presentStudents: acc.presentStudents + row.presentStudents,
-      absentStudents: acc.absentStudents + row.absentStudents,
-      passStudents: acc.passStudents + row.passStudents,
-      gradeA: acc.gradeA + row.gradeA,
-      gradeB: acc.gradeB + row.gradeB,
-      gradeC: acc.gradeC + row.gradeC,
-      failStudents: acc.failStudents + row.failStudents
-    }), {
-      appearedStudents: 0,
-      presentStudents: 0,
-      absentStudents: 0,
-      passStudents: 0,
-      gradeA: 0,
-      gradeB: 0,
-      gradeC: 0,
-      failStudents: 0
-    });
-
-    // Create worksheet data with headers matching the template
-    const wsData = [];
-
-    // Title rows
-    wsData.push(['महाराष्ट्र राज्य परीक्षा परिषद, पुणे']);
-    wsData.push(['GCC COMPUTER SHORTHAND EXAMINATION, JUNE 2025']);
-    wsData.push(['SUBJECTWISE RESULT SUMMARY']);
-    wsData.push([]); // Empty row
-
-    // Header row
-    wsData.push([
-      'Subject Code',
-      'Subject',
-      'Appeared Students',
-      'Present Students',
-      'Absent Students',
-      'Pass Students',
-      'Grade A',
-      'Grade B',
-      'Grade C',
-      'Fail Students',
-      'Percentage Result (As per Present)'
-    ]);
-
-    // Data rows
-    summary.forEach(row => {
-      const percentage = row.presentStudents > 0
-        ? ((row.passStudents / row.presentStudents) * 100).toFixed(2) + '%'
-        : '0.00%';
-
-      wsData.push([
-        row.subjectCode,
-        row.subjectName,
-        row.appearedStudents,
-        row.presentStudents,
-        row.absentStudents,
-        row.passStudents,
-        row.gradeA,
-        row.gradeB,
-        row.gradeC,
-        row.failStudents,
-        percentage
-      ]);
-    });
-
-    // Total row
-    const totalPercentage = totals.presentStudents > 0
-      ? ((totals.passStudents / totals.presentStudents) * 100).toFixed(2) + '%'
-      : '0.00%';
-
-    wsData.push([
-      '-',
-      'Total',
-      totals.appearedStudents,
-      totals.presentStudents,
-      totals.absentStudents,
-      totals.passStudents,
-      totals.gradeA,
-      totals.gradeB,
-      totals.gradeC,
-      totals.failStudents,
-      totalPercentage
-    ]);
-
-    // Create worksheet
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
-
-    // Set column widths to match the template
-    ws['!cols'] = [
-      { wch: 12 },  // Subject Code
-      { wch: 14 },  // Subject
-      { wch: 14 },  // Appeared Students
-      { wch: 14 },  // Present Students
-      { wch: 12 },  // Absent Students
-      { wch: 12 },  // Pass Students
-      { wch: 10 },  // Grade A
-      { wch: 10 },  // Grade B
-      { wch: 10 },  // Grade C
-      { wch: 12 },  // Fail Students
-      { wch: 20 }   // Percentage Result
-    ];
-
-    // Merge cells for title rows
-    ws['!merges'] = [
-      { s: { r: 0, c: 0 }, e: { r: 0, c: 10 } }, // Title row 1
-      { s: { r: 1, c: 0 }, e: { r: 1, c: 10 } }, // Title row 2
-      { s: { r: 2, c: 0 }, e: { r: 2, c: 10 } }  // Title row 3
-    ];
-
-    // Create workbook and add worksheet
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Subject-wise Summary');
-
-    // Generate filename with date
-    const dateStr = new Date().toISOString().split('T')[0];
-    const filename = `GCC_SH_RESULT_SUMMARY_${dateStr}.xlsx`;
-
-    // Download the file
-    XLSX.writeFile(wb, filename);
-
-    showSnackbar(`Subject-wise result summary downloaded: ${filename}`, 'success');
-  };
-
   // Extract unique values for filter dropdowns
   const extractFilterOptions = (data) => {
     const options = {
@@ -413,264 +99,6 @@ const MarksCalculation = () => {
     } else {
       return activeFilters.join(' and ');
     }
-  };
-
-  // Rounding function as per requirements
-  const roundMarks = (marks) => {
-    const num = parseFloat(marks);
-    const wholePart = Math.floor(num);
-    const decimalPart = num - wholePart;
-    
-    if (decimalPart <= 0.50) {
-      // Round to nearest 0.5
-      if (decimalPart === 0) return num;
-      if (decimalPart <= 0.25) return wholePart + 0.5;
-      return wholePart + 0.5;
-    } else {
-      // Round up to next whole number
-      return Math.ceil(num);
-    }
-  };
-
-  // Calculate result and grade
-  const calculateResultAndGrade = (marksA, marksB, totalMarks) => {
-    const numMarksA = parseFloat(marksA);
-    const numMarksB = parseFloat(marksB);
-    const numTotal = parseFloat(totalMarks);
-
-    // Apply rounding
-    let roundedA = roundMarks(numMarksA);
-    let roundedB = roundMarks(numMarksB);
-    let roundedTotal = roundedA + roundedB;
-
-    // Store original values before grace
-    const originalA = roundedA;
-    const originalB = roundedB;
-    const originalTotal = roundedTotal;
-
-    // Initialize grace marks
-    let graceMarksA = 0;
-    let graceMarksB = 0;
-    let totalGrace = 0;
-
-    // Check if student fails initially
-    const failsTotal = roundedTotal < 50;
-    const failsPassageA = roundedA < 15;
-    const failsPassageB = roundedB < 15;
-    const initiallyFails = failsTotal || failsPassageA || failsPassageB;
-
-    // Apply grace marks only if initially fails
-    if (initiallyFails) {
-      const maxGrace = 2;
-      let remainingGrace = maxGrace;
-
-      // Calculate how much grace is needed
-      const graceNeededForTotal = Math.max(0, 50 - roundedTotal);
-      const graceNeededForA = Math.max(0, 15 - roundedA);
-      const graceNeededForB = Math.max(0, 15 - roundedB);
-
-      // Prioritize passage minimums first
-      if (graceNeededForA > 0 && remainingGrace > 0) {
-        graceMarksA = Math.min(graceNeededForA, remainingGrace);
-        remainingGrace -= graceMarksA;
-        roundedA += graceMarksA;
-        totalGrace += graceMarksA;
-      }
-
-      if (graceNeededForB > 0 && remainingGrace > 0) {
-        graceMarksB = Math.min(graceNeededForB, remainingGrace);
-        remainingGrace -= graceMarksB;
-        roundedB += graceMarksB;
-        totalGrace += graceMarksB;
-      }
-
-      // If still below 50 total and have grace remaining
-      roundedTotal = roundedA + roundedB;
-      if (roundedTotal < 50 && remainingGrace > 0) {
-        const additionalGrace = Math.min(50 - roundedTotal, remainingGrace);
-        // Add to passage that needs it most (or split)
-        if (roundedA < roundedB) {
-          graceMarksA += additionalGrace;
-          roundedA += additionalGrace;
-        } else {
-          graceMarksB += additionalGrace;
-          roundedB += additionalGrace;
-        }
-        totalGrace += additionalGrace;
-      }
-
-      roundedTotal = roundedA + roundedB;
-    }
-
-    // Determine PASS/FAIL
-    const passes = roundedTotal >= 50 && roundedA >= 15 && roundedB >= 15;
-    const result = passes ? 'PASS' : 'FAIL';
-
-    // Calculate grade only for PASS
-    let grade = '';
-    if (result === 'PASS') {
-      // Grade based on original percentage (before grace marks)
-      const percentageBeforeGrace = (originalTotal / 80) * 100; // Assuming max is 80 for SKILL, 50 for GCC
-      
-      // If passed only with grace, assign lowest passing grade
-      if (initiallyFails && totalGrace > 0) {
-        grade = 'C';
-      } else {
-        // Normal grade assignment
-        if (percentageBeforeGrace >= 75) {
-          grade = 'A';
-        } else if (percentageBeforeGrace >= 60) {
-          grade = 'B';
-        } else {
-          grade = 'C';
-        }
-      }
-    }
-
-    return {
-      result,
-      grade,
-      roundedA: roundedA.toFixed(2),
-      roundedB: roundedB.toFixed(2),
-      roundedTotal: roundedTotal.toFixed(2),
-      graceMarksA,
-      graceMarksB,
-      totalGrace,
-      finalMarks: roundedTotal.toFixed(2)
-    };
-  };
-
-  // Compare passages and calculate mistakes
-  const comparePassagesForRow = async (row) => {
-    // Use single space for empty/null passages to allow calculation
-    const passageA = row.passageA && row.passageA.trim() !== '' ? row.passageA : ' ';
-    const passageB = row.passageB && row.passageB.trim() !== '' ? row.passageB : ' ';
-    const ansPassageA = row.ansPassageA && row.ansPassageA.trim() !== '' ? row.ansPassageA : ' ';
-    const ansPassageB = row.ansPassageB && row.ansPassageB.trim() !== '' ? row.ansPassageB : ' ';
-
-    try {
-      // Parse ignored words for each passage
-      const ignoreListA = row.QPA 
-        ? row.QPA.split(',').map(word => word.trim()).filter(word => word.length > 0)
-        : [];
-      const ignoreListB = row.QPB 
-        ? row.QPB.split(',').map(word => word.trim()).filter(word => word.length > 0)
-        : [];
-
-      // Compare Passage A
-      const responseA = await axios.post('http://localhost:5002/compare', {
-        text1: ansPassageA,
-        text2: passageA,
-        ignore_list: ignoreListA,
-        ignore_case: true
-      });
-
-      // Compare Passage B
-      const responseB = await axios.post('http://localhost:5002/compare', {
-        text1: ansPassageB,
-        text2: passageB,
-        ignore_list: ignoreListB,
-        ignore_case: true
-      });
-
-      if (responseA.status === 200 && responseB.status === 200) {
-        const mistakesA = responseA.data;
-        const mistakesB = responseB.data;
-
-        // Calculate mistakes for Passage A
-        const spellingA = mistakesA.spelling?.length || 0;
-        const missedA = mistakesA.missed?.length || 0;
-        const addedA = mistakesA.added?.length || 0;
-        const grammarA = mistakesA.grammar?.length || 0;
-        const totalA = spellingA + missedA + addedA + grammarA;
-
-        // Calculate mistakes for Passage B
-        const spellingB = mistakesB.spelling?.length || 0;
-        const missedB = mistakesB.missed?.length || 0;
-        const addedB = mistakesB.added?.length || 0;
-        const grammarB = mistakesB.grammar?.length || 0;
-        const totalB = spellingB + missedB + addedB + grammarB;
-
-        // Calculate total mistakes from both passages
-        const totalSpelling = spellingA + spellingB;
-        const totalMissed = missedA + missedB;
-        const totalAdded = addedA + addedB;
-        const totalGrammar = grammarA + grammarB;
-        const totalMistakes = totalSpelling + totalMissed + totalAdded + totalGrammar;
-
-        // Calculate marks for Passage A
-        let marksA;
-        if (row.examType === 'SKILL') {
-          marksA = 80 - (totalA / 2); // 40 marks per passage for SKILL
-        } else {
-          marksA = 50 - (totalA / 2); // 25 marks per passage for GCC
-        }
-        marksA = Math.max(0, marksA);
-
-        // Calculate marks for Passage B
-        let marksB;
-        if (row.examType === 'SKILL') {
-          marksB = 80 - (totalB / 2);
-        } else {
-          marksB = 50 - (totalB / 2);
-        }
-        marksB = Math.max(0, marksB);
-
-        // Calculate total marks
-        const totalMarks = marksA + marksB;
-
-        // Calculate result and grade
-        const resultData = calculateResultAndGrade(marksA.toFixed(2), marksB.toFixed(2), totalMarks.toFixed(2));
-
-        return {
-          spelling: totalSpelling,
-          missed: totalMissed,
-          added: totalAdded,
-          grammar: totalGrammar,
-          total: totalMistakes,
-          marks: totalMarks.toFixed(2),
-          // Passage A details
-          spellingA,
-          missedA,
-          addedA,
-          grammarA,
-          totalA,
-          marksA: marksA.toFixed(2),
-          // Passage B details
-          spellingB,
-          missedB,
-          addedB,
-          grammarB,
-          totalB,
-          marksB: marksB.toFixed(2),
-          // Result and Grade
-          result: resultData.result,
-          grade: resultData.grade,
-          roundedA: resultData.roundedA,
-          roundedB: resultData.roundedB,
-          roundedTotal: resultData.roundedTotal,
-          graceMarksA: resultData.graceMarksA,
-          graceMarksB: resultData.graceMarksB,
-          totalGrace: resultData.totalGrace,
-          finalMarks: resultData.finalMarks,
-          mistakesA,
-          mistakesB
-        };
-      }
-    } catch (error) {
-      console.error('Error comparing passages:', error);
-      // Return error information for better error handling
-      return {
-        error: true,
-        message: error.response?.status === 404 
-          ? 'Comparison service not found (404). Please check if the API server is running on port 5002.'
-          : error.code === 'ECONNREFUSED' || error.message.includes('Network Error')
-          ? 'Cannot connect to comparison service. Please ensure the API server is running on http://localhost:5002'
-          : error.response?.data?.message || error.message || 'Failed to connect to comparison service'
-      };
-    }
-
-    return { error: true, message: 'No response received from comparison service' };
   };
 
   // Fetch data from backend
@@ -742,7 +170,7 @@ const MarksCalculation = () => {
     
     const mistakeData = await comparePassagesForRow(row);
     
-    if (mistakeData && !mistakeData.error) {
+    if (mistakeData && mistakeData.success) {
       // Update the row with mistake data
       const updatedData = [...filteredData];
       updatedData[index] = {
@@ -764,8 +192,8 @@ const MarksCalculation = () => {
       
       showSnackbar(`Result calculated successfully for Student ID: ${row.student_id}`, 'success');
     } else {
-      // Show specific error message if available, otherwise generic message
-      const errorMessage = mistakeData?.message || 'Failed to calculate mistakes - missing passage data';
+      // Show specific error message from service
+      const errorMessage = mistakeData?.message || 'Failed to calculate mistakes';
       showSnackbar(errorMessage, 'error');
     }
     
@@ -774,88 +202,6 @@ const MarksCalculation = () => {
       newSet.delete(row.id);
       return newSet;
     });
-  };
-
-  // Process batch results and calculate marks
-  const processBatchResults = (row, mistakesA, mistakesB) => {
-    if (!mistakesA || !mistakesB) return null;
-
-    // Calculate mistakes for Passage A
-    const spellingA = mistakesA.spelling?.length || 0;
-    const missedA = mistakesA.missed?.length || 0;
-    const addedA = mistakesA.added?.length || 0;
-    const grammarA = mistakesA.grammar?.length || 0;
-    const totalA = spellingA + missedA + addedA + grammarA;
-
-    // Calculate mistakes for Passage B
-    const spellingB = mistakesB.spelling?.length || 0;
-    const missedB = mistakesB.missed?.length || 0;
-    const addedB = mistakesB.added?.length || 0;
-    const grammarB = mistakesB.grammar?.length || 0;
-    const totalB = spellingB + missedB + addedB + grammarB;
-
-    // Calculate total mistakes from both passages
-    const totalSpelling = spellingA + spellingB;
-    const totalMissed = missedA + missedB;
-    const totalAdded = addedA + addedB;
-    const totalGrammar = grammarA + grammarB;
-    const totalMistakes = totalSpelling + totalMissed + totalAdded + totalGrammar;
-
-    // Calculate marks for Passage A
-    let marksA;
-    if (row.examType === 'SKILL') {
-      marksA = 80 - (totalA / 2);
-    } else {
-      marksA = 50 - (totalA / 2);
-    }
-    marksA = Math.max(0, marksA);
-
-    // Calculate marks for Passage B
-    let marksB;
-    if (row.examType === 'SKILL') {
-      marksB = 80 - (totalB / 2);
-    } else {
-      marksB = 50 - (totalB / 2);
-    }
-    marksB = Math.max(0, marksB);
-
-    // Calculate total marks
-    const totalMarks = marksA + marksB;
-
-    // Calculate result and grade
-    const resultData = calculateResultAndGrade(marksA.toFixed(2), marksB.toFixed(2), totalMarks.toFixed(2));
-
-    return {
-      spelling: totalSpelling,
-      missed: totalMissed,
-      added: totalAdded,
-      grammar: totalGrammar,
-      total: totalMistakes,
-      marks: totalMarks.toFixed(2),
-      spellingA,
-      missedA,
-      addedA,
-      grammarA,
-      totalA,
-      marksA: marksA.toFixed(2),
-      spellingB,
-      missedB,
-      addedB,
-      grammarB,
-      totalB,
-      marksB: marksB.toFixed(2),
-      result: resultData.result,
-      grade: resultData.grade,
-      roundedA: resultData.roundedA,
-      roundedB: resultData.roundedB,
-      roundedTotal: resultData.roundedTotal,
-      graceMarksA: resultData.graceMarksA,
-      graceMarksB: resultData.graceMarksB,
-      totalGrace: resultData.totalGrace,
-      finalMarks: resultData.finalMarks,
-      mistakesA,
-      mistakesB
-    };
   };
 
   // Calculate mistakes for all rows using batch processing
@@ -871,109 +217,35 @@ const MarksCalculation = () => {
     const totalRecords = filteredData.length;
     showSnackbar(`Calculating results for ${totalRecords} record(s) [${filterDesc}] using parallel processing...`, 'info');
 
-    // Process all rows, using single space for empty/null passages
-    const validRows = filteredData;
-
-    if (validRows.length === 0) {
-      setLoading(false);
-      showSnackbar('No records to process', 'warning');
-      return;
-    }
-
-    // Create batch items for Passage A and Passage B
-    // Use single space for empty/null passages to allow calculation
-    const batchItemsA = validRows.map((row, index) => {
-      const ignoreListA = row.QPA
-        ? row.QPA.split(',').map(word => word.trim()).filter(word => word.length > 0)
-        : [];
-      const passageA = row.passageA && row.passageA.trim() !== '' ? row.passageA : ' ';
-      const ansPassageA = row.ansPassageA && row.ansPassageA.trim() !== '' ? row.ansPassageA : ' ';
-      return {
-        id: `${row.id}_A`,
-        rowIndex: index,
-        text1: ansPassageA,
-        text2: passageA,
-        ignore_list: ignoreListA
-      };
-    });
-
-    const batchItemsB = validRows.map((row, index) => {
-      const ignoreListB = row.QPB
-        ? row.QPB.split(',').map(word => word.trim()).filter(word => word.length > 0)
-        : [];
-      const passageB = row.passageB && row.passageB.trim() !== '' ? row.passageB : ' ';
-      const ansPassageB = row.ansPassageB && row.ansPassageB.trim() !== '' ? row.ansPassageB : ' ';
-      return {
-        id: `${row.id}_B`,
-        rowIndex: index,
-        text1: ansPassageB,
-        text2: passageB,
-        ignore_list: ignoreListB
-      };
-    });
-
-    // Combine all items for batch processing
-    const allBatchItems = [...batchItemsA, ...batchItemsB];
-
     try {
-      // Send batch request to the parallel processing endpoint with NO TIMEOUT
-      const response = await axios.post('http://localhost:5002/compare-batch', {
-        items: allBatchItems,
-        max_workers: 16
-      }, {
-        timeout: 0, // Disable timeout completely
-        maxContentLength: Infinity,
-        maxBodyLength: Infinity
-      });
+      // Use the comparison service to process all rows
+      const result = await processBatchComparison(filteredData, 16);
 
-      if (response.data.success) {
-        // Create a map of results by id
-        const resultsMap = {};
-        response.data.results.forEach(result => {
-          if (result.success) {
-            resultsMap[result.id] = result.result;
-          }
-        });
-
-        // Process results and update data
-        const updatedData = validRows.map((row) => {
-          const mistakesA = resultsMap[`${row.id}_A`];
-          const mistakesB = resultsMap[`${row.id}_B`];
-
-          if (mistakesA && mistakesB) {
-            const processedData = processBatchResults(row, mistakesA, mistakesB);
-            if (processedData) {
-              return { ...row, ...processedData };
-            }
-          }
-          return row;
-        });
-
-        // Use updated data directly (all rows processed)
-        const finalData = updatedData;
+      if (result.success) {
+        const finalData = result.data;
         
-        // Sort by original order (by id)
-        finalData.sort((a, b) => a.id - b.id);
-
         setFilteredData(finalData);
         setTableData(finalData);
         showSnackbar(
-          `Finished calculating results for ${validRows.length} record(s) [${filterDesc}] using 16 parallel workers`,
+          `Finished calculating results for ${result.processedCount} record(s) [${filterDesc}] using 16 parallel workers`,
           'success'
         );
 
         // Generate and download subject-wise summary Excel after calculation completes
         // Explicitly pass subjectWiseCount state to ensure appeared students count is available
         console.log('Calling generateSubjectWiseSummaryExcel with subjectWiseCount:', subjectWiseCount);
-        generateSubjectWiseSummaryExcel(finalData, subjectWiseCount);
+        const summaryResult = generateSubjectWiseSummaryExcel(finalData, subjectWiseCount);
+        if (summaryResult.success) {
+          console.log('✅ Subject-wise summary generated:', summaryResult.filename);
+        } else {
+          console.warn('⚠️ Subject-wise summary generation issue:', summaryResult.message);
+        }
       } else {
-        throw new Error('Batch processing failed - server returned unsuccessful response');
+        showSnackbar(result.message || 'Failed to process batch comparison', 'error');
       }
     } catch (error) {
-      console.error('Batch processing error:', error);
-      const errorMessage = error.response?.data?.message || error.message || 'Unknown error';
-      showSnackbar(`Error during batch processing: ${errorMessage}. Please check server logs and try again.`, 'error');
-      setLoading(false);
+      console.error('Error during batch processing:', error);
+      showSnackbar(`Error during batch processing: ${error.message}`, 'error');
     } finally {
       setLoading(false);
     }
@@ -1306,7 +578,10 @@ const MarksCalculation = () => {
         </button>
         <button
           className="btn btn-sm btn-success ms-2"
-          onClick={() => generateSubjectWiseSummaryExcel(filteredData)}
+          onClick={() => {
+            const result = generateSubjectWiseSummaryExcel(filteredData, subjectWiseCount);
+            showSnackbar(result.message, result.success ? 'success' : 'warning');
+          }}
           disabled={loading || filteredData.length === 0 || !filteredData.some(row => row.result)}
           title="Download subject-wise result summary Excel (requires calculated results)"
         >
@@ -1315,33 +590,46 @@ const MarksCalculation = () => {
       </div>
 
       {/* Table */}
-      <div className="marks-calc-table-container">
-        <table className="marks-calc-table">
+      <div className="marks-calc-table-container" style={{ 
+        padding: '20px',
+        boxSizing: 'border-box'
+      }}>
+        <div style={{
+          overflow: 'auto',
+          borderRadius: '8px',
+          backgroundColor: '#fff',
+        }}>
+          <table className="marks-calc-table" style={{
+            minWidth: '100%',
+            tableLayout: 'auto',
+            borderCollapse: 'separate',
+            borderSpacing: 0
+          }}>
           <thead>
             <tr>
-              <th className="col-id">ID</th>
-              <th>Student ID</th>
-              <th>Subject</th>
-              <th>Exam Type</th>
-              <th>Q Set</th>
-              <th>Dept</th>
-              <th>Expert</th>
-              <th>Status</th>
-              <th>Model Answer A</th>
-              <th>Model Answer B</th>
-              <th>User Passage A</th>
-              <th>User Passage B</th>
-              <th className="col-mistakes">Spelling</th>
-              <th className="col-mistakes">Missed</th>
-              <th className="col-mistakes">Added</th>
-              <th className="col-mistakes">Grammar</th>
-              <th className="col-ignored">Ignored A</th>
-              <th className="col-ignored">Ignored B</th>
-              <th className="col-mistakes">Total</th>
-              <th className="col-mistakes">Marks</th>
-              <th className="col-result">Result</th>
-              <th className="col-grade">Grade</th>
-              <th className="col-action">Action</th>
+              <th className="col-id" style={{ padding: '12px 16px' }}>ID</th>
+              <th style={{ padding: '12px 16px' }}>Student ID</th>
+              <th style={{ padding: '12px 16px' }}>Subject</th>
+              <th style={{ padding: '12px 16px' }}>Exam Type</th>
+              <th style={{ padding: '12px 16px' }}>Q Set</th>
+              <th style={{ padding: '12px 16px' }}>Dept</th>
+              <th style={{ padding: '12px 16px' }}>Expert</th>
+              <th style={{ padding: '12px 16px' }}>Status</th>
+              <th style={{ padding: '12px 16px' }}>Model Answer A</th>
+              <th style={{ padding: '12px 16px' }}>Model Answer B</th>
+              <th style={{ padding: '12px 16px' }}>User Passage A</th>
+              <th style={{ padding: '12px 16px' }}>User Passage B</th>
+              <th className="col-mistakes" style={{ padding: '12px 16px' }}>Spelling</th>
+              <th className="col-mistakes" style={{ padding: '12px 16px' }}>Missed</th>
+              <th className="col-mistakes" style={{ padding: '12px 16px' }}>Added</th>
+              <th className="col-mistakes" style={{ padding: '12px 16px' }}>Grammar</th>
+              <th className="col-ignored" style={{ padding: '12px 16px' }}>Ignored A</th>
+              <th className="col-ignored" style={{ padding: '12px 16px' }}>Ignored B</th>
+              <th className="col-mistakes" style={{ padding: '12px 16px' }}>Total</th>
+              <th className="col-mistakes" style={{ padding: '12px 16px' }}>Marks</th>
+              <th className="col-result" style={{ padding: '12px 16px' }}>Result</th>
+              <th className="col-grade" style={{ padding: '12px 16px' }}>Grade</th>
+              <th className="col-action" style={{ padding: '12px 16px' }}>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -1355,19 +643,19 @@ const MarksCalculation = () => {
                 return (
                   <React.Fragment key={row.id || index}>
                     <tr className={hasPassageData && isExpanded ? 'expanded-row' : ''}>
-                      <td className="col-id">{row.id}</td>
-                      <td>{row.student_id}</td>
-                      <td>{row.subjectId}</td>
-                      <td>{row.examType}</td>
-                      <td>{row.qset}</td>
-                      <td>{row.departmentId}</td>
-                      <td>{row.expertId}</td>
-                      <td>
+                      <td className="col-id" style={{ padding: '12px 16px' }}>{row.id}</td>
+                      <td style={{ padding: '12px 16px' }}>{row.student_id}</td>
+                      <td style={{ padding: '12px 16px' }}>{row.subjectId}</td>
+                      <td style={{ padding: '12px 16px' }}>{row.examType}</td>
+                      <td style={{ padding: '12px 16px' }}>{row.qset}</td>
+                      <td style={{ padding: '12px 16px' }}>{row.departmentId}</td>
+                      <td style={{ padding: '12px 16px' }}>{row.expertId}</td>
+                      <td style={{ padding: '12px 16px' }}>
                         <span className={`marks-calc-badge ${row.subm_done === 1 ? 'marks-calc-badge--success' : 'marks-calc-badge--warning'}`}>
                           {row.subm_done === 1 ? 'Yes' : 'No'}
                         </span>
                       </td>
-                      <td>
+                      <td style={{ padding: '12px 16px' }}>
                         <div className="marks-calc-passage">
                           {row.ansPassageA ? (
                             <span 
@@ -1383,7 +671,7 @@ const MarksCalculation = () => {
                           )}
                         </div>
                       </td>
-                      <td>
+                      <td style={{ padding: '12px 16px' }}>
                         <div className="marks-calc-passage">
                           {row.ansPassageB ? (
                             <span 
@@ -1399,7 +687,7 @@ const MarksCalculation = () => {
                           )}
                         </div>
                       </td>
-                      <td>
+                      <td style={{ padding: '12px 16px' }}>
                         <div className="marks-calc-passage">
                           {row.passageA ? (
                             <span 
@@ -1415,7 +703,7 @@ const MarksCalculation = () => {
                           )}
                         </div>
                       </td>
-                      <td>
+                      <td style={{ padding: '12px 16px' }}>
                         <div className="marks-calc-passage">
                           {row.passageB ? (
                             <span 
@@ -1431,35 +719,35 @@ const MarksCalculation = () => {
                           )}
                         </div>
                       </td>
-                      <td className="col-mistakes">
+                      <td className="col-mistakes" style={{ padding: '12px 16px' }}>
                         {row.spelling !== undefined ? (
                           <span className="mistake-count">{row.spelling}</span>
                         ) : (
                           <span className="text-muted">—</span>
                         )}
                       </td>
-                      <td className="col-mistakes">
+                      <td className="col-mistakes" style={{ padding: '12px 16px' }}>
                         {row.missed !== undefined ? (
                           <span className="mistake-count">{row.missed}</span>
                         ) : (
                           <span className="text-muted">—</span>
                         )}
                       </td>
-                      <td className="col-mistakes">
+                      <td className="col-mistakes" style={{ padding: '12px 16px' }}>
                         {row.added !== undefined ? (
                           <span className="mistake-count">{row.added}</span>
                         ) : (
                           <span className="text-muted">—</span>
                         )}
                       </td>
-                      <td className="col-mistakes">
+                      <td className="col-mistakes" style={{ padding: '12px 16px' }}>
                         {row.grammar !== undefined ? (
                           <span className="mistake-count">{row.grammar}</span>
                         ) : (
                           <span className="text-muted">—</span>
                         )}
                       </td>
-                      <td className="col-ignored">
+                      <td className="col-ignored" style={{ padding: '12px 16px' }}>
                         {row.QPA ? (
                           <span 
                             className="ignored-words clickable-text" 
@@ -1472,7 +760,7 @@ const MarksCalculation = () => {
                           <span className="text-muted">—</span>
                         )}
                       </td>
-                      <td className="col-ignored">
+                      <td className="col-ignored" style={{ padding: '12px 16px' }}>
                         {row.QPB ? (
                           <span 
                             className="ignored-words clickable-text" 
@@ -1485,21 +773,21 @@ const MarksCalculation = () => {
                           <span className="text-muted">—</span>
                         )}
                       </td>
-                      <td className="col-mistakes">
+                      <td className="col-mistakes" style={{ padding: '12px 16px' }}>
                         {row.total !== undefined ? (
                           <span className="mistake-count total-mistakes">{row.total}</span>
                         ) : (
                           <span className="text-muted">—</span>
                         )}
                       </td>
-                      <td className="col-mistakes">
+                      <td className="col-mistakes" style={{ padding: '12px 16px' }}>
                         {row.marks !== undefined ? (
                           <span className="marks-display">{row.marks}</span>
                         ) : (
                           <span className="text-muted">—</span>
                         )}
                       </td>
-                      <td className="col-result">
+                      <td className="col-result" style={{ padding: '12px 16px' }}>
                         {row.result !== undefined ? (
                           <span className={`result-badge result-badge--${row.result.toLowerCase()}`}>
                             {row.result}
@@ -1508,7 +796,7 @@ const MarksCalculation = () => {
                           <span className="text-muted">—</span>
                         )}
                       </td>
-                      <td className="col-grade">
+                      <td className="col-grade" style={{ padding: '12px 16px' }}>
                         {row.grade !== undefined && row.grade !== '' ? (
                           <span className={`grade-badge grade-badge--${row.grade.toLowerCase()}`}>
                             {row.grade}
@@ -1517,7 +805,7 @@ const MarksCalculation = () => {
                           <span className="text-muted">—</span>
                         )}
                       </td>
-                      <td className="col-action">
+                      <td className="col-action" style={{ padding: '12px 16px' }}>
                         <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
                           <button
                             className="btn btn-sm btn-outline-primary"
@@ -1542,70 +830,70 @@ const MarksCalculation = () => {
                     {hasPassageData && isExpanded && (
                       <>
                         <tr className="passage-detail-row passage-a-row">
-                          <td colSpan="8" className="passage-label">Passage A</td>
-                          <td colSpan="4"></td>
-                          <td className="col-mistakes">
+                          <td colSpan="8" className="passage-label" style={{ padding: '12px 16px' }}>Passage A</td>
+                          <td colSpan="4" style={{ padding: '12px 16px' }}></td>
+                          <td className="col-mistakes" style={{ padding: '12px 16px' }}>
                             <span className="mistake-count mistake-count-detail">{row.spellingA}</span>
                           </td>
-                          <td className="col-mistakes">
+                          <td className="col-mistakes" style={{ padding: '12px 16px' }}>
                             <span className="mistake-count mistake-count-detail">{row.missedA}</span>
                           </td>
-                          <td className="col-mistakes">
+                          <td className="col-mistakes" style={{ padding: '12px 16px' }}>
                             <span className="mistake-count mistake-count-detail">{row.addedA}</span>
                           </td>
-                          <td className="col-mistakes">
+                          <td className="col-mistakes" style={{ padding: '12px 16px' }}>
                             <span className="mistake-count mistake-count-detail">{row.grammarA}</span>
                           </td>
-                          <td className="col-ignored">
+                          <td className="col-ignored" style={{ padding: '12px 16px' }}>
                             {row.QPA ? (
                               <span className="ignored-words-detail" title={row.QPA}>{row.QPA}</span>
                             ) : (
                               <span className="text-muted">—</span>
                             )}
                           </td>
-                          <td className="col-ignored"></td>
-                          <td className="col-mistakes">
+                          <td className="col-ignored" style={{ padding: '12px 16px' }}></td>
+                          <td className="col-mistakes" style={{ padding: '12px 16px' }}>
                             <span className="mistake-count total-mistakes mistake-count-detail">{row.totalA}</span>
                           </td>
-                          <td className="col-mistakes">
+                          <td className="col-mistakes" style={{ padding: '12px 16px' }}>
                             <span className="marks-display marks-display-detail">{row.marksA}</span>
                           </td>
-                          <td className="col-result"></td>
-                          <td className="col-grade"></td>
-                          <td className="col-action"></td>
+                          <td className="col-result" style={{ padding: '12px 16px' }}></td>
+                          <td className="col-grade" style={{ padding: '12px 16px' }}></td>
+                          <td className="col-action" style={{ padding: '12px 16px' }}></td>
                         </tr>
                         <tr className="passage-detail-row passage-b-row">
-                          <td colSpan="8" className="passage-label">Passage B</td>
-                          <td colSpan="4"></td>
-                          <td className="col-mistakes">
+                          <td colSpan="8" className="passage-label" style={{ padding: '12px 16px' }}>Passage B</td>
+                          <td colSpan="4" style={{ padding: '12px 16px' }}></td>
+                          <td className="col-mistakes" style={{ padding: '12px 16px' }}>
                             <span className="mistake-count mistake-count-detail">{row.spellingB}</span>
                           </td>
-                          <td className="col-mistakes">
+                          <td className="col-mistakes" style={{ padding: '12px 16px' }}>
                             <span className="mistake-count mistake-count-detail">{row.missedB}</span>
                           </td>
-                          <td className="col-mistakes">
+                          <td className="col-mistakes" style={{ padding: '12px 16px' }}>
                             <span className="mistake-count mistake-count-detail">{row.addedB}</span>
                           </td>
-                          <td className="col-mistakes">
+                          <td className="col-mistakes" style={{ padding: '12px 16px' }}>
                             <span className="mistake-count mistake-count-detail">{row.grammarB}</span>
                           </td>
-                          <td className="col-ignored"></td>
-                          <td className="col-ignored">
+                          <td className="col-ignored" style={{ padding: '12px 16px' }}></td>
+                          <td className="col-ignored" style={{ padding: '12px 16px' }}>
                             {row.QPB ? (
                               <span className="ignored-words-detail" title={row.QPB}>{row.QPB}</span>
                             ) : (
                               <span className="text-muted">—</span>
                             )}
                           </td>
-                          <td className="col-mistakes">
+                          <td className="col-mistakes" style={{ padding: '12px 16px' }}>
                             <span className="mistake-count total-mistakes mistake-count-detail">{row.totalB}</span>
                           </td>
-                          <td className="col-mistakes">
+                          <td className="col-mistakes" style={{ padding: '12px 16px' }}>
                             <span className="marks-display marks-display-detail">{row.marksB}</span>
                           </td>
-                          <td className="col-result"></td>
-                          <td className="col-grade"></td>
-                          <td className="col-action"></td>
+                          <td className="col-result" style={{ padding: '12px 16px' }}></td>
+                          <td className="col-grade" style={{ padding: '12px 16px' }}></td>
+                          <td className="col-action" style={{ padding: '12px 16px' }}></td>
                         </tr>
                       </>
                     )}
@@ -1614,13 +902,14 @@ const MarksCalculation = () => {
               })
             ) : (
               <tr>
-                <td colSpan="21" className="text-center">
+                <td colSpan="21" className="text-center" style={{ padding: '12px 16px' }}>
                   No records found
                 </td>
               </tr>
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* Pagination */}
