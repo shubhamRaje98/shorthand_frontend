@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import './MarksCalculation.css';
 import { generateSubjectWiseSummaryFromTemplate } from '../../utils/subjectWiseSummaryGenerator';
+import { generateStudentWiseReportExcel } from '../../utils/studentWiseReportGenerator';
 import { comparePassagesForRow, processBatchComparison } from '../../services/comparisonService';
 
 const MarksCalculation = () => {
@@ -587,6 +588,17 @@ const MarksCalculation = () => {
         >
           Download Subject-Wise Summary Report
         </button>
+        <button
+          className="btn btn-sm btn-info ms-2"
+          onClick={async () => {
+            const result = await generateStudentWiseReportExcel(filteredData);
+            showSnackbar(result.message, result.success ? 'success' : 'warning');
+          }}
+          disabled={loading || filteredData.length === 0 || !filteredData.some(row => row.result)}
+          title="Download complete student-wise evaluation report with all details (requires calculated results)"
+        >
+          Download Student-Wise Report
+        </button>
       </div>
 
       {/* Table */}
@@ -624,6 +636,8 @@ const MarksCalculation = () => {
               <th className="col-mistakes" style={{ padding: '12px 16px' }}>Grammar</th>
               <th className="col-ignored" style={{ padding: '12px 16px' }}>Ignored A</th>
               <th className="col-ignored" style={{ padding: '12px 16px' }}>Ignored B</th>
+              <th className="col-mistakes" style={{ padding: '12px 16px' }}>Mistakes A</th>
+              <th className="col-mistakes" style={{ padding: '12px 16px' }}>Mistakes B</th>
               <th className="col-mistakes" style={{ padding: '12px 16px' }}>Total</th>
               <th className="col-mistakes" style={{ padding: '12px 16px' }}>Marks</th>
               <th className="col-result" style={{ padding: '12px 16px' }}>Result</th>
@@ -773,6 +787,32 @@ const MarksCalculation = () => {
                         )}
                       </td>
                       <td className="col-mistakes" style={{ padding: '12px 16px' }}>
+                        {row.mistakesA ? (
+                          <span 
+                            className="mistakes-words clickable-text" 
+                            title="Click to view full list"
+                            onClick={() => openModal('Mistakes (Passage A) - Student ID: ' + row.student_id, row.mistakesA)}
+                          >
+                            {row.mistakesA.length > 30 ? row.mistakesA.substring(0, 30) + '...' : row.mistakesA}
+                          </span>
+                        ) : (
+                          <span className="text-muted">—</span>
+                        )}
+                      </td>
+                      <td className="col-mistakes" style={{ padding: '12px 16px' }}>
+                        {row.mistakesB ? (
+                          <span 
+                            className="mistakes-words clickable-text" 
+                            title="Click to view full list"
+                            onClick={() => openModal('Mistakes (Passage B) - Student ID: ' + row.student_id, row.mistakesB)}
+                          >
+                            {row.mistakesB.length > 30 ? row.mistakesB.substring(0, 30) + '...' : row.mistakesB}
+                          </span>
+                        ) : (
+                          <span className="text-muted">—</span>
+                        )}
+                      </td>
+                      <td className="col-mistakes" style={{ padding: '12px 16px' }}>
                         {row.total !== undefined ? (
                           <span className="mistake-count total-mistakes">{row.total}</span>
                         ) : (
@@ -852,6 +892,14 @@ const MarksCalculation = () => {
                           </td>
                           <td className="col-ignored" style={{ padding: '12px 16px' }}></td>
                           <td className="col-mistakes" style={{ padding: '12px 16px' }}>
+                            {row.mistakesA ? (
+                              <span className="mistakes-words-detail" title={row.mistakesA}>{row.mistakesA}</span>
+                            ) : (
+                              <span className="text-muted">—</span>
+                            )}
+                          </td>
+                          <td className="col-mistakes" style={{ padding: '12px 16px' }}></td>
+                          <td className="col-mistakes" style={{ padding: '12px 16px' }}>
                             <span className="mistake-count total-mistakes mistake-count-detail">{row.totalA}</span>
                           </td>
                           <td className="col-mistakes" style={{ padding: '12px 16px' }}>
@@ -884,6 +932,14 @@ const MarksCalculation = () => {
                               <span className="text-muted">—</span>
                             )}
                           </td>
+                          <td className="col-mistakes" style={{ padding: '12px 16px' }}></td>
+                          <td className="col-mistakes" style={{ padding: '12px 16px' }}>
+                            {row.mistakesB ? (
+                              <span className="mistakes-words-detail" title={row.mistakesB}>{row.mistakesB}</span>
+                            ) : (
+                              <span className="text-muted">—</span>
+                            )}
+                          </td>
                           <td className="col-mistakes" style={{ padding: '12px 16px' }}>
                             <span className="mistake-count total-mistakes mistake-count-detail">{row.totalB}</span>
                           </td>
@@ -901,7 +957,7 @@ const MarksCalculation = () => {
               })
             ) : (
               <tr>
-                <td colSpan="21" className="text-center" style={{ padding: '12px 16px' }}>
+                <td colSpan="23" className="text-center" style={{ padding: '12px 16px' }}>
                   No records found
                 </td>
               </tr>

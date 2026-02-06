@@ -115,6 +115,12 @@ p {
     margin-top: 0.5rem;
 }
 
+.item-department {
+    font-size: 0.8rem;
+    color: #ff0000;
+    margin-top: 0.5rem;
+}
+
 .back-button {
     position: absolute;
     left: 1rem;

@@ -204,6 +204,9 @@ const FinalPassageTextlog = () => {
 
   useEffect(() => {
     const fetchPassages = async () => {
+      // Guard against running with incomplete parameters
+      if (!subjectId || !qset || !departmentId) return;
+      
       try {
         const response = await axios.get(`http://localhost:3000/expert-assigned-passages/${subjectId}/${qset}/${departmentId}`, { withCredentials: true });
         if (response.status === 200) {
@@ -216,12 +219,17 @@ const FinalPassageTextlog = () => {
     };
 
     fetchPassages();
-  }, [subjectId, qset]);
+  }, [subjectId, qset, departmentId]);
 
   useEffect(() => {
+    let isCancelled = false;
+    
     const sendActivePassageData = async () => {
+      // Guard against running with incomplete parameters
+      if (!subjectId || !qset || !activePassage || !departmentId) return;
+      
       try {
-        console.log(subjectId, qset, activePassage);
+        console.log(subjectId, qset, activePassage, departmentId);
         
         const response = await axios.post('http://localhost:3000/active-passage', {
           subjectId,
@@ -230,11 +238,17 @@ const FinalPassageTextlog = () => {
           departmentId
         }, { withCredentials: true });
     
+        // Prevent state updates if effect was cleaned up (prevents race condition)
+        if (isCancelled) return;
+        
         if (response.status === 200) {
           console.log("Active passage data sent successfully");
-          setIgnoreList(response.data.ignoreList || []);
-          console.log("Ignore list:", response.data.ignoreList);
+          const newIgnoreList = response.data.ignoreList || [];
+          console.log("Received ignore list:", newIgnoreList);
           console.log("Debug info:", response.data.debug);
+          
+          // Only update if we received data or if we need to clear for a new passage
+          setIgnoreList(newIgnoreList);
           
           if (response.data.debug?.student_id) {
             console.log(`Fetched data for student_id: ${response.data.debug.student_id}`);
@@ -250,10 +264,18 @@ const FinalPassageTextlog = () => {
     };
 
     sendActivePassageData();
-  }, [subjectId, qset, activePassage]);
+    
+    // Cleanup function to prevent race conditions
+    return () => {
+      isCancelled = true;
+    };
+  }, [subjectId, qset, activePassage, departmentId]);
 
   useEffect(() => {
     const fetchAudio = async () => {
+      // Guard against running with incomplete parameters
+      if (!subjectId || !qset || !departmentId) return;
+      
       try {
         const response = await axios.get(`http://localhost:3000/get-subject-qset-audio/${subjectId}/${qset}/${departmentId}`, { withCredentials: true });
         if (response.status === 200) {
@@ -266,7 +288,7 @@ const FinalPassageTextlog = () => {
     };
   
     fetchAudio();
-  }, [subjectId, qset]);
+  }, [subjectId, qset, departmentId]);
 
   const handlePassageChange = (passage) => {
     setActivePassage(passage);
@@ -323,7 +345,7 @@ const FinalPassageTextlog = () => {
     if (examType === 'SKILL'){
       average = 80 - (total / 2); // for skilltest
     }else{
-      average = 50 - (total / 2); // for gcc
+      average = 50 - (total / 3); // for gcc
     }
     if (average < 0) {
       average = 0;

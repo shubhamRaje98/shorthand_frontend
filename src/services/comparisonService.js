@@ -7,6 +7,37 @@ import axios from 'axios';
 const COMPARISON_API_BASE_URL = 'http://localhost:5002';
 
 /**
+ * Flatten mistakes object to comma-separated string
+ * Extracts words from spelling, missed, added, and grammar arrays (excludes colored_words)
+ * @param {Object} mistakesObj - The mistakes object from backend
+ * @returns {string} Comma-separated list of mistake words
+ */
+const flattenMistakes = (mistakesObj) => {
+  if (!mistakesObj || typeof mistakesObj !== 'object') {
+    return '';
+  }
+
+  const allMistakes = [];
+
+  // Extract words from each category (exclude colored_words)
+  if (Array.isArray(mistakesObj.spelling)) {
+    allMistakes.push(...mistakesObj.spelling);
+  }
+  if (Array.isArray(mistakesObj.missed)) {
+    allMistakes.push(...mistakesObj.missed);
+  }
+  if (Array.isArray(mistakesObj.added)) {
+    allMistakes.push(...mistakesObj.added);
+  }
+  if (Array.isArray(mistakesObj.grammar)) {
+    allMistakes.push(...mistakesObj.grammar);
+  }
+
+  // Return as comma-separated string
+  return allMistakes.join(', ');
+};
+
+/**
  * Calculate result and grade based on marks
  * @param {number} marksA - Marks for Passage A
  * @param {number} marksB - Marks for Passage B
@@ -219,7 +250,7 @@ export const comparePassagesForRow = async (row) => {
   if (row.examType === 'SKILL') {
     marksA = 80 - (totalA / 2);
   } else {
-    marksA = 50 - (totalA / 2);
+    marksA = 50 - (totalA / 3);
   }
   marksA = Math.max(0, marksA);
 
@@ -228,7 +259,7 @@ export const comparePassagesForRow = async (row) => {
   if (row.examType === 'SKILL') {
     marksB = 80 - (totalB / 2);
   } else {
-    marksB = 50 - (totalB / 2);
+    marksB = 50 - (totalB / 3);
   }
   marksB = Math.max(0, marksB);
 
@@ -270,8 +301,8 @@ export const comparePassagesForRow = async (row) => {
     graceMarksB: resultData.graceMarksB,
     totalGrace: resultData.totalGrace,
     finalMarks: resultData.finalMarks,
-    mistakesA,
-    mistakesB
+    mistakesA: flattenMistakes(mistakesA),
+    mistakesB: flattenMistakes(mistakesB)
   };
 };
 
@@ -311,7 +342,7 @@ export const processBatchResults = (row, mistakesA, mistakesB) => {
   if (row.examType === 'SKILL') {
     marksA = 80 - (totalA / 2);
   } else {
-    marksA = 50 - (totalA / 2);
+    marksA = 50 - (totalA / 3);
   }
   marksA = Math.max(0, marksA);
 
@@ -320,7 +351,7 @@ export const processBatchResults = (row, mistakesA, mistakesB) => {
   if (row.examType === 'SKILL') {
     marksB = 80 - (totalB / 2);
   } else {
-    marksB = 50 - (totalB / 2);
+    marksB = 50 - (totalB / 3);
   }
   marksB = Math.max(0, marksB);
 

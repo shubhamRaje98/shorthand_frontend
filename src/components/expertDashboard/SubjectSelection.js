@@ -1,3 +1,4 @@
+// src/components/expertDashboard/SubjectSelection.js
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -60,6 +61,7 @@ const SubjectSelection = () => {
 
     const handleSubjectClick = (subject) => {
         setSelectedSubject(subject);
+        console.log('Selected Subject:', subject);
         setSelectedQSet(null);
         if (subject.isHeld) {
             navigate(`/expertDashboard/${subject.subjectId}?held=true`);

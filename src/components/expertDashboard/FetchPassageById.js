@@ -108,7 +108,7 @@ const MistakesList = ({ mistakes, onAddIgnoreWord, onWordHover, fontSize, ignore
 
 const FetchPassageById = () => {
     const navigate = useNavigate();
-    const { studentId, subjectId, qset, departmentId } = useParams();
+    const { studentId, subjectId, qset, departmentId, examType } = useParams();
     const [passages, setPassages] = useState({ 
         passageA: '', 
         passageB: '', 
@@ -290,7 +290,14 @@ const FetchPassageById = () => {
       }, {});
 
       const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
-      let average = 50 - (total / 3); // for skilltest
+
+      let average;
+
+      if (examType === 'SKILL'){
+        average = 80 - (total / 2); // for skilltest
+      }else{
+        average = 50 - (total / 3); // for gcc
+      }
       if (average < 0) {
         average = 0;
       }
@@ -301,9 +308,22 @@ const FetchPassageById = () => {
         average: average.toFixed(2) // Rounds to 2 decimal places
       });
 
+      console.log('=== MISTAKE ANALYSIS ===');
+      console.log('Exam Type:', examType);
       console.log('Mistake category counts:', counts);
       console.log('Total mistakes:', total);
-      console.log('Average mistakes:', average.toFixed(2));
+      console.log('Calculated marks:', average.toFixed(2));
+      console.log('\n=== DETAILED MISTAKES BY CATEGORY ===');
+      
+      // Log each category with its mistakes
+      orderedCategories.forEach(category => {
+        if (mistakes[category] && mistakes[category].length > 0) {
+          console.log(`\n${category.toUpperCase()} (Count: ${counts[category]}):`);
+          console.log(mistakes[category]);
+        }
+      });
+      
+      console.log('\n======================\n');
 
       // Send total mistakes, marks, and individual mistake counts to server
       // const sendMarksToServer = async () => {
@@ -323,7 +343,7 @@ const FetchPassageById = () => {
       // };
       
       // sendMarksToServer();
-    }, [mistakes, subjectId, qset]);
+    }, [mistakes, subjectId, qset, examType]);
 
     // Improved useEffect to populate wordCorrections when mistakes data changes
     useEffect(() => {
