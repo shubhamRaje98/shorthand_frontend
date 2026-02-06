@@ -826,12 +826,19 @@ const MarksCalculation = () => {
                             {row.mistakesA?.spelling && row.mistakesA.spelling.length > 0 ? (
                               <span 
                                 className="mistakes-words-detail clickable-text"
-                                onClick={() => openModal('Spelling Mistakes (Passage A) - Student ID: ' + row.student_id, row.mistakesA.spelling.join(', '))}
+                                onClick={() => {
+                                  const formattedSpelling = row.mistakesA.spelling
+                                    .map(pair => `(${pair[0]}, ${pair[1]})`)
+                                    .join(', ');
+                                  openModal('Spelling Mistakes (Passage A) - Student ID: ' + row.student_id, formattedSpelling);
+                                }}
                                 title="Click to view full list"
                               >
                                 {(() => {
-                                  const text = row.mistakesA.spelling.join(', ');
-                                  return text.length > 30 ? text.substring(0, 30) + '...' : text;
+                                  const formattedText = row.mistakesA.spelling
+                                    .map(pair => `(${pair[0]}, ${pair[1]})`)
+                                    .join(', ');
+                                  return formattedText.length > 30 ? formattedText.substring(0, 30) + '...' : formattedText;
                                 })()}
                               </span>
                             ) : (
@@ -921,12 +928,19 @@ const MarksCalculation = () => {
                             {row.mistakesB?.spelling && row.mistakesB.spelling.length > 0 ? (
                               <span 
                                 className="mistakes-words-detail clickable-text"
-                                onClick={() => openModal('Spelling Mistakes (Passage B) - Student ID: ' + row.student_id, row.mistakesB.spelling.join(', '))}
+                                onClick={() => {
+                                  const formattedSpelling = row.mistakesB.spelling
+                                    .map(pair => `(${pair[0]}, ${pair[1]})`)
+                                    .join(', ');
+                                  openModal('Spelling Mistakes (Passage B) - Student ID: ' + row.student_id, formattedSpelling);
+                                }}
                                 title="Click to view full list"
                               >
                                 {(() => {
-                                  const text = row.mistakesB.spelling.join(', ');
-                                  return text.length > 30 ? text.substring(0, 30) + '...' : text;
+                                  const formattedText = row.mistakesB.spelling
+                                    .map(pair => `(${pair[0]}, ${pair[1]})`)
+                                    .join(', ');
+                                  return formattedText.length > 30 ? formattedText.substring(0, 30) + '...' : formattedText;
                                 })()}
                               </span>
                             ) : (
