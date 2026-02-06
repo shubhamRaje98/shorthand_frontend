@@ -7,37 +7,6 @@ import axios from 'axios';
 const COMPARISON_API_BASE_URL = 'http://localhost:5002';
 
 /**
- * Flatten mistakes object to comma-separated string
- * Extracts words from spelling, missed, added, and grammar arrays (excludes colored_words)
- * @param {Object} mistakesObj - The mistakes object from backend
- * @returns {string} Comma-separated list of mistake words
- */
-const flattenMistakes = (mistakesObj) => {
-  if (!mistakesObj || typeof mistakesObj !== 'object') {
-    return '';
-  }
-
-  const allMistakes = [];
-
-  // Extract words from each category (exclude colored_words)
-  if (Array.isArray(mistakesObj.spelling)) {
-    allMistakes.push(...mistakesObj.spelling);
-  }
-  if (Array.isArray(mistakesObj.missed)) {
-    allMistakes.push(...mistakesObj.missed);
-  }
-  if (Array.isArray(mistakesObj.added)) {
-    allMistakes.push(...mistakesObj.added);
-  }
-  if (Array.isArray(mistakesObj.grammar)) {
-    allMistakes.push(...mistakesObj.grammar);
-  }
-
-  // Return as comma-separated string
-  return allMistakes.join(', ');
-};
-
-/**
  * Calculate result and grade based on marks
  * @param {number} marksA - Marks for Passage A
  * @param {number} marksB - Marks for Passage B
@@ -301,8 +270,8 @@ export const comparePassagesForRow = async (row) => {
     graceMarksB: resultData.graceMarksB,
     totalGrace: resultData.totalGrace,
     finalMarks: resultData.finalMarks,
-    mistakesA: flattenMistakes(mistakesA),
-    mistakesB: flattenMistakes(mistakesB)
+    mistakesA,
+    mistakesB
   };
 };
 

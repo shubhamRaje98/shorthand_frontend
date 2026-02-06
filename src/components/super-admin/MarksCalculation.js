@@ -635,7 +635,6 @@ const MarksCalculation = () => {
               <th className="col-mistakes" style={{ padding: '12px 16px' }}>Added</th>
               <th className="col-mistakes" style={{ padding: '12px 16px' }}>Grammar</th>
               <th className="col-ignored" style={{ padding: '12px 16px' }}>Ignored</th>
-              <th className="col-mistakes" style={{ padding: '12px 16px' }}>Mistakes</th>
               <th className="col-mistakes" style={{ padding: '12px 16px' }}>Total</th>
               <th className="col-mistakes" style={{ padding: '12px 16px' }}>Marks</th>
               <th className="col-result" style={{ padding: '12px 16px' }}>Result</th>
@@ -651,6 +650,8 @@ const MarksCalculation = () => {
                 const isExpanded = expandedRows.has(row.id);
                 const hasPassageData = row.marksA !== undefined && row.marksB !== undefined;
                 const hasIgnoredWords = row.QPA || row.QPB;
+                const hasMistakes = row.mistakesA || row.mistakesB;
+                const canExpand = hasPassageData || hasIgnoredWords || hasMistakes;
                 
                 return (
                   <React.Fragment key={row.id || index}>
@@ -763,9 +764,6 @@ const MarksCalculation = () => {
                         <span className="text-muted">—</span>
                       </td>
                       <td className="col-mistakes" style={{ padding: '12px 16px' }}>
-                        <span className="text-muted">—</span>
-                      </td>
-                      <td className="col-mistakes" style={{ padding: '12px 16px' }}>
                         {row.total !== undefined ? (
                           <span className="mistake-count total-mistakes">{row.total}</span>
                         ) : (
@@ -807,7 +805,7 @@ const MarksCalculation = () => {
                           >
                             {isCalculating ? '...' : 'Calc'}
                           </button>
-                          {(hasPassageData || hasIgnoredWords) && (
+                          {canExpand && (
                             <button
                               className="btn btn-sm btn-outline-info"
                               onClick={() => toggleRowExpansion(row.id)}
@@ -819,22 +817,78 @@ const MarksCalculation = () => {
                         </div>
                       </td>
                     </tr>
-                    {(hasPassageData || hasIgnoredWords) && isExpanded && (
+                    {canExpand && isExpanded && (
                       <>
                         <tr className="passage-detail-row passage-a-row">
                           <td colSpan="8" className="passage-label" style={{ padding: '12px 16px' }}>Passage A</td>
                           <td colSpan="4" style={{ padding: '12px 16px' }}></td>
                           <td className="col-mistakes" style={{ padding: '12px 16px' }}>
-                            <span className="mistake-count mistake-count-detail">{row.spellingA}</span>
+                            {row.mistakesA?.spelling && row.mistakesA.spelling.length > 0 ? (
+                              <span 
+                                className="mistakes-words-detail clickable-text"
+                                onClick={() => openModal('Spelling Mistakes (Passage A) - Student ID: ' + row.student_id, row.mistakesA.spelling.join(', '))}
+                                title="Click to view full list"
+                              >
+                                {(() => {
+                                  const text = row.mistakesA.spelling.join(', ');
+                                  return text.length > 30 ? text.substring(0, 30) + '...' : text;
+                                })()}
+                              </span>
+                            ) : (
+                              <span className="text-muted">—</span>
+                            )}
+                            <span className="mistake-count-badge" style={{ marginLeft: '8px', fontWeight: 'bold' }}>({row.spellingA || 0})</span>
                           </td>
                           <td className="col-mistakes" style={{ padding: '12px 16px' }}>
-                            <span className="mistake-count mistake-count-detail">{row.missedA}</span>
+                            {row.mistakesA?.missed && row.mistakesA.missed.length > 0 ? (
+                              <span 
+                                className="mistakes-words-detail clickable-text"
+                                onClick={() => openModal('Missed Words (Passage A) - Student ID: ' + row.student_id, row.mistakesA.missed.join(', '))}
+                                title="Click to view full list"
+                              >
+                                {(() => {
+                                  const text = row.mistakesA.missed.join(', ');
+                                  return text.length > 30 ? text.substring(0, 30) + '...' : text;
+                                })()}
+                              </span>
+                            ) : (
+                              <span className="text-muted">—</span>
+                            )}
+                            <span className="mistake-count-badge" style={{ marginLeft: '8px', fontWeight: 'bold' }}>({row.missedA || 0})</span>
                           </td>
                           <td className="col-mistakes" style={{ padding: '12px 16px' }}>
-                            <span className="mistake-count mistake-count-detail">{row.addedA}</span>
+                            {row.mistakesA?.added && row.mistakesA.added.length > 0 ? (
+                              <span 
+                                className="mistakes-words-detail clickable-text"
+                                onClick={() => openModal('Added Words (Passage A) - Student ID: ' + row.student_id, row.mistakesA.added.join(', '))}
+                                title="Click to view full list"
+                              >
+                                {(() => {
+                                  const text = row.mistakesA.added.join(', ');
+                                  return text.length > 30 ? text.substring(0, 30) + '...' : text;
+                                })()}
+                              </span>
+                            ) : (
+                              <span className="text-muted">—</span>
+                            )}
+                            <span className="mistake-count-badge" style={{ marginLeft: '8px', fontWeight: 'bold' }}>({row.addedA || 0})</span>
                           </td>
                           <td className="col-mistakes" style={{ padding: '12px 16px' }}>
-                            <span className="mistake-count mistake-count-detail">{row.grammarA}</span>
+                            {row.mistakesA?.grammar && row.mistakesA.grammar.length > 0 ? (
+                              <span 
+                                className="mistakes-words-detail clickable-text"
+                                onClick={() => openModal('Grammar Mistakes (Passage A) - Student ID: ' + row.student_id, row.mistakesA.grammar.join(', '))}
+                                title="Click to view full list"
+                              >
+                                {(() => {
+                                  const text = row.mistakesA.grammar.join(', ');
+                                  return text.length > 30 ? text.substring(0, 30) + '...' : text;
+                                })()}
+                              </span>
+                            ) : (
+                              <span className="text-muted">—</span>
+                            )}
+                            <span className="mistake-count-badge" style={{ marginLeft: '8px', fontWeight: 'bold' }}>({row.grammarA || 0})</span>
                           </td>
                           <td className="col-ignored" style={{ padding: '12px 16px' }}>
                             {row.QPA ? (
@@ -845,20 +899,6 @@ const MarksCalculation = () => {
                               >
                                 {row.QPA.substring(0, 30)}
                                 {row.QPA.length > 30 && '...'}
-                              </span>
-                            ) : (
-                              <span className="text-muted">—</span>
-                            )}
-                          </td>
-                          <td className="col-mistakes" style={{ padding: '12px 16px' }}>
-                            {row.mistakesA ? (
-                              <span 
-                                className="mistakes-words-detail clickable-text"
-                                onClick={() => openModal('Mistakes (Passage A) - Student ID: ' + row.student_id, row.mistakesA)}
-                                title="Click to view full list"
-                              >
-                                {row.mistakesA.substring(0, 30)}
-                                {row.mistakesA.length > 30 && '...'}
                               </span>
                             ) : (
                               <span className="text-muted">—</span>
@@ -878,16 +918,72 @@ const MarksCalculation = () => {
                           <td colSpan="8" className="passage-label" style={{ padding: '12px 16px' }}>Passage B</td>
                           <td colSpan="4" style={{ padding: '12px 16px' }}></td>
                           <td className="col-mistakes" style={{ padding: '12px 16px' }}>
-                            <span className="mistake-count mistake-count-detail">{row.spellingB}</span>
+                            {row.mistakesB?.spelling && row.mistakesB.spelling.length > 0 ? (
+                              <span 
+                                className="mistakes-words-detail clickable-text"
+                                onClick={() => openModal('Spelling Mistakes (Passage B) - Student ID: ' + row.student_id, row.mistakesB.spelling.join(', '))}
+                                title="Click to view full list"
+                              >
+                                {(() => {
+                                  const text = row.mistakesB.spelling.join(', ');
+                                  return text.length > 30 ? text.substring(0, 30) + '...' : text;
+                                })()}
+                              </span>
+                            ) : (
+                              <span className="text-muted">—</span>
+                            )}
+                            <span className="mistake-count-badge" style={{ marginLeft: '8px', fontWeight: 'bold' }}>({row.spellingB || 0})</span>
                           </td>
                           <td className="col-mistakes" style={{ padding: '12px 16px' }}>
-                            <span className="mistake-count mistake-count-detail">{row.missedB}</span>
+                            {row.mistakesB?.missed && row.mistakesB.missed.length > 0 ? (
+                              <span 
+                                className="mistakes-words-detail clickable-text"
+                                onClick={() => openModal('Missed Words (Passage B) - Student ID: ' + row.student_id, row.mistakesB.missed.join(', '))}
+                                title="Click to view full list"
+                              >
+                                {(() => {
+                                  const text = row.mistakesB.missed.join(', ');
+                                  return text.length > 30 ? text.substring(0, 30) + '...' : text;
+                                })()}
+                              </span>
+                            ) : (
+                              <span className="text-muted">—</span>
+                            )}
+                            <span className="mistake-count-badge" style={{ marginLeft: '8px', fontWeight: 'bold' }}>({row.missedB || 0})</span>
                           </td>
                           <td className="col-mistakes" style={{ padding: '12px 16px' }}>
-                            <span className="mistake-count mistake-count-detail">{row.addedB}</span>
+                            {row.mistakesB?.added && row.mistakesB.added.length > 0 ? (
+                              <span 
+                                className="mistakes-words-detail clickable-text"
+                                onClick={() => openModal('Added Words (Passage B) - Student ID: ' + row.student_id, row.mistakesB.added.join(', '))}
+                                title="Click to view full list"
+                              >
+                                {(() => {
+                                  const text = row.mistakesB.added.join(', ');
+                                  return text.length > 30 ? text.substring(0, 30) + '...' : text;
+                                })()}
+                              </span>
+                            ) : (
+                              <span className="text-muted">—</span>
+                            )}
+                            <span className="mistake-count-badge" style={{ marginLeft: '8px', fontWeight: 'bold' }}>({row.addedB || 0})</span>
                           </td>
                           <td className="col-mistakes" style={{ padding: '12px 16px' }}>
-                            <span className="mistake-count mistake-count-detail">{row.grammarB}</span>
+                            {row.mistakesB?.grammar && row.mistakesB.grammar.length > 0 ? (
+                              <span 
+                                className="mistakes-words-detail clickable-text"
+                                onClick={() => openModal('Grammar Mistakes (Passage B) - Student ID: ' + row.student_id, row.mistakesB.grammar.join(', '))}
+                                title="Click to view full list"
+                              >
+                                {(() => {
+                                  const text = row.mistakesB.grammar.join(', ');
+                                  return text.length > 30 ? text.substring(0, 30) + '...' : text;
+                                })()}
+                              </span>
+                            ) : (
+                              <span className="text-muted">—</span>
+                            )}
+                            <span className="mistake-count-badge" style={{ marginLeft: '8px', fontWeight: 'bold' }}>({row.grammarB || 0})</span>
                           </td>
                           <td className="col-ignored" style={{ padding: '12px 16px' }}>
                             {row.QPB ? (
@@ -898,20 +994,6 @@ const MarksCalculation = () => {
                               >
                                 {row.QPB.substring(0, 30)}
                                 {row.QPB.length > 30 && '...'}
-                              </span>
-                            ) : (
-                              <span className="text-muted">—</span>
-                            )}
-                          </td>
-                          <td className="col-mistakes" style={{ padding: '12px 16px' }}>
-                            {row.mistakesB ? (
-                              <span 
-                                className="mistakes-words-detail clickable-text"
-                                onClick={() => openModal('Mistakes (Passage B) - Student ID: ' + row.student_id, row.mistakesB)}
-                                title="Click to view full list"
-                              >
-                                {row.mistakesB.substring(0, 30)}
-                                {row.mistakesB.length > 30 && '...'}
                               </span>
                             ) : (
                               <span className="text-muted">—</span>
@@ -934,7 +1016,7 @@ const MarksCalculation = () => {
               })
             ) : (
               <tr>
-                <td colSpan="23" className="text-center" style={{ padding: '12px 16px' }}>
+                <td colSpan="22" className="text-center" style={{ padding: '12px 16px' }}>
                   No records found
                 </td>
               </tr>
