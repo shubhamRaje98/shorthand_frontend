@@ -634,10 +634,8 @@ const MarksCalculation = () => {
               <th className="col-mistakes" style={{ padding: '12px 16px' }}>Missed</th>
               <th className="col-mistakes" style={{ padding: '12px 16px' }}>Added</th>
               <th className="col-mistakes" style={{ padding: '12px 16px' }}>Grammar</th>
-              <th className="col-ignored" style={{ padding: '12px 16px' }}>Ignored A</th>
-              <th className="col-ignored" style={{ padding: '12px 16px' }}>Ignored B</th>
-              <th className="col-mistakes" style={{ padding: '12px 16px' }}>Mistakes A</th>
-              <th className="col-mistakes" style={{ padding: '12px 16px' }}>Mistakes B</th>
+              <th className="col-ignored" style={{ padding: '12px 16px' }}>Ignored</th>
+              <th className="col-mistakes" style={{ padding: '12px 16px' }}>Mistakes</th>
               <th className="col-mistakes" style={{ padding: '12px 16px' }}>Total</th>
               <th className="col-mistakes" style={{ padding: '12px 16px' }}>Marks</th>
               <th className="col-result" style={{ padding: '12px 16px' }}>Result</th>
@@ -652,6 +650,7 @@ const MarksCalculation = () => {
                 const isCalculating = comparingRows.has(row.id);
                 const isExpanded = expandedRows.has(row.id);
                 const hasPassageData = row.marksA !== undefined && row.marksB !== undefined;
+                const hasIgnoredWords = row.QPA || row.QPB;
                 
                 return (
                   <React.Fragment key={row.id || index}>
@@ -761,56 +760,10 @@ const MarksCalculation = () => {
                         )}
                       </td>
                       <td className="col-ignored" style={{ padding: '12px 16px' }}>
-                        {row.QPA ? (
-                          <span 
-                            className="ignored-words clickable-text" 
-                            title="Click to view full list"
-                            onClick={() => openModal('Ignored Words (Passage A) - Student ID: ' + row.student_id, row.QPA)}
-                          >
-                            {row.QPA.length > 30 ? row.QPA.substring(0, 30) + '...' : row.QPA}
-                          </span>
-                        ) : (
-                          <span className="text-muted">—</span>
-                        )}
-                      </td>
-                      <td className="col-ignored" style={{ padding: '12px 16px' }}>
-                        {row.QPB ? (
-                          <span 
-                            className="ignored-words clickable-text" 
-                            title="Click to view full list"
-                            onClick={() => openModal('Ignored Words (Passage B) - Student ID: ' + row.student_id, row.QPB)}
-                          >
-                            {row.QPB.length > 30 ? row.QPB.substring(0, 30) + '...' : row.QPB}
-                          </span>
-                        ) : (
-                          <span className="text-muted">—</span>
-                        )}
+                        <span className="text-muted">—</span>
                       </td>
                       <td className="col-mistakes" style={{ padding: '12px 16px' }}>
-                        {row.mistakesA ? (
-                          <span 
-                            className="mistakes-words clickable-text" 
-                            title="Click to view full list"
-                            onClick={() => openModal('Mistakes (Passage A) - Student ID: ' + row.student_id, row.mistakesA)}
-                          >
-                            {row.mistakesA.length > 30 ? row.mistakesA.substring(0, 30) + '...' : row.mistakesA}
-                          </span>
-                        ) : (
-                          <span className="text-muted">—</span>
-                        )}
-                      </td>
-                      <td className="col-mistakes" style={{ padding: '12px 16px' }}>
-                        {row.mistakesB ? (
-                          <span 
-                            className="mistakes-words clickable-text" 
-                            title="Click to view full list"
-                            onClick={() => openModal('Mistakes (Passage B) - Student ID: ' + row.student_id, row.mistakesB)}
-                          >
-                            {row.mistakesB.length > 30 ? row.mistakesB.substring(0, 30) + '...' : row.mistakesB}
-                          </span>
-                        ) : (
-                          <span className="text-muted">—</span>
-                        )}
+                        <span className="text-muted">—</span>
                       </td>
                       <td className="col-mistakes" style={{ padding: '12px 16px' }}>
                         {row.total !== undefined ? (
@@ -854,7 +807,7 @@ const MarksCalculation = () => {
                           >
                             {isCalculating ? '...' : 'Calc'}
                           </button>
-                          {hasPassageData && (
+                          {(hasPassageData || hasIgnoredWords) && (
                             <button
                               className="btn btn-sm btn-outline-info"
                               onClick={() => toggleRowExpansion(row.id)}
@@ -866,7 +819,7 @@ const MarksCalculation = () => {
                         </div>
                       </td>
                     </tr>
-                    {hasPassageData && isExpanded && (
+                    {(hasPassageData || hasIgnoredWords) && isExpanded && (
                       <>
                         <tr className="passage-detail-row passage-a-row">
                           <td colSpan="8" className="passage-label" style={{ padding: '12px 16px' }}>Passage A</td>
@@ -885,20 +838,32 @@ const MarksCalculation = () => {
                           </td>
                           <td className="col-ignored" style={{ padding: '12px 16px' }}>
                             {row.QPA ? (
-                              <span className="ignored-words-detail" title={row.QPA}>{row.QPA}</span>
+                              <span 
+                                className="ignored-words-detail clickable-text"
+                                onClick={() => openModal('Ignored Words (Passage A) - Student ID: ' + row.student_id, row.QPA)}
+                                title="Click to view full list"
+                              >
+                                {row.QPA.substring(0, 30)}
+                                {row.QPA.length > 30 && '...'}
+                              </span>
                             ) : (
                               <span className="text-muted">—</span>
                             )}
                           </td>
-                          <td className="col-ignored" style={{ padding: '12px 16px' }}></td>
                           <td className="col-mistakes" style={{ padding: '12px 16px' }}>
                             {row.mistakesA ? (
-                              <span className="mistakes-words-detail" title={row.mistakesA}>{row.mistakesA}</span>
+                              <span 
+                                className="mistakes-words-detail clickable-text"
+                                onClick={() => openModal('Mistakes (Passage A) - Student ID: ' + row.student_id, row.mistakesA)}
+                                title="Click to view full list"
+                              >
+                                {row.mistakesA.substring(0, 30)}
+                                {row.mistakesA.length > 30 && '...'}
+                              </span>
                             ) : (
                               <span className="text-muted">—</span>
                             )}
                           </td>
-                          <td className="col-mistakes" style={{ padding: '12px 16px' }}></td>
                           <td className="col-mistakes" style={{ padding: '12px 16px' }}>
                             <span className="mistake-count total-mistakes mistake-count-detail">{row.totalA}</span>
                           </td>
@@ -924,18 +889,30 @@ const MarksCalculation = () => {
                           <td className="col-mistakes" style={{ padding: '12px 16px' }}>
                             <span className="mistake-count mistake-count-detail">{row.grammarB}</span>
                           </td>
-                          <td className="col-ignored" style={{ padding: '12px 16px' }}></td>
                           <td className="col-ignored" style={{ padding: '12px 16px' }}>
                             {row.QPB ? (
-                              <span className="ignored-words-detail" title={row.QPB}>{row.QPB}</span>
+                              <span 
+                                className="ignored-words-detail clickable-text"
+                                onClick={() => openModal('Ignored Words (Passage B) - Student ID: ' + row.student_id, row.QPB)}
+                                title="Click to view full list"
+                              >
+                                {row.QPB.substring(0, 30)}
+                                {row.QPB.length > 30 && '...'}
+                              </span>
                             ) : (
                               <span className="text-muted">—</span>
                             )}
                           </td>
-                          <td className="col-mistakes" style={{ padding: '12px 16px' }}></td>
                           <td className="col-mistakes" style={{ padding: '12px 16px' }}>
                             {row.mistakesB ? (
-                              <span className="mistakes-words-detail" title={row.mistakesB}>{row.mistakesB}</span>
+                              <span 
+                                className="mistakes-words-detail clickable-text"
+                                onClick={() => openModal('Mistakes (Passage B) - Student ID: ' + row.student_id, row.mistakesB)}
+                                title="Click to view full list"
+                              >
+                                {row.mistakesB.substring(0, 30)}
+                                {row.mistakesB.length > 30 && '...'}
+                              </span>
                             ) : (
                               <span className="text-muted">—</span>
                             )}
