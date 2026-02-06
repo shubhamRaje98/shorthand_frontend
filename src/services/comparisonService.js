@@ -8,101 +8,135 @@ const COMPARISON_API_BASE_URL = 'http://localhost:5002';
 
 /**
  * Calculate result and grade based on marks
+ * 
+ * Mandatory order of logic (Rule 7):
+ *   1. Apply rounding to individual passage marks
+ *   2. Check minimum per-passage eligibility
+ *   3. Determine grace eligibility (can the student pass with max 2 grace?)
+ *   4. Apply grace minimally and conditionally
+ *   5. Determine PASS / FAIL
+ *   6. Assign grade (PASS only, with restrictions)
+ * 
  * @param {number} marksA - Marks for Passage A
  * @param {number} marksB - Marks for Passage B
- * @param {number} totalMarks - Total marks
+ * @param {number} totalMarks - Total marks (unused; recalculated from rounded values)
  * @returns {Object} Result data including result, grade, rounded marks, and grace marks
  */
 const calculateResultAndGrade = (marksA, marksB, totalMarks) => {
+  // ── Step 1: Rounding Rule ───────────────────────────────────────────
+  // Decimal values up to 0.50 → round to the nearest 0.5
+  //   Examples: 10.1 → 10.5, 10.50 → 10.50, 14.33 → 14.50
+  // Decimal values above 0.50 → round up to next whole number
+  //   Examples: 10.51 → 11, 10.6 → 11, 3.67 → 4.00
   const roundMarks = (marks) => {
     const num = parseFloat(marks);
     const wholePart = Math.floor(num);
     const decimalPart = num - wholePart;
-    
-    if (decimalPart <= 0.50) {
-      if (decimalPart === 0) return num;
-      if (decimalPart <= 0.25) return wholePart + 0.5;
-      return wholePart + 0.5;
-    } else {
-      return Math.ceil(num);
-    }
+
+    if (decimalPart === 0) return num;            // Exact whole number
+    if (decimalPart <= 0.50) return wholePart + 0.5; // Up to 0.50 → x.5
+    return Math.ceil(num);                         // Above 0.50 → round up
   };
 
   const numMarksA = parseFloat(marksA);
   const numMarksB = parseFloat(marksB);
 
-  // Apply rounding
-  let roundedA = roundMarks(numMarksA);
-  let roundedB = roundMarks(numMarksB);
-  let roundedTotal = roundedA + roundedB;
+  // Apply rounding BEFORE any grace logic
+  const roundedA = roundMarks(numMarksA);
+  const roundedB = roundMarks(numMarksB);
+  const roundedTotal = roundedA + roundedB;
 
-  const originalTotal = roundedTotal;
+  // Save original rounded total (before grace) for grade percentage calculation
+  const originalRoundedTotal = roundedTotal;
 
-  // Initialize grace marks
+  // ── Step 2: Check if student already passes without grace ───────────
+  const alreadyPasses = roundedA >= 15 && roundedB >= 15 && roundedTotal >= 50;
+
+  // Initialize grace marks and final values
   let graceMarksA = 0;
   let graceMarksB = 0;
   let totalGrace = 0;
+  let finalA = roundedA;
+  let finalB = roundedB;
+  let finalTotal = roundedTotal;
 
-  // Check if student fails initially
-  const failsTotal = roundedTotal < 50;
-  const failsPassageA = roundedA < 15;
-  const failsPassageB = roundedB < 15;
-  const initiallyFails = failsTotal || failsPassageA || failsPassageB;
+  if (!alreadyPasses) {
+    // ── Step 3: Determine grace eligibility ─────────────────────────
+    // Check whether the student CAN pass with at most 2 grace marks.
+    // If irrecoverable (needs > 2 grace), NO grace is applied at all (Rule 7).
 
-  // Apply grace marks only if initially fails
-  if (initiallyFails) {
-    const maxGrace = 2;
-    let remainingGrace = maxGrace;
-
-    // Calculate how much grace is needed
+    // Grace needed to bring each passage to the minimum 15
     const graceNeededForA = Math.max(0, 15 - roundedA);
     const graceNeededForB = Math.max(0, 15 - roundedB);
+    const graceForPassageMins = graceNeededForA + graceNeededForB;
 
-    // Prioritize passage minimums first
-    if (graceNeededForA > 0 && remainingGrace > 0) {
-      graceMarksA = Math.min(graceNeededForA, remainingGrace);
-      remainingGrace -= graceMarksA;
-      roundedA += graceMarksA;
-      totalGrace += graceMarksA;
-    }
+    if (graceForPassageMins <= 2) {
+      // Passage minimums CAN be met with grace; check total requirement
+      const tentativeA = roundedA + graceNeededForA;
+      const tentativeB = roundedB + graceNeededForB;
+      const tentativeTotal = tentativeA + tentativeB;
 
-    if (graceNeededForB > 0 && remainingGrace > 0) {
-      graceMarksB = Math.min(graceNeededForB, remainingGrace);
-      remainingGrace -= graceMarksB;
-      roundedB += graceMarksB;
-      totalGrace += graceMarksB;
-    }
+      // Additional grace needed to bring total to exactly 50
+      const graceForTotal = Math.max(0, 50 - tentativeTotal);
+      const totalGraceNeeded = graceForPassageMins + graceForTotal;
 
-    // If still below 50 total and have grace remaining
-    roundedTotal = roundedA + roundedB;
-    if (roundedTotal < 50 && remainingGrace > 0) {
-      const additionalGrace = Math.min(50 - roundedTotal, remainingGrace);
-      // Add to passage that needs it most
-      if (roundedA < roundedB) {
-        graceMarksA += additionalGrace;
-        roundedA += additionalGrace;
-      } else {
-        graceMarksB += additionalGrace;
-        roundedB += additionalGrace;
+      if (totalGraceNeeded <= 2) {
+        // ── Step 4: Apply grace minimally and conditionally ──────────
+        // Student CAN pass — apply the minimum grace required.
+
+        // First: bring passages to 15
+        graceMarksA = graceNeededForA;
+        graceMarksB = graceNeededForB;
+        finalA = tentativeA;
+        finalB = tentativeB;
+
+        // Then: bring total to 50 if still short
+        const remainingGrace = 2 - graceForPassageMins;
+        if (tentativeTotal < 50 && remainingGrace > 0) {
+          const additionalGrace = Math.min(50 - tentativeTotal, remainingGrace);
+          // Add to the lower passage
+          if (finalA <= finalB) {
+            graceMarksA += additionalGrace;
+            finalA += additionalGrace;
+          } else {
+            graceMarksB += additionalGrace;
+            finalB += additionalGrace;
+          }
+        }
+
+        totalGrace = graceMarksA + graceMarksB;
+        finalTotal = finalA + finalB;
       }
-      totalGrace += additionalGrace;
+      // else: total can't reach 50 even with max grace → stays FAIL, no grace
     }
-
-    roundedTotal = roundedA + roundedB;
+    // else: passage minimums can't be met with max grace → stays FAIL, no grace
   }
 
-  // Determine PASS/FAIL
-  const passes = roundedTotal >= 50 && roundedA >= 15 && roundedB >= 15;
+  // ── Step 5: Determine PASS / FAIL ──────────────────────────────────
+  const passes = finalA >= 15 && finalB >= 15 && finalTotal >= 50;
   const result = passes ? 'PASS' : 'FAIL';
 
-  // Calculate grade only for PASS
+  // If FAIL, ensure NO grace marks are returned (Rules 3, 6)
+  // Failed students must not receive grace marks in final marks.
+  if (result === 'FAIL') {
+    graceMarksA = 0;
+    graceMarksB = 0;
+    totalGrace = 0;
+    finalA = roundedA;
+    finalB = roundedB;
+    finalTotal = roundedTotal;
+  }
+
+  // ── Step 6: Assign grade (PASS only) ───────────────────────────────
+  // Grades based on percentage BEFORE grace marks (originalRoundedTotal / 80).
+  // Students who pass only due to grace → capped at Grade C.
   let grade = '';
   if (result === 'PASS') {
-    const percentageBeforeGrace = (originalTotal / 80) * 100;
-    
-    if (initiallyFails && totalGrace > 0) {
+    if (totalGrace > 0) {
+      // Passed only due to grace marks → always Grade C
       grade = 'C';
     } else {
+      const percentageBeforeGrace = (originalRoundedTotal / 80) * 100;
       if (percentageBeforeGrace >= 75) {
         grade = 'A';
       } else if (percentageBeforeGrace >= 60) {
@@ -116,13 +150,13 @@ const calculateResultAndGrade = (marksA, marksB, totalMarks) => {
   return {
     result,
     grade,
-    roundedA: roundedA.toFixed(2),
-    roundedB: roundedB.toFixed(2),
-    roundedTotal: roundedTotal.toFixed(2),
+    roundedA: finalA.toFixed(2),
+    roundedB: finalB.toFixed(2),
+    roundedTotal: finalTotal.toFixed(2),
     graceMarksA,
     graceMarksB,
     totalGrace,
-    finalMarks: roundedTotal.toFixed(2)
+    finalMarks: finalTotal.toFixed(2)
   };
 };
 

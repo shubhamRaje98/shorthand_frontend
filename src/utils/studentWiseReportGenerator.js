@@ -41,18 +41,24 @@ export const generateStudentWiseReportExcel = async (data) => {
       { header: 'Submission Status', key: 'subm_done', width: 16 },
       { header: 'Ignored Words A', key: 'ignoredA', width: 25 },
       { header: 'Ignored Words B', key: 'ignoredB', width: 25 },
-      { header: 'Mistakes A', key: 'mistakesA', width: 25 },
-      { header: 'Mistakes B', key: 'mistakesB', width: 25 },
-      { header: 'Spelling A', key: 'spellingA', width: 12 },
-      { header: 'Missed A', key: 'missedA', width: 12 },
-      { header: 'Added A', key: 'addedA', width: 12 },
-      { header: 'Grammar A', key: 'grammarA', width: 12 },
+      { header: 'Spelling Words A', key: 'spellingWordsA', width: 35 },
+      { header: 'Missed Words A', key: 'missedWordsA', width: 30 },
+      { header: 'Added Words A', key: 'addedWordsA', width: 30 },
+      { header: 'Grammar Words A', key: 'grammarWordsA', width: 30 },
+      { header: 'Spelling Words B', key: 'spellingWordsB', width: 35 },
+      { header: 'Missed Words B', key: 'missedWordsB', width: 30 },
+      { header: 'Added Words B', key: 'addedWordsB', width: 30 },
+      { header: 'Grammar Words B', key: 'grammarWordsB', width: 30 },
+      { header: 'Spelling Count A', key: 'spellingA', width: 14 },
+      { header: 'Missed Count A', key: 'missedA', width: 14 },
+      { header: 'Added Count A', key: 'addedA', width: 14 },
+      { header: 'Grammar Count A', key: 'grammarA', width: 14 },
       { header: 'Total Mistakes A', key: 'totalA', width: 16 },
       { header: 'Marks A', key: 'marksA', width: 12 },
-      { header: 'Spelling B', key: 'spellingB', width: 12 },
-      { header: 'Missed B', key: 'missedB', width: 12 },
-      { header: 'Added B', key: 'addedB', width: 12 },
-      { header: 'Grammar B', key: 'grammarB', width: 12 },
+      { header: 'Spelling Count B', key: 'spellingB', width: 14 },
+      { header: 'Missed Count B', key: 'missedB', width: 14 },
+      { header: 'Added Count B', key: 'addedB', width: 14 },
+      { header: 'Grammar Count B', key: 'grammarB', width: 14 },
       { header: 'Total Mistakes B', key: 'totalB', width: 16 },
       { header: 'Marks B', key: 'marksB', width: 12 },
       { header: 'Total Spelling', key: 'spelling', width: 14 },
@@ -92,6 +98,18 @@ export const generateStudentWiseReportExcel = async (data) => {
       };
     });
 
+    // Helper function to format spelling mistakes as (incorrect, correct) pairs
+    const formatSpellingMistakes = (mistakes) => {
+      if (!mistakes || !Array.isArray(mistakes) || mistakes.length === 0) return '';
+      return mistakes.map(pair => `(${pair[0]}, ${pair[1]})`).join(', ');
+    };
+
+    // Helper function to format other mistakes as comma-separated list
+    const formatMistakesList = (mistakes) => {
+      if (!mistakes || !Array.isArray(mistakes) || mistakes.length === 0) return '';
+      return mistakes.join(', ');
+    };
+
     // Add data rows
     processedData.forEach((row, index) => {
       const dataRow = worksheet.addRow({
@@ -105,8 +123,14 @@ export const generateStudentWiseReportExcel = async (data) => {
         subm_done: row.subm_done === 1 ? 'Yes' : row.subm_done === 0 ? 'No' : '',
         ignoredA: row.QPA || '',
         ignoredB: row.QPB || '',
-        mistakesA: typeof row.mistakesA === 'object' && row.mistakesA ? JSON.stringify(row.mistakesA) : (row.mistakesA || ''),
-        mistakesB: typeof row.mistakesB === 'object' && row.mistakesB ? JSON.stringify(row.mistakesB) : (row.mistakesB || ''),
+        spellingWordsA: row.mistakesA?.spelling ? formatSpellingMistakes(row.mistakesA.spelling) : '',
+        missedWordsA: row.mistakesA?.missed ? formatMistakesList(row.mistakesA.missed) : '',
+        addedWordsA: row.mistakesA?.added ? formatMistakesList(row.mistakesA.added) : '',
+        grammarWordsA: row.mistakesA?.grammar ? formatMistakesList(row.mistakesA.grammar) : '',
+        spellingWordsB: row.mistakesB?.spelling ? formatSpellingMistakes(row.mistakesB.spelling) : '',
+        missedWordsB: row.mistakesB?.missed ? formatMistakesList(row.mistakesB.missed) : '',
+        addedWordsB: row.mistakesB?.added ? formatMistakesList(row.mistakesB.added) : '',
+        grammarWordsB: row.mistakesB?.grammar ? formatMistakesList(row.mistakesB.grammar) : '',
         spellingA: row.spellingA !== undefined ? row.spellingA : '',
         missedA: row.missedA !== undefined ? row.missedA : '',
         addedA: row.addedA !== undefined ? row.addedA : '',
@@ -160,7 +184,7 @@ export const generateStudentWiseReportExcel = async (data) => {
         };
 
         // Highlight result column
-        if (colNumber === 37) { // Result column
+        if (colNumber === 43) { // Result column
           cell.font = { bold: true };
           if (cell.value === 'PASS') {
             cell.font.color = { argb: 'FF008000' };
@@ -170,7 +194,7 @@ export const generateStudentWiseReportExcel = async (data) => {
         }
 
         // Highlight grade column
-        if (colNumber === 38) { // Grade column
+        if (colNumber === 44) { // Grade column
           cell.font = { bold: true };
           if (cell.value === 'A') {
             cell.fill = {
@@ -203,7 +227,7 @@ export const generateStudentWiseReportExcel = async (data) => {
     // Add auto-filter to header row
     worksheet.autoFilter = {
       from: { row: 1, column: 1 },
-      to: { row: 1, column: 38 }
+      to: { row: 1, column: 44 }
     };
 
     // Generate filename with date
