@@ -103,10 +103,11 @@ const QSet = () => {
       {qsets.map((qsetObj) => (
         <button
           key={qsetObj.qset}
-          className="item-button"
+          className={`item-button ${isHeld ? 'item-button-held' : ''}`}
           onClick={() => handleQSetClick(qsetObj)}
         >
-          <div className="item-title">QSet: {qsetObj.qset}</div>
+          <div className={`item-title ${isHeld ? 'item-title-held' : ''}`}>QSet: {qsetObj.qset}</div>
+          {isHeld && <span className="held-badge">HELD</span>}
           {qsetObj.incomplete_count !== undefined && qsetObj.total_count !== undefined && (
             <div className="item-count">Students: {qsetObj.incomplete_count}/{qsetObj.total_count}</div>
           )}

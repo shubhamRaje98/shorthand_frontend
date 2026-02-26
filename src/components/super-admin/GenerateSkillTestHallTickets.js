@@ -230,6 +230,7 @@ function GenerateSkillTestHallTickets() {
             center_name: row['center_name'] || '',
             center_address: row['center_address'] || '',
             subject_name: row['subject_name'] || '',
+            Subject: row['Subject'] || row['subject_name'] || '',
             disability: row['disability'] || 'No',
             disability_type: row['disability_type'] || '',
             batchdate: row['batchdate'] || '',
@@ -317,10 +318,15 @@ function GenerateSkillTestHallTickets() {
         }
       );
 
+      const safeFullName = (student.fullname || '').replace(/[<>:"/\\|?*]/g, '_').replace(/\s+/g, '_').trim();
+      const safeSubject = (student.Subject || '').replace(/[<>:"/\\|?*]/g, '_').replace(/\s+/g, '_').trim();
+      const singleFilename = safeSubject
+        ? `${student.APPLICATION_NUMBER}_${safeFullName}_${safeSubject}.pdf`
+        : `${student.APPLICATION_NUMBER}_${safeFullName}.pdf`;
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `hallticket_${student.APPLICATION_NUMBER}.pdf`);
+      link.setAttribute('download', singleFilename);
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -572,11 +578,26 @@ function GenerateSkillTestHallTickets() {
             </Col>
             <Col md={4} className="text-center">
               <div className="border p-3 text-center">
-                <FaCogs size={50} className="text-success mb-2" />
-                <p>Skill Test Student</p>
-                <small className="text-muted">Photo: {previewStudent.photo || 'Not available'}</small>
-                <br />
-                <small className="text-muted">Signature: {previewStudent.sign || 'Not available'}</small>
+                {previewStudent.photo ? (
+                  <img
+                    src={`http://localhost:3000/assets/skilltest/Photo%20Sign%2012%20tribal/photo_new/${encodeURIComponent(previewStudent.photo)}`}
+                    alt="Student Photo"
+                    style={{ width: '100px', height: '120px', objectFit: 'cover', border: '1px solid #ccc', marginBottom: '8px' }}
+                    onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }}
+                  />
+                ) : null}
+                <p style={{ display: previewStudent.photo ? 'none' : 'block', color: '#888' }}>No Photo</p>
+                <small className="text-muted d-block mb-2">Photo: {previewStudent.photo || 'Not available'}</small>
+                {previewStudent.sign ? (
+                  <img
+                    src={`http://localhost:3000/assets/skilltest/Photo%20Sign%2012%20tribal/Sign_new/${encodeURIComponent(previewStudent.sign)}`}
+                    alt="Student Signature"
+                    style={{ width: '100px', height: '40px', objectFit: 'contain', border: '1px solid #ccc', marginBottom: '4px' }}
+                    onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }}
+                  />
+                ) : null}
+                <p style={{ display: previewStudent.sign ? 'none' : 'block', color: '#888' }}>No Signature</p>
+                <small className="text-muted d-block">Signature: {previewStudent.sign || 'Not available'}</small>
               </div>
             </Col>
           </Row>

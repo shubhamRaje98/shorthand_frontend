@@ -23,8 +23,9 @@ const SubjectSelection = () => {
                             }
                             acc[language].push(subject);
                             
-                            // Add held students as a separate "subject"
-                            if (subject.held_incomplete_count > 0 || subject.total_held_count > 0) {
+                            // Add held students as a separate "subject" card
+                            // held_incomplete_count and total_held_count come from backend for super_mod users
+                            if ((subject.held_incomplete_count > 0) || (subject.total_held_count > 0)) {
                                 const heldSubject = {
                                     ...subject,
                                     subject_name: `${subject.subject_name} - Held`,
@@ -40,6 +41,9 @@ const SubjectSelection = () => {
 
                     Object.keys(groupedSubjects).forEach(language => {
                         groupedSubjects[language].sort((a, b) => {
+                            // Sort held subjects after their normal counterparts
+                            if (a.isHeld && !b.isHeld) return 1;
+                            if (!a.isHeld && b.isHeld) return -1;
                             const speedA = parseInt(a.subject_name.match(/\d+/)?.[0] || '0');
                             const speedB = parseInt(b.subject_name.match(/\d+/)?.[0] || '0');
                             return speedA - speedB;
@@ -84,17 +88,28 @@ const SubjectSelection = () => {
                 <div key={language} className="language-group">
                     <h3 className="language-title">{language} Shorthand</h3>
                     <div className="subjects-grid">
-                        {languageSubjects.map((subject) => (
+                        {languageSubjects.map((subject, index) => (
                             subject.incomplete_count > 0 && (
                                 <button
-                                    key={subject.subjectId}
-                                    className="item-button"
+                                    key={`${subject.subjectId}-${subject.departmentId}-${subject.isHeld ? 'held' : 'normal'}-${index}`}
+                                    className={`item-button ${subject.isHeld ? 'item-button-held' : ''}`}
                                     onClick={() => handleSubjectClick(subject)}
                                 >
-                                    <div className="item-title">{subject.subject_name}</div>
+                                    <div className={`item-title ${subject.isHeld ? 'item-title-held' : ''}`}>
+                                        {subject.subject_name}
+                                    </div>
+                                    {subject.isHeld && (
+                                        <span className="held-badge">HELD</span>
+                                    )}
                                     {subject.incomplete_count !== undefined && subject.total_count !== undefined && (
                                         <div className="item-count">
                                             Students: {subject.incomplete_count}/{subject.total_count}
+                                        </div>
+                                    )}
+                                    {/* Show hold_count badge on normal cards that have held students */}
+                                    {!subject.isHeld && subject.hold_count > 0 && (
+                                        <div className="hold-count-badge">
+                                            {subject.hold_count} held
                                         </div>
                                     )}
                                 </button>

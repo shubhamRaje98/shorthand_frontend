@@ -460,7 +460,7 @@ const SuperAdminDashboard = () => {
           try {
             await axios.post('http://localhost:3000/add-table-record', {
               tableName: selectedTable,
-              newRecord
+              record: newRecord
             }, { withCredentials: true });
             successfulOperations++;
             operationResults.push({
@@ -488,7 +488,8 @@ const SuperAdminDashboard = () => {
             await axios.delete('http://localhost:3000/delete-table-record', {
               data: {
                 tableName: selectedTable,
-                rowData: recordToDelete
+                primaryKey: tablePrimaryKey,
+                primaryKeyValue: recordToDelete[tablePrimaryKey]
               },
               withCredentials: true
             });
