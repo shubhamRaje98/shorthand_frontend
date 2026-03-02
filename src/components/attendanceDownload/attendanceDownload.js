@@ -103,7 +103,7 @@ const AttendanceDownload = () => {
       const details = {};
       const batchNumbers = batchData.map(item => {
         if (typeof item === 'object' && item.batchNo) {
-          details[item.batchNo] = item.batchdate;
+          details[item.batchNo] = { batchdate: item.batchdate, start_time: item.start_time };
           return item.batchNo;
         }
         return item;
@@ -126,13 +126,15 @@ const AttendanceDownload = () => {
     if (!setting || !setting.enabled) return { allowed: true };
     if (!batchNo) return { allowed: true }; // Should not happen if button enabled
 
-    const batchDate = batchDetails[batchNo];
-    if (!batchDate) {
-      // If date is missing, maybe default to allow or block? 
-      // Proceeding with allow but logging
-      console.warn("Batch date missing for restriction check");
+    const batchInfo = batchDetails[batchNo];
+    if (!batchInfo) {
+      // If date is missing, default to allow
+      console.warn("Batch info missing for restriction check");
       return { allowed: true };
     }
+
+    const batchDate = typeof batchInfo === 'object' ? batchInfo.batchdate : batchInfo;
+    const startTime = typeof batchInfo === 'object' ? batchInfo.start_time : null;
 
     const examDate = moment(batchDate);
     const now = moment();
@@ -145,14 +147,26 @@ const AttendanceDownload = () => {
         return { allowed: false, message: `This report is available from ${allowedDate.format('DD/MM/YYYY')}` };
       }
     } else if (setting.type === 'minutes_before') {
-      // Minutes check usually requires exam TIME which we might not have in batchDate alone.
-      // Assuming strict check not possible with just date.
-      // If we really need minutes, we'd need start time.
-      // For now, if same day, allow? Or just skip minutes check?
-      // Fallback: Check if it's the exam day at least.
-      const allowedDate = examDate.clone().startOf('day');
-      if (now.isBefore(allowedDate)) {
-        return { allowed: false, message: `This report is available on exam day` };
+      if (startTime) {
+        // Proper minutes check using exam start time
+        const timeParts = startTime.split(':');
+        const examDateTime = examDate.clone().set({
+          hour: parseInt(timeParts[0]),
+          minute: parseInt(timeParts[1]),
+          second: 0
+        });
+        const diffMinutes = examDateTime.diff(now, 'minutes');
+        // Allow if exam is within 'value' minutes ahead (or already started/past)
+        if (diffMinutes > parseInt(setting.value)) {
+          const allowedTime = examDateTime.clone().subtract(setting.value, 'minutes');
+          return { allowed: false, message: `This report is available from ${allowedTime.format('DD/MM/YYYY hh:mm A')}` };
+        }
+      } else {
+        // No start_time available, fallback: allow on exam day or after
+        const allowedDate = examDate.clone().startOf('day');
+        if (now.isBefore(allowedDate)) {
+          return { allowed: false, message: `This report is available on exam day` };
+        }
       }
     }
 
