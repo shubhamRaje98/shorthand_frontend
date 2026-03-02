@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import NavBar from '../navBar/navBar';
+import SuperAdminNavbar from './SuperAdminNavbar';
 import * as XLSX from 'xlsx';
 import './AdminBlankSubmissionsView.css';
 
@@ -30,7 +30,7 @@ const AdminBlankSubmissionsView = () => {
                 params.append('hasComment', filterComment === 'commented' ? 'true' : 'false');
             }
 
-            const url = `http://localhost:3000/api/blank-submissions/admin/all${params.toString() ? '?' + params.toString() : ''}`;
+            const url = `https://www.shorthandonlineexam.in/api/blank-submissions/admin/all${params.toString() ? '?' + params.toString() : ''}`;
             const response = await axios.get(url, { withCredentials: true });
 
             if (response.data.success) {
@@ -54,7 +54,7 @@ const AdminBlankSubmissionsView = () => {
     const handleMarkAsViewed = async (id) => {
         try {
             const response = await axios.post(
-                `http://localhost:3000/api/blank-submissions/admin/mark-viewed/${id}`,
+                `https://www.shorthandonlineexam.in/api/blank-submissions/admin/mark-viewed/${id}`,
                 {},
                 { withCredentials: true }
             );
@@ -117,7 +117,7 @@ const AdminBlankSubmissionsView = () => {
 
     return (
         <div>
-            <NavBar />
+            <SuperAdminNavbar />
             <div className="admin-blank-submissions-container">
                 <div className="header-section">
                     <h2>Blank Passage Submissions - Admin View</h2>

@@ -27,12 +27,14 @@ const isValidData = (value) => {
 };
 const getCellClass = (item, field, exam_type) => {
     let stages;
-    if (exam_type === 'shorthand' || exam_type === '') { // GCC
+    if (exam_type === 'shorthand' || exam_type === '') { // GCC with both passages
         stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time', 'audio2_time', 'passage2_time', 'feedback_time'];
-    } else if (exam_type === 'typewriting') {
+    } else if (exam_type === 'typewriting') { // GCC typewriting only
         stages = ['loginTime', 'trial_passage_time', 'typing_passage_time', 'feedback_time'];
-    } else { // SKILL
-        stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time', 'trial_passage_time', 'typing_passage_time', 'feedback_time'];
+    } else if (exam_type === 'skill') { // SKILL exam type
+        stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time', 'feedback_time'];
+    } else {
+        stages = ['loginTime', 'trial_time', 'audio1_time', 'passage1_time', 'audio2_time', 'passage2_time', 'feedback_time'];
     }
     const currentStageIndex = stages.indexOf(field);
 
@@ -91,6 +93,9 @@ const SuperAdminTrackDashboard = () => {
     const [batchDates, setBatchDates] = useState([]);
     const [total_login_count, setTotal_login_count] = useState(0);
     const [stageCounts, setStageCounts] = useState({});
+
+    // 'typewriting' in UI means SKILL exam; map to 'skill' for table rendering
+    const effectiveExamType = exam_type === 'typewriting' ? 'skill' : exam_type;
 
     // Pagination states
     const [currentPage, setCurrentPage] = useState(1);
@@ -157,7 +162,7 @@ const SuperAdminTrackDashboard = () => {
         try {
             console.log("🔍 Fetching filter options...");
             const response = await axios.post(
-                'http://localhost:3000/super-admin-student-track-dashboard',
+                'https://www.shorthandonlineexam.in/super-admin-student-track-dashboard',
                 {}, // Empty request body to get all data
                 { withCredentials: true }
             );
@@ -252,7 +257,7 @@ const SuperAdminTrackDashboard = () => {
 
     const fetchSubjects = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/subjects');
+            const response = await axios.get('https://www.shorthandonlineexam.in/subjects');
             if (response.data.subjects) {
                 setAllSubjects(response.data.subjects);
             }
@@ -291,7 +296,7 @@ const SuperAdminTrackDashboard = () => {
 
             console.log('🔢 Fetching login count with filters:', requestBody);
 
-            const response = await axios.post('http://localhost:3000/total-login-count', requestBody, { withCredentials: true });
+            const response = await axios.post('https://www.shorthandonlineexam.in/total-login-count', requestBody, { withCredentials: true });
 
             if (response.data) {
                 console.log('🔢 Login count response:', response.data);
@@ -330,7 +335,7 @@ const SuperAdminTrackDashboard = () => {
             }
 
             const response = await axios.post(
-                "http://localhost:3000/super-admin-get-stage-counts",
+                "https://www.shorthandonlineexam.in/super-admin-get-stage-counts",
                 requestBody,
                 { withCredentials: true }
             );
@@ -391,7 +396,7 @@ const SuperAdminTrackDashboard = () => {
             });
 
             const response = await axios.post(
-                'http://localhost:3000/super-admin-student-track-dashboard',
+                'https://www.shorthandonlineexam.in/super-admin-student-track-dashboard',
                 requestBody,
                 {
                     withCredentials: true,
@@ -848,16 +853,16 @@ const SuperAdminTrackDashboard = () => {
                                         <th style={{ width: '8%' }}>Center</th>
                                         <th style={{ width: '12%' }}>Seat No</th>
                                         <th>Login</th>
-                                        <th>Trial</th>
-                                        <th>Audio Track A</th>
-                                        <th>Passage A</th>
-                                        {(exam_type === 'shorthand' || exam_type === '') && (
+                                        {effectiveExamType !== 'typewriting' && <th>Trial</th>}
+                                        {effectiveExamType !== 'typewriting' && <th>Audio Track A</th>}
+                                        {effectiveExamType !== 'typewriting' && <th>Passage A</th>}
+                                        {(effectiveExamType === 'shorthand' || effectiveExamType === '') && (
                                             <>
                                                 <th>Audio Track B</th>
                                                 <th>Passage B</th>
                                             </>
                                         )}
-                                        {(exam_type === 'typewriting' || exam_type === 'both') && (
+                                        {(effectiveExamType === 'typewriting' || effectiveExamType === 'both') && (
                                             <>
                                                 <th>Trial Typing</th>
                                                 <th>Typing Test</th>
@@ -872,27 +877,27 @@ const SuperAdminTrackDashboard = () => {
                                             <td className="batch-number-column">{item.batchNo}</td>
                                             <td>{item.center}</td>
                                             <td>{item.student_id}</td>
-                                            <td className={getCellClass(item, 'loginTime', exam_type)}>{formatDate(item.loginTime)}</td>
-                                            {exam_type !== 'typewriting' && <td className={getCellClass(item, 'trial_time', exam_type)}>{formatDate(item.trial_time)}</td>}
-                                            {exam_type !== 'typewriting' && (
+                                            <td className={getCellClass(item, 'loginTime', effectiveExamType)}>{formatDate(item.loginTime)}</td>
+                                            {effectiveExamType !== 'typewriting' && <td className={getCellClass(item, 'trial_time', effectiveExamType)}>{formatDate(item.trial_time)}</td>}
+                                            {effectiveExamType !== 'typewriting' && (
                                                 <>
-                                                    <td className={getCellClass(item, 'audio1_time', exam_type)}>{formatDate(item.audio1_time)}</td>
-                                                    <td className={getCellClass(item, 'passage1_time', exam_type)}>{formatDate(item.passage1_time)}</td>
-                                                    {(exam_type === 'shorthand' || exam_type === '') && (
+                                                    <td className={getCellClass(item, 'audio1_time', effectiveExamType)}>{formatDate(item.audio1_time)}</td>
+                                                    <td className={getCellClass(item, 'passage1_time', effectiveExamType)}>{formatDate(item.passage1_time)}</td>
+                                                    {(effectiveExamType === 'shorthand' || effectiveExamType === '') && (
                                                         <>
-                                                            <td className={getCellClass(item, 'audio2_time', exam_type)}>{formatDate(item.audio2_time)}</td>
-                                                            <td className={getCellClass(item, 'passage2_time', exam_type)}>{formatDate(item.passage2_time)}</td>
+                                                            <td className={getCellClass(item, 'audio2_time', effectiveExamType)}>{formatDate(item.audio2_time)}</td>
+                                                            <td className={getCellClass(item, 'passage2_time', effectiveExamType)}>{formatDate(item.passage2_time)}</td>
                                                         </>
                                                     )}
                                                 </>
                                             )}
-                                            {(exam_type === 'typewriting' || exam_type === 'both') && (
+                                            {(effectiveExamType === 'typewriting' || effectiveExamType === 'both') && (
                                                 <>
-                                                    <td className={getCellClass(item, 'trial_passage_time', exam_type)}>{formatDate(item.trial_passage_time)}</td>
-                                                    <td className={getCellClass(item, 'typing_passage_time', exam_type)}>{formatDate(item.typing_passage_time)}</td>
+                                                    <td className={getCellClass(item, 'trial_passage_time', effectiveExamType)}>{formatDate(item.trial_passage_time)}</td>
+                                                    <td className={getCellClass(item, 'typing_passage_time', effectiveExamType)}>{formatDate(item.typing_passage_time)}</td>
                                                 </>
                                             )}
-                                            <td className={getCellClass(item, 'feedback_time', exam_type)}>{formatDate(item.feedback_time)}</td>
+                                            <td className={getCellClass(item, 'feedback_time', effectiveExamType)}>{formatDate(item.feedback_time)}</td>
                                         </tr>
                                     ))}
                                 </tbody>

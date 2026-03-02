@@ -9,7 +9,7 @@ const ReportControl = () => {
     const [error, setError] = useState(null);
     const [saveStatus, setSaveStatus] = useState({}); // { [key]: 'saving' | 'success' | 'error' }
 
-    // Map keys to human-readable names
+    // Map keys to human-readable names for report settings
     const SETTING_LABELS = {
         'REPORT_ATTENDANCE': 'Attendance Report',
         'REPORT_ANSWER_SHEET': 'Answer Sheets',
@@ -18,6 +18,8 @@ const ReportControl = () => {
         'REPORT_ABSENTEE': 'Absentee Report'
     };
 
+    const CONTROLLER_TIMER_KEY = 'CONTROLLER_PASSWORD_TIMER';
+
     useEffect(() => {
         fetchSettings();
     }, []);
@@ -25,7 +27,7 @@ const ReportControl = () => {
     const fetchSettings = async () => {
         try {
             // Updated to production URL
-            const response = await axios.get('http://localhost:3000/report-settings', { withCredentials: true });
+            const response = await axios.get('https://www.shorthandonlineexam.in/report-settings', { withCredentials: true });
             setSettings(response.data);
             setLoading(false);
         } catch (err) {
@@ -36,7 +38,8 @@ const ReportControl = () => {
     };
 
     const handleToggleEnable = async (key) => {
-        const currentSetting = settings[key];
+        const defaultType = key === 'CONTROLLER_PASSWORD_TIMER' ? 'minutes_before' : 'days_before';
+        const currentSetting = settings[key] || { enabled: false, type: defaultType, value: key === 'CONTROLLER_PASSWORD_TIMER' ? 30 : 3 };
         const newValue = { ...currentSetting, enabled: !currentSetting.enabled };
         await updateSetting(key, newValue);
     };
@@ -59,7 +62,7 @@ const ReportControl = () => {
         setSaveStatus(prev => ({ ...prev, [key]: 'saving' }));
         try {
             // Updated to production URL
-            await axios.post('http://localhost:3000/report-settings', {
+            await axios.post('https://www.shorthandonlineexam.in/report-settings', {
                 key: key,
                 value: value
             }, { withCredentials: true });
@@ -152,6 +155,62 @@ const ReportControl = () => {
                         );
                     })}
                 </div>
+
+                {/* Controller Password Timer Section */}
+                <h2 className="report-control-title" style={{ marginTop: '2rem', fontSize: '1.4rem' }}>Controller Password Visibility</h2>
+                {(() => {
+                    const key = CONTROLLER_TIMER_KEY;
+                    const setting = settings[key] || { enabled: false, type: 'minutes_before', value: 30 };
+                    const status = saveStatus[key];
+                    return (
+                        <div className="report-control-grid">
+                            <div className={`report-control-card ${setting.enabled ? 'enabled' : 'disabled'}`}>
+                                <div className="card-header">
+                                    <h3>Controller Password Timer</h3>
+                                    <label className="switch">
+                                        <input
+                                            type="checkbox"
+                                            checked={setting.enabled}
+                                            onChange={() => handleToggleEnable(key)}
+                                        />
+                                        <span className="slider round"></span>
+                                    </label>
+                                </div>
+
+                                {setting.enabled && (
+                                    <div className="card-body">
+                                        <div className="form-group">
+                                            <label>Show password how many minutes before exam start?</label>
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                value={setting.value}
+                                                onChange={(e) => handleChange(key, 'value', parseInt(e.target.value))}
+                                            />
+                                        </div>
+
+                                        <button
+                                            className="save-btn"
+                                            onClick={() => handleSave(key)}
+                                            disabled={status === 'saving'}
+                                        >
+                                            {status === 'saving' ? 'Saving...' : 'Save Changes'}
+                                        </button>
+
+                                        {status === 'success' && <span className="status-msg success">Saved!</span>}
+                                        {status === 'error' && <span className="status-msg error">Error!</span>}
+                                    </div>
+                                )}
+
+                                {!setting.enabled && (
+                                    <div className="card-status-text">
+                                        Password is currently <strong>ALWAYS VISIBLE</strong> (No Timer)
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    );
+                })()}
             </div>
         </div>
     );

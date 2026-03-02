@@ -30,8 +30,24 @@ const isValidData = (value) => {
 
 const getCellClass = (item, field, exam_type) => {
   let stages;
-  // Treat '' (All) and 'shorthand' as GCC
-  if (exam_type === "shorthand" || exam_type === "") {
+  // SKILL: single audio + single passage
+  if (exam_type === 'SKILL') {
+    stages = [
+      "loginTime",
+      "trial_time",
+      "audio1_time",
+      "passage1_time",
+      "feedback_time",
+    ];
+  } else if (exam_type === "typewriting") {
+    stages = [
+      "loginTime",
+      "trial_passage_time",
+      "typing_passage_time",
+      "feedback_time",
+    ];
+  } else {
+    // GCC / default: two audios + two passages
     stages = [
       "loginTime",
       "trial_time",
@@ -39,13 +55,6 @@ const getCellClass = (item, field, exam_type) => {
       "passage1_time",
       "audio2_time",
       "passage2_time",
-      "feedback_time",
-    ];
-  } else { // 'typewriting', 'both' -> SKILL
-    stages = [
-      "loginTime",
-      "trial_passage_time",
-      "typing_passage_time",
       "feedback_time",
     ];
   }
@@ -99,7 +108,7 @@ const DepartmentDashboard = () => {
   const [batchNo, setBatchNo] = useState("");
   const [subject, setSubject] = useState("");
   const [loginStatus, setLoginStatus] = useState("");
-  const [exam_type, setExam_type] = useState("shorthand");
+  const [exam_type, setExam_type] = useState("");
   const [batchDate, setBatchDate] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -197,7 +206,7 @@ const DepartmentDashboard = () => {
     try {
       console.log("🔍 Fetching filter options...");
       const response = await axios.post(
-        "http://localhost:3000/track-students-on-department-code",
+        "https://www.shorthandonlineexam.in/track-students-on-department-code",
         {},
         { withCredentials: true }
       );
@@ -330,7 +339,7 @@ const DepartmentDashboard = () => {
 
   const fetchSubjects = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/subjects");
+      const response = await axios.get("https://www.shorthandonlineexam.in/subjects");
       console.log("📚 Subjects fetched:", response.data);
       if (response.data.subjects) {
         setAllSubjects(response.data.subjects);
@@ -390,7 +399,7 @@ const DepartmentDashboard = () => {
       );
 
       const response = await axios.post(
-        "http://localhost:3000/total-login-count", // This is the total active/loggedin count from studentController
+        "https://www.shorthandonlineexam.in/total-login-count", // This is the total active/loggedin count from studentController
         // Wait, for this specific function we want to hit the studentController endpoint which we modified earlier?
         // Yes, totalLoginCounts is in studentController.
         requestBody,
@@ -431,7 +440,7 @@ const DepartmentDashboard = () => {
       }
 
       const response = await axios.post(
-        "http://localhost:3000/get-stage-counts",
+        "https://www.shorthandonlineexam.in/get-stage-counts",
         requestBody,
         { withCredentials: true }
       );
@@ -546,7 +555,7 @@ const DepartmentDashboard = () => {
       console.log("🚀 Sending request body:", requestBody);
 
       const response = await axios.post(
-        "http://localhost:3000/track-students-on-department-code",
+        "https://www.shorthandonlineexam.in/track-students-on-department-code",
         requestBody,
         { withCredentials: true }
       );
@@ -587,13 +596,36 @@ const DepartmentDashboard = () => {
   };
 
   useEffect(() => {
-    fetchSubjects();
-    fetchFilterOptions();
-    setTimeout(() => {
-      fetchData(false);
-      fetchTotalLoginCount();
-      fetchStageCounts();
-    }, 500);
+    // Fetch department details to get examType and set as default filter
+    const initDashboard = async () => {
+      let defaultExamType = "";
+      try {
+        const deptResponse = await axios.get("https://www.shorthandonlineexam.in/get-department-details", { withCredentials: true });
+        if (deptResponse.data && deptResponse.data.departmentDetails && deptResponse.data.departmentDetails.examType) {
+          defaultExamType = deptResponse.data.departmentDetails.examType;
+          setExam_type(defaultExamType);
+        }
+      } catch (err) {
+        console.error("Error fetching department details:", err);
+      }
+      fetchSubjects();
+      fetchFilterOptions();
+      setTimeout(() => {
+        const initialFilters = {
+          batchNo: "",
+          subject: "",
+          loginStatus: "",
+          center: "",
+          exam_type: defaultExamType,
+          batchDate: "",
+        };
+        setCurrentFilters(initialFilters);
+        fetchDataWithFilters(initialFilters);
+        fetchTotalLoginCount(initialFilters);
+        fetchStageCounts(initialFilters);
+      }, 500);
+    };
+    initDashboard();
   }, []);
 
   useEffect(() => {
@@ -740,8 +772,8 @@ const DepartmentDashboard = () => {
                 <option value="">All Subjects</option>
                 {allSubjects.filter(subj => {
                   if (!exam_type) return true;
-                  if (exam_type === 'shorthand') return subj.examType === 'GCC';
-                  if (exam_type === 'typewriting') return subj.examType === 'SKILL';
+                  if (exam_type === 'GCC') return subj.examType === 'GCC';
+                  if (exam_type === 'SKILL') return subj.examType === 'SKILL';
                   return true;
                 }).map((subj) => (
                   <option key={subj.subjectId} value={subj.subject_name}>
@@ -775,10 +807,9 @@ const DepartmentDashboard = () => {
                 value={exam_type}
                 onChange={(e) => handleFilterChange('exam_type', e.target.value)}
               >
-                <option value="">GCC (Default)</option>
-                <option value="shorthand">GCC</option>
-                <option value="typewriting">SKILL</option>
-                <option value="both">Both (Legacy)</option>
+                <option value="">All</option>
+                <option value="GCC">GCC</option>
+                <option value="SKILL">SKILL</option>
               </select>
             </div>
           </div>
@@ -880,13 +911,13 @@ const DepartmentDashboard = () => {
                   <div className="text-muted small fw-bold">Login</div>
                   <div className="h5 mb-0 text-primary">{stageCounts.login_count || 0}</div>
                 </div>
-                {exam_type !== "typewriting" && (
+                {exam_type !== "GCC" && exam_type !== "" && (
                   <div className="text-center px-2 border-start">
                     <div className="text-muted small fw-bold">Trial</div>
                     <div className="h5 mb-0 text-info">{stageCounts.trial_count || 0}</div>
                   </div>
                 )}
-                {exam_type !== "typewriting" && (
+                {exam_type !== "GCC" && exam_type !== "" && (
                   <>
                     <div className="text-center px-2 border-start">
                       <div className="text-muted small fw-bold">Audio Track A</div>
@@ -898,8 +929,16 @@ const DepartmentDashboard = () => {
                     </div>
                   </>
                 )}
-                {(exam_type === "shorthand" || exam_type === "" || exam_type === "both") && (
+                {(exam_type === "GCC" || exam_type === "") && (
                   <>
+                    <div className="text-center px-2 border-start">
+                      <div className="text-muted small fw-bold">Audio Track A</div>
+                      <div className="h5 mb-0 text-success">{stageCounts.audio1_count || 0}</div>
+                    </div>
+                    <div className="text-center px-2 border-start">
+                      <div className="text-muted small fw-bold">Passage A</div>
+                      <div className="h5 mb-0 text-success">{stageCounts.passage1_count || 0}</div>
+                    </div>
                     <div className="text-center px-2 border-start">
                       <div className="text-muted small fw-bold">Audio Track B</div>
                       <div className="h5 mb-0 text-success">{stageCounts.audio2_count || 0}</div>
@@ -937,28 +976,13 @@ const DepartmentDashboard = () => {
                     <th style={{ width: "8%" }}>Center</th>
                     <th style={{ width: "12%" }}>Seat No</th>
                     <th>Login</th>
-                    {/* Always show Trial, Audio A, Passage A as they are common now (Trial Typing replaces Trial in SKILL?)
-                        Wait, User said "SKILL" has: Login, Trial, AudioA, PassageA, TrialTyping, TypingTest
-                        And GCC has: Login, Trial, AudioA, PassageA, AudioB, PassageB
-                        So Trial, AudioA, PassageA are COMMON.
-                    */}
-                    {exam_type !== "typewriting" && <th>Trial</th>}
-                    {exam_type !== "typewriting" && (
-                      <>
-                        <th>Audio Track A</th>
-                        <th>Passage A</th>
-                      </>
-                    )}
-                    {(exam_type === "shorthand" || exam_type === "") && (
+                    <th>Trial</th>
+                    <th>Audio Track A</th>
+                    <th>Passage A</th>
+                    {(exam_type === "GCC" || exam_type === "") && (
                       <>
                         <th>Audio Track B</th>
                         <th>Passage B</th>
-                      </>
-                    )}
-                    {(exam_type === "typewriting" || exam_type === "both") && (
-                      <>
-                        <th>Trial Typing</th>
-                        <th>Typing Test</th>
                       </>
                     )}
                     <th>Feedback</th>
@@ -970,95 +994,29 @@ const DepartmentDashboard = () => {
                       <td className="batch-number-column">{item.batchNo}</td>
                       <td>{item.center}</td>
                       <td>{item.student_id}</td>
-                      <td
-                        className={getCellClass(item, "loginTime", exam_type)}
-                      >
+                      <td className={getCellClass(item, "loginTime", exam_type)}>
                         {formatDate(item.loginTime)}
                       </td>
-                      {exam_type !== "typewriting" && (
-                        <td
-                          className={getCellClass(
-                            item,
-                            "trial_time",
-                            exam_type
-                          )}
-                        >
-                          {formatDate(item.trial_time)}
-                        </td>
-                      )}
-                      {exam_type !== "typewriting" && (
+                      <td className={getCellClass(item, "trial_time", exam_type)}>
+                        {formatDate(item.trial_time)}
+                      </td>
+                      <td className={getCellClass(item, "audio1_time", exam_type)}>
+                        {formatDate(item.audio1_time)}
+                      </td>
+                      <td className={getCellClass(item, "passage1_time", exam_type)}>
+                        {formatDate(item.passage1_time)}
+                      </td>
+                      {(exam_type === "GCC" || exam_type === "") && (
                         <>
-                          <td
-                            className={getCellClass(
-                              item,
-                              "audio1_time",
-                              exam_type
-                            )}
-                          >
-                            {formatDate(item.audio1_time)}
-                          </td>
-                          <td
-                            className={getCellClass(
-                              item,
-                              "passage1_time",
-                              exam_type
-                            )}
-                          >
-                            {formatDate(item.passage1_time)}
-                          </td>
-                        </>
-                      )}
-                      {(exam_type === "shorthand" || exam_type === "") && (
-                        <>
-                          <td
-                            className={getCellClass(
-                              item,
-                              "audio2_time",
-                              exam_type
-                            )}
-                          >
+                          <td className={getCellClass(item, "audio2_time", exam_type)}>
                             {formatDate(item.audio2_time)}
                           </td>
-                          <td
-                            className={getCellClass(
-                              item,
-                              "passage2_time",
-                              exam_type
-                            )}
-                          >
+                          <td className={getCellClass(item, "passage2_time", exam_type)}>
                             {formatDate(item.passage2_time)}
                           </td>
                         </>
                       )}
-                      {(exam_type === "typewriting" || exam_type === "both") && (
-                        <>
-                          <td
-                            className={getCellClass(
-                              item,
-                              "trial_passage_time",
-                              exam_type
-                            )}
-                          >
-                            {formatDate(item.trial_passage_time)}
-                          </td>
-                          <td
-                            className={getCellClass(
-                              item,
-                              "typing_passage_time",
-                              exam_type
-                            )}
-                          >
-                            {formatDate(item.typing_passage_time)}
-                          </td>
-                        </>
-                      )}
-                      <td
-                        className={getCellClass(
-                          item,
-                          "feedback_time",
-                          exam_type
-                        )}
-                      >
+                      <td className={getCellClass(item, "feedback_time", exam_type)}>
                         {formatDate(item.feedback_time)}
                       </td>
                     </tr>

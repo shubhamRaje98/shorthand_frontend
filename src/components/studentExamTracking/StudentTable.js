@@ -108,7 +108,7 @@ const StudentTable = () => {
   const [batchNo, setBatchNo] = useState("");
   const [subject, setSubject] = useState("");
   const [loginStatus, setLoginStatus] = useState("");
-  const [exam_type, setExam_type] = useState("shorthand");
+  const [exam_type, setExam_type] = useState("");
   const [batchDate, setBatchDate] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -120,6 +120,8 @@ const StudentTable = () => {
   const [allSubjects, setAllSubjects] = useState([]);
   const [batchDates, setBatchDates] = useState([]);
   const [total_login_count, setTotal_login_count] = useState(0);
+  const [departmentsMap, setDepartmentsMap] = useState({}); // { departmentId: examType }
+  const [departmentExamType, setDepartmentExamType] = useState(''); // GCC or SKILL
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -128,6 +130,9 @@ const StudentTable = () => {
 
   // Current filters state for refresh
   const [currentFilters, setCurrentFilters] = useState({});
+
+  // For SKILL departments, always use GCC-like column layout (no Trial Typing/Typing Test)
+  const effectiveExamType = departmentExamType === 'SKILL' ? '' : exam_type;
 
   const formatDate = (dateString) => {
     if (!dateString || dateString === "invalid date" || dateString === "0") {
@@ -200,12 +205,26 @@ const StudentTable = () => {
     };
   };
 
+  // Fetch departments with examType to build map
+  const fetchDepartmentsMap = async () => {
+    try {
+      const response = await axios.get('https://www.shorthandonlineexam.in/get-active-departments', { withCredentials: true });
+      const map = {};
+      response.data.forEach(dept => {
+        map[dept.departmentId] = dept.examType;
+      });
+      setDepartmentsMap(map);
+    } catch (error) {
+      console.error('Error fetching departments map:', error);
+    }
+  };
+
   // Fetch all filter options from super admin API
   const fetchFilterOptions = async () => {
     try {
       console.log("Fetching filter options from super admin API...");
       const response = await axios.post(
-        'http://localhost:3000/super-admin-student-track-dashboard',
+        'https://www.shorthandonlineexam.in/super-admin-student-track-dashboard',
         {},
         { withCredentials: true }
       );
@@ -249,7 +268,7 @@ const StudentTable = () => {
     try {
       console.log("Fetching local filter options...");
       // FIXED: Use the correct endpoint with "all" parameter to get all data for filter options
-      const url = "http://localhost:3000/track-students-on-exam-center-code/all";
+      const url = "https://www.shorthandonlineexam.in/track-students-on-exam-center-code/all";
       const response = await axios.post(url, { withCredentials: true });
 
       if (response.data && response.data.length > 0) {
@@ -293,7 +312,7 @@ const StudentTable = () => {
 
   const fetchSubjects = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/subjects");
+      const response = await axios.get("https://www.shorthandonlineexam.in/subjects");
       if (response.data.subjects) {
         setAllSubjects(response.data.subjects);
       }
@@ -332,7 +351,7 @@ const StudentTable = () => {
 
     try {
       // FIXED: Always use the student tracking endpoint with proper batch handling
-      let url = "http://localhost:3000/track-students-on-exam-center-code/";
+      let url = "https://www.shorthandonlineexam.in/track-students-on-exam-center-code/";
 
       // If batchNo is selected, use it; otherwise, use "all" to get all batches
       if (filters.batchNo && filters.batchNo.trim() !== "") {
@@ -416,6 +435,12 @@ const StudentTable = () => {
         break;
       case "departmentId":
         setDepartmentId(value);
+        // Auto-set departmentExamType based on selected department
+        if (value && departmentsMap[value]) {
+          setDepartmentExamType(departmentsMap[value]);
+        } else {
+          setDepartmentExamType('');
+        }
         break;
     }
 
@@ -444,7 +469,7 @@ const StudentTable = () => {
 
     try {
       // FIXED: Use the same URL construction logic as fetchData
-      let url = "http://localhost:3000/track-students-on-exam-center-code/";
+      let url = "https://www.shorthandonlineexam.in/track-students-on-exam-center-code/";
 
       // If batchNo is selected, use it; otherwise, use "all"
       if (filters.batchNo && filters.batchNo.trim() !== "") {
@@ -513,6 +538,7 @@ const StudentTable = () => {
   useEffect(() => {
     fetchSubjects();
     fetchFilterOptions();
+    fetchDepartmentsMap();
     setTimeout(() => {
       fetchData(false);
     }, 1000);
@@ -707,9 +733,9 @@ const StudentTable = () => {
                   handleFilterChange("exam_type", e.target.value)
                 }
               >
-
+                <option value="">All</option>
                 <option value="shorthand">Short Hand</option>
-                <option value="typewriting">Type Writing</option>
+                <option value="typewriting">SKILL</option>
                 <option value="both">Both</option>
               </select>
             </div>
@@ -827,12 +853,12 @@ const StudentTable = () => {
                       <th style={{ width: "8%" }}>Department</th>
                       <th style={{ width: "12%" }}>Seat No</th>
                       <th>Login</th>
-                      {exam_type !== "typewriting" && <th>Trial</th>}
-                      {exam_type !== "typewriting" && (
+                      {effectiveExamType !== "typewriting" && <th>Trial</th>}
+                      {effectiveExamType !== "typewriting" && (
                         <>
                           <th>Audio Track A</th>
                           <th>Passage A</th>
-                          {exam_type === "shorthand" && (
+                          {effectiveExamType === "shorthand" && departmentExamType !== 'SKILL' && (
                             <>
                               <th>Audio Track B</th>
                               <th>Passage B</th>
@@ -840,7 +866,7 @@ const StudentTable = () => {
                           )}
                         </>
                       )}
-                      {exam_type !== "shorthand" && (
+                      {effectiveExamType === "typewriting" && (
                         <>
                           <th>Trial Typing</th>
                           <th>Typing Test</th>
@@ -856,23 +882,23 @@ const StudentTable = () => {
                         <td>{item.center}</td>
                         <td>{item.departmentId}</td>
                         <td>{item.student_id}</td>
-                        <td className={getCellClass(item, "loginTime", exam_type)}>
+                        <td className={getCellClass(item, "loginTime", effectiveExamType)}>
                           {formatDate(item.loginTime)}
                         </td>
-                        {exam_type !== "typewriting" && (
+                        {effectiveExamType !== "typewriting" && (
                           <td
-                            className={getCellClass(item, "trial_time", exam_type)}
+                            className={getCellClass(item, "trial_time", effectiveExamType)}
                           >
                             {formatDate(item.trial_time)}
                           </td>
                         )}
-                        {exam_type !== "typewriting" && (
+                        {effectiveExamType !== "typewriting" && (
                           <>
                             <td
                               className={getCellClass(
                                 item,
                                 "audio1_time",
-                                exam_type
+                                effectiveExamType
                               )}
                             >
                               {formatDate(item.audio1_time)}
@@ -881,18 +907,18 @@ const StudentTable = () => {
                               className={getCellClass(
                                 item,
                                 "passage1_time",
-                                exam_type
+                                effectiveExamType
                               )}
                             >
                               {formatDate(item.passage1_time)}
                             </td>
-                            {exam_type === "shorthand" && (
+                            {effectiveExamType === "shorthand" && departmentExamType !== 'SKILL' && (
                               <>
                                 <td
                                   className={getCellClass(
                                     item,
                                     "audio2_time",
-                                    exam_type
+                                    effectiveExamType
                                   )}
                                 >
                                   {formatDate(item.audio2_time)}
@@ -901,7 +927,7 @@ const StudentTable = () => {
                                   className={getCellClass(
                                     item,
                                     "passage2_time",
-                                    exam_type
+                                    effectiveExamType
                                   )}
                                 >
                                   {formatDate(item.passage2_time)}
@@ -910,13 +936,13 @@ const StudentTable = () => {
                             )}
                           </>
                         )}
-                        {exam_type !== "shorthand" && (
+                        {effectiveExamType === "typewriting" && (
                           <>
                             <td
                               className={getCellClass(
                                 item,
                                 "trial_passage_time",
-                                exam_type
+                                effectiveExamType
                               )}
                             >
                               {formatDate(item.trial_passage_time)}
@@ -925,7 +951,7 @@ const StudentTable = () => {
                               className={getCellClass(
                                 item,
                                 "typing_passage_time",
-                                exam_type
+                                effectiveExamType
                               )}
                             >
                               {formatDate(item.typing_passage_time)}
@@ -933,7 +959,7 @@ const StudentTable = () => {
                           </>
                         )}
                         <td
-                          className={getCellClass(item, "feedback_time", exam_type)}
+                          className={getCellClass(item, "feedback_time", effectiveExamType)}
                         >
                           {formatDate(item.feedback_time)}
                         </td>
