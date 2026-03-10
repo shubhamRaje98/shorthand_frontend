@@ -158,7 +158,7 @@ const SuperAdminDashboard = () => {
   const fetchTableNames = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('https://www.shorthandonlineexam.in/fetch-table-names', {
+      const response = await axios.get('http://localhost:3000/fetch-table-names', {
         withCredentials: true
       });
       setTableNames(response.data);
@@ -172,7 +172,7 @@ const SuperAdminDashboard = () => {
   const fetchTableData = async (tableName) => {
     setLoading(true);
     try {
-      const response = await axios.post('https://www.shorthandonlineexam.in/fetch-table-data', {
+      const response = await axios.post('http://localhost:3000/fetch-table-data', {
         tableName
       }, {
         withCredentials: true
@@ -410,7 +410,7 @@ const SuperAdminDashboard = () => {
       if (changes.updates.length > 0) {
         console.log('Submitting updates to enhanced route:', changes.updates);
         try {
-          const updateResponse = await axios.put('https://www.shorthandonlineexam.in/enhanced-update-table-data', {
+          const updateResponse = await axios.put('http://localhost:3000/enhanced-update-table-data', {
             tableName: selectedTable,
             updates: changes.updates
           }, {
@@ -458,7 +458,7 @@ const SuperAdminDashboard = () => {
         console.log('Submitting additions:', changes.additions);
         for (const newRecord of changes.additions) {
           try {
-            await axios.post('https://www.shorthandonlineexam.in/add-table-record', {
+            await axios.post('http://localhost:3000/add-table-record', {
               tableName: selectedTable,
               record: newRecord
             }, { withCredentials: true });
@@ -485,7 +485,7 @@ const SuperAdminDashboard = () => {
         console.log('Submitting deletions:', changes.deletions);
         for (const recordToDelete of changes.deletions) {
           try {
-            await axios.delete('https://www.shorthandonlineexam.in/delete-table-record', {
+            await axios.delete('http://localhost:3000/delete-table-record', {
               data: {
                 tableName: selectedTable,
                 primaryKey: tablePrimaryKey,
@@ -561,7 +561,7 @@ const SuperAdminDashboard = () => {
 
     try {
       // Use window.open to trigger the download directly from the browser
-      window.open(`https://www.shorthandonlineexam.in/api/departments/${departmentId}/archive/download`, '_blank');
+      window.open(`http://localhost:3000/api/departments/${departmentId}/archive/download`, '_blank');
       showSnackbar('Archive download started...', 'success');
     } catch (error) {
       console.error('Archive error:', error);
@@ -582,7 +582,7 @@ const SuperAdminDashboard = () => {
     if (confirm2 !== `DELETE ${departmentId}`) return;
 
     try {
-      const response = await axios.post('https://www.shorthandonlineexam.in/api/departments/archive/delete', {
+      const response = await axios.post('http://localhost:3000/api/departments/archive/delete', {
         departmentId: departmentId
       });
 
@@ -611,7 +611,7 @@ const SuperAdminDashboard = () => {
     try {
       // Use axios to fetch the blob instead of window.open
       // UPDATED URL: Added /new-department prefix to match app.js mounting
-      const response = await axios.get(`https://www.shorthandonlineexam.in/api/new-department/departments/${departmentId}/archive/download`, {
+      const response = await axios.get(`http://localhost:3000/api/new-department/departments/${departmentId}/archive/download`, {
         responseType: 'blob', // Important for files
         withCredentials: true,
         onDownloadProgress: (progressEvent) => {
@@ -680,7 +680,7 @@ const SuperAdminDashboard = () => {
         const deptId = jsonData.metadata.departmentId;
         showSnackbar(`Restoring Department ${deptId}... Please wait.`, 'info');
 
-        const response = await axios.post('https://www.shorthandonlineexam.in/api/new-department/departments/archive/restore', jsonData);
+        const response = await axios.post('http://localhost:3000/api/new-department/departments/archive/restore', jsonData);
 
         if (response.data.success) {
           showSnackbar(`Department ${deptId} restored successfully!`, 'success');
@@ -715,7 +715,7 @@ const SuperAdminDashboard = () => {
     if (confirm2 !== `DELETE ${departmentId}`) return;
 
     try {
-      const response = await axios.post('https://www.shorthandonlineexam.in/api/new-department/departments/archive/delete', {
+      const response = await axios.post('http://localhost:3000/api/new-department/departments/archive/delete', {
         departmentId: departmentId
       });
 

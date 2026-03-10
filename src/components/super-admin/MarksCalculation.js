@@ -119,7 +119,7 @@ const MarksCalculation = () => {
       });
 
       const response = await axios.get(
-        `https://www.shorthandonlineexam.in/student-passages-with-filters?${queryParams.toString()}`
+        `http://localhost:3000/student-passages-with-filters?${queryParams.toString()}`
       );
 
       if (response.data.success) {
@@ -631,8 +631,8 @@ const MarksCalculation = () => {
               <th style={{ padding: '12px 16px' }}>User Passage A</th>
               <th style={{ padding: '12px 16px' }}>User Passage B</th>
               <th className="col-mistakes" style={{ padding: '12px 16px' }}>Spelling</th>
-              <th className="col-mistakes" style={{ padding: '12px 16px' }}>Missed</th>
               <th className="col-mistakes" style={{ padding: '12px 16px' }}>Added</th>
+              <th className="col-mistakes" style={{ padding: '12px 16px' }}>Omitted</th>
               <th className="col-mistakes" style={{ padding: '12px 16px' }}>Grammar</th>
               <th className="col-ignored" style={{ padding: '12px 16px' }}>Ignored</th>
               <th className="col-mistakes" style={{ padding: '12px 16px' }}>Total</th>
@@ -850,7 +850,7 @@ const MarksCalculation = () => {
                             {row.mistakesA?.missed && row.mistakesA.missed.length > 0 ? (
                               <span 
                                 className="mistakes-words-detail clickable-text"
-                                onClick={() => openModal('Missed Words (Passage A) - Student ID: ' + row.student_id, row.mistakesA.missed.join(', '))}
+                                onClick={() => openModal('Extra Added Words (Passage A) - Student ID: ' + row.student_id, row.mistakesA.missed.join(', '))}
                                 title="Click to view full list"
                               >
                                 {(() => {
@@ -867,7 +867,7 @@ const MarksCalculation = () => {
                             {row.mistakesA?.added && row.mistakesA.added.length > 0 ? (
                               <span 
                                 className="mistakes-words-detail clickable-text"
-                                onClick={() => openModal('Added Words (Passage A) - Student ID: ' + row.student_id, row.mistakesA.added.join(', '))}
+                                onClick={() => openModal('Omitted Words (Passage A) - Student ID: ' + row.student_id, row.mistakesA.added.join(', '))}
                                 title="Click to view full list"
                               >
                                 {(() => {
@@ -952,7 +952,7 @@ const MarksCalculation = () => {
                             {row.mistakesB?.missed && row.mistakesB.missed.length > 0 ? (
                               <span 
                                 className="mistakes-words-detail clickable-text"
-                                onClick={() => openModal('Missed Words (Passage B) - Student ID: ' + row.student_id, row.mistakesB.missed.join(', '))}
+                                onClick={() => openModal('Extra Added Words (Passage B) - Student ID: ' + row.student_id, row.mistakesB.missed.join(', '))}
                                 title="Click to view full list"
                               >
                                 {(() => {
@@ -969,7 +969,7 @@ const MarksCalculation = () => {
                             {row.mistakesB?.added && row.mistakesB.added.length > 0 ? (
                               <span 
                                 className="mistakes-words-detail clickable-text"
-                                onClick={() => openModal('Added Words (Passage B) - Student ID: ' + row.student_id, row.mistakesB.added.join(', '))}
+                                onClick={() => openModal('Omitted Words (Passage B) - Student ID: ' + row.student_id, row.mistakesB.added.join(', '))}
                                 title="Click to view full list"
                               >
                                 {(() => {

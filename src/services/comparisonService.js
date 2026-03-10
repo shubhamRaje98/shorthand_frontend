@@ -170,8 +170,8 @@ const calculateResultAndGrade = (marksA, marksB, totalMarks) => {
 export const comparePassages = async (answerPassage, userPassage, ignoreList = []) => {
   try {
     const response = await axios.post(`${COMPARISON_API_BASE_URL}/compare`, {
-      text1: answerPassage,
-      text2: userPassage,
+      text1: userPassage,
+      text2: answerPassage,
       ignore_list: ignoreList,
       ignore_case: true
     });
@@ -412,8 +412,8 @@ export const prepareBatchItems = (rows) => {
     return {
       id: `${row.id}_A`,
       rowIndex: index,
-      text1: ansPassageA,
-      text2: passageA,
+      text1: passageA,
+      text2: ansPassageA,
       ignore_list: ignoreListA
     };
   });
@@ -427,8 +427,8 @@ export const prepareBatchItems = (rows) => {
     return {
       id: `${row.id}_B`,
       rowIndex: index,
-      text1: ansPassageB,
-      text2: passageB,
+      text1: passageB,
+      text2: ansPassageB,
       ignore_list: ignoreListB
     };
   });

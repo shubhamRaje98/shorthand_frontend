@@ -103,7 +103,7 @@
 //   const loadCenters = async () => {
 //     try {
 //       const response = await axios.get(
-//         `https://www.shorthandonlineexam.in/api/skilltest-halltickets/db/centers?departmentId=${departmentId}`
+//         `http://localhost:3000/api/skilltest-halltickets/db/centers?departmentId=${departmentId}`
 //       );
 //       if (response.data.success) {
 //         setCenters(response.data.data);
@@ -118,7 +118,7 @@
 //   const loadBatches = async () => {
 //     try {
 //       const response = await axios.get(
-//         `https://www.shorthandonlineexam.in/api/skilltest-halltickets/db/batches?departmentId=${departmentId}`
+//         `http://localhost:3000/api/skilltest-halltickets/db/batches?departmentId=${departmentId}`
 //       );
 //       if (response.data.success) {
 //         setBatches(response.data.data);
@@ -202,7 +202,7 @@
 //         return;
 //       }
 
-//       let url = `https://www.shorthandonlineexam.in/api/skilltest-halltickets/db/students?departmentId=${departmentId}`;
+//       let url = `http://localhost:3000/api/skilltest-halltickets/db/students?departmentId=${departmentId}`;
       
 //       if (selectedCenter !== 'all') {
 //         url += `&center=${selectedCenter}`;
@@ -303,7 +303,7 @@
 //       setError(null);
       
 //       const response = await axios.post(
-//         `https://www.shorthandonlineexam.in/api/skilltest-halltickets/db/download-hall-ticket/${student.student_id}?departmentId=${departmentId}&qrType=${qrType}`,
+//         `http://localhost:3000/api/skilltest-halltickets/db/download-hall-ticket/${student.student_id}?departmentId=${departmentId}&qrType=${qrType}`,
 //         { customization },
 //         { 
 //           responseType: 'blob',
@@ -367,7 +367,7 @@
 //         });
 //       }, 500);
 
-//       let url = `https://www.shorthandonlineexam.in/api/skilltest-halltickets/db/download-all-hall-tickets?departmentId=${departmentId}&qrType=${qrType}`;
+//       let url = `http://localhost:3000/api/skilltest-halltickets/db/download-all-hall-tickets?departmentId=${departmentId}&qrType=${qrType}`;
       
 //       if (selectedCenter !== 'all') {
 //         url += `&center=${selectedCenter}`;
@@ -1229,7 +1229,7 @@ function GenerateSkillTestHallTicketsFromDB() {
   const loadCenters = async () => {
     try {
       const response = await axios.get(
-        `https://www.shorthandonlineexam.in/api/skilltest-halltickets/db/centers?departmentId=${departmentId}`
+        `http://localhost:3000/api/skilltest-halltickets/db/centers?departmentId=${departmentId}`
       );
       if (response.data.success) {
         setCenters(response.data.data);
@@ -1245,7 +1245,7 @@ function GenerateSkillTestHallTicketsFromDB() {
   const loadBatches = async () => {
     try {
       const response = await axios.get(
-        `https://www.shorthandonlineexam.in/api/skilltest-halltickets/db/batches?departmentId=${departmentId}`
+        `http://localhost:3000/api/skilltest-halltickets/db/batches?departmentId=${departmentId}`
       );
       if (response.data.success) {
         setBatches(response.data.data);
@@ -1330,7 +1330,7 @@ function GenerateSkillTestHallTicketsFromDB() {
       }
 
 
-      let url = `https://www.shorthandonlineexam.in/api/skilltest-halltickets/db/students?departmentId=${departmentId}`;
+      let url = `http://localhost:3000/api/skilltest-halltickets/db/students?departmentId=${departmentId}`;
       
       if (selectedCenter !== 'all') {
         url += `&center=${selectedCenter}`;
@@ -1444,7 +1444,7 @@ function GenerateSkillTestHallTicketsFromDB() {
       setError(null);
       
       const response = await axios.post(
-        `https://www.shorthandonlineexam.in/api/skilltest-halltickets/db/download-hall-ticket/${student.student_id}?departmentId=${departmentId}&qrType=${qrType}`,
+        `http://localhost:3000/api/skilltest-halltickets/db/download-hall-ticket/${student.student_id}?departmentId=${departmentId}&qrType=${qrType}`,
         { customization },
         { 
           responseType: 'blob',
@@ -1513,7 +1513,7 @@ function GenerateSkillTestHallTicketsFromDB() {
       }, 500);
 
 
-      let url = `https://www.shorthandonlineexam.in/api/skilltest-halltickets/db/download-all-hall-tickets?departmentId=${departmentId}&qrType=${qrType}`;
+      let url = `http://localhost:3000/api/skilltest-halltickets/db/download-all-hall-tickets?departmentId=${departmentId}&qrType=${qrType}`;
       
       if (selectedCenter !== 'all') {
         url += `&center=${selectedCenter}`;
