@@ -112,6 +112,9 @@ const SubjectSelection = () => {
                                             {subject.hold_count} held
                                         </div>
                                     )}
+                                    {subject.departmentId && (
+                                        <div className="item-department">Dept: {subject.departmentId}</div>
+                                    )}
                                 </button>
                             )
                         ))}

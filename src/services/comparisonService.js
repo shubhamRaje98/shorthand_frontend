@@ -46,9 +46,6 @@ const calculateResultAndGrade = (marksA, marksB, totalMarks) => {
   const roundedB = roundMarks(numMarksB);
   const roundedTotal = roundedA + roundedB;
 
-  // Save original rounded total (before grace) for grade percentage calculation
-  const originalRoundedTotal = roundedTotal;
-
   // ── Step 2: Check if student already passes without grace ───────────
   const alreadyPasses = roundedA >= 15 && roundedB >= 15 && roundedTotal >= 50;
 
@@ -93,14 +90,18 @@ const calculateResultAndGrade = (marksA, marksB, totalMarks) => {
         // Then: bring total to 50 if still short
         const remainingGrace = 2 - graceForPassageMins;
         if (tentativeTotal < 50 && remainingGrace > 0) {
-          const additionalGrace = Math.min(50 - tentativeTotal, remainingGrace);
-          // Add to the lower passage
-          if (finalA <= finalB) {
-            graceMarksA += additionalGrace;
-            finalA += additionalGrace;
-          } else {
-            graceMarksB += additionalGrace;
-            finalB += additionalGrace;
+          let additionalGrace = Math.min(50 - tentativeTotal, remainingGrace);
+          // Distribute additional grace one mark at a time, balancing between passages
+          while (additionalGrace > 0) {
+            const increment = Math.min(1, additionalGrace);
+            if (graceMarksA <= graceMarksB) {
+              graceMarksA += increment;
+              finalA += increment;
+            } else {
+              graceMarksB += increment;
+              finalB += increment;
+            }
+            additionalGrace -= increment;
           }
         }
 
@@ -128,34 +129,32 @@ const calculateResultAndGrade = (marksA, marksB, totalMarks) => {
   }
 
   // ── Step 6: Assign grade (PASS only) ───────────────────────────────
-  // Grades based on percentage BEFORE grace marks (originalRoundedTotal / 80).
-  // Students who pass only due to grace → capped at Grade C.
+  // Grades based on final marks (after rounding and grace):
+  //   Grade A: finalTotal >= 75
+  //   Grade B: 60 <= finalTotal < 75
+  //   Grade C: 50 <= finalTotal < 60
   let grade = '';
   if (result === 'PASS') {
-    if (totalGrace > 0) {
-      // Passed only due to grace marks → always Grade C
-      grade = 'C';
+    if (finalTotal >= 75) {
+      grade = 'A';
+    } else if (finalTotal >= 60) {
+      grade = 'B';
     } else {
-      const percentageBeforeGrace = (originalRoundedTotal / 80) * 100;
-      if (percentageBeforeGrace >= 75) {
-        grade = 'A';
-      } else if (percentageBeforeGrace >= 60) {
-        grade = 'B';
-      } else {
-        grade = 'C';
-      }
+      grade = 'C';
     }
   }
 
   return {
     result,
     grade,
-    roundedA: finalA.toFixed(2),
-    roundedB: finalB.toFixed(2),
-    roundedTotal: finalTotal.toFixed(2),
+    roundedA: roundedA.toFixed(2),
+    roundedB: roundedB.toFixed(2),
+    roundedTotal: roundedTotal.toFixed(2),
     graceMarksA,
     graceMarksB,
     totalGrace,
+    roundedGraceA: finalA.toFixed(2),
+    roundedGraceB: finalB.toFixed(2),
     finalMarks: finalTotal.toFixed(2)
   };
 };
@@ -303,6 +302,8 @@ export const comparePassagesForRow = async (row) => {
     graceMarksA: resultData.graceMarksA,
     graceMarksB: resultData.graceMarksB,
     totalGrace: resultData.totalGrace,
+    roundedGraceA: resultData.roundedGraceA,
+    roundedGraceB: resultData.roundedGraceB,
     finalMarks: resultData.finalMarks,
     mistakesA,
     mistakesB
@@ -391,6 +392,8 @@ export const processBatchResults = (row, mistakesA, mistakesB) => {
     graceMarksA: resultData.graceMarksA,
     graceMarksB: resultData.graceMarksB,
     totalGrace: resultData.totalGrace,
+    roundedGraceA: resultData.roundedGraceA,
+    roundedGraceB: resultData.roundedGraceB,
     finalMarks: resultData.finalMarks,
     mistakesA,
     mistakesB

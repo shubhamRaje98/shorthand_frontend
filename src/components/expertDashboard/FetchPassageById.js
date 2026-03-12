@@ -136,6 +136,14 @@ const FetchPassageById = () => {
     const [audioBUrl, setAudioBUrl] = useState('');
     const [wordCorrections, setWordCorrections] = useState({});
 
+    const hasPassageB = !!(passages.passageB || passages.ansPassageB);
+
+    useEffect(() => {
+      if (!hasPassageB) {
+        setPassageBViewed(true);
+      }
+    }, [hasPassageB]);
+
     const handleZoom = (column, action) => {
         setFontSizes(prev => ({
             ...prev,
@@ -250,7 +258,7 @@ const FetchPassageById = () => {
       if (!modelAnswer || !userAnswer) return;
     
       try {
-        const response = await axios.post('http://localhost:5002/compare', {
+        const response = await axios.post('http://103.17.193.168:5002/compare', {
           text1: modelAnswer,
           text2: userAnswer,
           ignore_list: ignoreList,
@@ -669,6 +677,8 @@ const FetchPassageById = () => {
             <button 
               className={`passage-button ${activePassage === 'B' ? 'active' : ''}`}
               onClick={() => handlePassageChange('B')}
+              disabled={!hasPassageB}
+              title={!hasPassageB ? 'No data available for Passage B.' : ''}
             >
               Passage B
             </button>
@@ -680,7 +690,7 @@ const FetchPassageById = () => {
           >
             Submit
           </button>
-          {!passageBViewed && (
+          {!passageBViewed && hasPassageB && (
             <span className="submit-tooltip">Please view Passage B before submitting</span>
           )}
           <div className="mistake-counts">

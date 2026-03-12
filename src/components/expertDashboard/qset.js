@@ -111,8 +111,8 @@ const QSet = () => {
           {qsetObj.incomplete_count !== undefined && qsetObj.total_count !== undefined && (
             <div className="item-count">Students: {qsetObj.incomplete_count}/{qsetObj.total_count}</div>
           )}
-          {selectedSubject?.departmentName && (
-            <div className="item-department">Dept: {selectedSubject.departmentName}</div>
+          {selectedSubject?.departmentId && (
+            <div className="item-department">Dept: {selectedSubject.departmentId}</div>
           )}
         </button>
       ))}

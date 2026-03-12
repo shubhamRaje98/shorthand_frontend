@@ -72,6 +72,8 @@ export const generateStudentWiseReportExcel = async (data) => {
       { header: 'Grace Marks A', key: 'graceMarksA', width: 14 },
       { header: 'Grace Marks B', key: 'graceMarksB', width: 14 },
       { header: 'Total Grace', key: 'totalGrace', width: 12 },
+      { header: 'Rounded Grace Marks A', key: 'roundedGraceA', width: 20 },
+      { header: 'Rounded Grace Marks B', key: 'roundedGraceB', width: 20 },
       { header: 'Final Marks', key: 'finalMarks', width: 12 },
       { header: 'Result', key: 'result', width: 10 },
       { header: 'Grade', key: 'grade', width: 10 }
@@ -154,6 +156,8 @@ export const generateStudentWiseReportExcel = async (data) => {
         graceMarksA: row.graceMarksA !== undefined ? row.graceMarksA : 0,
         graceMarksB: row.graceMarksB !== undefined ? row.graceMarksB : 0,
         totalGrace: row.totalGrace !== undefined ? row.totalGrace : 0,
+        roundedGraceA: row.roundedGraceA !== undefined ? row.roundedGraceA : '',
+        roundedGraceB: row.roundedGraceB !== undefined ? row.roundedGraceB : '',
         finalMarks: row.finalMarks !== undefined ? row.finalMarks : row.marks || '',
         result: row.result || '',
         grade: row.grade || ''
@@ -184,7 +188,7 @@ export const generateStudentWiseReportExcel = async (data) => {
         };
 
         // Highlight result column
-        if (colNumber === 43) { // Result column
+        if (colNumber === 45) { // Result column
           cell.font = { bold: true };
           if (cell.value === 'PASS') {
             cell.font.color = { argb: 'FF008000' };
@@ -194,7 +198,7 @@ export const generateStudentWiseReportExcel = async (data) => {
         }
 
         // Highlight grade column
-        if (colNumber === 44) { // Grade column
+        if (colNumber === 46) { // Grade column
           cell.font = { bold: true };
           if (cell.value === 'A') {
             cell.fill = {
@@ -227,7 +231,7 @@ export const generateStudentWiseReportExcel = async (data) => {
     // Add auto-filter to header row
     worksheet.autoFilter = {
       from: { row: 1, column: 1 },
-      to: { row: 1, column: 44 }
+      to: { row: 1, column: 46 }
     };
 
     // Generate filename with date
