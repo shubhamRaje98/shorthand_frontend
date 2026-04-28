@@ -114,6 +114,12 @@ export const generateStudentWiseReportExcel = async (data) => {
 
     // Add data rows
     processedData.forEach((row, index) => {
+      // SKILL exams have only Passage A and no grace marks / grade letter.
+      // Render 'N/A' in all Passage B + grace + grade columns to keep layout
+      // consistent with GCC rows.
+      const isSkill = row.examType === 'SKILL';
+      const naIfSkill = (value) => (isSkill ? 'N/A' : value);
+
       const dataRow = worksheet.addRow({
         id: row.id || '',
         student_id: row.student_id || '',
@@ -124,43 +130,43 @@ export const generateStudentWiseReportExcel = async (data) => {
         expertId: row.expertId || '',
         subm_done: row.subm_done === 1 ? 'Yes' : row.subm_done === 0 ? 'No' : '',
         ignoredA: row.QPA || '',
-        ignoredB: row.QPB || '',
+        ignoredB: naIfSkill(row.QPB || ''),
         spellingWordsA: row.mistakesA?.spelling ? formatSpellingMistakes(row.mistakesA.spelling) : '',
         missedWordsA: row.mistakesA?.missed ? formatMistakesList(row.mistakesA.missed) : '',
         addedWordsA: row.mistakesA?.added ? formatMistakesList(row.mistakesA.added) : '',
         grammarWordsA: row.mistakesA?.grammar ? formatMistakesList(row.mistakesA.grammar) : '',
-        spellingWordsB: row.mistakesB?.spelling ? formatSpellingMistakes(row.mistakesB.spelling) : '',
-        missedWordsB: row.mistakesB?.missed ? formatMistakesList(row.mistakesB.missed) : '',
-        addedWordsB: row.mistakesB?.added ? formatMistakesList(row.mistakesB.added) : '',
-        grammarWordsB: row.mistakesB?.grammar ? formatMistakesList(row.mistakesB.grammar) : '',
+        spellingWordsB: naIfSkill(row.mistakesB?.spelling ? formatSpellingMistakes(row.mistakesB.spelling) : ''),
+        missedWordsB: naIfSkill(row.mistakesB?.missed ? formatMistakesList(row.mistakesB.missed) : ''),
+        addedWordsB: naIfSkill(row.mistakesB?.added ? formatMistakesList(row.mistakesB.added) : ''),
+        grammarWordsB: naIfSkill(row.mistakesB?.grammar ? formatMistakesList(row.mistakesB.grammar) : ''),
         spellingA: row.spellingA !== undefined ? row.spellingA : '',
         missedA: row.missedA !== undefined ? row.missedA : '',
         addedA: row.addedA !== undefined ? row.addedA : '',
         grammarA: row.grammarA !== undefined ? row.grammarA : '',
         totalA: row.totalA !== undefined ? row.totalA : '',
-        marksA: row.marksA !== undefined ? row.marksA : '',
-        spellingB: row.spellingB !== undefined ? row.spellingB : '',
-        missedB: row.missedB !== undefined ? row.missedB : '',
-        addedB: row.addedB !== undefined ? row.addedB : '',
-        grammarB: row.grammarB !== undefined ? row.grammarB : '',
-        totalB: row.totalB !== undefined ? row.totalB : '',
-        marksB: row.marksB !== undefined ? row.marksB : '',
+        marksA: row.marksA !== undefined && row.marksA !== null ? row.marksA : '',
+        spellingB: naIfSkill(row.spellingB !== undefined && row.spellingB !== null ? row.spellingB : ''),
+        missedB: naIfSkill(row.missedB !== undefined && row.missedB !== null ? row.missedB : ''),
+        addedB: naIfSkill(row.addedB !== undefined && row.addedB !== null ? row.addedB : ''),
+        grammarB: naIfSkill(row.grammarB !== undefined && row.grammarB !== null ? row.grammarB : ''),
+        totalB: naIfSkill(row.totalB !== undefined && row.totalB !== null ? row.totalB : ''),
+        marksB: naIfSkill(row.marksB !== undefined && row.marksB !== null ? row.marksB : ''),
         spelling: row.spelling !== undefined ? row.spelling : '',
         missed: row.missed !== undefined ? row.missed : '',
         added: row.added !== undefined ? row.added : '',
         grammar: row.grammar !== undefined ? row.grammar : '',
         total: row.total !== undefined ? row.total : '',
         marks: row.marks || '',
-        roundedA: row.roundedA !== undefined ? row.roundedA : '',
-        roundedB: row.roundedB !== undefined ? row.roundedB : '',
-        graceMarksA: row.graceMarksA !== undefined ? row.graceMarksA : 0,
-        graceMarksB: row.graceMarksB !== undefined ? row.graceMarksB : 0,
-        totalGrace: row.totalGrace !== undefined ? row.totalGrace : 0,
-        roundedGraceA: row.roundedGraceA !== undefined ? row.roundedGraceA : '',
-        roundedGraceB: row.roundedGraceB !== undefined ? row.roundedGraceB : '',
+        roundedA: row.roundedA !== undefined && row.roundedA !== null ? row.roundedA : '',
+        roundedB: naIfSkill(row.roundedB !== undefined && row.roundedB !== null ? row.roundedB : ''),
+        graceMarksA: naIfSkill(row.graceMarksA !== undefined ? row.graceMarksA : 0),
+        graceMarksB: naIfSkill(row.graceMarksB !== undefined ? row.graceMarksB : 0),
+        totalGrace: naIfSkill(row.totalGrace !== undefined ? row.totalGrace : 0),
+        roundedGraceA: naIfSkill(row.roundedGraceA !== undefined && row.roundedGraceA !== null ? row.roundedGraceA : ''),
+        roundedGraceB: naIfSkill(row.roundedGraceB !== undefined && row.roundedGraceB !== null ? row.roundedGraceB : ''),
         finalMarks: row.finalMarks !== undefined ? row.finalMarks : row.marks || '',
         result: row.result || '',
-        grade: row.grade || ''
+        grade: naIfSkill(row.grade || '')
       });
 
       // Apply alternating row colors for better readability

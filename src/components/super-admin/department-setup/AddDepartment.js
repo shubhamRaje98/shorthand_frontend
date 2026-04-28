@@ -84,7 +84,7 @@
 //   const fetchDepartments = async () => {
 //     setRefreshingDepartments(true);
 //     try {
-//       const response = await axios.get('http://localhost:3000/api/new-department/departments');
+//       const response = await axios.get('https://checking.shorthandonlineexam.in/api/new-department/departments');
 //       setDepartments(response.data.data || []);
 //     } catch (err) {
 //       console.error('Error fetching departments:', err);
@@ -98,8 +98,8 @@
 //   const fetchBatches = async (departmentId = null) => {
 //     try {
 //       const url = departmentId
-//         ? `http://localhost:3000/api/new-department/batches/${departmentId}`
-//         : 'http://localhost:3000/api/new-department/batches';
+//         ? `https://checking.shorthandonlineexam.in/api/new-department/batches/${departmentId}`
+//         : 'https://checking.shorthandonlineexam.in/api/new-department/batches';
 
 //       const response = await axios.get(url);
 //       const fetchedBatches = response.data.data || [];
@@ -114,12 +114,12 @@
 
 //   const fetchControllers = async (departmentId = null, batchNo = null) => {
 //     try {
-//       let url = 'http://localhost:3000/api/new-department/controllers';
+//       let url = 'https://checking.shorthandonlineexam.in/api/new-department/controllers';
 
 //       if (departmentId && batchNo) {
-//         url = `http://localhost:3000/api/new-department/controllers/department/${departmentId}/batch/${batchNo}`;
+//         url = `https://checking.shorthandonlineexam.in/api/new-department/controllers/department/${departmentId}/batch/${batchNo}`;
 //       } else if (departmentId) {
-//         url = `http://localhost:3000/api/new-department/controllers/department/${departmentId}`;
+//         url = `https://checking.shorthandonlineexam.in/api/new-department/controllers/department/${departmentId}`;
 //       }
 
 //       const response = await axios.get(url);
@@ -439,7 +439,7 @@ const AddDepartment = () => {
   const fetchDepartments = async () => {
     setRefreshingDepartments(true);
     try {
-      const response = await axios.get('http://localhost:3000/api/new-department/departments');
+      const response = await axios.get('https://checking.shorthandonlineexam.in/api/new-department/departments');
       setDepartments(response.data.data || []);
     } catch (err) {
       console.error('Error fetching departments:', err);
@@ -453,8 +453,8 @@ const AddDepartment = () => {
   const fetchBatches = async (departmentId = null) => {
     try {
       const url = departmentId
-        ? `http://localhost:3000/api/new-department/batches/${departmentId}`
-        : 'http://localhost:3000/api/new-department/batches';
+        ? `https://checking.shorthandonlineexam.in/api/new-department/batches/${departmentId}`
+        : 'https://checking.shorthandonlineexam.in/api/new-department/batches';
 
       const response = await axios.get(url);
       const fetchedBatches = response.data.data || [];
@@ -469,12 +469,12 @@ const AddDepartment = () => {
 
   const fetchControllers = async (departmentId = null, batchNo = null) => {
     try {
-      let url = 'http://localhost:3000/api/new-department/controllers';
+      let url = 'https://checking.shorthandonlineexam.in/api/new-department/controllers';
 
       if (departmentId && batchNo) {
-        url = `http://localhost:3000/api/new-department/controllers/department/${departmentId}/batch/${batchNo}`;
+        url = `https://checking.shorthandonlineexam.in/api/new-department/controllers/department/${departmentId}/batch/${batchNo}`;
       } else if (departmentId) {
-        url = `http://localhost:3000/api/new-department/controllers/department/${departmentId}`;
+        url = `https://checking.shorthandonlineexam.in/api/new-department/controllers/department/${departmentId}`;
       }
 
       const response = await axios.get(url);

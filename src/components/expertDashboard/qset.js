@@ -21,7 +21,7 @@ const QSet = () => {
         setLoading(true);
         // Include departmentId in the query if available
         const departmentId = selectedSubject?.departmentId;
-        let url = `http://localhost:3000/qsets/${subjectId}${isHeld ? '?held=true' : ''}`;
+        let url = `https://checking.shorthandonlineexam.in/qsets/${subjectId}${isHeld ? '?held=true' : ''}`;
         
         if (departmentId) {
           url += `${isHeld ? '&' : '?'}departmentId=${departmentId}`;
@@ -50,7 +50,7 @@ const QSet = () => {
       const examType = selectedSubject?.examType || 'null';
       
       // Build URL with departmentId and examType as path parameters
-      let url = `http://localhost:3000/assignStudent/${subjectId}/${qsetObj.qset}/${departmentId}/${examType}`;
+      let url = `https://checking.shorthandonlineexam.in/assignStudent/${subjectId}/${qsetObj.qset}/${departmentId}/${examType}`;
       
       // Add held as query parameter if needed
       if (isHeld) {

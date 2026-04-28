@@ -27,7 +27,7 @@ const ReportControl = () => {
     const fetchSettings = async () => {
         try {
             // Updated to production URL
-            const response = await axios.get('http://localhost:3000/report-settings', { withCredentials: true });
+            const response = await axios.get('https://checking.shorthandonlineexam.in/report-settings', { withCredentials: true });
             setSettings(response.data);
             setLoading(false);
         } catch (err) {
@@ -62,7 +62,7 @@ const ReportControl = () => {
         setSaveStatus(prev => ({ ...prev, [key]: 'saving' }));
         try {
             // Updated to production URL
-            await axios.post('http://localhost:3000/report-settings', {
+            await axios.post('https://checking.shorthandonlineexam.in/report-settings', {
                 key: key,
                 value: value
             }, { withCredentials: true });

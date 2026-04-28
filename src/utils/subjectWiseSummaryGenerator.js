@@ -2,7 +2,7 @@
 import * as XLSX from 'xlsx';
 import ExcelJS from 'exceljs';
 
-// Subject code to name mapping based on the reference image
+// Subject code to name mapping based on the reference image (GCC exam)
 const subjectMapping = {
   '50': 'Eng SH 60',
   '51': 'Eng SH 80',
@@ -19,6 +19,27 @@ const subjectMapping = {
   '73': 'Hin SH 120'
 };
 
+// Subject code to name mapping for SKILL exam (from subjectsdb).
+// Excludes mock subjects (40, 41, 42).
+const skillSubjectMapping = {
+  '51': 'Eng SH 80',
+  '52': 'Eng SH 100',
+  '53': 'Eng SH 120',
+  '60': 'Mar SH 60',
+  '61': 'Mar SH 80',
+  '62': 'Mar SH 100',
+  '63': 'Mar SH 120',
+  '5116': 'Eng SH 80 + Eng Typ 40',
+  '5216': 'Eng SH 100 + Eng Typ 40',
+  '5316': 'Eng SH 120 + Eng Typ 40',
+  '6125': 'Mar SH 80 + Mar Typ 30',
+  '6225': 'Mar SH 100 + Mar Typ 30',
+  '6325': 'Mar SH 120 + Mar Typ 30'
+};
+
+const getSubjectMapping = (examType) =>
+  examType === 'SKILL' ? skillSubjectMapping : subjectMapping;
+
 /**
  * Aggregate data by subject for the summary report
  * ============================================================
@@ -31,15 +52,18 @@ const subjectMapping = {
  * ============================================================
  * @param {Array} data - Array of student records with calculated results
  * @param {Array} subjectWiseCountData - Array from API containing appeared students per subject
+ * @param {string} [examType] - 'GCC' (default) or 'SKILL'. Selects the subject mapping.
  * @returns {Array} Aggregated summary array sorted by subject code
  */
-const aggregateSubjectWiseSummary = (data, subjectWiseCountData = []) => {
+const aggregateSubjectWiseSummary = (data, subjectWiseCountData = [], examType = 'GCC') => {
   console.log('aggregateSubjectWiseSummary called with:', {
     dataCount: data?.length,
     subjectWiseCountDataCount: subjectWiseCountData?.length,
+    examType,
     subjectWiseCountData
   });
-  
+
+  const activeMapping = getSubjectMapping(examType);
   const subjectSummary = {};
 
   // Create a map from subject_wise_count (API response) for Appeared Students
@@ -53,7 +77,7 @@ const aggregateSubjectWiseSummary = (data, subjectWiseCountData = []) => {
   console.log('appearedCountMap:', appearedCountMap);
 
   // Initialize all subjects from mapping
-  Object.entries(subjectMapping).forEach(([code, name]) => {
+  Object.entries(activeMapping).forEach(([code, name]) => {
     subjectSummary[code] = {
       subjectCode: code,
       subjectName: name,
@@ -183,12 +207,14 @@ const deriveSubjectWiseCountFromData = (data) => {
  * Generate and download subject-wise result summary Excel
  * @param {Array} data - Array of student records with calculated results
  * @param {Array} subjectWiseCountData - Optional array from API containing appeared students per subject
+ * @param {string} [examType] - 'GCC' (default) or 'SKILL'.
  * @returns {Object} Result object with success status and message
  */
-export const generateSubjectWiseSummaryExcel = (data, subjectWiseCountData) => {
+export const generateSubjectWiseSummaryExcel = (data, subjectWiseCountData, examType = 'GCC') => {
   console.log('generateSubjectWiseSummaryExcel called with:', {
     dataCount: data?.length,
     subjectWiseCountDataCount: subjectWiseCountData?.length,
+    examType,
     subjectWiseCountData
   });
   
@@ -206,7 +232,7 @@ export const generateSubjectWiseSummaryExcel = (data, subjectWiseCountData) => {
     }
   }
   
-  const summary = aggregateSubjectWiseSummary(data, actualSubjectWiseCount);
+  const summary = aggregateSubjectWiseSummary(data, actualSubjectWiseCount, examType);
 
   if (summary.length === 0) {
     return {
@@ -349,15 +375,22 @@ export const generateSubjectWiseSummaryExcel = (data, subjectWiseCountData) => {
  * data cells (C6:K6 through C19:K19) with calculated values
  * @param {Array} data - Array of student records with calculated results
  * @param {Array} subjectWiseCountData - Optional array from API containing appeared students per subject
+ * @param {string} [examType] - 'GCC' (default) or 'SKILL'.
  * @returns {Promise<Object>} Result object with success status and message
  */
-export const generateSubjectWiseSummaryFromTemplate = async (data, subjectWiseCountData) => {
+export const generateSubjectWiseSummaryFromTemplate = async (data, subjectWiseCountData, examType = 'GCC') => {
   console.log('generateSubjectWiseSummaryFromTemplate called with:', {
     dataCount: data?.length,
     subjectWiseCountDataCount: subjectWiseCountData?.length,
+    examType,
     subjectWiseCountData
   });
-  
+
+  // SKILL exam has no fixed Excel template — synthesize via ExcelJS instead.
+  if (examType === 'SKILL') {
+    return generateSkillSubjectWiseSummaryExcel(data, subjectWiseCountData);
+  }
+
   try {
     // If no subject_wise_count from backend, derive it from the data array
     let actualSubjectWiseCount = subjectWiseCountData;
@@ -373,7 +406,7 @@ export const generateSubjectWiseSummaryFromTemplate = async (data, subjectWiseCo
       }
     }
     
-    const summary = aggregateSubjectWiseSummary(data, actualSubjectWiseCount);
+    const summary = aggregateSubjectWiseSummary(data, actualSubjectWiseCount, 'GCC');
 
     if (summary.length === 0) {
       return {
@@ -515,6 +548,220 @@ export const generateSubjectWiseSummaryFromTemplate = async (data, subjectWiseCo
     return {
       success: false,
       message: `Error generating report: ${error.message}`
+    };
+  }
+};
+
+/**
+ * Generate and download subject-wise result summary Excel for SKILL exams.
+ *
+ * SKILL exams have only Passage A, are out of 80, pass at >= 32, and do not
+ * use grade letters. The summary mirrors the GCC layout but omits Grade A/B/C
+ * columns. Synthesized via ExcelJS (no fixed template file).
+ *
+ * @param {Array} data - Array of SKILL student records with calculated results
+ * @param {Array} subjectWiseCountData - Optional array from API containing appeared students per subject
+ * @returns {Promise<Object>} Result object with success status and message
+ */
+export const generateSkillSubjectWiseSummaryExcel = async (data, subjectWiseCountData) => {
+  console.log('generateSkillSubjectWiseSummaryExcel called with:', {
+    dataCount: data?.length,
+    subjectWiseCountDataCount: subjectWiseCountData?.length,
+    subjectWiseCountData
+  });
+
+  try {
+    // If no subject_wise_count from backend, derive it from the data array
+    let actualSubjectWiseCount = subjectWiseCountData;
+
+    if (!actualSubjectWiseCount || actualSubjectWiseCount.length === 0) {
+      actualSubjectWiseCount = deriveSubjectWiseCountFromData(data);
+
+      if (actualSubjectWiseCount.length === 0) {
+        return {
+          success: false,
+          message: 'Warning: Could not determine appeared students count.'
+        };
+      }
+    }
+
+    const summary = aggregateSubjectWiseSummary(data, actualSubjectWiseCount, 'SKILL');
+
+    if (summary.length === 0) {
+      return {
+        success: false,
+        message: 'No SKILL data available to generate subject-wise summary'
+      };
+    }
+
+    // Calculate totals (no grade buckets for SKILL)
+    const totals = summary.reduce((acc, row) => ({
+      appearedStudents: acc.appearedStudents + row.appearedStudents,
+      presentStudents: acc.presentStudents + row.presentStudents,
+      absentStudents: acc.absentStudents + row.absentStudents,
+      passStudents: acc.passStudents + row.passStudents,
+      failStudents: acc.failStudents + row.failStudents
+    }), {
+      appearedStudents: 0,
+      presentStudents: 0,
+      absentStudents: 0,
+      passStudents: 0,
+      failStudents: 0
+    });
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('SKILL Subject-wise Summary', {
+      properties: { defaultRowHeight: 20 }
+    });
+
+    // Title rows (rows 1-3)
+    worksheet.mergeCells('A1:I1');
+    worksheet.getCell('A1').value = 'महाराष्ट्र राज्य परीक्षा परिषद, पुणे';
+    worksheet.mergeCells('A2:I2');
+    worksheet.getCell('A2').value = 'GCC SKILL TEST EXAMINATION';
+    worksheet.mergeCells('A3:I3');
+    worksheet.getCell('A3').value = 'SUBJECTWISE RESULT SUMMARY (SKILL)';
+
+    [1, 2, 3].forEach(rowNum => {
+      const cell = worksheet.getCell(`A${rowNum}`);
+      cell.font = { bold: true, size: rowNum === 1 ? 13 : 12 };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+    });
+
+    // Header row (row 5)
+    const headers = [
+      'Subject Code',
+      'Subject',
+      'Appeared Students',
+      'Present Students',
+      'Absent Students',
+      'Pass Students',
+      'Fail Students',
+      'Percentage Result (As per Present)'
+    ];
+    const headerRow = worksheet.getRow(5);
+    headers.forEach((h, i) => {
+      headerRow.getCell(i + 1).value = h;
+    });
+    headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+    headerRow.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF0066CC' }
+    };
+    headerRow.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+    headerRow.height = 28;
+    headerRow.eachCell({ includeEmpty: false }, (cell) => {
+      cell.border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' }
+      };
+    });
+
+    // Column widths
+    worksheet.columns = [
+      { width: 12 },
+      { width: 28 },
+      { width: 14 },
+      { width: 14 },
+      { width: 14 },
+      { width: 14 },
+      { width: 14 },
+      { width: 24 }
+    ];
+
+    // Data rows (start at row 6)
+    let currentRow = 6;
+    summary.forEach((row) => {
+      const percentage = row.presentStudents > 0
+        ? (row.passStudents / row.presentStudents)
+        : 0;
+
+      const dataRow = worksheet.getRow(currentRow);
+      dataRow.getCell(1).value = row.subjectCode;
+      dataRow.getCell(2).value = row.subjectName;
+      dataRow.getCell(3).value = row.appearedStudents;
+      dataRow.getCell(4).value = row.presentStudents;
+      dataRow.getCell(5).value = row.absentStudents;
+      dataRow.getCell(6).value = row.passStudents;
+      dataRow.getCell(7).value = row.failStudents;
+      const pctCell = dataRow.getCell(8);
+      pctCell.value = percentage;
+      pctCell.numFmt = '0.00%';
+
+      dataRow.eachCell({ includeEmpty: false }, (cell) => {
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+        cell.border = {
+          top: { style: 'thin', color: { argb: 'FFD3D3D3' } },
+          left: { style: 'thin', color: { argb: 'FFD3D3D3' } },
+          bottom: { style: 'thin', color: { argb: 'FFD3D3D3' } },
+          right: { style: 'thin', color: { argb: 'FFD3D3D3' } }
+        };
+      });
+      currentRow++;
+    });
+
+    // Totals row
+    const totalsPercentage = totals.presentStudents > 0
+      ? (totals.passStudents / totals.presentStudents)
+      : 0;
+    const totalsRow = worksheet.getRow(currentRow);
+    totalsRow.getCell(1).value = '-';
+    totalsRow.getCell(2).value = 'Total';
+    totalsRow.getCell(3).value = totals.appearedStudents;
+    totalsRow.getCell(4).value = totals.presentStudents;
+    totalsRow.getCell(5).value = totals.absentStudents;
+    totalsRow.getCell(6).value = totals.passStudents;
+    totalsRow.getCell(7).value = totals.failStudents;
+    const totalsPctCell = totalsRow.getCell(8);
+    totalsPctCell.value = totalsPercentage;
+    totalsPctCell.numFmt = '0.00%';
+    totalsRow.font = { bold: true };
+    totalsRow.eachCell({ includeEmpty: false }, (cell) => {
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFFFF2CC' }
+      };
+      cell.border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' }
+      };
+    });
+
+    // Generate filename and download
+    const dateStr = new Date().toISOString().split('T')[0];
+    const filename = `GCC_SKILL_RESULT_SUMMARY_${dateStr}.xlsx`;
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
+
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    return {
+      success: true,
+      message: `SKILL subject-wise result summary downloaded: ${filename}`,
+      filename
+    };
+  } catch (error) {
+    console.error('Error generating SKILL subject-wise summary:', error);
+    return {
+      success: false,
+      message: `Error generating SKILL report: ${error.message}`
     };
   }
 };

@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
 import './ExpertReview.css';
 
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = 'https://checking.shorthandonlineexam.in';
 const LOGS_PER_PAGE = 10;
 
 const ExpertReview = () => {

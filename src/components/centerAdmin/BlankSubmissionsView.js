@@ -26,7 +26,7 @@ const BlankSubmissionsView = () => {
 
     const fetchCenterInfo = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/get-center-details', { withCredentials: true });
+            const response = await axios.get('https://checking.shorthandonlineexam.in/get-center-details', { withCredentials: true });
             if (response.data && response.data.examCenterDTO && response.data.examCenterDTO.length > 0) {
                 const centerData = response.data.examCenterDTO[0];
                 setCenterInfo({ center: centerData.center });
@@ -48,7 +48,7 @@ const BlankSubmissionsView = () => {
         try {
             const batch = selectedBatch === 'all' ? 'all' : selectedBatch;
             const response = await axios.get(
-                `http://localhost:3000/api/blank-submissions/center/${centerInfo.center}/${batch}`,
+                `https://checking.shorthandonlineexam.in/api/blank-submissions/center/${centerInfo.center}/${batch}`,
                 { withCredentials: true }
             );
 
@@ -84,7 +84,7 @@ const BlankSubmissionsView = () => {
 
         try {
             const response = await axios.post(
-                `http://localhost:3000/api/blank-submissions/comment/${id}`,
+                `https://checking.shorthandonlineexam.in/api/blank-submissions/comment/${id}`,
                 {
                     comment: commentText,
                     commentedBy: sessionStorage.getItem('centerName') || 'Center Admin'

@@ -206,7 +206,7 @@ const DepartmentDashboard = () => {
     try {
       console.log("🔍 Fetching filter options...");
       const response = await axios.post(
-        "http://localhost:3000/track-students-on-department-code",
+        "https://checking.shorthandonlineexam.in/track-students-on-department-code",
         {},
         { withCredentials: true }
       );
@@ -339,7 +339,7 @@ const DepartmentDashboard = () => {
 
   const fetchSubjects = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/subjects");
+      const response = await axios.get("https://checking.shorthandonlineexam.in/subjects");
       console.log("📚 Subjects fetched:", response.data);
       if (response.data.subjects) {
         setAllSubjects(response.data.subjects);
@@ -399,7 +399,7 @@ const DepartmentDashboard = () => {
       );
 
       const response = await axios.post(
-        "http://localhost:3000/total-login-count", // This is the total active/loggedin count from studentController
+        "https://checking.shorthandonlineexam.in/total-login-count", // This is the total active/loggedin count from studentController
         // Wait, for this specific function we want to hit the studentController endpoint which we modified earlier?
         // Yes, totalLoginCounts is in studentController.
         requestBody,
@@ -440,7 +440,7 @@ const DepartmentDashboard = () => {
       }
 
       const response = await axios.post(
-        "http://localhost:3000/get-stage-counts",
+        "https://checking.shorthandonlineexam.in/get-stage-counts",
         requestBody,
         { withCredentials: true }
       );
@@ -555,7 +555,7 @@ const DepartmentDashboard = () => {
       console.log("🚀 Sending request body:", requestBody);
 
       const response = await axios.post(
-        "http://localhost:3000/track-students-on-department-code",
+        "https://checking.shorthandonlineexam.in/track-students-on-department-code",
         requestBody,
         { withCredentials: true }
       );
@@ -600,7 +600,7 @@ const DepartmentDashboard = () => {
     const initDashboard = async () => {
       let defaultExamType = "";
       try {
-        const deptResponse = await axios.get("http://localhost:3000/get-department-details", { withCredentials: true });
+        const deptResponse = await axios.get("https://checking.shorthandonlineexam.in/get-department-details", { withCredentials: true });
         if (deptResponse.data && deptResponse.data.departmentDetails && deptResponse.data.departmentDetails.examType) {
           defaultExamType = deptResponse.data.departmentDetails.examType;
           setExam_type(defaultExamType);

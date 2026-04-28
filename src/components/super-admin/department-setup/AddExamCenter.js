@@ -50,7 +50,7 @@ const AddExamCenter = () => {
     setMessage('');
 
     try {
-      const response = await axios.post('http://localhost:3000/api/new-department/exam-centers', {
+      const response = await axios.post('https://checking.shorthandonlineexam.in/api/new-department/exam-centers', {
         ...formData,
         pc_count: parseInt(formData.pc_count),
         max_pc: parseInt(formData.max_pc)

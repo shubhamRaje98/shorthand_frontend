@@ -45,8 +45,8 @@ const AssignController = () => {
   const fetchInitialData = async () => {
     try {
       const [deptRes, centerRes] = await Promise.all([
-        axios.get('http://localhost:3000/api/new-department/departments'),
-        axios.get('http://localhost:3000/api/new-department/exam-centers')
+        axios.get('https://checking.shorthandonlineexam.in/api/new-department/departments'),
+        axios.get('https://checking.shorthandonlineexam.in/api/new-department/exam-centers')
       ]);
 
       setDepartments(deptRes.data.data || []);
@@ -66,7 +66,7 @@ const AssignController = () => {
     }
 
     try {
-      const response = await axios.get(`http://localhost:3000/api/new-department/batches/${departmentId}`);
+      const response = await axios.get(`https://checking.shorthandonlineexam.in/api/new-department/batches/${departmentId}`);
       setBatches(response.data.data || []);
     } catch (err) {
       console.error('Error fetching batches:', err);
@@ -104,7 +104,7 @@ const AssignController = () => {
     setMessage('');
 
     try {
-      const response = await axios.post('http://localhost:3000/api/new-department/controllers', formData);
+      const response = await axios.post('https://checking.shorthandonlineexam.in/api/new-department/controllers', formData);
       
       setMessage(`Controller assigned successfully! Password: ${response.data.data.controller_pass}`);
       clearStepData();

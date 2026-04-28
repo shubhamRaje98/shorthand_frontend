@@ -15,7 +15,7 @@ const Student_info = () => {
         setLoading(true);
         setError('');
         try {
-            const response = await axios.post('http://localhost:3000/admin/student-data', { student_id: studentId });
+            const response = await axios.post('https://checking.shorthandonlineexam.in/admin/student-data', { student_id: studentId });
             console.log(response.data);
             setStudentData(response.data);
         } catch (err) {

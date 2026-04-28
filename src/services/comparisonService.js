@@ -18,11 +18,13 @@ const COMPARISON_API_BASE_URL = 'http://localhost:5002';
  *   6. Assign grade (PASS only, with restrictions)
  * 
  * @param {number} marksA - Marks for Passage A
- * @param {number} marksB - Marks for Passage B
+ * @param {number} marksB - Marks for Passage B (ignored when examType === 'SKILL')
  * @param {number} totalMarks - Total marks (unused; recalculated from rounded values)
+ * @param {string} [examType] - 'GCC' (default) or 'SKILL'. SKILL has only Passage A,
+ *   total out of 80, pass at >= 32, no grace, no grade letter.
  * @returns {Object} Result data including result, grade, rounded marks, and grace marks
  */
-const calculateResultAndGrade = (marksA, marksB, totalMarks) => {
+const calculateResultAndGrade = (marksA, marksB, totalMarks, examType) => {
   // ── Step 1: Rounding Rule ───────────────────────────────────────────
   // Decimal values up to 0.50 → round to the nearest 0.5
   //   Examples: 10.1 → 10.5, 10.50 → 10.50, 14.33 → 14.50
@@ -37,6 +39,30 @@ const calculateResultAndGrade = (marksA, marksB, totalMarks) => {
     if (decimalPart <= 0.50) return wholePart + 0.5; // Up to 0.50 → x.5
     return Math.ceil(num);                         // Above 0.50 → round up
   };
+
+  // ── SKILL exam branch ──────────────────────────────────────────────
+  // SKILL has only Passage A, total out of 80, pass at >= 32 (40%), no grace,
+  // no grade letter. Passage B / grace fields are returned as null so the UI
+  // and Excel exports can display 'N/A'.
+  if (examType === 'SKILL') {
+    const roundedA = roundMarks(parseFloat(marksA));
+    const passes = roundedA >= 32;
+    const result = passes ? 'PASS' : 'FAIL';
+
+    return {
+      result,
+      grade: '',
+      roundedA: roundedA.toFixed(2),
+      roundedB: null,
+      roundedTotal: roundedA.toFixed(2),
+      graceMarksA: 0,
+      graceMarksB: 0,
+      totalGrace: 0,
+      roundedGraceA: roundedA.toFixed(2),
+      roundedGraceB: null,
+      finalMarks: roundedA.toFixed(2)
+    };
+  }
 
   const numMarksA = parseFloat(marksA);
   const numMarksB = parseFloat(marksB);
@@ -201,30 +227,34 @@ export const comparePassages = async (answerPassage, userPassage, ignoreList = [
  * @returns {Promise<Object>} Complete comparison result with marks, mistakes, result, and grade
  */
 export const comparePassagesForRow = async (row) => {
+  const isSkill = row.examType === 'SKILL';
+
   // Use single space for empty/null passages to allow calculation
   const passageA = row.passageA && row.passageA.trim() !== '' ? row.passageA : ' ';
-  const passageB = row.passageB && row.passageB.trim() !== '' ? row.passageB : ' ';
   const ansPassageA = row.ansPassageA && row.ansPassageA.trim() !== '' ? row.ansPassageA : ' ';
-  const ansPassageB = row.ansPassageB && row.ansPassageB.trim() !== '' ? row.ansPassageB : ' ';
 
   // Parse ignored words for each passage
-  const ignoreListA = row.QPA 
+  const ignoreListA = row.QPA
     ? row.QPA.split(',').map(word => word.trim()).filter(word => word.length > 0)
     : [];
-  const ignoreListB = row.QPB 
-    ? row.QPB.split(',').map(word => word.trim()).filter(word => word.length > 0)
-    : [];
 
-  // Compare both passages
+  // Compare Passage A
   const resultA = await comparePassages(ansPassageA, passageA, ignoreListA);
-  const resultB = await comparePassages(ansPassageB, passageB, ignoreListB);
-
-  // Check for errors
   if (!resultA.success) return resultA;
-  if (!resultB.success) return resultB;
-
   const mistakesA = resultA.data;
-  const mistakesB = resultB.data;
+
+  // Compare Passage B (skip for SKILL — SKILL has no Passage B)
+  let mistakesB = null;
+  if (!isSkill) {
+    const passageB = row.passageB && row.passageB.trim() !== '' ? row.passageB : ' ';
+    const ansPassageB = row.ansPassageB && row.ansPassageB.trim() !== '' ? row.ansPassageB : ' ';
+    const ignoreListB = row.QPB
+      ? row.QPB.split(',').map(word => word.trim()).filter(word => word.length > 0)
+      : [];
+    const resultB = await comparePassages(ansPassageB, passageB, ignoreListB);
+    if (!resultB.success) return resultB;
+    mistakesB = resultB.data;
+  }
 
   // Calculate mistakes for Passage A
   const spellingA = mistakesA.spelling?.length || 0;
@@ -233,11 +263,11 @@ export const comparePassagesForRow = async (row) => {
   const grammarA = mistakesA.grammar?.length || 0;
   const totalA = spellingA + missedA + addedA + grammarA;
 
-  // Calculate mistakes for Passage B
-  const spellingB = mistakesB.spelling?.length || 0;
-  const missedB = mistakesB.missed?.length || 0;
-  const addedB = mistakesB.added?.length || 0;
-  const grammarB = mistakesB.grammar?.length || 0;
+  // Calculate mistakes for Passage B (zero for SKILL)
+  const spellingB = mistakesB ? (mistakesB.spelling?.length || 0) : 0;
+  const missedB = mistakesB ? (mistakesB.missed?.length || 0) : 0;
+  const addedB = mistakesB ? (mistakesB.added?.length || 0) : 0;
+  const grammarB = mistakesB ? (mistakesB.grammar?.length || 0) : 0;
   const totalB = spellingB + missedB + addedB + grammarB;
 
   // Calculate total mistakes from both passages
@@ -249,27 +279,30 @@ export const comparePassagesForRow = async (row) => {
 
   // Calculate marks for Passage A
   let marksA;
-  if (row.examType === 'SKILL') {
+  if (isSkill) {
     marksA = 80 - (totalA / 2);
   } else {
     marksA = 50 - (totalA / 3);
   }
   marksA = Math.max(0, marksA);
 
-  // Calculate marks for Passage B
-  let marksB;
-  if (row.examType === 'SKILL') {
-    marksB = 80 - (totalB / 2);
-  } else {
+  // Calculate marks for Passage B (null for SKILL — no Passage B)
+  let marksB = null;
+  if (!isSkill) {
     marksB = 50 - (totalB / 3);
+    marksB = Math.max(0, marksB);
   }
-  marksB = Math.max(0, marksB);
 
-  // Calculate total marks
-  const totalMarks = marksA + marksB;
+  // Calculate total marks (Passage A only for SKILL)
+  const totalMarks = isSkill ? marksA : marksA + marksB;
 
   // Calculate result and grade
-  const resultData = calculateResultAndGrade(marksA.toFixed(2), marksB.toFixed(2), totalMarks.toFixed(2));
+  const resultData = calculateResultAndGrade(
+    marksA.toFixed(2),
+    isSkill ? null : marksB.toFixed(2),
+    totalMarks.toFixed(2),
+    row.examType
+  );
 
   return {
     success: true,
@@ -286,13 +319,13 @@ export const comparePassagesForRow = async (row) => {
     grammarA,
     totalA,
     marksA: marksA.toFixed(2),
-    // Passage B details
-    spellingB,
-    missedB,
-    addedB,
-    grammarB,
-    totalB,
-    marksB: marksB.toFixed(2),
+    // Passage B details (null for SKILL)
+    spellingB: isSkill ? null : spellingB,
+    missedB: isSkill ? null : missedB,
+    addedB: isSkill ? null : addedB,
+    grammarB: isSkill ? null : grammarB,
+    totalB: isSkill ? null : totalB,
+    marksB: isSkill ? null : marksB.toFixed(2),
     // Result and Grade
     result: resultData.result,
     grade: resultData.grade,
@@ -318,7 +351,11 @@ export const comparePassagesForRow = async (row) => {
  * @returns {Object|null} Processed result data or null if invalid
  */
 export const processBatchResults = (row, mistakesA, mistakesB) => {
-  if (!mistakesA || !mistakesB) return null;
+  const isSkill = row.examType === 'SKILL';
+
+  // SKILL: only Passage A is required. GCC: both passages required.
+  if (!mistakesA) return null;
+  if (!isSkill && !mistakesB) return null;
 
   // Calculate mistakes for Passage A
   const spellingA = mistakesA.spelling?.length || 0;
@@ -327,11 +364,11 @@ export const processBatchResults = (row, mistakesA, mistakesB) => {
   const grammarA = mistakesA.grammar?.length || 0;
   const totalA = spellingA + missedA + addedA + grammarA;
 
-  // Calculate mistakes for Passage B
-  const spellingB = mistakesB.spelling?.length || 0;
-  const missedB = mistakesB.missed?.length || 0;
-  const addedB = mistakesB.added?.length || 0;
-  const grammarB = mistakesB.grammar?.length || 0;
+  // Calculate mistakes for Passage B (zero for SKILL — no Passage B)
+  const spellingB = mistakesB ? (mistakesB.spelling?.length || 0) : 0;
+  const missedB = mistakesB ? (mistakesB.missed?.length || 0) : 0;
+  const addedB = mistakesB ? (mistakesB.added?.length || 0) : 0;
+  const grammarB = mistakesB ? (mistakesB.grammar?.length || 0) : 0;
   const totalB = spellingB + missedB + addedB + grammarB;
 
   // Calculate total mistakes from both passages
@@ -343,27 +380,30 @@ export const processBatchResults = (row, mistakesA, mistakesB) => {
 
   // Calculate marks for Passage A
   let marksA;
-  if (row.examType === 'SKILL') {
+  if (isSkill) {
     marksA = 80 - (totalA / 2);
   } else {
     marksA = 50 - (totalA / 3);
   }
   marksA = Math.max(0, marksA);
 
-  // Calculate marks for Passage B
-  let marksB;
-  if (row.examType === 'SKILL') {
-    marksB = 80 - (totalB / 2);
-  } else {
+  // Calculate marks for Passage B (null for SKILL)
+  let marksB = null;
+  if (!isSkill) {
     marksB = 50 - (totalB / 3);
+    marksB = Math.max(0, marksB);
   }
-  marksB = Math.max(0, marksB);
 
-  // Calculate total marks
-  const totalMarks = marksA + marksB;
+  // Calculate total marks (Passage A only for SKILL)
+  const totalMarks = isSkill ? marksA : marksA + marksB;
 
   // Calculate result and grade
-  const resultData = calculateResultAndGrade(marksA.toFixed(2), marksB.toFixed(2), totalMarks.toFixed(2));
+  const resultData = calculateResultAndGrade(
+    marksA.toFixed(2),
+    isSkill ? null : marksB.toFixed(2),
+    totalMarks.toFixed(2),
+    row.examType
+  );
 
   return {
     spelling: totalSpelling,
@@ -378,12 +418,12 @@ export const processBatchResults = (row, mistakesA, mistakesB) => {
     grammarA,
     totalA,
     marksA: marksA.toFixed(2),
-    spellingB,
-    missedB,
-    addedB,
-    grammarB,
-    totalB,
-    marksB: marksB.toFixed(2),
+    spellingB: isSkill ? null : spellingB,
+    missedB: isSkill ? null : missedB,
+    addedB: isSkill ? null : addedB,
+    grammarB: isSkill ? null : grammarB,
+    totalB: isSkill ? null : totalB,
+    marksB: isSkill ? null : marksB.toFixed(2),
     result: resultData.result,
     grade: resultData.grade,
     roundedA: resultData.roundedA,
@@ -421,20 +461,24 @@ export const prepareBatchItems = (rows) => {
     };
   });
 
-  const batchItemsB = rows.map((row, index) => {
-    const ignoreListB = row.QPB
-      ? row.QPB.split(',').map(word => word.trim()).filter(word => word.length > 0)
-      : [];
-    const passageB = row.passageB && row.passageB.trim() !== '' ? row.passageB : ' ';
-    const ansPassageB = row.ansPassageB && row.ansPassageB.trim() !== '' ? row.ansPassageB : ' ';
-    return {
-      id: `${row.id}_B`,
-      rowIndex: index,
-      text1: passageB,
-      text2: ansPassageB,
-      ignore_list: ignoreListB
-    };
-  });
+  // Skip Passage B items for SKILL rows — SKILL has only Passage A.
+  const batchItemsB = rows
+    .map((row, index) => {
+      if (row.examType === 'SKILL') return null;
+      const ignoreListB = row.QPB
+        ? row.QPB.split(',').map(word => word.trim()).filter(word => word.length > 0)
+        : [];
+      const passageB = row.passageB && row.passageB.trim() !== '' ? row.passageB : ' ';
+      const ansPassageB = row.ansPassageB && row.ansPassageB.trim() !== '' ? row.ansPassageB : ' ';
+      return {
+        id: `${row.id}_B`,
+        rowIndex: index,
+        text1: passageB,
+        text2: ansPassageB,
+        ignore_list: ignoreListB
+      };
+    })
+    .filter(item => item !== null);
 
   return [...batchItemsA, ...batchItemsB];
 };
@@ -513,10 +557,13 @@ export const processBatchComparison = async (rows, maxWorkers = 16) => {
 
   // Process results and update data
   const updatedData = rows.map((row) => {
+    const isSkill = row.examType === 'SKILL';
     const mistakesA = resultsMap[`${row.id}_A`];
-    const mistakesB = resultsMap[`${row.id}_B`];
+    const mistakesB = isSkill ? null : resultsMap[`${row.id}_B`];
 
-    if (mistakesA && mistakesB) {
+    // SKILL needs only Passage A; GCC needs both.
+    const ready = isSkill ? !!mistakesA : (!!mistakesA && !!mistakesB);
+    if (ready) {
       const processedData = processBatchResults(row, mistakesA, mistakesB);
       if (processedData) {
         return { ...row, ...processedData };

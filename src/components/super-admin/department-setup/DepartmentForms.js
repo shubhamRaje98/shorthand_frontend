@@ -270,7 +270,7 @@ const validateControllerDatabaseReferences = async (excelData) => {
   try {
     console.log('Validating database references for controllers...');
     
-    const response = await axios.post('http://localhost:3000/api/new-department/validate-controller-references', {
+    const response = await axios.post('https://checking.shorthandonlineexam.in/api/new-department/validate-controller-references', {
       controllers: excelData.map(row => ({
         departmentId: row.departmentId,
         batchNo: row.batchNo,
@@ -321,7 +321,7 @@ const checkBatchDuplicates = async (excelData) => {
 
     // Database duplicates
     const response = await axios.post(
-      'http://localhost:3000/api/new-department/check-batch-duplicates',
+      'https://checking.shorthandonlineexam.in/api/new-department/check-batch-duplicates',
       { batches: excelData.map(row => ({ departmentId: row.departmentId, batchNo: row.batchNo })) },
       { timeout: 10000 }
     );
@@ -366,7 +366,7 @@ const checkControllerDuplicates = async (excelData) => {
 
     // Database duplicates
     const response = await axios.post(
-      'http://localhost:3000/api/new-department/check-controller-duplicates',
+      'https://checking.shorthandonlineexam.in/api/new-department/check-controller-duplicates',
       { controllers: excelData.map(row => ({ controller_email: row.controller_email })) },
       { timeout: 10000 }
     );
@@ -435,7 +435,7 @@ const checkControllerDuplicates = async (excelData) => {
     setLoading(true);
     setMessage('');
     try {
-      await axios.post('http://localhost:3000/api/new-department/departments', formData);
+      await axios.post('https://checking.shorthandonlineexam.in/api/new-department/departments', formData);
       const newDepartmentId = formData.departmentId;
       const newDepartmentName = formData.departmentName;
       setFormData({
@@ -622,7 +622,7 @@ const handleBatchFileSelect = (e) => {
         formDataObj.append('manualDepartmentId', batchFileData.manualDepartmentId);
       }
       const response = await axios.post(
-        'http://localhost:3000/api/new-department/batches/bulk-upload-complete',
+        'https://checking.shorthandonlineexam.in/api/new-department/batches/bulk-upload-complete',
         formDataObj,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       );
@@ -660,7 +660,7 @@ const handleBatchFileSelect = (e) => {
     setMessage('');
     try {
       await axios.post(
-        'http://localhost:3000/api/new-department/existing-department/batches',
+        'https://checking.shorthandonlineexam.in/api/new-department/existing-department/batches',
         existingDeptData
       );
       const selectedDepartment = departments.find(dept => dept.departmentId == existingDeptData.departmentId);
@@ -697,7 +697,7 @@ const handleBatchFileSelect = (e) => {
   const fetchBatchesByDepartment = async (departmentId) => {
     setFetchingBatches(true);
     try {
-      const response = await axios.get(`http://localhost:3000/api/new-department/controllers/batches/department/${departmentId}`);
+      const response = await axios.get(`https://checking.shorthandonlineexam.in/api/new-department/controllers/batches/department/${departmentId}`);
       const fetchedBatches = response.data.data || [];
       setBatches(fetchedBatches);
     } catch (err) {
@@ -956,7 +956,7 @@ const handleBatchFileSelect = (e) => {
       const formDataObj = new FormData();
       formDataObj.append('file', controllerFileData.file);
       const response = await axios.post(
-        'http://localhost:3000/api/new-department/controllers/bulk-upload-complete',
+        'https://checking.shorthandonlineexam.in/api/new-department/controllers/bulk-upload-complete',
         formDataObj,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       );
@@ -1003,7 +1003,7 @@ const handleBatchFileSelect = (e) => {
     setMessage('');
     try {
       const processedControllers = processControllersForSubmission(centerControllerData.controllers);
-      await axios.post('http://localhost:3000/api/new-department/controllers', {
+      await axios.post('https://checking.shorthandonlineexam.in/api/new-department/controllers', {
         departmentId: centerControllerData.departmentId,
         batchNo: centerControllerData.batchNo,
         controllers: processedControllers
@@ -2249,7 +2249,7 @@ export default DepartmentForms;
 
 //     // Database duplicates
 //     const response = await axios.post(
-//       'http://localhost:3000/api/new-department/check-batch-duplicates',
+//       'https://checking.shorthandonlineexam.in/api/new-department/check-batch-duplicates',
 //       { batches: excelData.map(row => ({ departmentId: row.departmentId, batchNo: row.batchNo })) },
 //       { timeout: 10000 }
 //     );
@@ -2294,7 +2294,7 @@ export default DepartmentForms;
 
 //     // Database duplicates
 //     const response = await axios.post(
-//       'http://localhost:3000/api/new-department/check-controller-duplicates',
+//       'https://checking.shorthandonlineexam.in/api/new-department/check-controller-duplicates',
 //       { controllers: excelData.map(row => ({ controller_email: row.controller_email })) },
 //       { timeout: 10000 }
 //     );
@@ -2363,7 +2363,7 @@ export default DepartmentForms;
 //     setLoading(true);
 //     setMessage('');
 //     try {
-//       await axios.post('http://localhost:3000/api/new-department/departments', formData);
+//       await axios.post('https://checking.shorthandonlineexam.in/api/new-department/departments', formData);
 //       const newDepartmentId = formData.departmentId;
 //       const newDepartmentName = formData.departmentName;
 //       setFormData({
@@ -2550,7 +2550,7 @@ export default DepartmentForms;
 //         formDataObj.append('manualDepartmentId', batchFileData.manualDepartmentId);
 //       }
 //       const response = await axios.post(
-//         'http://localhost:3000/api/new-department/batches/bulk-upload-complete',
+//         'https://checking.shorthandonlineexam.in/api/new-department/batches/bulk-upload-complete',
 //         formDataObj,
 //         { headers: { 'Content-Type': 'multipart/form-data' } }
 //       );
@@ -2588,7 +2588,7 @@ export default DepartmentForms;
 //     setMessage('');
 //     try {
 //       await axios.post(
-//         'http://localhost:3000/api/new-department/existing-department/batches',
+//         'https://checking.shorthandonlineexam.in/api/new-department/existing-department/batches',
 //         existingDeptData
 //       );
 //       const selectedDepartment = departments.find(dept => dept.departmentId == existingDeptData.departmentId);
@@ -2625,7 +2625,7 @@ export default DepartmentForms;
 //   const fetchBatchesByDepartment = async (departmentId) => {
 //     setFetchingBatches(true);
 //     try {
-//       const response = await axios.get(`http://localhost:3000/api/new-department/controllers/batches/department/${departmentId}`);
+//       const response = await axios.get(`https://checking.shorthandonlineexam.in/api/new-department/controllers/batches/department/${departmentId}`);
 //       const fetchedBatches = response.data.data || [];
 //       setBatches(fetchedBatches);
 //     } catch (err) {
@@ -2859,7 +2859,7 @@ export default DepartmentForms;
 //       const formDataObj = new FormData();
 //       formDataObj.append('file', controllerFileData.file);
 //       const response = await axios.post(
-//         'http://localhost:3000/api/new-department/controllers/bulk-upload-complete',
+//         'https://checking.shorthandonlineexam.in/api/new-department/controllers/bulk-upload-complete',
 //         formDataObj,
 //         { headers: { 'Content-Type': 'multipart/form-data' } }
 //       );
@@ -2906,7 +2906,7 @@ export default DepartmentForms;
 //     setMessage('');
 //     try {
 //       const processedControllers = processControllersForSubmission(centerControllerData.controllers);
-//       await axios.post('http://localhost:3000/api/new-department/controllers', {
+//       await axios.post('https://checking.shorthandonlineexam.in/api/new-department/controllers', {
 //         departmentId: centerControllerData.departmentId,
 //         batchNo: centerControllerData.batchNo,
 //         controllers: processedControllers

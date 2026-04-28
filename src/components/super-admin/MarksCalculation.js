@@ -17,7 +17,7 @@ const MarksCalculation = () => {
     subjectId: '',
     examType: '',
     qset: '',
-    departmentId: '10',
+    departmentId: '13',
     expertId: '',
     subm_done: ''
   });
@@ -119,7 +119,7 @@ const MarksCalculation = () => {
       });
 
       const response = await axios.get(
-        `http://localhost:3000/student-passages-with-filters?${queryParams.toString()}`
+        `https://checking.shorthandonlineexam.in/student-passages-with-filters?${queryParams.toString()}`
       );
 
       if (response.data.success) {
@@ -207,9 +207,9 @@ const MarksCalculation = () => {
 
   // Calculate mistakes for all rows using batch processing
   const handleCalculateAllMistakes = async () => {
-    // Validate that departmentId filter is selected
-    if (!filters.departmentId || filters.departmentId === '') {
-      showSnackbar('Please select a Department ID before calculating results', 'error');
+    // Require an examType filter so SKILL and GCC rows are not mixed in one batch.
+    if (filters.examType !== 'GCC' && filters.examType !== 'SKILL') {
+      showSnackbar('Please select an Exam Type (GCC or SKILL) before calculating results', 'error');
       return;
     }
 
@@ -233,9 +233,9 @@ const MarksCalculation = () => {
         );
 
         // Generate and download subject-wise summary Excel after calculation completes
-        // Explicitly pass subjectWiseCount state to ensure appeared students count is available
-        console.log('Calling generateSubjectWiseSummaryFromTemplate with subjectWiseCount:', subjectWiseCount);
-        const summaryResult = await generateSubjectWiseSummaryFromTemplate(finalData, subjectWiseCount);
+        // Route to the SKILL-specific generator when the user is calculating SKILL results.
+        console.log('Calling generateSubjectWiseSummaryFromTemplate with examType:', filters.examType, 'subjectWiseCount:', subjectWiseCount);
+        const summaryResult = await generateSubjectWiseSummaryFromTemplate(finalData, subjectWiseCount, filters.examType);
         if (summaryResult.success) {
           console.log('✅ Subject-wise summary generated:', summaryResult.filename);
         } else {
@@ -580,7 +580,7 @@ const MarksCalculation = () => {
         <button
           className="btn btn-sm btn-success ms-2"
           onClick={async () => {
-            const result = await generateSubjectWiseSummaryFromTemplate(filteredData, subjectWiseCount);
+            const result = await generateSubjectWiseSummaryFromTemplate(filteredData, subjectWiseCount, filters.examType);
             showSnackbar(result.message, result.success ? 'success' : 'warning');
           }}
           disabled={loading || filteredData.length === 0 || !filteredData.some(row => row.result)}
@@ -648,7 +648,11 @@ const MarksCalculation = () => {
                 const actualIndex = currentPage * rowsPerPage + index;
                 const isCalculating = comparingRows.has(row.id);
                 const isExpanded = expandedRows.has(row.id);
-                const hasPassageData = row.marksA !== undefined && row.marksB !== undefined;
+                const isSkillRow = row.examType === 'SKILL';
+                // SKILL rows have no Passage B; only Passage A marks are required.
+                const hasPassageData = isSkillRow
+                  ? row.marksA !== undefined
+                  : row.marksA !== undefined && row.marksB !== undefined;
                 const hasIgnoredWords = row.QPA || row.QPB;
                 const hasMistakes = row.mistakesA || row.mistakesB;
                 const canExpand = hasPassageData || hasIgnoredWords || hasMistakes;
@@ -922,6 +926,15 @@ const MarksCalculation = () => {
                           <td className="col-action" style={{ padding: '12px 16px' }}></td>
                         </tr>
                         <tr className="passage-detail-row passage-b-row">
+                          {isSkillRow ? (
+                            <>
+                              <td colSpan="8" className="passage-label" style={{ padding: '12px 16px' }}>Passage B</td>
+                              <td colSpan="14" style={{ padding: '12px 16px', textAlign: 'center', color: '#888', fontStyle: 'italic' }}>
+                                N/A (SKILL exam — only Passage A is evaluated)
+                              </td>
+                            </>
+                          ) : (
+                          <>
                           <td colSpan="8" className="passage-label" style={{ padding: '12px 16px' }}>Passage B</td>
                           <td colSpan="4" style={{ padding: '12px 16px' }}></td>
                           <td className="col-mistakes" style={{ padding: '12px 16px' }}>
@@ -1022,6 +1035,8 @@ const MarksCalculation = () => {
                           <td className="col-result" style={{ padding: '12px 16px' }}></td>
                           <td className="col-grade" style={{ padding: '12px 16px' }}></td>
                           <td className="col-action" style={{ padding: '12px 16px' }}></td>
+                          </>
+                          )}
                         </tr>
                       </>
                     )}
