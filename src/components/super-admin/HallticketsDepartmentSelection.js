@@ -35,7 +35,7 @@ function HallticketsDepartmentSelection() {
     const fetchDepartments = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('https://checking.shorthandonlineexam.in/api/hallticket-departments/departments');
+        const response = await axios.get('http://localhost:3000/api/hallticket-departments/departments');
 
         if (response.data.success) {
           setDepartments(response.data.data);

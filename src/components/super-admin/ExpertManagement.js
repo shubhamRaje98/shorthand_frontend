@@ -21,7 +21,7 @@ const ExpertManagement = () => {
     setLoading(true);
     setError('');
     try {
-      const response = await axios.get('https://checking.shorthandonlineexam.in/get-experts');
+      const response = await axios.get('http://localhost:3000/get-experts');
       setExperts(response.data.results || []);
       // console.log(response.data);
     } catch (err) {
@@ -33,7 +33,7 @@ const ExpertManagement = () => {
 
   const handleInsertExpert = async () => {
     try {
-      const response = await axios.post('https://checking.shorthandonlineexam.in/insert-expert', newExpert);
+      const response = await axios.post('http://localhost:3000/insert-expert', newExpert);
       setSuccess(response.data.message);
       setNewExpert({ expertId: '', expert_name: '', password: '' });
       fetchExperts();
@@ -44,7 +44,7 @@ const ExpertManagement = () => {
 
   const handleUpdateExperts = async (updateAll = false) => {
     try {
-      const response = await axios.post('https://checking.shorthandonlineexam.in/update-experts', {
+      const response = await axios.post('http://localhost:3000/update-experts', {
         experts: updateAll ? [] : selectedExperts,
         paper_check: updateExpert.paper_check === 'true',
         paper_mod: updateExpert.paper_mod === 'true',

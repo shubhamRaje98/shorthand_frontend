@@ -29,7 +29,7 @@ const CurrentStudentDetails = () => {
 
     const fetchDepartments = async () => {
         try {
-            const response = await axios.get('https://checking.shorthandonlineexam.in/departments', { withCredentials: true });
+            const response = await axios.get('http://localhost:3000/departments', { withCredentials: true });
             if (response.data && Array.isArray(response.data.departments)) {
                 setDepartments(response.data.departments);
             }
@@ -43,7 +43,7 @@ const CurrentStudentDetails = () => {
         setLoading(true);
         setError('');
         try {
-            let url = 'https://checking.shorthandonlineexam.in/center-batches';
+            let url = 'http://localhost:3000/center-batches';
             if (departmentId) {
                 url += `?departmentId=${departmentId}`;
             }
@@ -69,7 +69,7 @@ const CurrentStudentDetails = () => {
         setLoading(true);
         setError('');
         try {
-            let url = `https://checking.shorthandonlineexam.in/get-current-student-details`;
+            let url = `http://localhost:3000/get-current-student-details`;
             const params = new URLSearchParams();
             
             if (batchNo) {

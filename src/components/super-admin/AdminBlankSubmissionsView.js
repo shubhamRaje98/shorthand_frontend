@@ -30,7 +30,7 @@ const AdminBlankSubmissionsView = () => {
                 params.append('hasComment', filterComment === 'commented' ? 'true' : 'false');
             }
 
-            const url = `https://checking.shorthandonlineexam.in/api/blank-submissions/admin/all${params.toString() ? '?' + params.toString() : ''}`;
+            const url = `http://localhost:3000/api/blank-submissions/admin/all${params.toString() ? '?' + params.toString() : ''}`;
             const response = await axios.get(url, { withCredentials: true });
 
             if (response.data.success) {
@@ -54,7 +54,7 @@ const AdminBlankSubmissionsView = () => {
     const handleMarkAsViewed = async (id) => {
         try {
             const response = await axios.post(
-                `https://checking.shorthandonlineexam.in/api/blank-submissions/admin/mark-viewed/${id}`,
+                `http://localhost:3000/api/blank-submissions/admin/mark-viewed/${id}`,
                 {},
                 { withCredentials: true }
             );

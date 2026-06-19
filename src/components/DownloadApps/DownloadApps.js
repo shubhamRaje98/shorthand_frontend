@@ -320,7 +320,7 @@ const DownloadApps = () => {
       icon: ComputerIcon,
       color: "primary",
       onClick: handlePcRegistrationDownload,
-      version: "JAN 2026"
+      version: "2026"
     },
     {
       title: "Exam Software",
@@ -328,7 +328,7 @@ const DownloadApps = () => {
       icon: SchoolIcon,
       color: "success",
       onClick: handleExamAppDownload,
-      version: "JAN 2026"
+      version: "2026"
     },
     {
       title: "RustDesk Remote Access",

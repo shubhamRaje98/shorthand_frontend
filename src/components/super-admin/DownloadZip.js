@@ -26,7 +26,7 @@
 // //     const fetchDepartments = async () => {
 // //         try {
 // //             setLoading(true);
-// //             const res = await axios.get('https://checking.shorthandonlineexam.in/download-zip/departments');
+// //             const res = await axios.get('http://localhost:3000/download-zip/departments');
 // //             setOptions(prev => ({
 // //                 ...prev,
 // //                 departments: res.data.data || []
@@ -47,7 +47,7 @@
 
 // //     try {
 // //         setMessage('Loading all batches...');
-// //         const res = await axios.get(`https://checking.shorthandonlineexam.in/download-zip/department/${filters.departmentId}/all-batches`);
+// //         const res = await axios.get(`http://localhost:3000/download-zip/department/${filters.departmentId}/all-batches`);
         
 // //         const batches = res.data.data || [];
 // //         let message = `All batches for department ${filters.departmentId}:\n`;
@@ -70,7 +70,7 @@
 // //         try {
 // //             setBatchLoading(true);
 // //             setMessage('');
-// //             const res = await axios.get(`https://checking.shorthandonlineexam.in/download-zip/department/${departmentId}/batches`);
+// //             const res = await axios.get(`http://localhost:3000/download-zip/department/${departmentId}/batches`);
             
 // //             if (res.data.data && res.data.data.length > 0) {
 // //                 setOptions(prev => ({
@@ -101,7 +101,7 @@
 // //         try {
 // //             setStudentLoading(true);
 // //             setMessage('');
-// //             const res = await axios.get(`https://checking.shorthandonlineexam.in/download-zip/department/${departmentId}/batch/${batchNo}/students`);
+// //             const res = await axios.get(`http://localhost:3000/download-zip/department/${departmentId}/batch/${batchNo}/students`);
             
 // //             if (res.data.data && res.data.data.length > 0) {
 // //                 setOptions(prev => ({
@@ -163,7 +163,7 @@
 // //             setLoading(true);
 // //             setMessage('Preparing download...');
             
-// //             const response = await axios.post('https://checking.shorthandonlineexam.in/download-zip/files', {
+// //             const response = await axios.post('http://localhost:3000/download-zip/files', {
 // //                 studentIds: filters.studentIds
 // //             }, {
 // //                 responseType: 'blob'
@@ -360,7 +360,7 @@
 //     const fetchDepartments = async () => {
 //         try {
 //             setLoading(true);
-//             const res = await axios.get('https://checking.shorthandonlineexam.in/download-zip/departments');
+//             const res = await axios.get('http://localhost:3000/download-zip/departments');
 //             setOptions(prev => ({
 //                 ...prev,
 //                 departments: res.data.data || []
@@ -379,7 +379,7 @@
 //         try {
 //             setBatchLoading(true);
 //             setMessage('');
-//             const res = await axios.get(`https://checking.shorthandonlineexam.in/download-zip/department/${departmentId}/batches`);
+//             const res = await axios.get(`http://localhost:3000/download-zip/department/${departmentId}/batches`);
             
 //             if (res.data.data && res.data.data.length > 0) {
 //                 setOptions(prev => ({
@@ -410,7 +410,7 @@
 //         try {
 //             setStudentLoading(true);
 //             setMessage('');
-//             const res = await axios.get(`https://checking.shorthandonlineexam.in/download-zip/department/${departmentId}/batch/${batchNo}/students`);
+//             const res = await axios.get(`http://localhost:3000/download-zip/department/${departmentId}/batch/${batchNo}/students`);
             
 //             if (res.data.data && res.data.data.length > 0) {
 //                 setOptions(prev => ({
@@ -472,7 +472,7 @@
 //             setLoading(true);
 //             setMessage('Preparing download...');
             
-//             const response = await axios.post('https://checking.shorthandonlineexam.in/download-zip/files', {
+//             const response = await axios.post('http://localhost:3000/download-zip/files', {
 //                 studentIds: filters.studentIds
 //             }, {
 //                 responseType: 'blob'
@@ -518,7 +518,7 @@
 //     const checkStorageStatus = async () => {
 //         try {
 //             setMessage('Checking storage status...');
-//             const res = await axios.get('https://checking.shorthandonlineexam.in/download-zip/check-storage');
+//             const res = await axios.get('http://localhost:3000/download-zip/check-storage');
             
 //             const { storageFolder, trackrecordTable } = res.data;
             
@@ -554,7 +554,7 @@
 
 //         try {
 //             setMessage('Loading all batches...');
-//             const res = await axios.get(`https://checking.shorthandonlineexam.in/download-zip/department/${filters.departmentId}/all-batches`);
+//             const res = await axios.get(`http://localhost:3000/download-zip/department/${filters.departmentId}/all-batches`);
             
 //             const batches = res.data.data || [];
 //             let message = `All batches for department ${filters.departmentId}:\n`;

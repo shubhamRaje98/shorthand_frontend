@@ -119,7 +119,7 @@ const MarksCalculation = () => {
       });
 
       const response = await axios.get(
-        `https://checking.shorthandonlineexam.in/student-passages-with-filters?${queryParams.toString()}`
+        `http://localhost:3000/student-passages-with-filters?${queryParams.toString()}`
       );
 
       if (response.data.success) {

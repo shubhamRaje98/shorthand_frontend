@@ -176,7 +176,7 @@ function GenerateSkillTestHallTickets() {
       const formData = new FormData();
       formData.append('excelFile', excelFile);
       
-      const response = await axios.post('https://checking.shorthandonlineexam.in/api/skilltest-halltickets/upload-skilltest-student-data', formData, {
+      const response = await axios.post('http://localhost:3000/api/skilltest-halltickets/upload-skilltest-student-data', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -308,7 +308,7 @@ function GenerateSkillTestHallTickets() {
       setError(null);
       
       const response = await axios.post(
-        `https://checking.shorthandonlineexam.in/api/skilltest-halltickets/download-skilltest-hall-ticket/${student.APPLICATION_NUMBER}?departmentId=${departmentId}&qrType=${qrType}`,
+        `http://localhost:3000/api/skilltest-halltickets/download-skilltest-hall-ticket/${student.APPLICATION_NUMBER}?departmentId=${departmentId}&qrType=${qrType}`,
         { customization },
         { 
           responseType: 'blob',
@@ -352,7 +352,7 @@ function GenerateSkillTestHallTickets() {
       }, 500);
 
       const response = await axios.post(
-        `https://checking.shorthandonlineexam.in/api/skilltest-halltickets/download-all-skilltest-hall-tickets?departmentId=${departmentId}&qrType=${qrType}`,
+        `http://localhost:3000/api/skilltest-halltickets/download-all-skilltest-hall-tickets?departmentId=${departmentId}&qrType=${qrType}`,
         { customization },
         { 
           responseType: 'json',
@@ -580,7 +580,7 @@ function GenerateSkillTestHallTickets() {
               <div className="border p-3 text-center">
                 {previewStudent.photo ? (
                   <img
-                    src={`https://checking.shorthandonlineexam.in/assets/skilltest/Photo%20Sign%2012%20tribal/photo_new/${encodeURIComponent(previewStudent.photo)}`}
+                    src={`http://localhost:3000/assets/skilltest/Photo%20Sign%20MBV/PHOTO_NEW/${encodeURIComponent(previewStudent.photo)}`}
                     alt="Student Photo"
                     style={{ width: '100px', height: '120px', objectFit: 'cover', border: '1px solid #ccc', marginBottom: '8px' }}
                     onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }}
@@ -590,7 +590,7 @@ function GenerateSkillTestHallTickets() {
                 <small className="text-muted d-block mb-2">Photo: {previewStudent.photo || 'Not available'}</small>
                 {previewStudent.sign ? (
                   <img
-                    src={`https://checking.shorthandonlineexam.in/assets/skilltest/Photo%20Sign%2012%20tribal/Sign_new/${encodeURIComponent(previewStudent.sign)}`}
+                    src={`http://localhost:3000/assets/skilltest/Photo%20Sign%20MBV/SIGN_NEW/${encodeURIComponent(previewStudent.sign)}`}
                     alt="Student Signature"
                     style={{ width: '100px', height: '40px', objectFit: 'contain', border: '1px solid #ccc', marginBottom: '4px' }}
                     onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }}
