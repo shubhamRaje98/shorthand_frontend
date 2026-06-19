@@ -1,0 +1,325 @@
+/* ExpertSummary.css */
+.expert-summary {
+    font-family: 'Roboto', Arial, sans-serif;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    color: #333;
+  }
+  
+  .expert-summary__title {
+    color: #2c3e50;
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 30px;
+  }
+  
+  .expert-summary__stage-selector {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+  }
+  
+  .expert-summary__stage-button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    background-color: #ffffff;
+    color: #000000;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .expert-summary__stage-button:first-child {
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+  }
+  
+  .expert-summary__stage-button:last-child {
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+  }
+  
+  .expert-summary__stage-button.active {
+    background-color: #3498db;
+    color: white;
+  }
+  
+  .expert-summary__stage-button:hover:not(.active) {
+    background-color: #e0e0e0;
+  }
+  
+  .expert-summary__department {
+    margin-bottom: 40px;
+    border: 1px solid #e0e0e0;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .expert-summary__department-title {
+    color: #34495e;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 10px;
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+  }
+  
+  .expert-summary__expert {
+    margin-bottom: 30px;
+  }
+  
+  .expert-summary__expert-title {
+    color: #2980b9;
+    margin-top: 20px;
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+  }
+  
+  .expert-summary__table-wrapper {
+    overflow-x: auto;
+  }
+  
+  .expert-summary__table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-bottom: 20px;
+    border: 1px solid #000000;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .expert-summary__table th,
+  .expert-summary__table td {
+    border: solid black 1px;
+    padding: 12px 15px;
+    width:12%;
+    text-align: center;
+  }
+  
+  .expert-summary__table th {
+    background-color: #3498db;
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+  }
+  
+  .expert-summary__table tr:nth-child(even) {
+    background-color: #f8f9fa;
+  }
+  
+  .expert-summary__table tr:hover {
+    background-color: #e8f4f8;
+  }
+  
+  .expert-summary__subject-name {
+    font-weight: bold;
+    background-color: #ecf0f1;
+  }
+  
+  .expert-summary__loading,
+  .expert-summary__error,
+  .expert-summary__no-data {
+    text-align: center;
+    font-size: 1.2rem;
+    margin-top: 30px;
+    padding: 20px;
+    border-radius: 8px;
+  }
+  
+  .expert-summary__loading {
+    background-color: #e8f7ff;
+    color: #0077be;
+  }
+  
+  .expert-summary__error {
+    color: #d32f2f;
+    background-color: #ffebee;
+  }
+  
+  .expert-summary__no-data {
+    background-color: #fff9c4;
+    color: #ffa000;
+  }
+  
+  .expert-summary__summary-table {
+    margin-bottom: 40px;
+  }
+  
+  .expert-summary__summary-title {
+    color: #2c3e50;
+    font-size: 2rem;
+    margin-bottom: 20px;
+  }
+  
+  .expert-summary__summary-filter {
+    margin-bottom: 20px;
+  }
+  
+  .expert-summary__summary-filter label {
+    margin-right: 10px;
+    font-weight: bold;
+  }
+  
+  .expert-summary__summary-filter select {
+    padding: 5px 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+
+  .expert-summary__toggle-button {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 10px 0;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+  }
+  
+  .expert-summary__toggle-button:hover {
+    background-color: #45a049;
+  }
+  
+  .expert-summary__department-button {
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    color: #333;
+    cursor: pointer;
+    font-size: 14px;
+    margin: 5px;
+    padding: 8px 12px;
+    transition: all 0.3s ease;
+  }
+  
+  .expert-summary__department-button:hover {
+    background-color: #e0e0e0;
+  }
+  
+  .expert-summary__department-button.active {
+    background-color: #3498db;
+    border-color: #0056b3;
+    color: #fff;
+  }
+  
+  .expert-summary__department-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.5);
+  }
+  
+  .expert-summary__summary-filter {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  
+  @media (max-width: 768px) {
+    .expert-summary__department-button {
+      font-size: 12px;
+      padding: 6px 10px;
+    }
+  }
+
+.expert-summary__toggle-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.expert-summary__toggle-button {
+  background-color: #3498db;
+  border: none;
+  color: white;
+  padding: 12px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 0;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s, transform 0.1s;
+  flex: 1 1 200px;
+  max-width: 250px;
+  max-height: 80px;
+}
+
+.expert-summary__toggle-button:hover {
+  background-color: #2980b9;
+  transform: translateY(-2px);
+}
+
+.expert-summary__toggle-button:active {
+  transform: translateY(1px);
+}
+
+/* Responsive styles for buttons */
+@media (max-width: 768px) {
+  .expert-summary__toggle-buttons {
+    flex-direction: column;
+  }
+
+  .expert-summary__toggle-button {
+    max-width: none;
+  }
+}
+
+
+  /* Responsive styles */
+  @media (max-width: 768px) {
+    .expert-summary {
+      padding: 10px;
+    }
+  
+    .expert-summary__title {
+      font-size: 2rem;
+    }
+  
+    .expert-summary__department-title {
+      font-size: 1.5rem;
+    }
+  
+    .expert-summary__expert-title {
+      font-size: 1.3rem;
+    }
+  
+    .expert-summary__table th,
+    .expert-summary__table td {
+      padding: 8px 10px;
+      font-size: 0.9rem;
+    }
+  
+    .expert-summary__summary-title {
+      font-size: 1.5rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .expert-summary__stage-label {
+      display: block;
+      margin-bottom: 10px;
+    }
+  
+    .expert-summary__table th,
+    .expert-summary__table td {
+      padding: 6px 8px;
+      font-size: 0.8rem;
+    }
+  
+    .expert-summary__summary-filter label,
+    .expert-summary__summary-filter select {
+      display: block;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+  }

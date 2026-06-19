@@ -1,0 +1,145 @@
+.attendance-download {
+    min-height: calc(100vh - 56px);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    background-color: #f8f9fa;
+    padding: 20px;
+    position: relative;
+}
+
+.attendance-download__wrapper {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    width: 100%;
+    max-width: 500px;
+}
+
+.attendance-download__title {
+    color: #007bff;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.attendance-download__form {
+    display: flex;
+    flex-direction: column;
+}
+
+.attendance-download__form-group {
+    margin-bottom: 20px;
+}
+
+.attendance-download__label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #495057;
+}
+
+.attendance-download__select {
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    width:100%;
+    padding: 10px;
+    font-size: 16px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 1em;
+}
+
+.attendance-download__button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.attendance-download__btn {
+    padding: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    background-color: #007bff;
+    color: #f8f9fa;
+}
+
+.attendance-download__btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.attendance-download__btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.attendance-download__alert {
+    margin-top: 20px;
+    text-align: center;
+}
+
+
+.attendance-download__controller-password {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    max-width: 300px;
+    font-weight: bold;
+    color: #007bff;
+}
+
+@media (max-width: 768px) {
+    .attendance-download {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .attendance-download__controller-password {
+        position: static;
+        margin-top: 20px;
+        width: 100%;
+        max-width: 500px;
+        text-align: center;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .attendance-download__wrapper {
+        padding: 20px;
+    }
+
+    .attendance-download__title {
+        font-size: 24px;
+    }
+
+    .attendance-download_select, .attendance-download_btn {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .attendance-download__wrapper {
+        padding: 15px;
+    }
+
+    .attendance-download__title {
+        font-size: 20px;
+    }
+
+    .attendance-download_select, .attendance-download_btn {
+        font-size: 12px;
+    }
+}

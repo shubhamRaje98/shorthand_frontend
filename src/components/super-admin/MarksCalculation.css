@@ -1,0 +1,1219 @@
+/* src/components/super-admin/MarksCalculation.css */
+
+.marks-calc-container {
+  padding: 24px;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Header Styles */
+.marks-calc-header {
+  margin-bottom: 24px;
+}
+
+.marks-calc-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 8px;
+}
+
+.marks-calc-subtitle {
+  color: #6c757d;
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Loading Styles */
+.marks-calc-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+}
+
+/* Snackbar Styles */
+.marks-calc-snackbar {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 16px 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+  animation: slideIn 0.3s ease-out;
+  font-weight: 500;
+  min-width: 300px;
+}
+
+.marks-calc-snackbar--success {
+  background-color: #d4edda;
+  color: #155724;
+  border-left: 4px solid #28a745;
+}
+
+.marks-calc-snackbar--error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border-left: 4px solid #dc3545;
+}
+
+.marks-calc-snackbar--info {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  border-left: 4px solid #17a2b8;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Filter Section */
+.marks-calc-filters {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.marks-calc-filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.marks-calc-filter-item label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 6px;
+}
+
+.marks-calc-filter-item input,
+.marks-calc-filter-item select {
+  width: 100%;
+  font-size: 14px;
+}
+
+.marks-calc-filter-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding-top: 16px;
+  border-top: 1px solid #e9ecef;
+}
+
+/* Info Bar */
+.marks-calc-info {
+  background: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.marks-calc-info-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #495057;
+}
+
+/* Table Container */
+.marks-calc-table-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow-x: auto;
+  overflow-y: visible;
+  margin-bottom: 24px;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+  max-width: 100%;
+  display: block;
+}
+
+/* Table Styles */
+.marks-calc-table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  table-layout: auto;
+}
+
+/* Ensure all table cells don't wrap and have minimum widths */
+.marks-calc-table th,
+.marks-calc-table td {
+  white-space: nowrap;
+}
+
+.marks-calc-table th {
+  min-width: 80px;
+}
+
+/* Passage columns need more space */
+.marks-calc-table th:nth-child(9),
+.marks-calc-table th:nth-child(10),
+.marks-calc-table th:nth-child(11),
+.marks-calc-table th:nth-child(12),
+.marks-calc-table td:nth-child(9),
+.marks-calc-table td:nth-child(10),
+.marks-calc-table td:nth-child(11),
+.marks-calc-table td:nth-child(12) {
+  min-width: 150px;
+  max-width: 200px;
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+.marks-calc-table thead {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.marks-calc-table thead th {
+  padding: 16px 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Column width adjustments */
+.marks-calc-table .col-id {
+  width: 50px;
+  text-align: center;
+}
+
+.marks-calc-table .col-mistakes {
+  width: 70px;
+  text-align: center;
+}
+
+.marks-calc-table .col-action {
+  width: 80px;
+  text-align: center;
+}
+
+.marks-calc-table tbody tr {
+  border-bottom: 1px solid #e9ecef;
+  transition: background-color 0.2s ease;
+}
+
+.marks-calc-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.marks-calc-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.marks-calc-table tbody td {
+  padding: 14px 12px;
+  color: #495057;
+  vertical-align: middle;
+}
+
+.marks-calc-table tbody td:first-child {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.marks-calc-table .col-id,
+.marks-calc-table .col-mistakes,
+.marks-calc-table .col-action {
+  text-align: center;
+}
+
+/* Mistake count styling */
+.mistake-count {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.mistake-count-detail {
+  font-size: 12px;
+  padding: 3px 8px;
+  background-color: #e0f2fe;
+  color: #0369a1;
+}
+
+.total-mistakes {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.marks-display {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  background-color: #d4edda;
+  color: #155724;
+}
+
+/* Result badge styles */
+.result-badge {
+  display: inline-block;
+  padding: 5px 14px;
+  border-radius: 6px;
+  font-size: 0.9em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.result-badge--pass {
+  background-color: #d4edda;
+  color: #155724;
+  border: 2px solid #28a745;
+}
+
+.result-badge--fail {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 2px solid #dc3545;
+}
+
+/* Grade badge styles */
+.grade-badge {
+  display: inline-block;
+  padding: 5px 14px;
+  border-radius: 6px;
+  font-size: 0.9em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.grade-badge--a {
+  background-color: #d4edda;
+  color: #155724;
+  border: 2px solid #28a745;
+}
+
+.grade-badge--b {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  border: 2px solid #17a2b8;
+}
+
+.grade-badge--c {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 2px solid #ffc107;
+}
+
+
+.marks-display-detail {
+  font-size: 12px;
+  padding: 3px 8px;
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+/* Expanded row styling */
+.expanded-row {
+  border-bottom: none !important;
+}
+
+.passage-detail-row {
+  background-color: #f8fafc;
+  border-left: 3px solid #3b82f6;
+}
+
+.passage-detail-row td {
+  padding: 10px 12px;
+  font-size: 13px;
+}
+
+.passage-a-row {
+  border-left-color: #0ea5e9;
+}
+
+.passage-b-row {
+  border-left-color: #06b6d4;
+}
+
+.passage-label {
+  font-weight: 700;
+  color: #1e40af;
+  padding-left: 24px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 12px;
+}
+
+/* Badge Styles */
+.marks-calc-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.marks-calc-badge--success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.marks-calc-badge--warning {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+/* Passage Preview */
+.marks-calc-passage {
+  max-width: 200px;
+}
+
+.marks-calc-passage-preview {
+  display: block;
+  font-size: 13px;
+  color: #495057;
+  line-height: 1.5;
+}
+
+.marks-calc-passage-model {
+  color: #155724;
+  font-weight: 500;
+  background-color: #d4edda;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+/* Pagination */
+.marks-calc-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 16px 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.marks-calc-pagination-info {
+  font-size: 14px;
+  color: #495057;
+  font-weight: 500;
+}
+
+.marks-calc-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.marks-calc-pagination-controls label {
+  margin: 0;
+  font-size: 14px;
+  color: #495057;
+}
+
+.marks-calc-pagination-controls .form-select {
+  width: auto;
+  min-width: 80px;
+}
+
+.marks-calc-pagination-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.marks-calc-page-number {
+  padding: 0 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #495057;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .marks-calc-filters-grid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .marks-calc-container {
+    padding: 16px;
+  }
+
+  .marks-calc-title {
+    font-size: 24px;
+  }
+
+  .marks-calc-filters {
+    padding: 16px;
+  }
+
+  .marks-calc-filters-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .marks-calc-filter-actions {
+    flex-direction: column;
+  }
+
+  .marks-calc-filter-actions button {
+    width: 100%;
+  }
+
+  .marks-calc-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .marks-calc-table {
+    width: max-content;
+    min-width: 1200px;
+  }
+
+  .marks-calc-pagination {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .marks-calc-pagination-buttons {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .marks-calc-snackbar {
+    left: 20px;
+    right: 20px;
+    min-width: auto;
+  }
+}
+
+/* Empty State */
+.marks-calc-table tbody td.text-center {
+  padding: 48px 20px;
+  color: #6c757d;
+  font-size: 15px;
+}
+
+/* Utility Classes */
+.text-muted {
+  color: #6c757d !important;
+}
+
+.text-center {
+  text-align: center !important;
+}
+
+/* Button Overrides for consistency */
+.marks-calc-filter-actions .btn,
+.marks-calc-pagination-buttons .btn {
+  font-size: 14px;
+  padding: 8px 16px;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.marks-calc-filter-actions .btn:hover,
+.marks-calc-pagination-buttons .btn:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.marks-calc-pagination-buttons .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Clickable Text Styling */
+.clickable-text {
+  cursor: pointer;
+  color: #0066cc;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  display: inline-block;
+}
+
+.clickable-text:hover {
+  color: #004499;
+  text-decoration: underline;
+}
+
+/* Modal Styling */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #d8d5d5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #ffffff 0%, #ffffff 100%);
+  color: white;
+  border-radius: 12px 12px 0 0;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.modal-close-btn {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.modal-close-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 200px;
+}
+
+.modal-body pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #333;
+  margin: 0;
+  background-color: #f8f9fa;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: flex-end;
+  background-color: #f8f9fa;
+  border-radius: 0 0 12px 12px;
+}
+
+.modal-footer .btn {
+  padding: 10px 24px;
+  font-size: 15px;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.modal-footer .btn-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+  color: white;
+}
+
+.modal-footer .btn-secondary:hover {
+  background-color: #5a6268;
+  border-color: #545b62;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================
+   MOBILE RESPONSIVE STYLES
+   ============================================ */
+
+/* Tablet and below (max-width: 1024px) */
+@media screen and (max-width: 1024px) {
+  .marks-calc-container {
+    padding: 16px;
+  }
+
+  .marks-calc-title {
+    font-size: 24px;
+  }
+
+  .marks-calc-subtitle {
+    font-size: 13px;
+  }
+
+  .marks-calc-filters {
+    padding: 16px;
+  }
+
+  .marks-calc-filters-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .marks-calc-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+    max-width: 100%;
+  }
+
+  .marks-calc-table {
+    width: max-content;
+    min-width: 1400px;
+  }
+
+  .marks-calc-pagination {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .marks-calc-pagination-info,
+  .marks-calc-pagination-controls,
+  .marks-calc-pagination-buttons {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .marks-calc-pagination-buttons {
+    flex-wrap: wrap;
+  }
+}
+
+/* Mobile landscape and below (max-width: 768px) */
+@media screen and (max-width: 768px) {
+  .marks-calc-container {
+    padding: 12px;
+  }
+
+  .marks-calc-title {
+    font-size: 20px;
+  }
+
+  .marks-calc-subtitle {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .marks-calc-filters {
+    padding: 12px;
+    border-radius: 8px;
+  }
+
+  .marks-calc-filters-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .marks-calc-filter-item label {
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
+
+  .marks-calc-filter-item .form-control,
+  .marks-calc-filter-item .form-select {
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+
+  .marks-calc-table-toggle {
+    margin-top: 16px !important;
+    padding: 10px !important;
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+
+  .marks-calc-table-toggle label {
+    margin-bottom: 8px !important;
+    margin-right: 0 !important;
+  }
+
+  .marks-calc-table-toggle .btn-group {
+    width: 100%;
+  }
+
+  .marks-calc-table-toggle .btn-group .btn {
+    flex: 1;
+    min-width: auto !important;
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+
+  .marks-calc-table-toggle span {
+    margin-left: 0 !important;
+    margin-top: 8px;
+    font-size: 12px;
+  }
+
+  .marks-calc-filter-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .marks-calc-filter-actions .btn {
+    width: 100%;
+    font-size: 14px;
+    padding: 10px 16px;
+  }
+
+  .marks-calc-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .marks-calc-info .btn {
+    width: 100%;
+    margin-left: 0 !important;
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+
+  .marks-calc-info-text {
+    font-size: 13px;
+  }
+
+  /* Table container with horizontal scroll */
+  .marks-calc-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -12px;
+    padding: 0 12px;
+    border-radius: 0;
+    max-width: calc(100% + 24px);
+  }
+
+  .marks-calc-table {
+    width: max-content;
+    min-width: 1400px;
+    font-size: 12px;
+  }
+
+  .marks-calc-table th,
+  .marks-calc-table td {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  .marks-calc-table th {
+    font-size: 11px;
+  }
+
+  .col-id {
+    min-width: 50px;
+  }
+
+  .col-mistakes {
+    min-width: 60px;
+  }
+
+  .col-ignored {
+    min-width: 100px;
+  }
+
+  .col-result {
+    min-width: 70px;
+  }
+
+  .col-grade {
+    min-width: 60px;
+  }
+
+  .col-action {
+    min-width: 100px;
+  }
+
+  .marks-calc-passage-preview {
+    font-size: 11px;
+  }
+
+  .mistake-count {
+    font-size: 11px;
+    padding: 2px 6px;
+  }
+
+  .marks-calc-badge {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+
+  .result-badge,
+  .grade-badge {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+
+  .btn-sm {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+
+  .passage-detail-row td {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+
+  .passage-label {
+    font-size: 11px;
+  }
+
+  /* Pagination for mobile */
+  .marks-calc-pagination {
+    padding: 12px;
+    gap: 10px;
+    margin: 4px 4px 4px 4px;
+  }
+
+  .marks-calc-pagination-info {
+    font-size: 12px;
+    text-align: center;
+  }
+
+  .marks-calc-pagination-controls {
+    justify-content: center;
+  }
+
+  .marks-calc-pagination-controls label {
+    font-size: 12px;
+  }
+
+  .marks-calc-pagination-controls .form-select {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  .marks-calc-pagination-buttons {
+    gap: 6px;
+    justify-content: center;
+  }
+
+  .marks-calc-pagination-buttons .btn {
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+
+  .marks-calc-page-number {
+    font-size: 12px;
+    padding: 0 8px;
+  }
+
+  /* Snackbar for mobile */
+  .marks-calc-snackbar {
+    left: 12px;
+    right: 12px;
+    min-width: auto;
+    max-width: calc(100vw - 24px);
+    padding: 12px 16px;
+    font-size: 13px;
+  }
+
+  /* Modal for mobile */
+  .modal-content {
+    width: 95%;
+    max-width: 95%;
+    max-height: 85vh;
+    margin: 0 10px;
+  }
+
+  .modal-header {
+    padding: 16px;
+  }
+
+  .modal-header h3 {
+    font-size: 16px;
+  }
+
+  .modal-close-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 24px;
+  }
+
+  .modal-body {
+    padding: 16px;
+    min-height: 150px;
+  }
+
+  .modal-body pre {
+    font-size: 13px;
+    padding: 12px;
+  }
+
+  .modal-footer {
+    padding: 12px 16px;
+  }
+
+  .modal-footer .btn {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+}
+
+/* Small mobile (max-width: 480px) */
+@media screen and (max-width: 480px) {
+  .marks-calc-container {
+    padding: 8px;
+  }
+
+  .marks-calc-title {
+    font-size: 18px;
+  }
+
+  .marks-calc-subtitle {
+    font-size: 11px;
+  }
+
+  .marks-calc-filters {
+    padding: 10px;
+  }
+
+  .marks-calc-filter-item label {
+    font-size: 11px;
+  }
+
+  .marks-calc-filter-item .form-control,
+  .marks-calc-filter-item .form-select {
+    font-size: 13px;
+    padding: 6px 10px;
+  }
+
+  .marks-calc-table-toggle {
+    padding: 8px !important;
+  }
+
+  .marks-calc-table-toggle .btn-group .btn {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  .marks-calc-table-toggle span {
+    font-size: 11px;
+  }
+
+  .marks-calc-filter-actions .btn {
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+
+  .marks-calc-info .btn {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  .marks-calc-info-text {
+    font-size: 12px;
+  }
+
+  .marks-calc-table-container {
+    margin: 0 -8px;
+    padding: 0 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    max-width: calc(100% + 16px);
+  }
+
+  .marks-calc-table {
+    width: max-content;
+    min-width: 1400px;
+    font-size: 11px;
+  }
+
+  .marks-calc-table th,
+  .marks-calc-table td {
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+
+  .marks-calc-table th {
+    font-size: 10px;
+  }
+
+  .marks-calc-passage-preview {
+    font-size: 10px;
+  }
+
+  .mistake-count {
+    font-size: 10px;
+    padding: 2px 5px;
+  }
+
+  .marks-calc-badge {
+    font-size: 9px;
+    padding: 2px 6px;
+  }
+
+  .result-badge,
+  .grade-badge {
+    font-size: 9px;
+    padding: 2px 6px;
+  }
+
+  .btn-sm {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+
+  .passage-detail-row td {
+    padding: 5px 8px;
+    font-size: 10px;
+  }
+
+  .marks-calc-pagination {
+    padding: 10px;
+  }
+
+  .marks-calc-pagination-info {
+    font-size: 11px;
+  }
+
+  .marks-calc-pagination-buttons .btn {
+    font-size: 10px;
+    padding: 5px 8px;
+  }
+
+  .marks-calc-page-number {
+    font-size: 11px;
+  }
+
+  .marks-calc-snackbar {
+    left: 8px;
+    right: 8px;
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+
+  .modal-content {
+    width: 98%;
+    max-width: 98%;
+    max-height: 90vh;
+  }
+
+  .modal-header {
+    padding: 12px;
+  }
+
+  .modal-header h3 {
+    font-size: 14px;
+  }
+
+  .modal-body {
+    padding: 12px;
+  }
+
+  .modal-body pre {
+    font-size: 12px;
+    padding: 10px;
+  }
+
+  .modal-footer {
+    padding: 10px 12px;
+  }
+
+  .modal-footer .btn {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+}
+
+/* Ensure horizontal scroll indicator is visible */
+.marks-calc-table-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.marks-calc-table-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.marks-calc-table-container::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.marks-calc-table-container::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Firefox scrollbar */
+.marks-calc-table-container {
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f1f1f1;
+}

@@ -21,42 +21,41 @@ const Login = () => {
                 withCredentials: true
             });
             if (response.status === 200) {
-                navigate(`/home`, {replace: true});
+                navigate(`/home`, { replace: true });
             }
         } catch (err) {
             setError('Invalid Center Code or Password');
         }
     };
-    
 
     return (
-        <div className="login-container">
-            <form onSubmit={handleLogin} className="login-form">
+        <div className="login-container-unique">
+            <form onSubmit={handleLogin} className="login-form-unique">
                 <h2>Login</h2>
-                <div className="form-group">
+                <div className="form-group-unique">
                     <label htmlFor="centerId">Center Code</label>
                     <input
                         type="text"
                         id="centerId"
-                        className="form-control"
+                        className="form-control-unique"
                         value={centerId}
                         onChange={(e) => setCenterCode(e.target.value)}
                         required
                     />
                 </div>
-                <div className="form-group">
+                <div className="form-group-unique">
                     <label htmlFor="password">Center Password</label>
                     <input
                         type="password"
                         id="password"
-                        className="form-control"
+                        className="form-control-unique"
                         value={password}
                         onChange={(e) => setCenterPassword(e.target.value)}
                         required
                     />
                 </div>
-                {error && <p className="error-message">{error}</p>}
-                <button type="submit" className="btn btn-primary">Login</button>
+                {error && <p className="error-message-unique">{error}</p>}
+                <button type="submit" className="btn-primary-unique">Login</button>
             </form>
         </div>
     );

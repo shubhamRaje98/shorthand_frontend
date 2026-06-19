@@ -1,0 +1,200 @@
+/* ResetStudentProgress.css */
+
+.rsp-container {
+  width: 82.5%;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.rsp-title {
+  color: #1f2937;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.rsp-student-id {
+  color: #4b5563;
+  margin-bottom: 1rem;
+  text-align: center;
+  font-weight: 700;
+}
+
+.rsp-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.rsp-section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.rsp-checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.rsp-section {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: #ffffff;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.rsp-section-master {
+  background-color: #e0f2fe;
+}
+
+.rsp-section-shorthand-a {
+  background-color: #f0fdf4;
+}
+
+.rsp-section-shorthand-b {
+  background-color: #fef3c7;
+}
+
+.rsp-section-typing {
+  background-color: #ffe4e6;
+}
+
+.rsp-checkbox-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #4b5563;
+  flex: 1;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+.rsp-checkbox-label input[type="checkbox"] {
+  margin-right: 0.5rem;
+  width: 25px;
+  height: 31px;
+  border: 2px solid #d1d5db;
+  border-radius: 4px;
+  appearance: none;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.rsp-checkbox-label input[type="checkbox"]:checked {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.rsp-checkbox-label input[type="checkbox"]:checked::after {
+  content: '\2714';
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+.rsp-submit-button, .rsp-cancel-button, .rsp-confirm-button {
+  background-color: #3b82f6;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.rsp-submit-button:hover, .rsp-confirm-button:hover {
+  background-color: #2563eb;
+}
+
+.rsp-cancel-button {
+  background-color: #ef4444;
+}
+
+.rsp-cancel-button:hover {
+  background-color: #dc2626;
+}
+
+.rsp-confirmation {
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.rsp-confirmation-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.rsp-confirmation-text {
+  color: #4b5563;
+  margin-bottom: 1rem;
+}
+
+.rsp-confirmation-list {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #4b5563;
+}
+
+.rsp-confirmation-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+@media (max-width: 1024px) {
+  .rsp-container {
+    width: 95%;
+    padding: 1.5rem;
+  }
+
+  .rsp-section {
+    flex-direction: column;
+  }
+
+  .rsp-checkbox-label {
+    white-space: normal;
+  }
+}
+
+@media (max-width: 640px) {
+  .rsp-container {
+    width: 100%;
+    padding: 1rem;
+  }
+
+  .rsp-form {
+    gap: 1rem;
+  }
+
+  .rsp-submit-button, .rsp-cancel-button, .rsp-confirm-button {
+    padding: 0.5rem 1rem;
+    width: 100%;
+  }
+
+  .rsp-confirmation-buttons {
+    flex-direction: column;
+  }
+}

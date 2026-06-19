@@ -1,4 +1,4 @@
-// FetchPassageById.js
+// src\components\expertDashboard\FetchPassageById.js
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import './finalPassageTextlog.css';
@@ -6,7 +6,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUndo, faEyeSlash, faExchangeAlt, faSearchPlus, faSearchMinus } from '@fortawesome/free-solid-svg-icons';
-
+import { faToggleOn, faToggleOff } from '@fortawesome/free-solid-svg-icons';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 const ColoredText = ({ coloredWords, highlightedWord }) => {
   return (
@@ -45,15 +46,15 @@ const MistakesList = ({ mistakes, onAddIgnoreWord, onWordHover, fontSize, ignore
           case 'missed':
             categoryTitle = 'Extra Added Words';
             categoryStyle = {
-              backgroundColor: '#e6fffa',
-              color: '#047857'
+              backgroundColor: '#fee2e2',
+              color: '#b91c1c'
             };
             break;
           case 'added':
             categoryTitle = 'Omitted Words';
             categoryStyle = {
-              backgroundColor: '#fee2e2',
-              color: '#b91c1c'
+              backgroundColor: '#e6fffa',
+              color: '#047857'
             };
             break;
           case 'spelling':
@@ -107,7 +108,7 @@ const MistakesList = ({ mistakes, onAddIgnoreWord, onWordHover, fontSize, ignore
 
 const FetchPassageById = () => {
     const navigate = useNavigate();
-    const { studentId } = useParams();
+    const { studentId, subjectId, qset, departmentId, examType } = useParams();
     const [passages, setPassages] = useState({ 
         passageA: '', 
         passageB: '', 
@@ -128,6 +129,22 @@ const FetchPassageById = () => {
     const [coloredWords, setColoredWords] = useState([]);
     const [highlightedWord, setHighlightedWord] = useState(null);
     const [passageBViewed, setPassageBViewed] = useState(false);
+    const [categoryCounts, setCategoryCounts] = useState({});
+    const [isIgnoreListVisible, setisIgnoreListVisible] = useState(true)
+    const [tempIgnoreList, settempIgnoreList] = useState([])
+    const [audioUrl, setAudioUrl] = useState('');
+    const [audioBUrl, setAudioBUrl] = useState('');
+    const [wordCorrections, setWordCorrections] = useState({});
+
+    const hasPassageB = !!(passages.passageB || passages.ansPassageB);
+    const isSkillExam = examType === 'SKILL';
+
+    useEffect(() => {
+      // SKILL exams have no Passage B — unblock Submit immediately.
+      if (!hasPassageB || isSkillExam) {
+        setPassageBViewed(true);
+      }
+    }, [hasPassageB, isSkillExam]);
 
     const handleZoom = (column, action) => {
         setFontSizes(prev => ({
@@ -150,15 +167,24 @@ const FetchPassageById = () => {
       }
     };
 
+    const handleToggleIgnoreList = () => {
+      if (isIgnoreListVisible) {
+        settempIgnoreList(ignoreList);
+        setIgnoreList([]);
+      } else {
+        setIgnoreList(tempIgnoreList);
+        // Don't clear wordCorrections when toggling
+      }
+      setisIgnoreListVisible(!isIgnoreListVisible);
+    };
+
     useEffect(() => {
       const fetchPassages = async () => {
           try {
-              const response = await axios.post('http://localhost:3000/get-student-passages', { studentId }, { withCredentials: true });
-              if (response.status === 200 && response.data && Object.keys(response.data).length > 0) {
-                  console.log("Raw data:", JSON.stringify(response.data));
-                  setPassages(response.data);
-                  // Update the URL with the fetched subjectId and qset
-                  navigate(`/expertDashboard/${response.data.subjectId}/${response.data.qset}/${studentId}`, { replace: true });
+                const response = await axios.get(`http://localhost:3000/student-passages/${subjectId}/${qset}/${studentId}/${departmentId}`, { withCredentials: true });
+                if (response.status === 200 && response.data && Object.keys(response.data).length > 0) {
+                console.log("Raw data:", JSON.stringify(response.data));
+                setPassages(response.data);
               } else {
                   console.error('No matching record found for this Student ID');
               }
@@ -166,31 +192,59 @@ const FetchPassageById = () => {
               console.error('Error fetching passages:', err);
           }
       };
-  
+
       fetchPassages();
-  }, [studentId, navigate]);
+    }, [subjectId, qset, studentId]);
+
+    useEffect(() => {
+      const fetchAudio = async () => {
+        try {
+          const response = await axios.get(`http://localhost:3000/get-student-audio-id/${subjectId}/${qset}/${studentId}/${departmentId}`, { withCredentials: true });
+          if (response.status === 200) {
+            setAudioUrl(response.data.passage1);
+            setAudioBUrl(response.data.passage2);
+          }
+        } catch (err) {
+          console.error('Error fetching audio:', err);
+        }
+      };
+    
+      fetchAudio();
+    }, [subjectId, qset]);
 
     useEffect(() => {
       const sendActivePassageData = async () => {
-          try {              
-              const response = await axios.post('http://localhost:3000/active-passage', {
-                  subjectId: passages.subjectId,
-                  qset: passages.qset,
-                  activePassage
+          try {
+              console.log(subjectId, qset, activePassage, studentId);
+              
+              const response = await axios.post('http://localhost:3000/student-active-passage', {
+                  subjectId,
+                  qset,
+                  activePassage,
+                  studentId,
+                  departmentId
               }, { withCredentials: true });
           
               if (response.status === 200) {
                   console.log("Active passage data sent successfully");
                   setIgnoreList(response.data.ignoreList || []);
                   console.log("Ignore list:", response.data.ignoreList);
+                  console.log("Debug info:", response.data.debug);
+                  
+                  if (response.data.debug?.student_id) {
+                      console.log(`Fetched data for student_id: ${response.data.debug.student_id}`);
+                  }
               }
           } catch (err) {
               console.error('Error sending active passage data:', err);
+              if (err.response) {
+                  console.error('Error debug info:', err.response.data.debug);
+              }
           }
       };
-
+    
       sendActivePassageData();
-    }, [passages.subjectId, passages.qset, activePassage]);
+    }, [subjectId, qset, activePassage, studentId]);
 
     const handlePassageChange = (passage) => {
       setActivePassage(passage);
@@ -200,38 +254,186 @@ const FetchPassageById = () => {
     };
 
     const comparePassages = useCallback(async () => {
-        const modelAnswer = passages[`ansPassage${activePassage}`];
-        const userAnswer = passages[`passage${activePassage}`];
-        
-        if (!modelAnswer || !userAnswer) return;
-
-        try {
-            const response = await axios.post('http://localhost:5000/compare', {
-                text1: modelAnswer,
-                text2: userAnswer,
-                ignore_list: ignoreList,
-                ignore_case: true
-            });
-
-            if (response.status === 200) {
-                const { colored_words, added, missed, spelling, grammar } = response.data;
-                setColoredWords(colored_words);
-                setMistakes({
-                    added,
-                    missed,
-                    spelling,
-                    grammar
-                });
-            }
-        } catch (err) {
-            console.error('Error comparing passages:', err);
+      const modelAnswer = passages[`passage${activePassage}`];
+      const userAnswer = passages[`ansPassage${activePassage}`];
+          
+      if (!modelAnswer || !userAnswer) return;
+    
+      try {
+        // const response = await axios.post('http://localhost:5002/compare', {
+        const response = await axios.post('http://localhost:5002/compare', {
+          text1: modelAnswer,
+          text2: userAnswer,
+          ignore_list: ignoreList,
+          ignore_case: true
+        }, {
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          }
+        });
+    
+        if (response.status === 200) {
+          const { colored_words, added, missed, spelling, grammar } = response.data;
+          setColoredWords(colored_words);
+          setMistakes({
+            added,
+            missed,
+            spelling,
+            grammar
+          });
         }
+      } catch (err) {
+        console.error('Error comparing passages:', err);
+      }
     }, [activePassage, passages, ignoreList]);
 
     useEffect(() => {
         comparePassages();
-    }, [comparePassages]);
+    }, [comparePassages, activePassage, passages]);
 
+    // Fixed useEffect - now properly sets categoryCounts
+    useEffect(() => {
+      const orderedCategories = ['spelling', 'missed', 'added', 'grammar'];
+      const counts = orderedCategories.reduce((counts, category) => {
+        counts[category] = mistakes[category] ? mistakes[category].length : 0;
+        return counts;
+      }, {});
+
+      const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
+
+      let average;
+
+      if (examType === 'SKILL'){
+        average = 80 - (total / 2); // for skilltest
+      }else{
+        average = 50 - (total / 3); // for gcc
+      }
+      if (average < 0) {
+        average = 0;
+      }
+
+      setCategoryCounts({
+        ...counts,
+        total,
+        average: average.toFixed(2) // Rounds to 2 decimal places
+      });
+
+      console.log('=== MISTAKE ANALYSIS ===');
+      console.log('Exam Type:', examType);
+      console.log('Mistake category counts:', counts);
+      console.log('Total mistakes:', total);
+      console.log('Calculated marks:', average.toFixed(2));
+      console.log('\n=== DETAILED MISTAKES BY CATEGORY ===');
+      
+      // Log each category with its mistakes
+      orderedCategories.forEach(category => {
+        if (mistakes[category] && mistakes[category].length > 0) {
+          console.log(`\n${category.toUpperCase()} (Count: ${counts[category]}):`);
+          console.log(mistakes[category]);
+        }
+      });
+      
+      console.log('\n======================\n');
+
+      // Send total mistakes, marks, and individual mistake counts to server
+      // const sendMarksToServer = async () => {
+      //   try {
+      //     const response = await axios.post(`http://localhost:3000/update-student-marks/${subjectId}/${qset}`, {
+      //       total_mistakes: total,
+      //       total_marks: parseFloat(average.toFixed(2)),
+      //       spelling: counts.spelling,
+      //       missed: counts.missed,
+      //       added: counts.added,
+      //       grammar: counts.grammar
+      //     });
+      //     console.log('Server response: ', response.data);
+      //   } catch (error) {
+      //     console.error('Error sending data to server: ', error);
+      //   }
+      // };
+      
+      // sendMarksToServer();
+    }, [mistakes, subjectId, qset, examType]);
+
+    // Improved useEffect to populate wordCorrections when mistakes data changes
+    useEffect(() => {
+      // When spelling mistakes are loaded, update wordCorrections for any words
+      // that are already in the ignoreList
+      if (mistakes.spelling && ignoreList.length > 0) {
+        console.log("Checking for corrections to map to ignored words...");
+        console.log("Current ignore list:", ignoreList);
+        console.log("Current spelling mistakes:", mistakes.spelling);
+        
+        const newCorrections = {};
+        
+        // Check each spelling mistake
+        mistakes.spelling.forEach(word => {
+          if (Array.isArray(word)) {
+            const incorrectWord = word[0].toLowerCase();
+            const correctWord = word[1];
+            
+            // Check if this incorrect word is in our ignore list
+            if (ignoreList.some(ignoredWord => 
+              ignoredWord.toLowerCase() === incorrectWord
+            )) {
+              console.log(`Found correction for ignored word: ${incorrectWord} -> ${correctWord}`);
+              newCorrections[incorrectWord] = correctWord;
+            }
+          }
+        });
+        
+        // Update wordCorrections with any new corrections found
+        if (Object.keys(newCorrections).length > 0) {
+          console.log("Adding new corrections:", newCorrections);
+          setWordCorrections(prev => ({
+            ...prev,
+            ...newCorrections
+          }));
+        } else {
+          console.log("No corrections found for ignored words");
+        }
+      }
+    }, [mistakes.spelling, ignoreList]);
+
+    // Additional useEffect to populate corrections when comparing passages
+    useEffect(() => {
+      // This useEffect will run after comparePassages completes and mistakes are updated
+      const populateCorrectionsForIgnoreList = () => {
+        if (!mistakes.spelling || !ignoreList.length) return;
+        
+        console.log("Populating corrections after passage comparison");
+        
+        // Create a map of incorrect->correct words from spelling mistakes
+        const correctionMap = {};
+        mistakes.spelling.forEach(word => {
+          if (Array.isArray(word)) {
+            correctionMap[word[0].toLowerCase()] = word[1];
+          }
+        });
+        
+        // Check each ignored word to see if it has a correction
+        const newCorrections = {};
+        ignoreList.forEach(word => {
+          const lowerWord = word.toLowerCase();
+          if (correctionMap[lowerWord]) {
+            newCorrections[lowerWord] = correctionMap[lowerWord];
+          }
+        });
+        
+        // Update the corrections state
+        if (Object.keys(newCorrections).length > 0) {
+          console.log("Adding corrections after comparison:", newCorrections);
+          setWordCorrections(prev => ({
+            ...prev,
+            ...newCorrections
+          }));
+        }
+      };
+      
+      populateCorrectionsForIgnoreList();
+    }, [mistakes, ignoreList]);
+    
     const handleWordHover = useCallback((word) => {
       if (word) {
         const actualWord = word.split('(')[0].trim();
@@ -241,93 +443,270 @@ const FetchPassageById = () => {
       }
     }, []);
 
+    // Update the handleAddIgnoreWord function
     const handleAddIgnoreWord = useCallback(async (word) => {
       try {
-        const response = await axios.post('http://localhost:3000/add-ignore-word', {
-          subjectId: passages.subjectId,
-          qset: passages.qset,
+        // Check if this word is from a spelling mistake (might have a correction)
+        let correctionWord = null;
+        
+        // Check if this word is in the spelling mistakes and has a correction
+        if (mistakes.spelling) {
+          const spellingMistake = mistakes.spelling.find(mistakeWord => 
+            Array.isArray(mistakeWord) && mistakeWord[0].toLowerCase() === word.toLowerCase()
+          );
+          
+          if (spellingMistake && Array.isArray(spellingMistake)) {
+            // Store the correction in our local mapping
+            setWordCorrections(prev => ({
+              ...prev,
+              [word.toLowerCase()]: spellingMistake[1]
+            }));
+            correctionWord = spellingMistake[1];
+            console.log(`Stored correction for ${word}: ${correctionWord}`);
+          }
+        }
+
+        // Still send only the incorrect word to the backend
+        const response = await axios.post('http://localhost:3000/student-add-ignore-word', {
+          subjectId,
+          qset,
           activePassage,
-          newWord: word
+          newWord: word,
+          studentId,
+          departmentId
         }, { withCredentials: true });
-    
+
         if (response.status === 200) {
-          setIgnoreList(prevList => [...prevList, word.toLowerCase()]);
+          setIgnoreList(response.data.ignoreList);
           toast.success(`Word "${word}" added to ignore list`);
+          console.log("Debug info:", response.data.debug);
         }
       } catch (err) {
         console.error('Error adding word to ignore list:', err);
         toast.error(`Failed to add "${word}" to ignore list`);
       }
-    }, [passages.subjectId, passages.qset, activePassage]);
+    }, [subjectId, qset, activePassage, studentId, mistakes]);
     
     const handleUndoWord = useCallback(async (wordToRemove) => {
       try {
-        const response = await axios.post('http://localhost:3000/undo-word', {
-          subjectId: passages.subjectId,
-          qset: passages.qset,
+        const response = await axios.post('http://localhost:3000/student-undo-word', {
+          subjectId,
+          qset,
           activePassage,
-          wordToRemove
+          wordToRemove, 
+          studentId,
+          departmentId
         }, { withCredentials: true });
     
         if (response.status === 200) {
-          setIgnoreList(prevList => prevList.filter(w => w.toLowerCase() !== wordToRemove.toLowerCase()));
+          setIgnoreList(response.data.ignoreList);
           toast.success(`Word "${wordToRemove}" removed from ignore list`);
           comparePassages();
+          console.log("Debug info:", response.data.debug);
         }
       } catch (err) {
         console.error('Error removing word from ignore list:', err);
         toast.error('Failed to remove word from ignore list');
       }
-    }, [passages.subjectId, passages.qset, activePassage, comparePassages]);
+    }, [subjectId, qset, activePassage, comparePassages, studentId]);
 
+    const handleClearIgnoreList = useCallback(async () => {
+      try {
+        const response = await axios.post('http://localhost:3000/student-clear-ignore-list', {
+          subjectId,
+          qset,
+          activePassage,
+          studentId,
+          departmentId
+        }, { withCredentials: true });
+    
+        if (response.status === 200) {
+          setIgnoreList([]);
+          setWordCorrections({}); // Clear corrections when clearing ignore list
+          toast.success('Ignore list cleared successfully');
+          comparePassages();
+          console.log("Debug info:", response.data.debug);
+        }
+      } catch (err) {
+        console.error('Error clearing ignore list:', err);
+        toast.error('Failed to clear ignore list');
+      }
+    }, [subjectId, qset, activePassage, comparePassages]);
+
+    // Updated IgnoredList component with better debugging
     const IgnoredList = ({ ignoreList, fontSize, onUndoIgnore }) => {
+      console.log("Rendering IgnoredList with:", { 
+        ignoreList, 
+        wordCorrections: Object.keys(wordCorrections).map(key => `${key}:${wordCorrections[key]}`)
+      });
+      
       return (
         <div className="ignored-list" style={{ fontSize: `${fontSize}px`, marginLeft: '1rem' }}>
-          {ignoreList.map((word, index) => (
-            <div key={index} className="ignored-item" style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
-              <button 
-                className="action-button undo-button" 
-                title="Remove from Ignore List"
-                onClick={() => onUndoIgnore(word)}
-                style={{ fontSize: `${fontSize * 0.8}px`, marginRight: '5px' }}
-              >
-                <FontAwesomeIcon icon={faUndo} />
-              </button>
-              <span className="ignored-word">{word}</span>
+          {ignoreList.map((word, index) => {
+            // Check if we have a correction for this word (try both original case and lowercase)
+            const correction = wordCorrections[word] || wordCorrections[word.toLowerCase()];
+            
+            // For debugging
+            if (correction) {
+              console.log(`Found correction for ${word}: ${correction}`);
+            }
+            
+            const displayWord = correction ? `${word} (${correction})` : word;
+            
+            return (
+              <div key={index} className="ignored-item" style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
+                <button
+                  className="action-button undo-button"
+                  title="Remove from Ignore List"
+                  onClick={() => onUndoIgnore(word)}
+                  style={{ fontSize: `${fontSize * 0.8}px`, marginRight: '5px' }}
+                >
+                  <FontAwesomeIcon icon={faUndo} />
+                </button>
+                <span className="ignored-word">{displayWord}</span>
+              </div>
+            );
+          })}
+        </div>
+      );
+    };
+
+    const AudioPlayer = ({ audioUrl }) => {
+      const audioRef = React.useRef(null);
+      const progressBarRef = React.useRef(null);
+      const [isPlaying, setIsPlaying] = React.useState(false);
+      const [progress, setProgress] = React.useState(0);
+      const [hoverPosition, setHoverPosition] = React.useState(null);
+    
+      const togglePlayPause = () => {
+        if (audioRef.current) {
+          if (audioRef.current.paused) {
+            audioRef.current.play();
+            setIsPlaying(true);
+          } else {
+            audioRef.current.pause();
+            setIsPlaying(false);
+          }
+        }
+      };
+    
+      const handleTimeUpdate = () => {
+        if (audioRef.current) {
+          const duration = audioRef.current.duration;
+          const currentTime = audioRef.current.currentTime;
+          const progressPercent = (currentTime / duration) * 100;
+          setProgress(progressPercent);
+        }
+      };
+    
+      const handleProgressBarClick = (event) => {
+        if (audioRef.current && progressBarRef.current) {
+          const progressBar = progressBarRef.current;
+          const clickPosition = event.clientX - progressBar.getBoundingClientRect().left;
+          const progressBarWidth = progressBar.offsetWidth;
+          const clickPercentage = (clickPosition / progressBarWidth) * 100;
+          const newTime = (clickPercentage / 100) * audioRef.current.duration;
+          
+          audioRef.current.currentTime = newTime;
+          setProgress(clickPercentage);
+    
+          if (!isPlaying) {
+            audioRef.current.play();
+            setIsPlaying(true);
+          }
+        }
+      };
+    
+      const handleMouseMove = (event) => {
+        if (progressBarRef.current) {
+          const progressBar = progressBarRef.current;
+          const mousePosition = event.clientX - progressBar.getBoundingClientRect().left;
+          const progressBarWidth = progressBar.offsetWidth;
+          const hoverPercentage = (mousePosition / progressBarWidth) * 100;
+          setHoverPosition(hoverPercentage);
+        }
+      };
+    
+      const handleMouseLeave = () => {
+        setHoverPosition(null);
+      };
+    
+      React.useEffect(() => {
+        const audioElement = audioRef.current;
+        if (audioElement) {
+          audioElement.addEventListener('timeupdate', handleTimeUpdate);
+        }
+        return () => {
+          if (audioElement) {
+            audioElement.removeEventListener('timeupdate', handleTimeUpdate);
+          }
+        };
+      }, []);
+    
+      return (
+        <div className="audio-player">
+          <audio ref={audioRef} src={audioUrl} />
+          <button onClick={togglePlayPause}>
+            {isPlaying ? '❚❚' : '▶'}
+          </button>
+          <div 
+            className="progress-bar-container" 
+            ref={progressBarRef}
+            onClick={handleProgressBarClick}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+          >
+            <div className="progress-bar">
+              <div className="progress" style={{ width: `${progress}%` }}></div>
+              {hoverPosition !== null && (
+                <div className="playhead" style={{ left: `${hoverPosition}%` }}></div>
+              )}
             </div>
-          ))}
+          </div>
         </div>
       );
     };
 
     return (
       <div className="final-passage-container">
-          <div className="passage-buttons-container">
-              <div className="passage-buttons">
-                  <button 
-                      className={`passage-button ${activePassage === 'A' ? 'active' : ''}`}
-                      onClick={() => handlePassageChange('A')}
-                  >
-                      Passage A
-                  </button>
-                  <button 
-                      className={`passage-button ${activePassage === 'B' ? 'active' : ''}`}
-                      onClick={() => handlePassageChange('B')}
-                  >
-                      Passage B
-                  </button>
-              </div>
-                  <button 
-                      className="submit-button" 
-                      onClick={handleSubmit} 
-                      disabled={!passageBViewed}
-                  >
-                      Submit
-                  </button>
-                  {!passageBViewed && (
-                      <span className="submit-tooltip">Please view Passage B before submitting</span>
-                  )}
-              </div>
+        <div className="passage-buttons-container">
+          <div className="passage-buttons">
+            <button 
+              className={`passage-button ${activePassage === 'A' ? 'active' : ''}`}
+              onClick={() => handlePassageChange('A')}
+            >
+              Passage A
+            </button>
+            {!isSkillExam && (
+              <button 
+                className={`passage-button ${activePassage === 'B' ? 'active' : ''}`}
+                onClick={() => handlePassageChange('B')}
+                disabled={!hasPassageB}
+                title={!hasPassageB ? 'No data available for Passage B.' : ''}
+              >
+                Passage B
+              </button>
+            )}
+          </div>
+          <button 
+            className="submit-button" 
+            onClick={handleSubmit} 
+            disabled={!passageBViewed}
+          >
+            Submit
+          </button>
+          {!passageBViewed && hasPassageB && !isSkillExam && (
+            <span className="submit-tooltip">Please view Passage B before submitting</span>
+          )}
+          <div className="mistake-counts">
+            <span className="mistake-count spelling">Spelling: {categoryCounts.spelling}</span>
+            <span className="mistake-count missed">Added: {categoryCounts.missed}</span>
+            <span className="mistake-count added">Omitted: {categoryCounts.added}</span>
+            <span className="mistake-count grammar">Grammar: {categoryCounts.grammar}</span>
+            <span className="mistake-count total">Total: {categoryCounts.total}</span>
+            <span className="mistake-count average">Marks: {categoryCounts.average}</span>
+          </div>
+        </div>
           <div className="grid-item">
               <h2 className="column-header">
                 {isSwapped ? 'User Answer' : 'Model Answer'}
@@ -340,6 +719,7 @@ const FetchPassageById = () => {
                 <button onClick={() => handleZoom('modelAnswer', 'in')}><FontAwesomeIcon icon={faSearchPlus} /></button>
                 <button onClick={() => handleZoom('modelAnswer', 'out')}><FontAwesomeIcon icon={faSearchMinus} /></button>
               </div>
+              <AudioPlayer audioUrl={activePassage === 'A' ? audioUrl : audioBUrl} />
           </div>
           <div className="grid-item">
               <h2 className="column-header">Difference Passage</h2>
@@ -366,15 +746,26 @@ const FetchPassageById = () => {
                 />
               </div>
               <div className="ignored-container">
-                <h5 style={{color: 'red'}}>Ignored List</h5>
+                <h5 style={{color: 'red', display: 'flex', alignItems: 'center'}}>
+                  Ignored List
+                <button 
+                  className="dustbin-button" 
+                  onClick={handleClearIgnoreList}
+                  style={{marginLeft: '0.5rem', background: 'none', border: 'none', cursor: 'pointer'}}
+                >
+                  <FontAwesomeIcon icon={faTrash} />
+                </button>
+                </h5>
                 <IgnoredList 
                   ignoreList={ignoreList}
                   fontSize={fontSizes.mistakes}
                   onUndoIgnore={handleUndoWord}
+                  isVisible={isIgnoreListVisible}
                 />
               </div>
             </div>
             <div className="zoom-buttons">
+              <button onClick={handleToggleIgnoreList}><FontAwesomeIcon icon={isIgnoreListVisible ? faToggleOn : faToggleOff} /></button>
               <button onClick={() => handleZoom('mistakes', 'in')}><FontAwesomeIcon icon={faSearchPlus} /></button>
               <button onClick={() => handleZoom('mistakes', 'out')}><FontAwesomeIcon icon={faSearchMinus} /></button>
             </div>

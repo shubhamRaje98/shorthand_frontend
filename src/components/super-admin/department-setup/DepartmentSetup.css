@@ -1,0 +1,84 @@
+/* src/components/super-admin/department-setup/DepartmentSetup.css
+.step-card {
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.step-card:hover {
+  border-color: #007bff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.step-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  margin: 0 auto;
+}
+
+.stat-card {
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+}
+
+.stat-card h5 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #007bff;
+}
+
+.stat-card small {
+  color: #6c757d;
+  font-weight: 500;
+} */
+
+
+/* src/components/super-admin/department-setup/DepartmentSetup.css */
+.step-card {
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.step-card:hover {
+  border-color: #007bff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.step-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  margin: 0 auto;
+}
+
+.stat-card {
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+}
+
+.stat-card h5 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #007bff;
+}
+
+.stat-card small {
+  color: #6c757d;
+  font-weight: 500;
+}

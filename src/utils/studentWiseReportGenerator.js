@@ -1,0 +1,281 @@
+// src/utils/studentWiseReportGenerator.js
+import ExcelJS from 'exceljs';
+
+/**
+ * Generate and download student-wise complete result Excel report
+ * This report includes all evaluation details for each student including passage-wise breakdown
+ * @param {Array} data - Array of student records with calculated results
+ * @returns {Promise<Object>} Result object with success status and message
+ */
+export const generateStudentWiseReportExcel = async (data) => {
+  console.log('generateStudentWiseReportExcel called with:', {
+    dataCount: data?.length
+  });
+  
+  try {
+    // Filter data to only include records with calculated results
+    const processedData = data.filter(row => row.result && row.marks !== undefined);
+
+    if (processedData.length === 0) {
+      return {
+        success: false,
+        message: 'No calculated results available. Please calculate results first before downloading the report.'
+      };
+    }
+
+    // Create a new workbook and worksheet
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Student-wise Results', {
+      properties: { defaultRowHeight: 20 }
+    });
+
+    // Define column headers with proper widths
+    worksheet.columns = [
+      { header: 'ID', key: 'id', width: 8 },
+      { header: 'Student ID', key: 'student_id', width: 15 },
+      { header: 'Subject ID', key: 'subjectId', width: 12 },
+      { header: 'Exam Type', key: 'examType', width: 12 },
+      { header: 'Q Set', key: 'qset', width: 10 },
+      { header: 'Department ID', key: 'departmentId', width: 14 },
+      { header: 'Expert ID', key: 'expertId', width: 12 },
+      { header: 'Submission Status', key: 'subm_done', width: 16 },
+      { header: 'Ignored Words A', key: 'ignoredA', width: 25 },
+      { header: 'Ignored Words B', key: 'ignoredB', width: 25 },
+      { header: 'Spelling Words A', key: 'spellingWordsA', width: 35 },
+      { header: 'Extra Added Words A', key: 'missedWordsA', width: 30 },
+      { header: 'Omitted Words A', key: 'addedWordsA', width: 30 },
+      { header: 'Grammar Words A', key: 'grammarWordsA', width: 30 },
+      { header: 'Spelling Words B', key: 'spellingWordsB', width: 35 },
+      { header: 'Extra Added Words B', key: 'missedWordsB', width: 30 },
+      { header: 'Omitted Words B', key: 'addedWordsB', width: 30 },
+      { header: 'Grammar Words B', key: 'grammarWordsB', width: 30 },
+      { header: 'Spelling Count A', key: 'spellingA', width: 14 },
+      { header: 'Extra Added Count A', key: 'missedA', width: 14 },
+      { header: 'Omitted Count A', key: 'addedA', width: 14 },
+      { header: 'Grammar Count A', key: 'grammarA', width: 14 },
+      { header: 'Total Mistakes A', key: 'totalA', width: 16 },
+      { header: 'Marks A', key: 'marksA', width: 12 },
+      { header: 'Spelling Count B', key: 'spellingB', width: 14 },
+      { header: 'Extra Added Count B', key: 'missedB', width: 14 },
+      { header: 'Omitted Count B', key: 'addedB', width: 14 },
+      { header: 'Grammar Count B', key: 'grammarB', width: 14 },
+      { header: 'Total Mistakes B', key: 'totalB', width: 16 },
+      { header: 'Marks B', key: 'marksB', width: 12 },
+      { header: 'Total Spelling', key: 'spelling', width: 14 },
+      { header: 'Total Extra Added', key: 'missed', width: 14 },
+      { header: 'Total Omitted', key: 'added', width: 14 },
+      { header: 'Total Grammar', key: 'grammar', width: 14 },
+      { header: 'Total Mistakes', key: 'total', width: 14 },
+      { header: 'Total Marks', key: 'marks', width: 12 },
+      { header: 'Rounded A', key: 'roundedA', width: 12 },
+      { header: 'Rounded B', key: 'roundedB', width: 12 },
+      { header: 'Grace Marks A', key: 'graceMarksA', width: 14 },
+      { header: 'Grace Marks B', key: 'graceMarksB', width: 14 },
+      { header: 'Total Grace', key: 'totalGrace', width: 12 },
+      { header: 'Rounded Grace Marks A', key: 'roundedGraceA', width: 20 },
+      { header: 'Rounded Grace Marks B', key: 'roundedGraceB', width: 20 },
+      { header: 'Final Marks', key: 'finalMarks', width: 12 },
+      { header: 'Result', key: 'result', width: 10 },
+      { header: 'Grade', key: 'grade', width: 10 }
+    ];
+
+    // Style the header row
+    const headerRow = worksheet.getRow(1);
+    headerRow.font = { bold: true, size: 11, color: { argb: 'FFFFFFFF' } };
+    headerRow.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF0066CC' }
+    };
+    headerRow.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+    headerRow.height = 25;
+
+    // Add borders to header
+    headerRow.eachCell({ includeEmpty: true }, (cell) => {
+      cell.border = {
+        top: { style: 'thin', color: { argb: 'FF000000' } },
+        left: { style: 'thin', color: { argb: 'FF000000' } },
+        bottom: { style: 'thin', color: { argb: 'FF000000' } },
+        right: { style: 'thin', color: { argb: 'FF000000' } }
+      };
+    });
+
+    // Helper function to format spelling mistakes as (incorrect, correct) pairs
+    const formatSpellingMistakes = (mistakes) => {
+      if (!mistakes || !Array.isArray(mistakes) || mistakes.length === 0) return '';
+      return mistakes.map(pair => `(${pair[0]}, ${pair[1]})`).join(', ');
+    };
+
+    // Helper function to format other mistakes as comma-separated list
+    const formatMistakesList = (mistakes) => {
+      if (!mistakes || !Array.isArray(mistakes) || mistakes.length === 0) return '';
+      return mistakes.join(', ');
+    };
+
+    // Add data rows
+    processedData.forEach((row, index) => {
+      // SKILL exams have only Passage A and no grace marks / grade letter.
+      // Render 'N/A' in all Passage B + grace + grade columns to keep layout
+      // consistent with GCC rows.
+      const isSkill = row.examType === 'SKILL';
+      const naIfSkill = (value) => (isSkill ? 'N/A' : value);
+
+      const dataRow = worksheet.addRow({
+        id: row.id || '',
+        student_id: row.student_id || '',
+        subjectId: row.subjectId || '',
+        examType: row.examType || '',
+        qset: row.qset || '',
+        departmentId: row.departmentId || '',
+        expertId: row.expertId || '',
+        subm_done: row.subm_done === 1 ? 'Yes' : row.subm_done === 0 ? 'No' : '',
+        ignoredA: row.QPA || '',
+        ignoredB: naIfSkill(row.QPB || ''),
+        spellingWordsA: row.mistakesA?.spelling ? formatSpellingMistakes(row.mistakesA.spelling) : '',
+        missedWordsA: row.mistakesA?.missed ? formatMistakesList(row.mistakesA.missed) : '',
+        addedWordsA: row.mistakesA?.added ? formatMistakesList(row.mistakesA.added) : '',
+        grammarWordsA: row.mistakesA?.grammar ? formatMistakesList(row.mistakesA.grammar) : '',
+        spellingWordsB: naIfSkill(row.mistakesB?.spelling ? formatSpellingMistakes(row.mistakesB.spelling) : ''),
+        missedWordsB: naIfSkill(row.mistakesB?.missed ? formatMistakesList(row.mistakesB.missed) : ''),
+        addedWordsB: naIfSkill(row.mistakesB?.added ? formatMistakesList(row.mistakesB.added) : ''),
+        grammarWordsB: naIfSkill(row.mistakesB?.grammar ? formatMistakesList(row.mistakesB.grammar) : ''),
+        spellingA: row.spellingA !== undefined ? row.spellingA : '',
+        missedA: row.missedA !== undefined ? row.missedA : '',
+        addedA: row.addedA !== undefined ? row.addedA : '',
+        grammarA: row.grammarA !== undefined ? row.grammarA : '',
+        totalA: row.totalA !== undefined ? row.totalA : '',
+        marksA: row.marksA !== undefined && row.marksA !== null ? row.marksA : '',
+        spellingB: naIfSkill(row.spellingB !== undefined && row.spellingB !== null ? row.spellingB : ''),
+        missedB: naIfSkill(row.missedB !== undefined && row.missedB !== null ? row.missedB : ''),
+        addedB: naIfSkill(row.addedB !== undefined && row.addedB !== null ? row.addedB : ''),
+        grammarB: naIfSkill(row.grammarB !== undefined && row.grammarB !== null ? row.grammarB : ''),
+        totalB: naIfSkill(row.totalB !== undefined && row.totalB !== null ? row.totalB : ''),
+        marksB: naIfSkill(row.marksB !== undefined && row.marksB !== null ? row.marksB : ''),
+        spelling: row.spelling !== undefined ? row.spelling : '',
+        missed: row.missed !== undefined ? row.missed : '',
+        added: row.added !== undefined ? row.added : '',
+        grammar: row.grammar !== undefined ? row.grammar : '',
+        total: row.total !== undefined ? row.total : '',
+        marks: row.marks || '',
+        roundedA: row.roundedA !== undefined && row.roundedA !== null ? row.roundedA : '',
+        roundedB: naIfSkill(row.roundedB !== undefined && row.roundedB !== null ? row.roundedB : ''),
+        graceMarksA: naIfSkill(row.graceMarksA !== undefined ? row.graceMarksA : 0),
+        graceMarksB: naIfSkill(row.graceMarksB !== undefined ? row.graceMarksB : 0),
+        totalGrace: naIfSkill(row.totalGrace !== undefined ? row.totalGrace : 0),
+        roundedGraceA: naIfSkill(row.roundedGraceA !== undefined && row.roundedGraceA !== null ? row.roundedGraceA : ''),
+        roundedGraceB: naIfSkill(row.roundedGraceB !== undefined && row.roundedGraceB !== null ? row.roundedGraceB : ''),
+        finalMarks: row.finalMarks !== undefined ? row.finalMarks : row.marks || '',
+        result: row.result || '',
+        grade: naIfSkill(row.grade || '')
+      });
+
+      // Apply alternating row colors for better readability
+      const fillColor = index % 2 === 0 ? 'FFF5F5F5' : 'FFFFFFFF';
+      dataRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: fillColor }
+        };
+
+        // Add borders
+        cell.border = {
+          top: { style: 'thin', color: { argb: 'FFD3D3D3' } },
+          left: { style: 'thin', color: { argb: 'FFD3D3D3' } },
+          bottom: { style: 'thin', color: { argb: 'FFD3D3D3' } },
+          right: { style: 'thin', color: { argb: 'FFD3D3D3' } }
+        };
+
+        // Align text
+        cell.alignment = { 
+          vertical: 'middle', 
+          horizontal: 'center',
+          wrapText: false
+        };
+
+        // Highlight result column
+        if (colNumber === 45) { // Result column
+          cell.font = { bold: true };
+          if (cell.value === 'PASS') {
+            cell.font.color = { argb: 'FF008000' };
+          } else if (cell.value === 'FAIL') {
+            cell.font.color = { argb: 'FFFF0000' };
+          }
+        }
+
+        // Highlight grade column
+        if (colNumber === 46) { // Grade column
+          cell.font = { bold: true };
+          if (cell.value === 'A') {
+            cell.fill = {
+              type: 'pattern',
+              pattern: 'solid',
+              fgColor: { argb: 'FF90EE90' }
+            };
+          } else if (cell.value === 'B') {
+            cell.fill = {
+              type: 'pattern',
+              pattern: 'solid',
+              fgColor: { argb: 'FFFFFFE0' }
+            };
+          } else if (cell.value === 'C') {
+            cell.fill = {
+              type: 'pattern',
+              pattern: 'solid',
+              fgColor: { argb: 'FFFFA500' }
+            };
+          }
+        }
+      });
+    });
+
+    // Freeze the header row
+    worksheet.views = [
+      { state: 'frozen', xSplit: 0, ySplit: 1 }
+    ];
+
+    // Add auto-filter to header row
+    worksheet.autoFilter = {
+      from: { row: 1, column: 1 },
+      to: { row: 1, column: 46 }
+    };
+
+    // Generate filename with date
+    const dateStr = new Date().toISOString().split('T')[0];
+    const filename = `Student_Wise_Complete_Report_${dateStr}.xlsx`;
+
+    // Write to buffer and trigger download
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { 
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+    });
+
+    // Create download link
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    return {
+      success: true,
+      message: `Student-wise complete report downloaded: ${filename}`,
+      filename,
+      recordCount: processedData.length
+    };
+  } catch (error) {
+    console.error('Error generating student-wise report:', error);
+    return {
+      success: false,
+      message: `Error generating report: ${error.message}`
+    };
+  }
+};
+
+// Export as default
+export default {
+  generateStudentWiseReportExcel
+};

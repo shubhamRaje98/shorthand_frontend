@@ -172,12 +172,26 @@ const FetchUpdateTable = () => {
     setCurrentPage(pageNumber);
   };
 
-  const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, selectedTable);
-    XLSX.writeFile(workbook, `${selectedTable}_export.xlsx`);
-  };
+const exportToExcel = () => {
+  // Create a copy of data with truncated text
+  const truncatedData = data.map(row => {
+    const newRow = {};
+    Object.keys(row).forEach(key => {
+      const value = row[key];
+      if (typeof value === 'string' && value.length > 32000) {
+        newRow[key] = value.substring(0, 32000) + '... [TRUNCATED]';
+      } else {
+        newRow[key] = value;
+      }
+    });
+    return newRow;
+  });
+
+  const worksheet = XLSX.utils.json_to_sheet(truncatedData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, selectedTable);
+  XLSX.writeFile(workbook, `${selectedTable}_export.xlsx`);
+};
 
   const totalPages = Math.ceil(data.length / itemsPerPage);
   const currentData = data.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);

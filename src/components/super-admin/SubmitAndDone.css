@@ -1,0 +1,161 @@
+.submit-container {
+  padding: 20px;
+  background-color: #f5f7fa;
+  font-family: Arial, sans-serif;
+}
+
+.filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  align-items: flex-end;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.filters select {
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  min-width: 200px;
+}
+
+.button-group {
+  display: flex;
+  margin-left: 10px;
+}
+
+.filters button {
+  padding: 8px 15px;
+  font-size: 14px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.fetch-button {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.reset-button {
+  background-color: #f44336;
+  color: white;
+}
+
+.filters button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.message {
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #333;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.message.success {
+  background-color: #dff0d8;
+  border: 1px solid #d6e9c6;
+  color: #3c763d;
+}
+
+.message.error {
+  background-color: #f2dede;
+  border: 1px solid #ebccd1;
+  color: #a94442;
+}
+
+.log-table {
+  overflow-x: auto;
+  margin-top: 20px;
+}
+
+.log-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.log-table th,
+.log-table td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+  font-size: 14px;
+}
+
+.log-table th {
+  background-color: #eaeaea;
+}
+
+.no-logs {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-style: italic;
+}
+
+/* Custom styles for the SubmitAndDone component using Bootstrap */
+
+/* General container spacing */
+.my-4 {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Card and shadow styling */
+.card.shadow {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Form control enhancements */
+.form-select:focus,
+.form-control:focus {
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Button enhancements */
+.btn-danger {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+.btn-danger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.4);
+}
+
+.btn-danger:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Table enhancements */
+.table-responsive {
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.table th,
+.table td {
+  vertical-align: middle;
+}
+
+.table thead th {
+  background-color: #f8f9fa; /* Light gray header */
+  font-weight: 600;
+}
+
+.table tbody tr:hover {
+  background-color: #f1f1f1; /* Subtle row hover effect */
+}

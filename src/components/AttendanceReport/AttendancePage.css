@@ -1,0 +1,144 @@
+.ap-attendance-page {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+.ap-main-title {
+    color: #333;
+    text-align: center;
+}
+
+.ap-attendance-upload-form {
+    background-color: #f5f5f5;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.ap-form-title {
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.ap-form-group {
+    margin-bottom: 15px;
+}
+
+.ap-form-label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.ap-form-input,
+.ap-form-select,
+.ap-form-file-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.ap-submit-button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.ap-submit-button:hover {
+    background-color: #0056b3;
+}
+
+.ap-attendance-report-list {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.ap-list-title {
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.ap-no-reports {
+    color: #666;
+    font-style: italic;
+}
+
+.ap-report-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.ap-table-header {
+    background-color: #f2f2f2;
+    font-weight: bold;
+    text-align: left;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+}
+
+.ap-table-row:nth-child(even) {
+    background-color: #f8f8f8;
+}
+
+.ap-table-cell {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+}
+
+.ap-pdf-link {
+    background-color: #007bff;
+    padding : 10px 20px;
+    color: white;
+    text-decoration: none;
+}
+.pdf-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    
+}
+.ap-pdf-link:hover {
+    text-decoration: underline;
+}
+.ap-error-message {
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 15px;
+}
+
+.ap-submit-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.ap-error-message {
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 15px;
+}
+
+.ap-submit-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.ap-loading {
+    text-align: center;
+    font-size: 18px;
+    margin-top: 20px;
+}
